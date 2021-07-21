@@ -1,0 +1,3 @@
+rootProject.name = 'continuum-grind'
+
+includeBuild '../continuum-core'

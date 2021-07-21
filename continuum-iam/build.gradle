@@ -1,0 +1,88 @@
+plugins {
+    id 'org.springframework.boot' version '2.4.6'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'groovy'
+    id 'application'
+}
+
+group = 'com.kinotic'
+version = '1.0-SNAPSHOT'
+sourceCompatibility = '15'
+
+mainClassName = "com.kinotic.continuum.iam.ContinuumIamApplication"
+
+repositories {
+    mavenCentral()
+}
+
+dependencyManagement {
+    dependencies {
+        // TODO: figure out how to make this come from the base continuum-vertx-core
+        dependency 'com.h2database:h2:1.4.197' // Tied to Ignite version. We make sure this is correct for ignite expectations
+    }
+}
+
+ext {
+    set('groovy.version', '3.0.6')
+    continuumVersion='1.0-SNAPSHOT'
+    lombokVersion = '1.18.12'
+}
+
+dependencies {
+    implementation 'org.codehaus.groovy:groovy'
+    implementation 'org.springframework.boot:spring-boot-starter'
+
+    // spring data dependencies
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-hibernate5'
+
+    runtimeOnly 'org.postgresql:postgresql'
+
+    implementation 'org.springframework.security:spring-security-core'
+
+    // Continuum Dependencies
+    implementation "com.kinotic:continuum-core:${continuumVersion}"
+    implementation "com.kinotic:continuum-core-vertx:${continuumVersion}"
+
+    //Misc
+    implementation "org.apache.commons:commons-lang3"
+
+    implementation "ch.qos.logback:logback-core"
+    implementation "ch.qos.logback:logback-classic"
+
+
+    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
+
+    compileOnly "org.projectlombok:lombok:${lombokVersion}"
+    annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+
+    testCompileOnly "org.projectlombok:lombok:${lombokVersion}"
+    testAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+
+    testImplementation 'com.h2database:h2'
+
+    testImplementation('org.springframework.boot:spring-boot-starter-test')
+    testImplementation 'io.projectreactor:reactor-test'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+/**
+ * Default Environment Vars
+ * The following should be configured on launch as well
+ * 		"--spring.profiles.active=production"
+ */
+// These properties
+applicationDefaultJvmArgs = [
+        "-Djava.awt.headless=true",
+        "-Djava.net.preferIPv4Stack=true",
+        "-Dvertx.disableDnsResolver=true", // done because of this issue.. https://github.com/eclipse/vert.x/issues/1753 http://stackoverflow.com/questions/42110790/vertx-httpclient-getnow-not-working
+        "-server",
+        "-XX:+AlwaysPreTouch",
+        "-XX:+UseG1GC",
+        "-XX:+ScavengeBeforeFullGC",
+        "-XX:+DisableExplicitGC"
+]
+

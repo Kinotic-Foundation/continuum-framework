@@ -1,0 +1,9 @@
+  # YAML Reference http://www.yaml.org/refcard.html
+  continuum:
+    debug: true
+
+  # h2 mem db
+  continuum-iam:
+    jdbcDriverClassName: org.h2.Driver
+    jdbcUrl: jdbc:h2:mem:continuum-iam
+    secret: asdfasdfa0234amsmfalk24&asdf{}asf34as21

@@ -1,0 +1,17 @@
+
+
+  logging:
+    level:
+      com:
+        kinotic: DEBUG
+
+
+
+  elastic:
+    hosts: localhost:9200
+    useSSL: false
+    user:
+    password:
+
+  structures:
+    prefix:

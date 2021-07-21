@@ -1,0 +1,4 @@
+# General properties shared by all profiles
+  continuum:
+    discovery: zookeeper
+    debug: true

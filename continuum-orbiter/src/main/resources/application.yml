@@ -1,0 +1,6 @@
+  # General properties shared by all profiles
+  elastic:
+    hosts: 192.168.1.101:9200
+    useSSL: false
+    user:
+    password:

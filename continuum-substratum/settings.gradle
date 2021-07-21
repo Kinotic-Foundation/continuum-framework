@@ -1,0 +1,6 @@
+rootProject.name = 'continuum-substratum'
+
+includeBuild '../aws-util'
+includeBuild '../continuum-core'
+includeBuild '../continuum-core-vertx'
+includeBuild '../continuum-grind'

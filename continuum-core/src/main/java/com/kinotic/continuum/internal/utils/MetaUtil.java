@@ -1,0 +1,161 @@
+/*
+ *
+ * Copyright 2008-2021 Kinotic and the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.kinotic.continuum.internal.utils;
+
+import com.kinotic.continuum.core.api.CRI;
+import com.kinotic.continuum.core.api.Scheme;
+import com.kinotic.continuum.api.annotations.Proxy;
+import com.kinotic.continuum.api.annotations.Scope;
+import org.apache.commons.lang3.Validate;
+import org.apache.commons.lang3.reflect.FieldUtils;
+import org.springframework.core.BridgeMethodResolver;
+import org.springframework.core.MethodParameter;
+import org.springframework.core.annotation.AnnotationUtils;
+import org.springframework.util.Assert;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Created by Navid Mitchell on 7/22/17.
+ */
+public class MetaUtil {
+
+    /**
+     * Tries to get a valid {@link Scope} from the instance provided
+     * NOTE: If more than one {@link Scope} method or field are provided the first that is found will be returned
+     *       methods are searched then fields.
+     * @param instance to search for a {@link Scope}
+     * @return the value of the {@link Scope} if found
+     */
+    public static String getScopeIfAvailable(Object instance)throws IllegalAccessException, IllegalArgumentException, InvocationTargetException{
+        return getScopeIfAvailable(instance, instance.getClass());
+    }
+
+    /**
+     * Tries to get a valid {@link Scope} from the instance provided for the class given
+     * NOTE: If more than one {@link Scope} method or field are provided the first that is found will be returned
+     *       methods are searched then fields.
+     * @param instance to search for a {@link Scope}
+     * @param clazz to use when introspecting the object for {@link Scope}'s
+     * @return the value of the {@link Scope} if found or empty string
+     */
+    public static String getScopeIfAvailable(Object instance, Class<?> clazz)throws IllegalAccessException, IllegalArgumentException, InvocationTargetException{
+        Validate.isInstanceOf(clazz, instance, "The instance provided must be an instanceOf the class provided");
+
+        String id = "";
+        // First check methods
+        for(Method method : clazz.getMethods()){
+            if(id.isEmpty()) {
+                id = MetaUtil.getScopeIfAvailable(method, instance);
+            }else{
+                break;
+            }
+        }
+        // now check fields
+        if(id.isEmpty()){
+            Field[] fields = FieldUtils.getFieldsWithAnnotation(instance.getClass(), Scope.class);
+            if(fields.length > 0) {
+                id = (String) FieldUtils.readField(fields[0], instance, true);
+            }
+        }
+        return id;
+    }
+
+
+    /**
+     * Tries to get a valid {@link Scope} from the info provided
+     * @param method to check for the annotation
+     * @param instance object to invoke for identifier value
+     * @return the identifier or empty string if not present
+     */
+    public static String getScopeIfAvailable(Method method, Object instance)throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+        String ret = "";
+        Scope scope = AnnotationUtils.findAnnotation(method, Scope.class);
+
+        if(scope != null){
+            Assert.isAssignable(String.class, method.getReturnType(),"@Scope must only be used on String values or return types");
+            ret = (String)method.invoke(instance);
+        }
+        return ret;
+    }
+
+    /**
+     * Returns the index of the method parameter with a {@link Scope} annotation or returns null
+     * @param method to look for {@link Scope} annotations
+     * @return the index of parameter with the annotation or null if none
+     * @throws IllegalArgumentException if more than one parameter contains a {@link Scope} annotation or the annotation is applied to an invalid type
+     */
+    public static Integer findParameterIndexWithScopeAnnotation(Method method){
+        Method bridgedMethod =  BridgeMethodResolver.findBridgedMethod(method);
+        int count = bridgedMethod.getParameterCount();
+        Integer ret = null;
+        for (int i = 0; i < count; i++) {
+            MethodParameter parameter = new MethodParameter(bridgedMethod, i);
+            if(parameter.hasParameterAnnotation(Scope.class)){
+                Validate.isAssignableFrom(String.class, parameter.getParameterType(), "@Scope must only be used on String values");
+                Validate.isTrue(ret == null, "More than one argument was annotated with @Scope. For Method " + method);
+                ret = i;
+            }
+        }
+        return ret;
+    }
+
+    /**
+     * Will return a {@link CRI} as long as the proxy provides a value otherwise and error will be thrown
+     * @param proxyAnnotation to use to generate the {@link CRI}
+     * @return the new {@link CRI}
+     * @throws IllegalArgumentException if the proxy annotation does not include a value
+     */
+    public static CRI getCRIForProxyAnnotation(Proxy proxyAnnotation) throws IllegalArgumentException{
+        if(proxyAnnotation.value().isEmpty() && proxyAnnotation.targetClass().isAssignableFrom(Void.class)){
+            throw new IllegalArgumentException("Either the service name or service class must be set");
+        }
+        return CRI.create(Scheme.SERVICE,
+                          null,
+                          (proxyAnnotation.value().isEmpty() ? proxyAnnotation.targetClass().getName() : proxyAnnotation.value()),
+                          proxyAnnotation.version(),
+                          null);
+    }
+
+    /**
+     * Returns the interface or interfaces that declares the given annotation
+     * @param clazz to check for the annotation
+     * @param annotation to look for
+     * @return
+     */
+    public static List<Class<?>> getInterfaceDeclaringAnnotation(Class<?> clazz, Class<? extends Annotation> annotation){
+        ArrayList<Class<?>> ret = new ArrayList<>();
+
+        for(Class<?> interClass: clazz.getInterfaces()){
+            if(interClass.isAnnotationPresent(annotation)){
+                ret.add(interClass);
+            }
+        }
+        // If there is a superclass we need its interfaces as well
+        if(clazz.getSuperclass() != null){
+            ret.addAll(getInterfaceDeclaringAnnotation(clazz.getSuperclass(),annotation));
+        }
+        return ret;
+    }
+
+}

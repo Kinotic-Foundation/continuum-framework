@@ -1,0 +1,76 @@
+plugins {
+    id 'java'
+    id 'idea'
+
+    // see https://docs.spring.io/dependency-management-plugin/docs/current-SNAPSHOT/reference/html5/
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+}
+
+group 'com.kinotic'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = '15'
+
+repositories {
+    mavenCentral()
+}
+
+// supplied by io.spring.dependency-management plugin above
+dependencyManagement {
+    imports {
+        // Using BOM from here https://github.com/spring-projects/spring-boot/blob/2.4.x/spring-boot-project/spring-boot-dependencies/build.gradle
+        mavenBom 'org.springframework.boot:spring-boot-dependencies:2.4.6'
+    }
+
+    dependencies {
+        dependency 'com.h2database:h2:1.4.197' // Tied to Ignite version. We make sure this is correct for ignite expectations
+    }
+}
+
+ext {
+    set('groovy.version', "3.0.6")
+    continuumVersion='1.0-SNAPSHOT'
+    vertxVersion='3.9.8'
+    chronicleQueueVersion='5.20.106'
+    awaitilityVersion='4.0.1'
+    igniteVersion='2.9.1'
+    caffeineVersion='2.8.6'
+}
+
+dependencies {
+
+    implementation 'org.springframework:spring-core'
+    implementation 'org.springframework:spring-context'
+    implementation 'org.springframework:spring-web'
+    implementation 'javax.annotation:javax.annotation-api'
+    implementation 'org.springframework.boot:spring-boot-autoconfigure' // Used for conditionally wiring beans
+
+    implementation "io.vertx:vertx-core:${vertxVersion}"
+    implementation "io.vertx:vertx-web:${vertxVersion}"
+    implementation "io.vertx:vertx-auth-common:${vertxVersion}"
+    implementation "io.vertx:vertx-mqtt:${vertxVersion}"
+    compile "io.vertx:vertx-stomp-lite:${vertxVersion}"
+
+    implementation "org.apache.ignite:ignite-core:${igniteVersion}"
+
+    // Continuum Dependencies
+    implementation "com.kinotic:continuum-core:${continuumVersion}"
+    implementation "com.kinotic:continuum-core-vertx:${continuumVersion}"
+
+    // OpenHFT, temps storage before event backend
+    implementation "net.openhft:chronicle-queue:${chronicleQueueVersion}"
+    implementation "com.github.ben-manes.caffeine:caffeine:${caffeineVersion}"
+
+    implementation "org.apache.commons:commons-lang3"
+
+    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'io.projectreactor:reactor-test'
+    testImplementation "io.vertx:vertx-web-client:${vertxVersion}"
+    testImplementation "org.awaitility:awaitility:${awaitilityVersion}"
+}
+
+test {
+    useJUnitPlatform()
+}

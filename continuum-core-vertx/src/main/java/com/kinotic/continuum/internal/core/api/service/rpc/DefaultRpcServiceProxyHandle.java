@@ -1,0 +1,296 @@
+/*
+ *
+ * Copyright 2008-2021 Kinotic and the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.kinotic.continuum.internal.core.api.service.rpc;
+
+import com.kinotic.continuum.core.api.CRI;
+import com.kinotic.continuum.core.api.RpcServiceProxy;
+import com.kinotic.continuum.core.api.RpcServiceProxyHandle;
+import com.kinotic.continuum.core.api.Scheme;
+import com.kinotic.continuum.core.api.event.Event;
+import com.kinotic.continuum.core.api.event.EventBusService;
+import com.kinotic.continuum.core.api.event.EventConstants;
+import com.kinotic.continuum.core.api.event.Metadata;
+import com.kinotic.continuum.internal.utils.ContinuumUtil;
+import com.kinotic.continuum.internal.utils.MetaUtil;
+import io.vertx.core.eventbus.EventBus;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.Validate;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.util.Assert;
+import org.springframework.util.ReflectionUtils;
+import reactor.core.Disposable;
+import reactor.core.publisher.Flux;
+
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+/**
+ * Base implementation of the {@link RpcServiceProxyHandle}
+ * Will send all service requests on the Vertx {@link EventBus}
+ *
+ * Created by navid on 2019-04-18.
+ */
+public class DefaultRpcServiceProxyHandle<T> implements RpcServiceProxyHandle<T>, InvocationHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(DefaultRpcServiceProxyHandle.class);
+
+    private final CRI proxyCRI;
+    private final String nodeName;
+    private final String encodedNodeName;
+    private final Class<T> serviceClass;
+    private final CRI handlerCRI;
+    private final RpcArgumentConverter rpcArgumentConverter;
+    private final RpcReturnValueHandlerFactory rpcReturnValueHandlerFactory;
+    private final EventBusService eventBusService;
+
+    private final Map<Method, Integer> methodsWithScopeAnnotation = new HashMap<>();
+    private final Disposable replyEventListenerDisposable;
+    private final T serviceProxy;
+    private final AtomicBoolean released = new AtomicBoolean(false);
+
+    private final ConcurrentHashMap<String, RpcReturnValueHandler> responseMap = new ConcurrentHashMap<>();
+
+
+    public DefaultRpcServiceProxyHandle(CRI proxyCRI,
+                                        String nodeName,
+                                        Class<T> serviceClass,
+                                        RpcArgumentConverter rpcArgumentConverter,
+                                        RpcReturnValueHandlerFactory rpcReturnValueHandlerFactory,
+                                        EventBusService eventBusService,
+                                        ClassLoader classLoader) {
+
+        Validate.notNull(proxyCRI, "proxyCRI must not be null");
+        Validate.notBlank(nodeName, "nodeName must not be blank");
+        Validate.notNull(serviceClass, "serviceClass must not be null");
+        Validate.notNull(rpcArgumentConverter, "argumentConverter must not be null");
+        Validate.notNull(rpcReturnValueHandlerFactory, "returnValueHandlerFactory must not be null");
+        Validate.notNull(eventBusService, "eventBusService must not be null");
+        Validate.notNull(classLoader, "classLoader must not be null");
+
+        this.proxyCRI = proxyCRI;
+        this.nodeName = nodeName;
+        this.encodedNodeName = ContinuumUtil.safeEncodeURI(nodeName);
+        this.serviceClass = serviceClass;
+        this.rpcArgumentConverter = rpcArgumentConverter;
+        this.rpcReturnValueHandlerFactory = rpcReturnValueHandlerFactory;
+        this.eventBusService = eventBusService;
+
+        this.handlerCRI = CRI.create(Scheme.SERVICE, encodedNodeName + ":" + UUID.randomUUID(), serviceClass.getName()+"RpcProxyResponseHandler", null, null);
+
+        // Verify that an proxy can be built supporting all methods of the provided serviceClass
+        ReflectionUtils.doWithMethods(serviceClass, method -> {
+
+            if(!rpcReturnValueHandlerFactory.supports(method)){
+                throw new IllegalArgumentException("The method: "+ method +" does not have a supported RpcReturnValueHandlerFactory");
+            }
+
+            // find any parameters annotated with @Scope
+            // we populate this map upfront to speed up invocations later
+            Integer parameterIndexWithScopeAnnotation = MetaUtil.findParameterIndexWithScopeAnnotation(method);
+            if(parameterIndexWithScopeAnnotation != null){
+                methodsWithScopeAnnotation.put(method, parameterIndexWithScopeAnnotation);
+            }
+
+        }, ReflectionUtils.USER_DECLARED_METHODS);
+
+        //noinspection unchecked
+        serviceProxy = (T) Proxy.newProxyInstance(classLoader, new Class[] { serviceClass, RpcServiceProxy.class}, this);
+
+        /*
+          Response handler logic to correlate response from remote service invocation's
+         */
+        Flux<Event<byte[]>> eventFlux = eventBusService.listen(this.handlerCRI.raw());
+        replyEventListenerDisposable =
+                eventFlux.subscribe(event -> {
+
+                    String correlationId = event.metadata().get(EventConstants.CORRELATION_ID_HEADER);
+                    if(correlationId != null){
+                        if(responseMap.containsKey(correlationId)){
+                            try {
+                                // provide message to handler for processing
+                                RpcReturnValueHandler handler = responseMap.get(correlationId);
+                                if(handler.processResponse(event)){
+                                    responseMap.remove(correlationId);
+                                }
+                            } catch (Exception e) {
+                                log.error("URGENT: Unhandled exception in RpcReturnValueHandler.processResponse, Proxy Will be Released!!", e);
+                                release();
+                            }
+                        }else{
+                            log.error("Received Message for correlationId: "+correlationId + " but no response handler is set");
+                        }
+
+                    }else{
+                        log.error("Received Message with no " + EventConstants.CORRELATION_ID_HEADER +" header");
+                    }
+                },
+                // received error
+                throwable -> log.error("Reply Event listener error", throwable),
+                // listener complete
+                () -> log.error("Should not happen! Reply Event listener stopped for some reason!!"));
+    }
+
+    @Override
+    public T getService() {
+        return serviceProxy;
+    }
+
+    @Override
+    public void release() {
+        if(released.compareAndSet(false,true)){
+            replyEventListenerDisposable.dispose();
+
+            responseMap.forEach((s, returnValueHandler) -> returnValueHandler.cancel(serviceClass.getSimpleName() + " released. No further responses will be processed"));
+            responseMap.clear();
+        }
+    }
+
+    @Override
+    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        Object ret;
+        if(!released.get()){
+
+            if(log.isTraceEnabled()){
+                log.trace("Proxy for " + serviceClass.getSimpleName() + " Method Invoked " + method.toString());
+            }
+
+            if(!shouldInvokeLocally(method)) {
+
+                // Get all data for remote invocation. If anything fails in this step the error automatically props up
+                // This way no ReturnValueHandler is setup until message is ready to get dispatched to remote end
+
+
+                // if there is an scope parameter remove it from args to be sent, and store it as part of the CRI
+                Integer scopeParameter = methodsWithScopeAnnotation.get(method);
+                String scope = (scopeParameter != null ? args[scopeParameter].toString() : null); // effectively final.. lol
+                if(scopeParameter != null){
+                    args = ArrayUtils.remove(args, scopeParameter);
+                }
+
+                // convert arguments to be sent
+                byte[] argumentData = rpcArgumentConverter.convert(method, args);
+                String correlationId = UUID.randomUUID().toString();
+
+                // Now create response handler and store so we can propagate response in replyMessageConsumer
+                RpcReturnValueHandler handler = rpcReturnValueHandlerFactory.createReturnValueHandler(method, args);
+                responseMap.put(correlationId, handler);
+
+                ret = handler.getReturnValue(new RpcRequest() {
+                    @Override
+                    public void send() {
+                        // TODO: should we guard against multiple requests from invoke or add code to support it.
+                        // This would be something that only effects the RpcReturnValueHandler
+
+                        // Now publish message for remote service invocation
+                        Metadata metadata = Metadata.create();
+                        metadata.put(EventConstants.SENDER_HEADER, nodeName);
+                        metadata.put(EventConstants.REPLY_TO_HEADER, handlerCRI.raw());
+                        metadata.put(EventConstants.CORRELATION_ID_HEADER, correlationId);
+                        metadata.put(EventConstants.CONTENT_TYPE_HEADER, rpcArgumentConverter.producesContentType());
+
+                        // TODO: use version string to determine how specific the invocation has to be like npm semantics ^1.0.0 ect
+                        // Send data to remote end to trigger service invocation
+                        eventBusService.sendWithAck(Event.create(CRI.create(Scheme.SERVICE,
+                                                                            scope,
+                                                                            proxyCRI.resourceName(),
+                                                                            proxyCRI.version(),
+                                                                            "/" + method.getName()),
+                                                                 metadata,
+                                                                 argumentData))
+                                       .subscribe(v -> {}, throwable -> {
+                                           // send failed, signal handler so failure can be relayed to the return value
+                                           try{
+                                               responseMap.remove(correlationId);
+                                               handler.processError(throwable);
+                                           }catch (Exception e){
+                                               log.error("URGENT: Unhandled exception in RpcReturnValueHandler.processError, Proxy Will be Released!!", e);
+                                               release();
+                                           }
+                                       });
+                    }
+
+                    @Override
+                    public void cancelRequest() {
+                        if(handler.isMultiValue()) {
+                            // Now publish message for remote control
+                            Metadata metadata = Metadata.create();
+                            metadata.put(EventConstants.CONTROL_HEADER, EventConstants.CONTROL_VALUE_CANCEL);
+
+                            // Send data to remote end for control request
+                            eventBusService.sendWithAck(Event.create(CRI.create(Scheme.SERVICE,
+                                                                                encodedNodeName,
+                                                                                correlationId),
+                                                                     metadata,
+                                                                     argumentData))
+                                           .doFinally(signalType -> responseMap.remove(correlationId))
+                                           .subscribe();
+                        } else {
+                            throw new IllegalStateException("Cancel is not supported if RpcReturnValueHandler.isMultiValue returns false");
+                        }
+                    }
+                });
+
+            }else{
+                // Method not defined on service interface pass call directly this service handle. ex: toString()
+                Class<?>[] paramTypes = new Class[args.length];
+                for(int i = 0; i < args.length; i++){
+                    paramTypes[i] = args[i].getClass();
+                }
+                Method serviceHandleMethod = ReflectionUtils.findMethod(this.getClass(), method.getName(), paramTypes);
+
+                Assert.notNull(serviceHandleMethod, "Could not find appropriate method on proxy handle");
+
+                ret = serviceHandleMethod.invoke(this, args);
+            }
+
+        }else{
+           throw new IllegalStateException("RpcServiceProxyHandle has already been released. No service method can be called after release.");
+        }
+        return ret;
+    }
+
+    private boolean shouldInvokeLocally(Method method){
+        boolean ret = false;
+
+        // TODO: should we use this logic instead
+        // !(!method.isBridge() && !method.isSynthetic() && method.getDeclaringClass() != Object.class)
+
+        String methodName = method.getName();
+        if(methodName.equals("toString")){
+            ret = true;
+        }
+
+        return ret;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("cri", proxyCRI)
+                .append("handlerCRI", handlerCRI)
+                .toString();
+    }
+}

@@ -1,0 +1,5 @@
+rootProject.name = 'continuum-gateway'
+
+includeBuild '../continuum-core'
+includeBuild '../continuum-core-vertx'
+includeBuild '../../vertx-stomp-lite'

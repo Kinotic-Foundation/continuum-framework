@@ -1,0 +1,12 @@
+  # YAML Reference http://www.yaml.org/refcard.html
+
+
+  logging:
+    level:
+      com:
+        kinotic: DEBUG
+
+  spring:
+    devtools:
+      livereload:
+        port: 35730

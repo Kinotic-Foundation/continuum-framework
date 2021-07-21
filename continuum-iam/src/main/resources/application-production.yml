@@ -1,0 +1,6 @@
+# YAML Reference http://www.yaml.org/refcard.html
+
+  continuum:
+    discovery: zookeeper
+    debug: true
+    eventBusClusterPort: 57100

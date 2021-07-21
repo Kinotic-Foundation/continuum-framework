@@ -1,0 +1,10 @@
+  # YAML Reference http://www.yaml.org/refcard.html
+  continuum:
+    discovery: zookeeper
+
+  logging:
+    level:
+      com:
+        kinotic: TRACE
+      io:
+        vertx: DEBUG

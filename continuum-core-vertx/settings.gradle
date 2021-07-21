@@ -1,0 +1,3 @@
+rootProject.name = 'continuum-core-vertx'
+
+includeBuild '../continuum-core'

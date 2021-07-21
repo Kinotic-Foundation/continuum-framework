@@ -1,0 +1,17 @@
+[Unit]
+Description=Continuum Gateway Service
+After=multi-user.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/gateway/0.0.1-SNAPSHOT/
+ExecStart=/opt/gateway/0.0.1-SNAPSHOT/bin/continuum-gateway
+TimeoutSec=30
+RestartSec=60
+Restart=on-failure
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=gateway
+
+[Install]
+WantedBy=multi-user.target

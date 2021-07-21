@@ -1,0 +1,5 @@
+rootProject.name = 'continuum-orbiter'
+
+includeBuild '../continuum-core'
+includeBuild '../continuum-core-vertx'
+includeBuild '../structures'

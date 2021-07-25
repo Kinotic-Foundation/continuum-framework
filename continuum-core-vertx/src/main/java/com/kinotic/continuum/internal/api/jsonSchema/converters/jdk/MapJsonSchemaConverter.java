@@ -29,7 +29,7 @@ import java.util.Map;
 
 /**
  *
- * Created by navid 😈 on 2019-07-31
+ * Created by navid on 2019-07-31
  */
 @Component
 public class MapJsonSchemaConverter implements GenericTypeJsonSchemaConverter {

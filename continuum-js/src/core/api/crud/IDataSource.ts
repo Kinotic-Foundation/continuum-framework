@@ -15,12 +15,36 @@
  * limitations under the License.
  */
 
-import {Identifiable} from './Identifiable'
-import {Page} from './Page'
-import {Pageable} from './Pageable'
-import {IEditableDataSource} from "./IDataSource";
+import {Pageable} from "./Pageable";
+import {Page} from "./Page";
+import {Identifiable} from "./Identifiable";
 
-export interface ICrudServiceProxy<T extends Identifiable<string>> extends IEditableDataSource<T>{
+/**
+ * {@link IDataSource} provides an abstract way to retrieve data from various sources
+ */
+export interface IDataSource<T> {
+
+    /**
+     * Returns a {@link Page} of entities meeting the paging restriction provided in the {@code Pageable} object.
+     *
+     * @param pageable the page settings to be used
+     * @return a {@link Promise} emitting the page of entities
+     */
+    findAll(pageable: Pageable): Promise<Page<T>>
+
+    /**
+     * Returns a {@link Page} of entities matching the search text and paging restriction provided in the {@code Pageable} object.
+     *
+     * @param searchText the text to search for entities for
+     * @param pageable the page settings to be used
+     * @return a {@link Promise} emitting the page of entities
+     */
+    search(searchText: string, pageable: Pageable): Promise<Page<T>>
+
+}
+
+
+export interface IEditableDataSource<T extends Identifiable<string>> extends IDataSource<T>{
 
     /**
      * Creates a new entity if one does not already exist for the given id
@@ -48,13 +72,6 @@ export interface ICrudServiceProxy<T extends Identifiable<string>> extends IEdit
      */
     findByIdentity(identity: string): Promise<T>
 
-    /**s
-     * Returns the number of entities available.
-     *
-     * @return a {@link Promise} emitting the number of entities.
-     */
-    count(): Promise<number>
-
     /**
      * Deletes the entity with the given id.
      *
@@ -65,14 +82,6 @@ export interface ICrudServiceProxy<T extends Identifiable<string>> extends IEdit
     deleteByIdentity(identity: string): Promise<void>
 
     /**
-     * Returns a {@link Page} of entities meeting the paging restriction provided in the {@code Pageable} object.
-     *
-     * @param pageable the page settings to be used
-     * @return a {@link Promise} emitting the page of entities
-     */
-    findAll(pageable: Pageable): Promise<Page<T>>
-
-    /**
      * Returns a {@link Page} of entities not in the ids list and meeting the paging restriction provided in the {@code Pageable} object.
      *
      * @param ids not to be returned in the Page
@@ -80,15 +89,13 @@ export interface ICrudServiceProxy<T extends Identifiable<string>> extends IEdit
      * @return a {@link Promise} emitting the page of entities
      */
     findByIdNotIn(ids: string[], pageable: Pageable): Promise<Page<Identifiable<string>>>
+}
 
 
-    /**
-     * Returns a {@link Page} of entities matching the search text and paging restriction provided in the {@code Pageable} object.
-     *
-     * @param searchText the text to search for entities for
-     * @param pageable the page settings to be used
-     * @return a {@link Promise} emitting the page of entities
-     */
-    search(searchText: string, pageable: Pageable): Promise<Page<T>>
+export class DataSourceUtils {
+
+    public static instanceOfEditableDataSource(datasource: IDataSource<any> | IEditableDataSource<any>): datasource is IEditableDataSource<any> {
+        return 'create' in datasource
+    }
 
 }

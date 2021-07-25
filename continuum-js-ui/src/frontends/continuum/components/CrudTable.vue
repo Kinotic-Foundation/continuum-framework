@@ -87,16 +87,16 @@ import {
     mdiDelete
 } from '@mdi/js'
 import {
-    ICrudServiceProxy,
-    ICrudServiceProxyFactory,
-    Direction,
-    Identifiable,
-    Order,
-    Page,
-    Pageable
+  Direction,
+  Identifiable,
+  Order,
+  Page,
+  Pageable,
+  IDataSource,
+  IEditableDataSource,
+  DataSourceUtils
 } from 'continuum-js'
 import Confirm from './Confirm.vue'
-import { inject } from 'inversify-props'
 
 // noinspection TypeScriptValidateTypes
 @Component({
@@ -105,27 +105,16 @@ import { inject } from 'inversify-props'
 export default class CrudTable extends Vue {
 
     /**
-     * Identifier of remote service that will be used to populate the table
-     * The service must provide an interface compatible with the {@link ICrudServiceProxy}
+     * The {@link IDataSource} to use to fetch data for this table
      */
-    @Prop({ type: String, required: true })
-    public crudServiceIdentifier!: string
+    @Prop({ type: Object as PropType<IDataSource<any>> , required: true })
+    public dataSource!: IDataSource<any>
 
     /**
      * The {@link DataTableHeader}'s for all columns that should be rendered
      */
     @Prop({ type: Array as PropType<DataTableHeader[]> , required: true })
     public headers!: DataTableHeader[]
-
-    @Prop({ type: Boolean, default: true, required: false })
-    public editable!: boolean
-
-    /**
-     * Services
-     */
-    @inject()
-    private crudServiceProxyFactory!: ICrudServiceProxyFactory
-    private crudServiceProxy!: ICrudServiceProxy<any>
 
     /**
      * Icons
@@ -168,7 +157,6 @@ export default class CrudTable extends Vue {
 
     // Lifecycle hooks
     public mounted() {
-        this.crudServiceProxy = this.crudServiceProxyFactory.crudServiceProxy(this.crudServiceIdentifier)
         this.find()
     }
 
@@ -177,13 +165,17 @@ export default class CrudTable extends Vue {
     // We compute the headers so we can add headers to the end for our actions
     get computedHeaders(): DataTableHeader[] {
         let ret: DataTableHeader[] = []
-        if(this.editable){
+        if(DataSourceUtils.instanceOfEditableDataSource(this.dataSource)){
             ret = ret.concat(this.headers)
             ret.push({ text: 'Actions', value: 'action', sortable: false, align: 'end' })
         }else{
             ret = this.headers
         }
         return ret
+    }
+
+    get editable(): boolean {
+      return DataSourceUtils.instanceOfEditableDataSource(this.dataSource)
     }
 
     // watched
@@ -216,7 +208,7 @@ export default class CrudTable extends Vue {
         const index = this.items.indexOf(item)
 
         if (await (this.$refs.confirm as Confirm).open('Delete Item', 'Are you sure you want to do this?', { color: 'error' })) {
-            this.crudServiceProxy.deleteByIdentity(item.identity).then(() => {
+          (this.dataSource as IEditableDataSource<any>).deleteByIdentity(item.identity).then(() => {
                 this.items.splice(index, 1)
                 this.totalItems--
                 if ((this.totalItems / this.options.itemsPerPage) < this.options.page && this.options.page > 1) {
@@ -265,9 +257,9 @@ export default class CrudTable extends Vue {
             let queryPromise!: Promise<Page<any>>
 
             if (this.searchText !== null && this.searchText.length > 0) {
-                queryPromise = this.crudServiceProxy.search(this.searchText, pageable)
+                queryPromise = this.dataSource.search(this.searchText, pageable)
             } else {
-                queryPromise = this.crudServiceProxy.findAll(pageable)
+                queryPromise = this.dataSource.findAll(pageable)
             }
 
             queryPromise.then((page: Page<any>) => {

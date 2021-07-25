@@ -78,7 +78,7 @@ public abstract class AbstractIamParticipantService implements CrudService<IamPa
         Validate.notNull(entity);
         return Mono.fromSupplier(() -> transactionTemplate.execute(status -> {
             // If this is null it is because no changes were made on the client
-            // This was the best way I could figure out how to return the Auth information to the client
+            // This was the best way I could figure out how NOT to return the Auth information to the client
             // but also allow intuitive changes on the client side
             if (entity.getAuthenticators() == null) {
                 Optional<IamParticipant> value = iamParticipantRepository.findById(entity.getIdentity());

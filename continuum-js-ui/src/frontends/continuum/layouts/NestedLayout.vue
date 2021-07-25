@@ -10,7 +10,7 @@ import { Component, Vue } from 'vue-property-decorator'
 
 /**
  * Layout used to provide a place to put all Nested views within the {@link FrontendLayout}
- * This is a wrapper that allows man different subviews to be accessible while only showing a single active menu link in the left nav bar
+ * This is a wrapper that allows many different subviews to be accessible while only showing a single active menu link in the left nav bar
  */
 @Component({
     components: { }

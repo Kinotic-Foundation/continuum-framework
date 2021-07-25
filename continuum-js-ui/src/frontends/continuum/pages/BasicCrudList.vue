@@ -2,7 +2,7 @@
   <v-container class="no-gutters" fill-height fluid>
     <v-row class="no-gutters fill-height">
       <v-col>
-        <CrudTable :crud-service-identifier="crudServiceIdentifier"
+        <CrudTable :dataSource="dataSource"
                    :headers="headers"
                    @add-item="onAddItem"
                    @edit-item="onEditItem">
@@ -16,8 +16,9 @@
 import { PropType } from 'vue'
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import { DataTableHeader } from 'vuetify'
-import { Identifiable } from 'continuum-js'
+import { Identifiable, ICrudServiceProxy, ICrudServiceProxyFactory } from 'continuum-js'
 import CrudTable from '@/frontends/continuum/components/CrudTable.vue'
+import { inject } from 'inversify-props'
 
 /**
  * Provides a List page that can be used with the {@link CrudLayout}
@@ -25,34 +26,46 @@ import CrudTable from '@/frontends/continuum/components/CrudTable.vue'
  */
 // noinspection TypeScriptValidateTypes
 @Component({
-    components: { CrudTable }
-})
+             components: { CrudTable }
+           })
 export default class BasicCrudList extends Vue {
 
-    /**
-     * Identifier of remote service that will be used to populate the table
-     * The service must provide an interface compatible with the {@link ICrudServiceProxy}
-     */
-    @Prop({ type: String, required: true })
-    public crudServiceIdentifier!: string
+  /**
+   * Identifier of remote service that will be used to populate the table
+   * The service must provide an interface compatible with the {@link ICrudServiceProxy}
+   */
+  @Prop({ type: String, required: true })
+  public crudServiceIdentifier!: string
 
-    /**
-     * The {@link DataTableHeader}'s for all columns that should be rendered
-     */
-    @Prop({type: Array as PropType<DataTableHeader[]>, required: true})
-    public headers!: DataTableHeader[]
+  /**
+   * The {@link DataTableHeader}'s for all columns that should be rendered
+   */
+  @Prop({type: Array as PropType<DataTableHeader[]>, required: true})
+  public headers!: DataTableHeader[]
 
-    constructor() {
-        super()
-    }
+  /**
+   * Services
+   */
+  @inject()
+  private crudServiceProxyFactory!: ICrudServiceProxyFactory
+  private dataSource!: ICrudServiceProxy<any>
 
-    public onAddItem() {
-        this.$router.push(`${this.$route.path }/add`)
-    }
+  constructor() {
+    super()
+  }
 
-    public onEditItem(identifiable: Identifiable<string>) {
-        this.$router.push(`${this.$route.path}/edit/${identifiable.identity}`)
-    }
+  // Lifecycle hooks
+  public created() {
+    this.dataSource = this.crudServiceProxyFactory.crudServiceProxy(this.crudServiceIdentifier)
+  }
+
+  public onAddItem() {
+    this.$router.push(`${this.$route.path }/add`)
+  }
+
+  public onEditItem(identifiable: Identifiable<string>) {
+    this.$router.push(`${this.$route.path}/edit/${identifiable.identity}`)
+  }
 
 }
 </script>

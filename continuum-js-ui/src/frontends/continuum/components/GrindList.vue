@@ -60,7 +60,7 @@
 <script lang="ts">
     import { Component, Prop, Vue } from 'vue-property-decorator'
     import { PropType } from 'vue'
-    import { Step, StepState } from '../models/grind/Step'
+    import { Step, StepState } from '../domain/grind/Step'
     import {
         mdiAlertCircleOutline,
         mdiCheckboxBlankCircleOutline,

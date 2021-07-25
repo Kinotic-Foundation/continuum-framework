@@ -1,8 +1,8 @@
 import { IServiceProxy, IServiceRegistry } from 'continuum-js'
 import { container, inject, injectable } from 'inversify-props'
 import { Observable } from 'rxjs'
-import { Result } from '../models/grind/Result'
-import { JobDefinition } from '../models/grind/JobDefinition'
+import { Result } from '../domain/grind/Result'
+import { JobDefinition } from '../domain/grind/JobDefinition'
 
 /**
  * Grind Service

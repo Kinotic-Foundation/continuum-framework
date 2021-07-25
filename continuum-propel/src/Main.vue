@@ -22,7 +22,7 @@
 
 
     public async mounted() {
-        await this.eventBus.connect('ws://172.16.225.186:58503/v1', 'super', 'w3mak3th1sr0ck1nr0ll')
+        await this.eventBus.connect('ws://localhost:58503/v1', 'super', 'w3mak3th1sr0ck1nr0ll')
     }
 
     public beforeDestroy() {

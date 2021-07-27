@@ -1,7 +1,8 @@
 import { Identifiable } from './Identifiable';
 import { Page } from './Page';
 import { Pageable } from './Pageable';
-export interface ICrudServiceProxy<T extends Identifiable<string>> {
+import { IEditableDataSource } from "./IDataSource";
+export interface ICrudServiceProxy<T extends Identifiable<string>> extends IEditableDataSource<T> {
     /**
      * Creates a new entity if one does not already exist for the given id
      * @param entity to create if one does not already exist

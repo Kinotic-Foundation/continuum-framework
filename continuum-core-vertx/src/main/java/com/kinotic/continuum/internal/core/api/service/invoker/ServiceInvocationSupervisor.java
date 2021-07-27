@@ -212,7 +212,7 @@ public class ServiceInvocationSupervisor {
 
             } catch (Exception e) {
                 if(log.isDebugEnabled()){
-                    log.debug("Exception occurred processing incoming service request\n" + EventUtils.toString(incomingEvent, true), e);
+                    log.debug("Exception occurred processing service request\n" + EventUtils.toString(incomingEvent, true), e);
                 }
                 handleException(incomingEvent, e);
             }
@@ -234,7 +234,12 @@ public class ServiceInvocationSupervisor {
 
                 Mono<?> mono = Mono.from(reactiveAdapter.toPublisher(result));
                 mono.doOnSuccess((Consumer<Object>) o -> convertAndSend(incomingEvent, handlerMethod, o))
-                    .subscribe(v -> {}, t -> handleException(incomingEvent, t)); // We use an empty consumer this is handled with doOnSuccess, this is done so we get a single "signal" instead of onNext, onComplete type logic..
+                    .subscribe(v -> {}, t -> {
+                        if(log.isDebugEnabled()){
+                            log.debug("Exception occurred processing service request\n" + EventUtils.toString(incomingEvent, true), t);
+                        }
+                        handleException(incomingEvent, t);
+                    }); // We use an empty consumer this is handled with doOnSuccess, this is done so we get a single "signal" instead of onNext, onComplete type logic..
 
             }else{
 

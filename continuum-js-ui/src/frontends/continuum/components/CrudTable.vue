@@ -15,10 +15,10 @@
             :fixed-header=true
             :footer-props="{
                               showFirstLastPage: true,
-                              firstIcon: firstIcon,
-                              lastIcon: lastIcon,
-                              prevIcon: prevIcon,
-                              nextIcon: nextIcon,
+                              firstIcon: icons.firstIcon,
+                              lastIcon: icons.lastIcon,
+                              prevIcon: icons.prevIcon,
+                              nextIcon: icons.nextIcon,
                               'items-per-page-options': [5,10,25,50,75,100,-1]
                             }" >
 
@@ -29,7 +29,7 @@
                                   single-line
                                   hint="Press Enter to Search"
                                   v-model="searchText"
-                                  :append-icon="searchIcon"
+                                  :append-icon="icons.searchIcon"
                                   label="Search"
                                   @click:clear="clearSearch"
                                   @focus="$event.target.select()"
@@ -41,7 +41,7 @@
                            fab
                            small
                            @click="addItem">
-                        <v-icon>{{addIcon}}</v-icon>
+                        <v-icon>{{icons.addIcon}}</v-icon>
                     </v-btn>
                 </v-toolbar>
             </template>
@@ -57,12 +57,12 @@
                         small
                         class="mr-2"
                         @click="editItem(item)">
-                    {{editIcon}}
+                    {{icons.editIcon}}
                 </v-icon>
                 <v-icon title="Delete"
                         small
                         @click="deleteItem(item)">
-                    {{deleteIcon}}
+                    {{icons.deleteIcon}}
                 </v-icon>
             </template>
 
@@ -119,14 +119,17 @@ export default class CrudTable extends Vue {
     /**
      * Icons
      */
-    private searchIcon: string = mdiMagnify
-    private addIcon: string = mdiPlus
-    private editIcon: string = mdiPencil
-    private deleteIcon: string = mdiDelete
-    private firstIcon: string = mdiArrowCollapseLeft
-    private lastIcon: string = mdiArrowCollapseRight
-    private prevIcon: string = mdiChevronLeft
-    private nextIcon: string = mdiChevronRight
+    private icons = {
+      searchIcon: mdiMagnify,
+      addIcon: mdiPlus,
+      editIcon: mdiPencil,
+      deleteIcon: mdiDelete,
+      firstIcon: mdiArrowCollapseLeft,
+      lastIcon: mdiArrowCollapseRight,
+      prevIcon: mdiChevronLeft,
+      nextIcon: mdiChevronRight,
+    }
+
 
     /**
      * Internal state management vars

@@ -24,6 +24,8 @@ import com.kinotic.continuum.core.api.event.Event;
 import com.kinotic.continuum.core.api.event.EventConstants;
 import com.kinotic.continuum.core.api.service.ServiceExceptionWrapper;
 import com.kinotic.continuum.internal.util.EventUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.codec.EncodingException;
 import org.springframework.stereotype.Component;
@@ -39,6 +41,8 @@ import java.util.Map;
 @Component
 @Order
 public class BasicExceptionConverter implements ExceptionConverter {
+
+    private static final Logger log = LoggerFactory.getLogger(BasicExceptionConverter.class);
 
     private final ContinuumProperties properties;
     private final ObjectMapper objectMapper;

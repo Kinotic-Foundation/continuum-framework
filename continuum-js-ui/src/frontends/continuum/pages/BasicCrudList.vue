@@ -2,7 +2,7 @@
   <v-container class="no-gutters" fill-height fluid>
     <v-row class="no-gutters fill-height">
       <v-col>
-        <CrudTable :dataSource="dataSource"
+        <CrudTable :data-source="dataSource"
                    :headers="headers"
                    @add-item="onAddItem"
                    @edit-item="onEditItem">

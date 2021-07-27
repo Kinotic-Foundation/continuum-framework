@@ -9,164 +9,6 @@ var rxStomp = require('@stomp/rx-stomp');
 var typescriptOptional = require('typescript-optional');
 var angular2Uuid = require('angular2-uuid');
 
-/*
- * Copyright 2008-2019 the original author or authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      https://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-(function (Direction) {
-    Direction["ASC"] = "ASC";
-    Direction["DESC"] = "DESC";
-})(exports.Direction || (exports.Direction = {}));
-(function (NullHandling) {
-    /**
-     * Lets the data store decide what to do with nulls.
-     */
-    NullHandling["NATIVE"] = "NATIVE";
-    /**
-     * A hint to the used data store to order entries with null values before non null entries.
-     */
-    NullHandling["NULLS_FIRST"] = "NULLS_FIRST";
-    /**
-     * A hint to the used data store to order entries with null values after non null entries.
-     */
-    NullHandling["NULLS_LAST"] = "NULLS_LAST";
-})(exports.NullHandling || (exports.NullHandling = {}));
-var Order = /** @class */ (function () {
-    function Order(property, direction) {
-        this.direction = exports.Direction.ASC;
-        this.nullHandling = exports.NullHandling.NATIVE;
-        this.property = property;
-        if (direction !== null) {
-            this.direction = direction;
-        }
-    }
-    /**
-     * Returns whether sorting for this property shall be ascending.
-     */
-    Order.prototype.isAscending = function () {
-        return this.direction === exports.Direction.ASC;
-    };
-    /**
-     * Returns whether sorting for this property shall be descending.
-     */
-    Order.prototype.isDescending = function () {
-        return this.direction === exports.Direction.DESC;
-    };
-    return Order;
-}());
-/**
- * Sort option for queries. You have to provide at least a list of properties to sort for that must not include
- * {@literal null} or empty strings. The direction defaults to {@link Sort#DEFAULT_DIRECTION}.
- *
- * Adapted from the Spring Data Commons Package
- *
- * @author Oliver Gierke
- * @author Thomas Darimont
- * @author Mark Paluch
- * @author Navid Mitchell
- */
-var Sort = /** @class */ (function () {
-    function Sort() {
-        this.orders = [];
-    }
-    return Sort;
-}());
-
-/*
- * Copyright 2008-2019 the original author or authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      https://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-/**
- * Abstract interface for pagination information.
- *
- * Adapted from the Spring Data Commons Package
- *
- * @author Oliver Gierke
- * @author Navid Mitchell
- */
-var Pageable = /** @class */ (function () {
-    function Pageable() {
-        /**
-         * Returns the page to be returned.
-         */
-        this.pageNumber = 0;
-        /**
-         * Returns the number of items to be returned.
-         */
-        this.pageSize = 0;
-        /**
-         * Returns the sorting parameters.
-         */
-        this.sort = null;
-    }
-    return Pageable;
-}());
-
-/*
- * Copyright 2008-2019 the original author or authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      https://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-/**
- * A page is a sublist of a list of objects. It allows gain information about the position of it in the containing
- * entire list.
- *
- * Adapted from the Spring Data Commons Package
- *
- * @param <T>
- * @author Oliver Gierke
- * @author Navid Mitchell
- */
-var Page = /** @class */ (function () {
-    function Page() {
-        /**
-         * Returns the size of the {@link Page}.
-         */
-        this.size = 0;
-        /**
-         * Returns the total amount of elements.
-         */
-        this.totalElements = 0;
-        /**
-         * Returns the page content as {@link Array}.
-         */
-        this.content = [];
-    }
-    return Page;
-}());
-
 /*! *****************************************************************************
 Copyright (c) Microsoft Corporation. All rights reserved.
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use
@@ -274,6 +116,189 @@ var CrudServiceProxy = /** @class */ (function () {
         __metadata("design:paramtypes", [Object])
     ], CrudServiceProxy);
     return CrudServiceProxy;
+}());
+
+/*
+ *
+ * Copyright 2008-2021 Kinotic and the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+var DataSourceUtils = /** @class */ (function () {
+    function DataSourceUtils() {
+    }
+    DataSourceUtils.instanceOfEditableDataSource = function (datasource) {
+        return 'create' in datasource;
+    };
+    return DataSourceUtils;
+}());
+
+/*
+ * Copyright 2008-2019 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+/**
+ * Abstract interface for pagination information.
+ *
+ * Adapted from the Spring Data Commons Package
+ *
+ * @author Oliver Gierke
+ * @author Navid Mitchell
+ */
+var Pageable = /** @class */ (function () {
+    function Pageable() {
+        /**
+         * Returns the page to be returned.
+         */
+        this.pageNumber = 0;
+        /**
+         * Returns the number of items to be returned.
+         */
+        this.pageSize = 0;
+        /**
+         * Returns the sorting parameters.
+         */
+        this.sort = null;
+    }
+    return Pageable;
+}());
+
+/*
+ * Copyright 2008-2019 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+/**
+ * A page is a sublist of a list of objects. It allows gain information about the position of it in the containing
+ * entire list.
+ *
+ * Adapted from the Spring Data Commons Package
+ *
+ * @param <T>
+ * @author Oliver Gierke
+ * @author Navid Mitchell
+ */
+var Page = /** @class */ (function () {
+    function Page() {
+        /**
+         * Returns the size of the {@link Page}.
+         */
+        this.size = 0;
+        /**
+         * Returns the total amount of elements.
+         */
+        this.totalElements = 0;
+        /**
+         * Returns the page content as {@link Array}.
+         */
+        this.content = [];
+    }
+    return Page;
+}());
+
+/*
+ * Copyright 2008-2019 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+(function (Direction) {
+    Direction["ASC"] = "ASC";
+    Direction["DESC"] = "DESC";
+})(exports.Direction || (exports.Direction = {}));
+(function (NullHandling) {
+    /**
+     * Lets the data store decide what to do with nulls.
+     */
+    NullHandling["NATIVE"] = "NATIVE";
+    /**
+     * A hint to the used data store to order entries with null values before non null entries.
+     */
+    NullHandling["NULLS_FIRST"] = "NULLS_FIRST";
+    /**
+     * A hint to the used data store to order entries with null values after non null entries.
+     */
+    NullHandling["NULLS_LAST"] = "NULLS_LAST";
+})(exports.NullHandling || (exports.NullHandling = {}));
+var Order = /** @class */ (function () {
+    function Order(property, direction) {
+        this.direction = exports.Direction.ASC;
+        this.nullHandling = exports.NullHandling.NATIVE;
+        this.property = property;
+        if (direction !== null) {
+            this.direction = direction;
+        }
+    }
+    /**
+     * Returns whether sorting for this property shall be ascending.
+     */
+    Order.prototype.isAscending = function () {
+        return this.direction === exports.Direction.ASC;
+    };
+    /**
+     * Returns whether sorting for this property shall be descending.
+     */
+    Order.prototype.isDescending = function () {
+        return this.direction === exports.Direction.DESC;
+    };
+    return Order;
+}());
+/**
+ * Sort option for queries. You have to provide at least a list of properties to sort for that must not include
+ * {@literal null} or empty strings. The direction defaults to {@link Sort#DEFAULT_DIRECTION}.
+ *
+ * Adapted from the Spring Data Commons Package
+ *
+ * @author Oliver Gierke
+ * @author Thomas Darimont
+ * @author Mark Paluch
+ * @author Navid Mitchell
+ */
+var Sort = /** @class */ (function () {
+    function Sort() {
+        this.orders = [];
+    }
+    return Sort;
 }());
 
 /*
@@ -777,6 +802,7 @@ var CrudServiceProxyFactory = /** @class */ (function () {
 inversifyProps.container.addSingleton(CrudServiceProxyFactory);
 
 exports.CrudServiceProxy = CrudServiceProxy;
+exports.DataSourceUtils = DataSourceUtils;
 exports.Event = Event;
 exports.EventBus = EventBus;
 exports.JsonEventFactory = JsonEventFactory;

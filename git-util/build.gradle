@@ -24,14 +24,15 @@ dependencyManagement {
 }
 
 ext {
-
+    jgitVersion="5.12.0.202106070339-r"
 }
 
 dependencies {
     implementation 'org.springframework:spring-context'
 
     implementation "org.apache.commons:commons-lang3"
-    compile 'org.eclipse.jgit:org.eclipse.jgit:4.8.0.201706111038-r'
+    compile "org.eclipse.jgit:org.eclipse.jgit:${jgitVersion}"
+    compile "org.eclipse.jgit:org.eclipse.jgit.ssh.apache:${jgitVersion}"
 
     implementation "ch.qos.logback:logback-core"
     implementation "ch.qos.logback:logback-classic"

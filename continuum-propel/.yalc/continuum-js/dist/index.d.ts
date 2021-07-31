@@ -8,6 +8,7 @@ export * from './core/api/crud/IDataSource';
 export * from './core/api/crud/Identifiable';
 export * from './core/api/crud/Pageable';
 export * from './core/api/crud/Page';
+export * from './core/api/crud/SearchCriteria';
 export * from './core/api/crud/Sort';
 export * from './core/api/EventBus';
 export * from './core/api/IEventBus';

@@ -3,7 +3,6 @@ import { inject, injectable, container } from 'inversify-props'
 import { AccessPolicy } from '@/frontends/iam/models/AccessPolicy'
 import { Pageable, Page, IServiceProxy} from 'continuum-js'
 import { ServiceIdentifierConstants } from '@/frontends/iam/Constants'
-import {Role} from "@/frontends/iam/models/Role";
 
 
 /**

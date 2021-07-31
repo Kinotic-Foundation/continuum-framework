@@ -12,7 +12,7 @@
             loading-text="Loading... Please wait"
             class="elevation-1"
             @page-count="pageCount = $event"
-            :fixed-header=true
+            fixed-header
             :footer-props="{
                               showFirstLastPage: true,
                               firstIcon: icons.firstIcon,
@@ -191,7 +191,7 @@ export default class CrudTable extends Vue {
 
     // methods
     public onResize() {
-        this.computedHeight = (window.innerHeight - 245)
+        this.computedHeight = (window.innerHeight - 210)
     }
 
     @Emit()

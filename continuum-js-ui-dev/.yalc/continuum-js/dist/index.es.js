@@ -224,6 +224,41 @@ var Page = /** @class */ (function () {
 }());
 
 /*
+ *
+ * Copyright 2008-2021 Kinotic and the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+var SearchComparator;
+(function (SearchComparator) {
+    SearchComparator["EQUALS"] = "=";
+    SearchComparator["NOT"] = "!";
+    SearchComparator["GREATER_THAN"] = ">";
+    SearchComparator["GREATER_THAN_OR_EQUALS"] = ">=";
+    SearchComparator["LESS_THAN"] = "<";
+    SearchComparator["LESS_THAN_OR_EQUALS"] = "<=";
+    SearchComparator["LIKE"] = "~";
+})(SearchComparator || (SearchComparator = {}));
+var SearchCriteria = /** @class */ (function () {
+    function SearchCriteria(key, value, searchComparator) {
+        this.key = key;
+        this.value = value;
+        this.searchComparator = searchComparator;
+    }
+    return SearchCriteria;
+}());
+
+/*
  * Copyright 2008-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -818,4 +853,4 @@ var CrudServiceProxyFactory = /** @class */ (function () {
 }());
 container.addSingleton(CrudServiceProxyFactory);
 
-export { CrudServiceProxy, DataSourceUtils, Direction, Event, EventBus, EventConstants, JsonEventFactory, NullHandling, Order, Page, Pageable, ServiceRegistry, Sort, StreamData, StreamOperation, TextEventFactory };
+export { CrudServiceProxy, DataSourceUtils, Direction, Event, EventBus, EventConstants, JsonEventFactory, NullHandling, Order, Page, Pageable, SearchComparator, SearchCriteria, ServiceRegistry, Sort, StreamData, StreamOperation, TextEventFactory };

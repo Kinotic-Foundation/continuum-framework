@@ -36,131 +36,75 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.*;
 import java.util.function.Consumer;
 
-public class GitRepositoryWatcher  implements ApplicationListener<GitCommitOccurred> {
+public class GitRepositoryWatcher  implements ApplicationListener<GitCommitOccurred>, Runnable {
 
     private static final Logger log = LoggerFactory.getLogger(GitRepositoryWatcher.class);
 
-    private String repositoryURL;
-    private List<Consumer<GitRecord>> gitRecordConsumers;
+    private final String repositoryURL;
+    private final List<Consumer<GitRecord>> gitRecordConsumers;
+
+    private final BlockingQueue<String> queue = new ArrayBlockingQueue<>(10);
 
     public GitRepositoryWatcher(String repositoryURL, Consumer<GitRecord>... gitRecordConsumers){
         this.repositoryURL = repositoryURL;
         this.gitRecordConsumers = Arrays.asList(gitRecordConsumers);
+        Executors.newSingleThreadExecutor().execute(this);
     }
 
     public void initialize() {
-        Repository repository = null;
         try {
 
-            FileRepositoryBuilder repoBuilder = new FileRepositoryBuilder();
-            repoBuilder.setGitDir(new File(this.repositoryURL+"/.git"));
-            repository = repoBuilder.build();
-
-            buildInitialDataSet(repository);
+            queue.offer("initial");
 
         }catch(Exception ex){
             log.error("Exception occurred while getting and/or building git repo/tree.", ex);
-        }finally{
-            if(repository != null){
-                repository.close();
-            }
         }
     }
+
     @Override
     public void onApplicationEvent(GitCommitOccurred event) {
-        try {
 
-            log.info("GitRepositoryWatcher: starting reaction to git commit event.");
-            ObjectReader reader;
-            FileRepositoryBuilder repoBuilder = new FileRepositoryBuilder();
-            repoBuilder.setGitDir(new File(this.repositoryURL+"/.git"));
-            Repository repository = repoBuilder.build();
+        log.info("GitRepositoryWatcher: We have received a GitCommitOccurred event.");
+        queue.offer("event");
 
-            ObjectId headTree = repository.resolve("HEAD^{tree}");
-            ObjectId previousHeadTree = repository.resolve("HEAD^^{tree}");
+    }
 
-            reader = repository.newObjectReader();
-            CanonicalTreeParser oldTreeIter = new CanonicalTreeParser();
-            oldTreeIter.reset(reader, previousHeadTree);
-            CanonicalTreeParser newTreeIter = new CanonicalTreeParser();
-            newTreeIter.reset(reader, headTree);
-
-            Git git = null;
+    @Override
+    public void run() {
+        while(true) {
             try {
-                git = new Git(repository);
-                final List<DiffEntry> diffs = git.diff()
-                        .setNewTree(newTreeIter)
-                        .setOldTree(oldTreeIter)
-                        .call();
+                String message = queue.poll(60, TimeUnit.SECONDS);
+                if(message != null){
 
-                for(DiffEntry entry : diffs){
-                    String pathForNeededObject = entry.getPath(DiffEntry.Side.NEW);
-                    String revString = Constants.HEAD;
-
-                    if(entry.getChangeType() == DiffEntry.ChangeType.DELETE){
-                        pathForNeededObject = entry.getPath(DiffEntry.Side.OLD);
-                        revString = "HEAD^";
-                    }
+                    FileRepositoryBuilder repoBuilder = new FileRepositoryBuilder();
+                    repoBuilder.setGitDir(new File(this.repositoryURL+"/.git"));
+                    Repository repository = repoBuilder.build();
 
                     try {
-                        ObjectLoader objectLoader = GitUtils.getGitObjectLoaderFromDiff(repository, pathForNeededObject, revString);
 
-                        // We pass the ObjectLoader down so that we don't have to open an InputStream.  If nobody picks up the message
-                        // then the input stream will never be opened.
-                        if(entry.getChangeType() == DiffEntry.ChangeType.ADD){
-
-                            processGitRecord(new GitRecord(this.repositoryURL, GitOperation.ADD, Path.of(this.repositoryURL, pathForNeededObject), objectLoader, null));
-
-                        }else if(entry.getChangeType() == DiffEntry.ChangeType.MODIFY){
-                            // here we pass in a diff text for this modification and file.
-                            // this way if the consumer wants to do something with it they can.
-                            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-                            try (DiffFormatter formatter = new DiffFormatter(outputStream)) {
-                                formatter.setRepository(repository);
-                                formatter.format(entry);
-                            }
-                            String diff = outputStream.toString(StandardCharsets.UTF_8);
-
-                            ObjectLoader oldObjectLoader = GitUtils.getGitObjectLoaderFromDiff(repository, pathForNeededObject, "HEAD^");
-
-                            GitRecord record = new GitRecord(this.repositoryURL, GitOperation.MODIFY, Path.of(this.repositoryURL, pathForNeededObject), objectLoader, oldObjectLoader);
-                            record.setDiff(diff);
-                            processGitRecord(record);
-
-                        }else if(entry.getChangeType() == DiffEntry.ChangeType.DELETE){
-
-                            processGitRecord(new GitRecord(this.repositoryURL, GitOperation.DELETE, Path.of(this.repositoryURL, pathForNeededObject), objectLoader, null));
-
-                        }else if(entry.getChangeType() == DiffEntry.ChangeType.RENAME){
-                            ObjectLoader oldObjectLoader = GitUtils.getGitObjectLoaderFromDiff(repository, pathForNeededObject, "HEAD^");
-
-                            processGitRecord(new GitRecord(this.repositoryURL, GitOperation.RENAME, Path.of(this.repositoryURL, pathForNeededObject), objectLoader, oldObjectLoader));
-
-                        }else if(entry.getChangeType() == DiffEntry.ChangeType.COPY){
-                            ObjectLoader oldObjectLoader = GitUtils.getGitObjectLoaderFromDiff(repository, pathForNeededObject, "HEAD^");
-
-                            processGitRecord(new GitRecord(this.repositoryURL, GitOperation.COPY, Path.of(this.repositoryURL, pathForNeededObject), objectLoader, oldObjectLoader));
-
+                        if(message.equals("initial")){
+                            buildInitialDataSet(repository);
+                        }else if(message.equals("event")){
+                            processEvent(repository);
+                        }else{
+                            log.error("We encountered a message from the queue that doesn't belong. message : "+ message);
                         }
-                    } catch (IOException e) {
-                        log.error("error reading git object -> ", e);
+
+                    }catch(Exception e){
+                        log.error("Exception occurred during processing of initial/event.", e);
+                    }finally{
+                        if(repository != null){
+                            repository.close();
+                        }
                     }
                 }
 
-                log.info("GitRepositoryWatcher: done reacting to git commit event.");
-
-            }catch(Exception e){
-                log.error("Exception occurred while diffing two git trees.", e);
-            }finally{
-                if(git != null){
-                    git.close();
-                }
+            } catch (Exception e) {
+                log.error("encountered a queue or repository build error. ", e);
             }
-
-        }catch(Exception e){
-            log.error("Exception occurred while diffing two git trees.", e);
         }
     }
 
@@ -177,6 +121,95 @@ public class GitRepositoryWatcher  implements ApplicationListener<GitCommitOccur
             } catch (IOException e) {
                 log.error("error reading git object  -> ", e);
             }
+        }
+    }
+
+    private void processEvent(final Repository repository) throws IOException {
+        log.info("GitRepositoryWatcher: starting reaction to git commit event.");
+
+        ObjectReader reader;
+        ObjectId headTree = repository.resolve("HEAD^{tree}");
+        ObjectId previousHeadTree = repository.resolve("HEAD^^{tree}");
+
+        reader = repository.newObjectReader();
+        CanonicalTreeParser oldTreeIter = new CanonicalTreeParser();
+        oldTreeIter.reset(reader, previousHeadTree);
+        CanonicalTreeParser newTreeIter = new CanonicalTreeParser();
+        newTreeIter.reset(reader, headTree);
+
+        Git git = null;
+        try {
+            git = new Git(repository);
+            final List<DiffEntry> diffs = git.diff()
+                    .setNewTree(newTreeIter)
+                    .setOldTree(oldTreeIter)
+                    .call();
+
+            for(DiffEntry entry : diffs){
+                String pathForNeededObject = entry.getPath(DiffEntry.Side.NEW);
+                String revString = Constants.HEAD;
+
+                if(entry.getChangeType() == DiffEntry.ChangeType.DELETE){
+                    pathForNeededObject = entry.getPath(DiffEntry.Side.OLD);
+                    revString = "HEAD^";
+                }
+
+                try {
+                    ObjectLoader objectLoader = GitUtils.getGitObjectLoaderFromDiff(repository, pathForNeededObject, revString);
+
+                    // We pass the ObjectLoader down so that we don't have to open an InputStream.  If nobody picks up the message
+                    // then the input stream will never be opened.
+                    if(entry.getChangeType() == DiffEntry.ChangeType.ADD){
+
+                        processGitRecord(new GitRecord(this.repositoryURL, GitOperation.ADD, Path.of(this.repositoryURL, pathForNeededObject), objectLoader, null));
+
+                    }else if(entry.getChangeType() == DiffEntry.ChangeType.MODIFY){
+                        // here we pass in a diff text for this modification and file.
+                        // this way if the consumer wants to do something with it they can.
+                        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                        try (DiffFormatter formatter = new DiffFormatter(outputStream)) {
+                            formatter.setRepository(repository);
+                            formatter.format(entry);
+                        }
+                        String diff = outputStream.toString(StandardCharsets.UTF_8);
+
+                        ObjectLoader oldObjectLoader = GitUtils.getGitObjectLoaderFromDiff(repository, pathForNeededObject, "HEAD^");
+
+                        GitRecord record = new GitRecord(this.repositoryURL, GitOperation.MODIFY, Path.of(this.repositoryURL, pathForNeededObject), objectLoader, oldObjectLoader);
+                        record.setDiff(diff);
+                        processGitRecord(record);
+
+                    }else if(entry.getChangeType() == DiffEntry.ChangeType.DELETE){
+
+                        processGitRecord(new GitRecord(this.repositoryURL, GitOperation.DELETE, Path.of(this.repositoryURL, pathForNeededObject), objectLoader, null));
+
+                    }else if(entry.getChangeType() == DiffEntry.ChangeType.RENAME){
+                        ObjectLoader oldObjectLoader = GitUtils.getGitObjectLoaderFromDiff(repository, pathForNeededObject, "HEAD^");
+
+                        processGitRecord(new GitRecord(this.repositoryURL, GitOperation.RENAME, Path.of(this.repositoryURL, pathForNeededObject), objectLoader, oldObjectLoader));
+
+                    }else if(entry.getChangeType() == DiffEntry.ChangeType.COPY){
+                        ObjectLoader oldObjectLoader = GitUtils.getGitObjectLoaderFromDiff(repository, pathForNeededObject, "HEAD^");
+
+                        processGitRecord(new GitRecord(this.repositoryURL, GitOperation.COPY, Path.of(this.repositoryURL, pathForNeededObject), objectLoader, oldObjectLoader));
+
+                    }
+                } catch (IOException e) {
+                    log.error("error reading git object -> ", e);
+                }
+            }
+
+            log.info("GitRepositoryWatcher: done reacting to git commit event.");
+
+        }catch(Exception e){
+            log.error("Exception occurred while diffing two git trees.", e);
+        }finally{
+            if(git != null){
+                git.close();
+            }
+            // since we may have encountered other git commits after this iteration started
+            // we clear the queue and wait for next commit.  Expectation is commits happen often.
+            queue.clear();
         }
     }
 
@@ -208,13 +241,13 @@ public class GitRepositoryWatcher  implements ApplicationListener<GitCommitOccur
         /** Copy an existing file to a new location, keeping the original */
         COPY
     }
-    public class GitRecord {
+    public static class GitRecord {
 
-        private String repository;
-        private GitOperation operation;
-        private Path path;
-        private ObjectLoader currentObjectLoader;
-        private ObjectLoader previousObjectLoader;
+        private final String repository;
+        private final GitOperation operation;
+        private final Path path;
+        private final ObjectLoader currentObjectLoader;
+        private final ObjectLoader previousObjectLoader;
         private String diff;
 
         public GitRecord(String repository, GitOperation operation, Path path, ObjectLoader currentObjectLoader, ObjectLoader previousObjectLoader) {

@@ -1,5 +1,5 @@
 plugins {
-    id 'java'
+    id 'java-library'
     id 'idea'
 
     // see https://docs.spring.io/dependency-management-plugin/docs/current-SNAPSHOT/reference/html5/
@@ -59,7 +59,7 @@ dependencies {
     // Spring kafka compatibility https://spring.io/projects/spring-kafka
     compile "org.apache.kafka:kafka-clients:${kafkaVersion}"
     compile "org.springframework.kafka:spring-kafka"
-    compile 'io.projectreactor.kafka:reactor-kafka'
+    api 'io.projectreactor.kafka:reactor-kafka'
     compile ("org.apache.zookeeper:zookeeper:${zookeeperVersion}"){
         exclude group: "org.slf4j", module: "slf4j-log4j12"
         exclude group: "log4j", module: "log4j"
@@ -74,15 +74,15 @@ dependencies {
     implementation ("org.apache.ignite:ignite-zookeeper:${igniteVersion}"){
         exclude group: "org.slf4j", module: "slf4j-log4j12"
     }
-    compile 'com.h2database:h2:1.4.197' // this is the version required by ignite we override what is included by the spring platform bom
+    api 'com.h2database:h2:1.4.197' // this is the version required by ignite we override what is included by the spring platform bom
     implementation 'javax.cache:cache-api:1.0.0'
 
     // Json
-    compile 'com.fasterxml.jackson.core:jackson-core'
-    compile 'com.fasterxml.jackson.core:jackson-annotations'
-    compile 'com.fasterxml.jackson.core:jackson-databind'
-    compile 'com.fasterxml.jackson.datatype:jackson-datatype-jdk8'
-    compile 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+    api 'com.fasterxml.jackson.core:jackson-core'
+    api 'com.fasterxml.jackson.core:jackson-annotations'
+    api 'com.fasterxml.jackson.core:jackson-databind'
+    api 'com.fasterxml.jackson.datatype:jackson-datatype-jdk8'
+    api 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
 
     // Dependencies required to handle various JsonSchema converters. These can be moved when that code is separated
     implementation 'org.codehaus.groovy:groovy'

@@ -1,5 +1,5 @@
 plugins {
-    id 'java'
+    id 'java-library'
     id 'idea'
 
     // see https://docs.spring.io/dependency-management-plugin/docs/current-SNAPSHOT/reference/html5/
@@ -39,8 +39,8 @@ dependencies {
 
     // reactive https://github.com/reactive-streams/reactive-streams-jvm
     // these should be the only reactive interfaces exposed by the Continuum Grind API!
-    compile 'org.reactivestreams:reactive-streams'
-    compile 'io.projectreactor:reactor-core'
+    api 'org.reactivestreams:reactive-streams'
+    api 'io.projectreactor:reactor-core'
 
     implementation 'org.springframework:spring-core'
     implementation 'org.springframework:spring-context'

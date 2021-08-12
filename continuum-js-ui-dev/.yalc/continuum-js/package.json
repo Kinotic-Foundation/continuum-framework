@@ -1,13 +1,13 @@
 {
   "name": "continuum-js",
-  "version": "1.0.0+fa0aff43",
+  "version": "1.0.0+95f9e7af",
   "author": "Kinotic <develop@kinotic.com>",
   "license": "MIT",
   "scripts": {
     "build": "rollup -c",
     "watch": "rollup -cw"
   },
-  "main": "index.ts",
+  "main": "dist/index.ts",
   "module": "dist/index.es.js",
   "files": [
     "dist"
@@ -24,5 +24,5 @@
     "inversify": "5.0.5",
     "inversify-props": "1.4.9"
   },
-  "yalcSig": "fa0aff4313446606055f84071cec8627"
+  "yalcSig": "95f9e7af9ad38c69a0ab30d2025e6107"
 }

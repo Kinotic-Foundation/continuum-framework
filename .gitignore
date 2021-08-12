@@ -79,8 +79,6 @@ fabric.properties
 /ignite/
 /gateway-data/
 
-/continuum-box/continuum-builder/work/**
-
 *.zip
 
 continuum-propel/yalc.lock

@@ -40,7 +40,7 @@ ext {
 dependencies {
 
     // Continuum Dependencies
-    compile "com.kinotic:continuum-core:${continuumVersion}"
+    api "com.kinotic:continuum-core:${continuumVersion}"
 
     // spring
     implementation 'org.springframework:spring-core'
@@ -51,16 +51,16 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-autoconfigure' // Used for conditionally wiring beans
 
     // vertx
-    compile "io.vertx:vertx-core:${vertxVersion}"
+    api "io.vertx:vertx-core:${vertxVersion}"
     implementation "io.vertx:vertx-reactive-streams:${vertxVersion}"
     implementation "com.github.rworsnop:vertx-beans:${vertxBeansVersion}"
 
     // Kafka and Zookeeper dependencies. Declared with versions to handle compatibility
     // Spring kafka compatibility https://spring.io/projects/spring-kafka
-    compile "org.apache.kafka:kafka-clients:${kafkaVersion}"
-    compile "org.springframework.kafka:spring-kafka"
+    api "org.apache.kafka:kafka-clients:${kafkaVersion}"
+    api 'org.springframework.kafka:spring-kafka'
     api 'io.projectreactor.kafka:reactor-kafka'
-    compile ("org.apache.zookeeper:zookeeper:${zookeeperVersion}"){
+    api ("org.apache.zookeeper:zookeeper:${zookeeperVersion}"){
         exclude group: "org.slf4j", module: "slf4j-log4j12"
         exclude group: "log4j", module: "log4j"
     }

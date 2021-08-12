@@ -35,7 +35,7 @@ ext {
 
 dependencies {
     // Continuum Dependencies
-    compile "com.kinotic:continuum-core:${continuumVersion}"
+    api "com.kinotic:continuum-core:${continuumVersion}"
 
     // reactive https://github.com/reactive-streams/reactive-streams-jvm
     // these should be the only reactive interfaces exposed by the Continuum Grind API!

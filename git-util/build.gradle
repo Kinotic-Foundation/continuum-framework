@@ -1,5 +1,5 @@
 plugins {
-    id 'java'
+    id 'java-library'
     id 'idea'
 
     // see https://docs.spring.io/dependency-management-plugin/docs/current-SNAPSHOT/reference/html5/
@@ -31,8 +31,8 @@ dependencies {
     implementation 'org.springframework:spring-context'
 
     implementation "org.apache.commons:commons-lang3"
-    compile "org.eclipse.jgit:org.eclipse.jgit:${jgitVersion}"
-    compile "org.eclipse.jgit:org.eclipse.jgit.ssh.apache:${jgitVersion}"
+    api "org.eclipse.jgit:org.eclipse.jgit:${jgitVersion}"
+    api "org.eclipse.jgit:org.eclipse.jgit.ssh.apache:${jgitVersion}"
 
     implementation "ch.qos.logback:logback-core"
     implementation "ch.qos.logback:logback-classic"

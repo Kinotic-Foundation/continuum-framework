@@ -1,5 +1,5 @@
 plugins {
-	id 'java'
+	id 'java-library'
 	id 'idea'
 
 	// see https://docs.spring.io/dependency-management-plugin/docs/current-SNAPSHOT/reference/html5/
@@ -42,24 +42,24 @@ dependencies {
 	implementation 'javax.annotation:javax.annotation-api'
 	implementation 'org.springframework.boot:spring-boot-autoconfigure' // Used for conditionally wiring beans
 
-	compile "com.kinotic:continuum-core:${continuumVersion}"
-	compile "com.kinotic:continuum-core-vertx:${continuumVersion}"
-	compile "com.kinotic:continuum-grind:${continuumVersion}"
-	compile "com.kinotic:aws-util:${continuumVersion}"
+	api "com.kinotic:continuum-core:${continuumVersion}"
+	api "com.kinotic:continuum-core-vertx:${continuumVersion}"
+	api "com.kinotic:continuum-grind:${continuumVersion}"
+	api "com.kinotic:aws-util:${continuumVersion}"
 
-	compile "net.jodah:failsafe:${failsafeVersion}"
+	api "net.jodah:failsafe:${failsafeVersion}"
 
 	// Aws
-	compile "com.amazonaws:aws-java-sdk-logs:${awsVersion}"
+	api "com.amazonaws:aws-java-sdk-logs:${awsVersion}"
 
-	compile "software.amazon.awssdk:ec2:${aws2Version}"
-	compile "software.amazon.awssdk:ecs:${aws2Version}"
-	compile "software.amazon.awssdk:kafka:${aws2Version}"
-	compile "software.amazon.awssdk:rds:${aws2Version}"
-	compile "software.amazon.awssdk:route53:${aws2Version}"
-	compile "software.amazon.awssdk:acm:${aws2Version}"
-	compile "software.amazon.awssdk:elasticloadbalancingv2:${aws2Version}"
-	compile "software.amazon.awssdk:secretsmanager:${aws2Version}"
+	api "software.amazon.awssdk:ec2:${aws2Version}"
+	api "software.amazon.awssdk:ecs:${aws2Version}"
+	api "software.amazon.awssdk:kafka:${aws2Version}"
+	api "software.amazon.awssdk:rds:${aws2Version}"
+	api "software.amazon.awssdk:route53:${aws2Version}"
+	api "software.amazon.awssdk:acm:${aws2Version}"
+	api "software.amazon.awssdk:elasticloadbalancingv2:${aws2Version}"
+	api "software.amazon.awssdk:secretsmanager:${aws2Version}"
 
 	implementation "org.apache.commons:commons-lang3"
 

@@ -1,5 +1,5 @@
 plugins {
-    id 'java'
+    id 'java-library'
     id 'idea'
 
     // see https://docs.spring.io/dependency-management-plugin/docs/current-SNAPSHOT/reference/html5/
@@ -48,7 +48,7 @@ dependencies {
     implementation "io.vertx:vertx-web:${vertxVersion}"
     implementation "io.vertx:vertx-auth-common:${vertxVersion}"
     implementation "io.vertx:vertx-mqtt:${vertxVersion}"
-    compile "io.vertx:vertx-stomp-lite:${vertxVersion}"
+    api "io.vertx:vertx-stomp-lite:${vertxVersion}"
 
     implementation "org.apache.ignite:ignite-core:${igniteVersion}"
 

@@ -27,7 +27,6 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.type.AnnotationMetadata;
-import org.springframework.core.type.StandardAnnotationMetadata;
 import org.springframework.core.type.classreading.MetadataReader;
 import org.springframework.core.type.classreading.MetadataReaderFactory;
 import org.springframework.lang.Nullable;
@@ -96,7 +95,7 @@ abstract class ConfigurationClassUtils {
 			// Check already loaded Class if present...
 			// since we possibly can't even load the class file for this Class.
 			Class<?> beanClass = ((AbstractBeanDefinition) beanDef).getBeanClass();
-			metadata = new StandardAnnotationMetadata(beanClass, true);
+			metadata = AnnotationMetadata.introspect(beanClass);
 		}
 		else {
 			try {

@@ -10,7 +10,7 @@
   },
   "devDependencies": {
     "@types/uuid": "^8.3.0",
-    "@fortawesome/fontawesome-free": "^5.12.1",
+    "@fortawesome/fontawesome-free": "^5.15.4",
     "vuetify-loader": "^1.7.0"
   }
 }

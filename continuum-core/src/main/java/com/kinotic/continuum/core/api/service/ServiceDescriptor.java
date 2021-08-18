@@ -17,11 +17,32 @@
 
 package com.kinotic.continuum.core.api.service;
 
+import java.util.Collection;
+
 /**
+ * Describes services that can be registered with the Continuum
  * Created by Navíd Mitchell 🤬 on 7/18/21.
  */
 public interface ServiceDescriptor {
 
+    /**
+     * This identifies the {@link ServiceDescriptor}
+     * @return the {@link ServiceIdentifier} for this
+     */
+    ServiceIdentifier serviceIdentifier();
 
+    /**
+     * All of the {@link ServiceFunction}'s for this {@link ServiceDescriptor}
+     * @return the list of functions
+     */
+    Collection<ServiceFunction> functions();
+
+    static ServiceDescriptor create(ServiceIdentifier serviceIdentifier){
+        return new DefaultServiceDescriptor(serviceIdentifier);
+    }
+
+    static ServiceDescriptor create(ServiceIdentifier serviceIdentifier, Collection<ServiceFunction> serviceFunctions){
+        return new DefaultServiceDescriptor(serviceIdentifier, serviceFunctions);
+    }
 
 }

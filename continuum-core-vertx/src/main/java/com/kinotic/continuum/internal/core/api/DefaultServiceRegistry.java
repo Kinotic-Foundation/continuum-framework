@@ -19,10 +19,14 @@ package com.kinotic.continuum.internal.core.api;
 
 import com.kinotic.continuum.api.Continuum;
 import com.kinotic.continuum.api.annotations.Proxy;
-import com.kinotic.continuum.core.api.CRI;
 import com.kinotic.continuum.core.api.RpcServiceProxyHandle;
 import com.kinotic.continuum.core.api.ServiceRegistry;
 import com.kinotic.continuum.core.api.event.EventBusService;
+import com.kinotic.continuum.core.api.service.ServiceDescriptor;
+import com.kinotic.continuum.core.api.service.ServiceFunction;
+import com.kinotic.continuum.core.api.service.ServiceFunctionInstanceProvider;
+import com.kinotic.continuum.core.api.service.ServiceIdentifier;
+import com.kinotic.continuum.internal.ServiceRegistrationBeanPostProcessor;
 import com.kinotic.continuum.internal.core.api.service.invoker.ArgumentResolverComposite;
 import com.kinotic.continuum.internal.core.api.service.invoker.ExceptionConverterComposite;
 import com.kinotic.continuum.internal.core.api.service.invoker.ReturnValueConverterComposite;
@@ -31,15 +35,19 @@ import com.kinotic.continuum.internal.core.api.service.rpc.DefaultRpcServiceProx
 import com.kinotic.continuum.internal.core.api.service.rpc.RpcArgumentConverter;
 import com.kinotic.continuum.internal.core.api.service.rpc.RpcArgumentConverterResolver;
 import com.kinotic.continuum.internal.core.api.service.rpc.RpcReturnValueHandlerFactory;
-import com.kinotic.continuum.internal.utils.MetaUtil;
 import io.vertx.core.Vertx;
 import org.apache.commons.lang3.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ReactiveAdapterRegistry;
 import org.springframework.stereotype.Component;
 import org.springframework.util.MimeTypeUtils;
+import org.springframework.util.ReflectionUtils;
 import reactor.core.publisher.Mono;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -48,6 +56,8 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Component
 public class DefaultServiceRegistry implements ServiceRegistry {
+
+    private static final Logger log = LoggerFactory.getLogger(ServiceRegistrationBeanPostProcessor.class);
 
     @Autowired
     private Vertx vertx; //TODO: move thread scheduling and execution functionality into Continuum API such as Scheduling Service ect..
@@ -76,56 +86,83 @@ public class DefaultServiceRegistry implements ServiceRegistry {
     @Autowired
     private ReactiveAdapterRegistry reactiveAdapterRegistry;
 
-    private ConcurrentHashMap<CRI, ServiceInvocationSupervisor> supervisors = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<ServiceIdentifier, ServiceInvocationSupervisor> supervisors = new ConcurrentHashMap<>();
 
 
     @Override
-    public Mono<Void> register(CRI cri, Class<?> serviceInterface, Object instance) { 
-        return Mono.create(sink -> supervisors.compute(cri,
-                                                       (cri1, serviceInvocationSupervisor) -> {
-                                                           if(serviceInvocationSupervisor == null){
-                                                               serviceInvocationSupervisor = new ServiceInvocationSupervisor(
-                                                                       cri,
-                                                                       serviceInterface,
-                                                                       instance,
-                                                                       argumentResolver,
-                                                                       returnValueConverter,
-                                                                       exceptionConverter,
-                                                                       eventBusService,
-                                                                       reactiveAdapterRegistry,
-                                                                       vertx);
+    public Mono<Void> register(ServiceIdentifier serviceIdentifier, Class<?> serviceInterface, Object instance) {
+        try {
+            // now build list of service functions
+            Map<String, ServiceFunction> functionMap = new HashMap<>();
+            ReflectionUtils.doWithMethods(serviceInterface, method -> {
+                String methodName = method.getName();
+                if(functionMap.containsKey(methodName)){
+                    // in some cases such as with default methods we may actually get the same method multiple times check for that.
+                    if(!functionMap.get(methodName).invocationMethod().equals(method)){
+                        log.warn(serviceInterface.getName() + " has overloaded method " + methodName + " overloading is not supported. \n "+method.toGenericString()+" will be ignored");
+                    }
+                }else{
+                    functionMap.put(methodName,  ServiceFunction.create(methodName, method));
+                }
+            }, ReflectionUtils.USER_DECLARED_METHODS);
 
-                                                               serviceInvocationSupervisor
-                                                                       .start()
-                                                                       .subscribe(sink::success,
-                                                                                  sink::error);
+            return register(ServiceDescriptor.create(serviceIdentifier, functionMap.values()), ServiceFunctionInstanceProvider.create(instance));
+        } catch (Exception e) {
+            return Mono.error(e);
+        }
+    }
+
+    @Override
+    public Mono<Void> register(ServiceDescriptor serviceDescriptor, ServiceFunctionInstanceProvider instanceProvider) {
+        return Mono.create(sink -> supervisors.compute(serviceDescriptor.serviceIdentifier(),
+                                                       (serviceIdentifier, serviceInvocationSupervisor) -> {
+                                                           if(serviceInvocationSupervisor == null){
+                                                               try {
+                                                                   serviceInvocationSupervisor = new ServiceInvocationSupervisor(
+                                                                           serviceDescriptor,
+                                                                           instanceProvider,
+                                                                           argumentResolver,
+                                                                           returnValueConverter,
+                                                                           exceptionConverter,
+                                                                           eventBusService,
+                                                                           reactiveAdapterRegistry,
+                                                                           vertx);
+
+                                                                   serviceInvocationSupervisor
+                                                                           .start()
+                                                                           .subscribe(sink::success,
+                                                                                      sink::error);
+
+                                                               } catch (Exception e) {
+                                                                   sink.error(e);
+                                                               }
                                                            }else{
-                                                               sink.error(new IllegalArgumentException("Service already registered for CRI "+ cri));
+                                                               sink.error(new IllegalArgumentException("Service already registered for ServiceIdentifier "+ serviceDescriptor.serviceIdentifier()));
                                                            }
                                                            return serviceInvocationSupervisor;
                                                        }));
     }
 
     @Override
-    public Mono<Void> unregister(CRI cri) {
-        return Mono.create(sink -> supervisors.compute(cri,
-                                                       (cri1, serviceInvocationSupervisor) -> {
+    public Mono<Void> unregister(ServiceIdentifier serviceIdentifier) {
+        return Mono.create(sink -> supervisors.compute(serviceIdentifier,
+                                                       (serviceIdentifier1, serviceInvocationSupervisor) -> {
                                                            if(serviceInvocationSupervisor != null){
                                                                serviceInvocationSupervisor
                                                                        .stop()
                                                                        .subscribe(sink::success,
                                                                                   sink::error);
                                                            }else{
-                                                               sink.error(new IllegalArgumentException(" No Service registered for CRI "+ cri));
+                                                               sink.error(new IllegalArgumentException(" No Service registered for for ServiceIdentifier "+ serviceIdentifier));
                                                            }
                                                            return null; // remove from map
                                                        }));
     }
 
     @Override
-    public <T> RpcServiceProxyHandle<T> serviceProxy(CRI cri, Class<T> serviceInterface) {
+    public <T> RpcServiceProxyHandle<T> serviceProxy(ServiceIdentifier serviceIdentifier, Class<T> serviceInterface) {
         RpcArgumentConverter rpcArgumentConverter = rpcArgumentConverterResolver.resolve(MimeTypeUtils.APPLICATION_JSON_VALUE);
-        return new DefaultRpcServiceProxyHandle<>(cri,
+        return new DefaultRpcServiceProxyHandle<>(serviceIdentifier,
                                                   continuum.nodeName(),
                                                   serviceInterface,
                                                   rpcArgumentConverter,
@@ -135,11 +172,11 @@ public class DefaultServiceRegistry implements ServiceRegistry {
     }
 
     @Override
-    public <T> RpcServiceProxyHandle<T> serviceProxy(CRI cri, Class<T> serviceInterface, String contentTypeExpected) {
+    public <T> RpcServiceProxyHandle<T> serviceProxy(ServiceIdentifier serviceIdentifier, Class<T> serviceInterface, String contentTypeExpected) {
         Validate.notBlank(contentTypeExpected, "The contentTypeExpected must not be blank");
         Validate.isTrue(rpcArgumentConverterResolver.canResolve(contentTypeExpected), "The contentType:"+contentTypeExpected+" does not have any configured RpcArgumentConverter's");
         RpcArgumentConverter rpcArgumentConverter = rpcArgumentConverterResolver.resolve(contentTypeExpected);
-        return new DefaultRpcServiceProxyHandle<>(cri,
+        return new DefaultRpcServiceProxyHandle<>(serviceIdentifier,
                                                   continuum.nodeName(),
                                                   serviceInterface,
                                                   rpcArgumentConverter,
@@ -152,6 +189,10 @@ public class DefaultServiceRegistry implements ServiceRegistry {
     public <T> RpcServiceProxyHandle<T> serviceProxy(Class<T> serviceInterface) {
         Proxy proxyAnnotation = serviceInterface.getAnnotation(Proxy.class);
         Validate.notNull(proxyAnnotation, "The Class provided must be annotated with @Proxy");
-        return serviceProxy(MetaUtil.getCRIForProxyAnnotation(proxyAnnotation), serviceInterface, proxyAnnotation.contentTypeExpected());
+        ServiceIdentifier serviceIdentifier = new ServiceIdentifier(!proxyAnnotation.namespace().isEmpty() ? proxyAnnotation.namespace() : null,
+                                                                    proxyAnnotation.name(),
+                                                                    null,
+                                                                    proxyAnnotation.version());
+        return serviceProxy(serviceIdentifier, serviceInterface, proxyAnnotation.contentTypeExpected());
     }
 }

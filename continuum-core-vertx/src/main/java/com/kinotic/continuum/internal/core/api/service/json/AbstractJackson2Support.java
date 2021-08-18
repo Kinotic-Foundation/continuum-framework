@@ -81,21 +81,21 @@ public abstract class AbstractJackson2Support {
 
     /**
      * Transforms the Json content to Java objects using the given expected parameter types
-     * @param incomingEvent the message containing the Json content to be converted
+     * @param event the message containing the Json content to be converted
      * @param parameters to determine the correct type for the {@link TokenBuffer} being decoded.
      * @param dataInArray if true the incoming data is expected to be within an array such as when decoding input arguments
      *
      * @return the deserialized Json as Java objects
      */
-    protected Object[] createJavaObjectsFromJsonEvent(Event<byte[]> incomingEvent, MethodParameter[] parameters, boolean dataInArray){
-        Validate.notNull(incomingEvent, "incomingEvent cannot be null");
+    protected Object[] createJavaObjectsFromJsonEvent(Event<byte[]> event, MethodParameter[] parameters, boolean dataInArray){
+        Validate.notNull(event, "event cannot be null");
         Validate.notNull(parameters, "parameters must not be null");
         // TODO: should we use the Jackson2Tokenizer borrowed from spring? We are not really taking advantage of the claimed non blocking or the Flux themselves
         // I really don't see a way to do that anyhow since all Arguments at least for the invoker must be available upfront.
         // A return value could be parsed and streamed but that would require more machinery.
         // And we would want to plum that all the way to the caller.
 
-        List<TokenBuffer> tokens = Jackson2Tokenizer.tokenize(Flux.just(incomingEvent.data()),
+        List<TokenBuffer> tokens = Jackson2Tokenizer.tokenize(Flux.just(event.data()),
                                                               getObjectMapper().getFactory(),
                                                               getObjectMapper(),
                                                               dataInArray,
@@ -121,7 +121,7 @@ public abstract class AbstractJackson2Support {
 
         methodParameter = methodParameter.nestedIfOptional();
 
-        // Unwrap async classes
+        // Unwrap async classes, this is also used for method return values so this handles that..
         if(reactiveAdapterRegistry.getAdapter(methodParameter.getParameterType()) != null){
             methodParameter = methodParameter.nested();
         }

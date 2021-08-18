@@ -38,7 +38,7 @@ public interface LogManager {
 
     /**
      * Gets all loggers configured within the system
-     * @return A Json object containing the following
+     * @return A Map object containing the following
      *         {
      *             levels: [] // array of available levels
      *             loggers: // Map of log configuration name and value of LoggerLevels

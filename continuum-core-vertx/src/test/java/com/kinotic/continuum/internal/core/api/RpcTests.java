@@ -291,11 +291,11 @@ public class RpcTests {
     }
 
     @Test
-    public void testMonoFailure() {
-        Mono<String> mono = rpcTestServiceProxy.getRemoteMonoFailure();
+    public void testMissingRemoteMethodFailure() {
+        Mono<String> mono = rpcTestServiceProxy.getMissingRemoteMethodFailure();
 
         StepVerifier.create(mono)
-                    .expectError(IllegalStateException.class)
+                    .expectError(IllegalArgumentException.class)
                     .verify();
     }
 

@@ -25,6 +25,7 @@ import com.kinotic.continuum.core.api.event.Event;
 import com.kinotic.continuum.core.api.event.EventBusService;
 import com.kinotic.continuum.core.api.event.EventConstants;
 import com.kinotic.continuum.core.api.event.Metadata;
+import com.kinotic.continuum.core.api.service.ServiceIdentifier;
 import com.kinotic.continuum.internal.utils.ContinuumUtil;
 import com.kinotic.continuum.internal.utils.MetaUtil;
 import io.vertx.core.eventbus.EventBus;
@@ -57,7 +58,7 @@ public class DefaultRpcServiceProxyHandle<T> implements RpcServiceProxyHandle<T>
 
     private static final Logger log = LoggerFactory.getLogger(DefaultRpcServiceProxyHandle.class);
 
-    private final CRI proxyCRI;
+    private final ServiceIdentifier serviceIdentifier;
     private final String nodeName;
     private final String encodedNodeName;
     private final Class<T> serviceClass;
@@ -74,7 +75,7 @@ public class DefaultRpcServiceProxyHandle<T> implements RpcServiceProxyHandle<T>
     private final ConcurrentHashMap<String, RpcReturnValueHandler> responseMap = new ConcurrentHashMap<>();
 
 
-    public DefaultRpcServiceProxyHandle(CRI proxyCRI,
+    public DefaultRpcServiceProxyHandle(ServiceIdentifier serviceIdentifier,
                                         String nodeName,
                                         Class<T> serviceClass,
                                         RpcArgumentConverter rpcArgumentConverter,
@@ -82,7 +83,7 @@ public class DefaultRpcServiceProxyHandle<T> implements RpcServiceProxyHandle<T>
                                         EventBusService eventBusService,
                                         ClassLoader classLoader) {
 
-        Validate.notNull(proxyCRI, "proxyCRI must not be null");
+        Validate.notNull(serviceIdentifier, "serviceIdentifier must not be null");
         Validate.notBlank(nodeName, "nodeName must not be blank");
         Validate.notNull(serviceClass, "serviceClass must not be null");
         Validate.notNull(rpcArgumentConverter, "argumentConverter must not be null");
@@ -90,7 +91,7 @@ public class DefaultRpcServiceProxyHandle<T> implements RpcServiceProxyHandle<T>
         Validate.notNull(eventBusService, "eventBusService must not be null");
         Validate.notNull(classLoader, "classLoader must not be null");
 
-        this.proxyCRI = proxyCRI;
+        this.serviceIdentifier = serviceIdentifier;
         this.nodeName = nodeName;
         this.encodedNodeName = ContinuumUtil.safeEncodeURI(nodeName);
         this.serviceClass = serviceClass;
@@ -215,9 +216,9 @@ public class DefaultRpcServiceProxyHandle<T> implements RpcServiceProxyHandle<T>
                         // Send data to remote end to trigger service invocation
                         eventBusService.sendWithAck(Event.create(CRI.create(Scheme.SERVICE,
                                                                             scope,
-                                                                            proxyCRI.resourceName(),
-                                                                            proxyCRI.version(),
-                                                                            "/" + method.getName()),
+                                                                            serviceIdentifier.qualifiedName(),
+                                                                            serviceIdentifier.version(),
+                                                                            method.getName()),
                                                                  metadata,
                                                                  argumentData))
                                        .subscribe(v -> {}, throwable -> {
@@ -289,7 +290,7 @@ public class DefaultRpcServiceProxyHandle<T> implements RpcServiceProxyHandle<T>
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-                .append("cri", proxyCRI)
+                .append("serviceIdentifier", serviceIdentifier)
                 .append("handlerCRI", handlerCRI)
                 .toString();
     }

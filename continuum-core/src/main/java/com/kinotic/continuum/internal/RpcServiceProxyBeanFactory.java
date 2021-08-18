@@ -17,9 +17,9 @@
 
 package com.kinotic.continuum.internal;
 
-import com.kinotic.continuum.core.api.CRI;
 import com.kinotic.continuum.core.api.RpcServiceProxyHandle;
 import com.kinotic.continuum.core.api.ServiceRegistry;
+import com.kinotic.continuum.core.api.service.ServiceIdentifier;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AbstractFactoryBean;
 
@@ -34,7 +34,7 @@ import org.springframework.beans.factory.config.AbstractFactoryBean;
 public class RpcServiceProxyBeanFactory extends AbstractFactoryBean<Object> {
 
     private final String serviceInterfaceClassName;
-    private final CRI cri;
+    private final ServiceIdentifier serviceIdentifier;
 
     private Class<?> serviceClass;
     private RpcServiceProxyHandle<?> serviceHandle;
@@ -45,14 +45,14 @@ public class RpcServiceProxyBeanFactory extends AbstractFactoryBean<Object> {
 
     public RpcServiceProxyBeanFactory(String serviceInterfaceClassName) {
         this.serviceInterfaceClassName = serviceInterfaceClassName;
-        this.cri = null;
+        this.serviceIdentifier = null;
         setSingleton(true);
     }
 
     public RpcServiceProxyBeanFactory(String serviceInterfaceClassName,
-                                      CRI cri) {
+                                      ServiceIdentifier serviceIdentifier) {
         this.serviceInterfaceClassName = serviceInterfaceClassName;
-        this.cri = cri;
+        this.serviceIdentifier = serviceIdentifier;
         setSingleton(true);
     }
 
@@ -78,10 +78,10 @@ public class RpcServiceProxyBeanFactory extends AbstractFactoryBean<Object> {
     @Override
     protected synchronized Object createInstance() {
         if(serviceHandle == null){
-            if(cri == null) {
+            if(serviceIdentifier == null) {
                 serviceHandle = serviceRegistry.serviceProxy(getObjectType());
             }else{
-                serviceHandle = serviceRegistry.serviceProxy(cri, getObjectType());
+                serviceHandle = serviceRegistry.serviceProxy(serviceIdentifier, getObjectType());
             }
         }
         return serviceHandle.getService();

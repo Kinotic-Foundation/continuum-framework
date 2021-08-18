@@ -23,8 +23,11 @@ import com.kinotic.continuum.core.api.event.Event;
 import com.kinotic.continuum.core.api.event.EventBusService;
 import com.kinotic.continuum.core.api.event.EventConstants;
 import com.kinotic.continuum.core.api.event.ListenerStatus;
-import com.kinotic.continuum.internal.utils.ContinuumUtil;
+import com.kinotic.continuum.core.api.service.ServiceDescriptor;
+import com.kinotic.continuum.core.api.service.ServiceFunction;
+import com.kinotic.continuum.core.api.service.ServiceFunctionInstanceProvider;
 import com.kinotic.continuum.internal.util.EventUtils;
+import com.kinotic.continuum.internal.utils.ContinuumUtil;
 import io.vertx.core.Vertx;
 import org.apache.commons.lang3.Validate;
 import org.reactivestreams.Subscription;
@@ -34,7 +37,6 @@ import org.springframework.aop.support.AopUtils;
 import org.springframework.core.ReactiveAdapter;
 import org.springframework.core.ReactiveAdapterRegistry;
 import org.springframework.util.Assert;
-import org.springframework.util.ReflectionUtils;
 import reactor.core.Disposable;
 import reactor.core.publisher.BaseSubscriber;
 import reactor.core.publisher.Flux;
@@ -60,7 +62,7 @@ public class ServiceInvocationSupervisor {
 
     private final AtomicBoolean active = new AtomicBoolean(false);
 
-    private final CRI cri;
+    private final ServiceDescriptor serviceDescriptor;
     private final ArgumentResolver argumentResolver;
     private final ReturnValueConverter returnValueConverter;
     private final ExceptionConverter exceptionConverter;
@@ -74,9 +76,8 @@ public class ServiceInvocationSupervisor {
 
     private ConcurrentHashMap<String, StreamSubscriber> activeStreamingResults = new ConcurrentHashMap<>();
 
-    public ServiceInvocationSupervisor(CRI cri,
-                                       Class<?> serviceInterface,
-                                       Object instance,
+    public ServiceInvocationSupervisor(ServiceDescriptor serviceDescriptor,
+                                       ServiceFunctionInstanceProvider instanceProvider,
                                        ArgumentResolver argumentResolver,
                                        ReturnValueConverter returnValueConverter,
                                        ExceptionConverter exceptionConverter,
@@ -84,9 +85,8 @@ public class ServiceInvocationSupervisor {
                                        ReactiveAdapterRegistry reactiveAdapterRegistry,
                                        Vertx vertx) {
 
-        Validate.notNull(cri, "cri must not be null");
-        Validate.notNull(serviceInterface, "serviceInterface must not be null");
-        Validate.notNull(instance, "instance must not be null");
+        Validate.notNull(serviceDescriptor, "ServiceDescriptor must not be null");
+        Validate.notNull(instanceProvider, "ServiceFunctionInstanceProvider must not be null");
         Validate.notNull(argumentResolver, "argumentResolver must not be null");
         Validate.notNull(returnValueConverter, "returnValueConverter must not be null");
         Validate.notNull(exceptionConverter, "exceptionConverter must not be null");
@@ -94,7 +94,7 @@ public class ServiceInvocationSupervisor {
         Validate.notNull(reactiveAdapterRegistry, "reactiveAdapterRegistry must not be null");
         Validate.notNull(vertx, "vertx must not be null");
 
-        this.cri = cri;
+        this.serviceDescriptor = serviceDescriptor;
         this.argumentResolver = argumentResolver;
         this.returnValueConverter = returnValueConverter;
         this.exceptionConverter = exceptionConverter;
@@ -102,7 +102,7 @@ public class ServiceInvocationSupervisor {
         this.reactiveAdapterRegistry = reactiveAdapterRegistry;
         this.vertx = vertx;
 
-        this.methodMap = buildMethodMap(serviceInterface, instance);
+        this.methodMap = buildMethodMap(serviceDescriptor, instanceProvider);
     }
 
     public boolean isActive(){
@@ -119,7 +119,7 @@ public class ServiceInvocationSupervisor {
 
                 // begin listening on the event bus for Buffer's
                 // use listenWithAck variant so remote sender will know that the data was received
-                Mono<Flux<Event<byte[]>>> eventMono = eventBusService.listenWithAck(cri.baseResource());
+                Mono<Flux<Event<byte[]>>> eventMono = eventBusService.listenWithAck(serviceDescriptor.serviceIdentifier().cri().baseResource());
 
                 eventMono.subscribe(eventFlux -> {
 
@@ -173,7 +173,7 @@ public class ServiceInvocationSupervisor {
             try {
 
                 // Ensure all headers needed after processing are available
-                Validate.notBlank(incomingEvent.cri().path(), "The methodId must not be blank");
+                Validate.isTrue(incomingEvent.cri().hasPath(), "The methodId must not be blank");
                 Assert.hasText(incomingEvent.metadata().get(EventConstants.REPLY_TO_HEADER), "A reply-to header must be provided");
 
                 // Ensure there is an argument resolver that can handle the incoming data
@@ -279,23 +279,21 @@ public class ServiceInvocationSupervisor {
         eventBusService.send(completionEvent);
     }
 
-    private Map<String, HandlerMethod> buildMethodMap(Class<?> serviceInterface, Object instance) {
+    private Map<String, HandlerMethod> buildMethodMap(ServiceDescriptor serviceDescriptor,
+                                                      ServiceFunctionInstanceProvider instanceProvider) {
         final HashMap<String, HandlerMethod> ret = new HashMap<>();
 
-        ReflectionUtils.doWithMethods(serviceInterface, method -> {
-            Method specificMethod = AopUtils.selectInvocableMethod(method, instance.getClass());
+        for(ServiceFunction serviceFunction : serviceDescriptor.functions()){
+            Object instance = instanceProvider.provideInstance(serviceFunction);
+            Method specificMethod = AopUtils.selectInvocableMethod(serviceFunction.invocationMethod(), instance.getClass());
             String methodName = specificMethod.getName();
             if(ret.containsKey(methodName)){
-                // in some cases such as with default methods we may actually get the same method multiple times check for that.
-                if(!ret.get(methodName).getMethod().equals(specificMethod)){
-                    log.warn(serviceInterface.getName() + " has overloaded method " + methodName + " overloading is not supported. \n "+specificMethod.toGenericString()+" will be ignored");
-                }
+                throw new IllegalArgumentException("Multiple ServiceFunctions provided with the name "+methodName);
             }else{
                 HandlerMethod handlerMethod = new HandlerMethod(instance, specificMethod);
                 ret.put(methodName,  handlerMethod);
             }
-        }, ReflectionUtils.USER_DECLARED_METHODS);
-
+        }
         return ret;
     }
 

@@ -17,23 +17,27 @@
 
 package com.kinotic.continuum.core.api.service;
 
+import java.lang.reflect.Method;
+
 /**
  * Created by Navíd Mitchell 🤬 on 7/18/21.
  */
 public interface ServiceFunction {
 
     /**
-     * The identifier of this {@link ServiceFunction}
-     * @return string containing the identifier
+     * The name of this {@link ServiceFunction}
+     * @return string containing the name
      */
-    String identifier();
+    String name();
 
     /**
-     * Return the type of this {@link ServiceFunction}'s return value.
-     * @return the return type (never {@code null})
+     * The method that can be invoked for this {@link ServiceFunction}
+     * @return the method to invoke
      */
-    Class<?> returnType();
+    Method invocationMethod();
 
-
+    static ServiceFunction create(String name, Method invocationMethod){
+        return new DefaultServiceFunction(name, invocationMethod);
+    }
 
 }

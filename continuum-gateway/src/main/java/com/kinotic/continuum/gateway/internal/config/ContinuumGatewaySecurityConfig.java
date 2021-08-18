@@ -17,8 +17,8 @@
 
 package com.kinotic.continuum.gateway.internal.config;
 
-import com.kinotic.continuum.core.api.CRI;
 import com.kinotic.continuum.core.api.security.SecurityService;
+import com.kinotic.continuum.core.api.service.ServiceIdentifier;
 import com.kinotic.continuum.internal.RpcServiceProxyBeanFactory;
 import com.kinotic.continuum.internal.core.api.security.DummySecurityService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -43,7 +43,10 @@ public class ContinuumGatewaySecurityConfig {
     @ConditionalOnMissingBean(SecurityService.class)
     RpcServiceProxyBeanFactory securityServiceFactory(){
         return new RpcServiceProxyBeanFactory(SecurityService.class.getName(),
-                                              CRI.create("srv://com.kinotic.continuum.core.api.security.SecurityService#0.1.0"));
+                                              new ServiceIdentifier("com.kinotic.continuum.core.api.security",
+                                                                    "SecurityService",
+                                                                    null,
+                                                                    "0.1.0"));
     }
 
     @Bean

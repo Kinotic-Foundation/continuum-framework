@@ -200,13 +200,14 @@ public class HandlerMethod {
      * Invoke the handler method with the given argument values.
      */
     protected Object doInvoke(Object... args) throws Exception {
-        ReflectionUtils.makeAccessible(getBridgedMethod());
+        Method method = getBridgedMethod();
+        ReflectionUtils.makeAccessible(method);
         try {
             if(log.isTraceEnabled()){
                 log.trace(formatInvokeMessage("Invoking ", args));
             }
 
-            return getBridgedMethod().invoke(getBean(), args);
+            return method.invoke(getBean(), args);
         }
         catch (IllegalArgumentException ex) {
             assertTargetBean(getBridgedMethod(), getBean(), args);

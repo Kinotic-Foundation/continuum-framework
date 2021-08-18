@@ -25,7 +25,9 @@ import reactor.core.publisher.Mono;
  *
  * Created by navid on 10/17/19
  */
-@Proxy(targetClass = ClusterTestService.class, version = "0.1.0")
+@Proxy(namespace = "com.kinotic.continuum.internal.core.api.support",
+       name="ClusterTestService",
+       version = "0.1.0")
 public interface ClusterTestServiceProxy {
 
     Mono<Long> getFreeMemory();

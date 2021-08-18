@@ -49,7 +49,7 @@ class DefaultCRI implements CRI {
                                 + (this.scope != null && !this.scope.isEmpty() ? this.scope + "@" : "")
                                 + resourceName
                                 + (this.version != null && !this.version.isEmpty() ? "#" + this.version : "")
-                                + (this.path != null ? this.path : "");
+                                + (this.path != null ? "/" + this.path : "");
     }
 
     /**

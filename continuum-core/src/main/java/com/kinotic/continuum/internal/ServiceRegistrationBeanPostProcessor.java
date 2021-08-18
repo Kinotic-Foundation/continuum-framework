@@ -17,8 +17,10 @@
 
 package com.kinotic.continuum.internal;
 
-import com.kinotic.continuum.core.api.*;
 import com.kinotic.continuum.api.annotations.Publish;
+import com.kinotic.continuum.core.api.RpcServiceProxy;
+import com.kinotic.continuum.core.api.ServiceRegistry;
+import com.kinotic.continuum.core.api.service.ServiceIdentifier;
 import com.kinotic.continuum.internal.utils.MetaUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,13 +51,13 @@ public class ServiceRegistrationBeanPostProcessor implements DestructionAwareBea
 
     @Override
     public void postProcessBeforeDestruction(Object bean, String beanName) throws BeansException {
-        processBean(bean, (cri, clazz) -> {
+        processBean(bean, (serviceIdentifier, clazz) -> {
 
-            log.debug("Un-Registering Service "+ cri);
+            log.debug("Un-Registering Service "+ serviceIdentifier);
 
-            serviceRegistry.unregister(cri)
+            serviceRegistry.unregister(serviceIdentifier)
                            .subscribe(null,
-                                      throwable -> log.error("Error Un-Registering service "+ cri, throwable));
+                                      throwable -> log.error("Error Un-Registering service "+ serviceIdentifier, throwable));
         });
     }
     
@@ -67,18 +69,18 @@ public class ServiceRegistrationBeanPostProcessor implements DestructionAwareBea
     @Override
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
 
-        processBean(bean, (cri, clazz) -> {
+        processBean(bean, (serviceIdentifier, clazz) -> {
 
-            log.debug("Registering Service "+ cri);
+            log.debug("Registering Service "+ serviceIdentifier);
 
-            serviceRegistry.register(cri, clazz, bean)
+            serviceRegistry.register(serviceIdentifier, clazz, bean)
                            .subscribe(null,
-                                      throwable -> log.error("Error Registering service "+ cri, throwable));
+                                      throwable -> log.error("Error Registering service "+ serviceIdentifier, throwable));
         });
         return bean;
     }
 
-    private void processBean(Object instance, BiConsumer<CRI, Class<?>> consumer){
+    private void processBean(Object instance, BiConsumer<ServiceIdentifier, Class<?>> consumer){
         // Do not wrap RpcServiceProxies with invokers.. Infinite Recursion boom!
         if(!(instance instanceof RpcServiceProxy)) {
             try {
@@ -89,15 +91,14 @@ public class ServiceRegistrationBeanPostProcessor implements DestructionAwareBea
                 if (!interfaces.isEmpty()) {
 
                     for (Class<?> inter : interfaces) {
+
                         Publish publish = AnnotationUtils.findAnnotation(inter, Publish.class);
+                        String namespace = publish.namespace().isEmpty() ? inter.getPackageName() : publish.namespace();
+                        String name = publish.name().isEmpty() ? inter.getSimpleName() : publish.name();
+                        String scope = MetaUtil.getScopeIfAvailable(instance, inter);
+                        ServiceIdentifier serviceIdentifier = new ServiceIdentifier(namespace, name, scope, publish.version());
 
-                        CRI cri = CRI.create(Scheme.SERVICE,
-                                             MetaUtil.getScopeIfAvailable(instance, inter),
-                                             publish.value().isEmpty() ? inter.getName() : publish.value(),
-                                             publish.version(),
-                                             null);
-
-                        consumer.accept(cri, inter);
+                        consumer.accept(serviceIdentifier, inter);
                     }
                 }
             } catch (Exception e) {

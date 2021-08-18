@@ -17,9 +17,6 @@
 
 package com.kinotic.continuum.internal.utils;
 
-import com.kinotic.continuum.core.api.CRI;
-import com.kinotic.continuum.core.api.Scheme;
-import com.kinotic.continuum.api.annotations.Proxy;
 import com.kinotic.continuum.api.annotations.Scope;
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.reflect.FieldUtils;

@@ -62,7 +62,7 @@ public interface EventBusService {
     Mono<Flux<Event<byte[]>>> listenWithAck(String cri);
 
     /**
-     * Checks if any listeners have been registered for the given {@link com.kinotic.continuum.core.api.CRI}
+     * Checks if any listeners have been registered for the given {@link CRI}
      * @param cri to check if any listeners are active for
      * @return a {@link Mono} that contains true if listeners are active false if not
      */

@@ -17,8 +17,6 @@
 
 package com.kinotic.continuum.core.api.event;
 
-import com.kinotic.continuum.core.api.CRI;
-
 /**
  * Event that contains both {@link Metadata} and an object instance
  *

@@ -17,7 +17,6 @@
 
 package com.kinotic.continuum.core.api.event;
 
-import com.kinotic.continuum.core.api.CRI;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;

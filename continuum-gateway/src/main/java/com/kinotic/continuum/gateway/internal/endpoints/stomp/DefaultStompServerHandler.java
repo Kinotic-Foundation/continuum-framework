@@ -17,7 +17,7 @@
 
 package com.kinotic.continuum.gateway.internal.endpoints.stomp;
 
-import com.kinotic.continuum.core.api.CRI;
+import com.kinotic.continuum.core.api.event.CRI;
 import com.kinotic.continuum.core.api.event.EventConstants;
 import com.kinotic.continuum.gateway.internal.endpoints.EndpointConnectionHandler;
 import com.kinotic.continuum.gateway.internal.endpoints.Services;

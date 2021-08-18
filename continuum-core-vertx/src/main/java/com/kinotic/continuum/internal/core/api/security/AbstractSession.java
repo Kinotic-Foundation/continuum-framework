@@ -17,7 +17,7 @@
 
 package com.kinotic.continuum.internal.core.api.security;
 
-import com.kinotic.continuum.core.api.CRI;
+import com.kinotic.continuum.core.api.event.CRI;
 import com.kinotic.continuum.core.api.security.Participant;
 import com.kinotic.continuum.core.api.security.Session;
 import com.kinotic.continuum.internal.util.SecurityUtil;

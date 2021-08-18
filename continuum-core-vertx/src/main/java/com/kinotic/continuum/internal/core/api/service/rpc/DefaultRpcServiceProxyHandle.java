@@ -17,7 +17,7 @@
 
 package com.kinotic.continuum.internal.core.api.service.rpc;
 
-import com.kinotic.continuum.core.api.CRI;
+import com.kinotic.continuum.core.api.event.CRI;
 import com.kinotic.continuum.core.api.RpcServiceProxy;
 import com.kinotic.continuum.core.api.RpcServiceProxyHandle;
 import com.kinotic.continuum.core.api.Scheme;

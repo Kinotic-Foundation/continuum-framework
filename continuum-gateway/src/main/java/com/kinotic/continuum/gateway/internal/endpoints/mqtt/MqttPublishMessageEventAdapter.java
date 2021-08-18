@@ -17,7 +17,7 @@
 
 package com.kinotic.continuum.gateway.internal.endpoints.mqtt;
 
-import com.kinotic.continuum.core.api.CRI;
+import com.kinotic.continuum.core.api.event.CRI;
 import com.kinotic.continuum.core.api.event.Event;
 import com.kinotic.continuum.core.api.event.Metadata;
 import io.vertx.mqtt.messages.MqttPublishMessage;

@@ -17,7 +17,7 @@
 
 package com.kinotic.continuum.core.api.service;
 
-import com.kinotic.continuum.core.api.CRI;
+import com.kinotic.continuum.core.api.event.CRI;
 import com.kinotic.continuum.core.api.Scheme;
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.builder.EqualsBuilder;

@@ -17,7 +17,7 @@
 
 package com.kinotic.continuum.internal.core.api;
 
-import com.kinotic.continuum.core.api.CRI;
+import com.kinotic.continuum.core.api.event.CRI;
 import com.kinotic.continuum.core.api.event.EventConstants;
 import org.apache.commons.lang3.Validate;
 import org.junit.jupiter.api.Test;

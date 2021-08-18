@@ -15,8 +15,9 @@
  * limitations under the License.
  */
 
-package com.kinotic.continuum.core.api;
+package com.kinotic.continuum.core.api.event;
 
+import com.kinotic.continuum.core.api.Scheme;
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;

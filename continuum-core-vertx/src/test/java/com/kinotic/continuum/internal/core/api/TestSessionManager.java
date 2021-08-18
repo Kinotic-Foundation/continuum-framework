@@ -17,7 +17,7 @@
 
 package com.kinotic.continuum.internal.core.api;
 
-import com.kinotic.continuum.core.api.CRI;
+import com.kinotic.continuum.core.api.event.CRI;
 import com.kinotic.continuum.core.api.event.EventConstants;
 import com.kinotic.continuum.core.api.security.Participant;
 import com.kinotic.continuum.core.api.security.Permissions;

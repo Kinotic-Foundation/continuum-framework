@@ -17,7 +17,7 @@
 
 package com.kinotic.continuum.core.api.security;
 
-import com.kinotic.continuum.core.api.CRI;
+import com.kinotic.continuum.core.api.event.CRI;
 
 import java.util.Date;
 

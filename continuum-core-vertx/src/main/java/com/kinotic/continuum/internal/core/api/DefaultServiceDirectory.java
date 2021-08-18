@@ -21,7 +21,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kinotic.continuum.api.jsonSchema.JsonSchemaFactory;
 import com.kinotic.continuum.api.jsonSchema.NamespaceJsonSchema;
-import com.kinotic.continuum.core.api.CRI;
+import com.kinotic.continuum.core.api.event.CRI;
 import com.kinotic.continuum.core.api.ServiceDirectory;
 import io.vertx.core.*;
 import io.vertx.core.shareddata.AsyncMap;

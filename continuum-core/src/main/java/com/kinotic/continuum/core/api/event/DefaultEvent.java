@@ -17,7 +17,6 @@
 
 package com.kinotic.continuum.core.api.event;
 
-import com.kinotic.continuum.core.api.CRI;
 import org.apache.commons.lang3.Validate;
 
 /**

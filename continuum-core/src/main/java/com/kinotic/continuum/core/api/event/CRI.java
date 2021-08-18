@@ -15,7 +15,9 @@
  * limitations under the License.
  */
 
-package com.kinotic.continuum.core.api;
+package com.kinotic.continuum.core.api.event;
+
+import com.kinotic.continuum.core.api.Scheme;
 
 /**
  * {@link CRI} is a Continuum Resource Identifier used by Continuum to route requests appropriately.

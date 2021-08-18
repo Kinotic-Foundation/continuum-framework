@@ -17,7 +17,7 @@
 
 package com.kinotic.continuum.internal.core.api.service.invoker;
 
-import com.kinotic.continuum.core.api.CRI;
+import com.kinotic.continuum.core.api.event.CRI;
 import com.kinotic.continuum.core.api.Scheme;
 import com.kinotic.continuum.core.api.event.Event;
 import com.kinotic.continuum.core.api.event.EventBusService;

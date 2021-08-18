@@ -17,6 +17,8 @@
 
 package com.kinotic.continuum.core.api;
 
+import com.kinotic.continuum.core.api.event.CRI;
+
 /**
  * ServiceDirectory is responsible for keeping track of all registered service contracts
  *

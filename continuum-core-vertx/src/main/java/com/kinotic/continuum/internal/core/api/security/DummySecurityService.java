@@ -17,7 +17,7 @@
 
 package com.kinotic.continuum.internal.core.api.security;
 
-import com.kinotic.continuum.core.api.Scheme;
+import com.kinotic.continuum.core.api.event.EventConstants;
 import com.kinotic.continuum.core.api.security.MetadataConstants;
 import com.kinotic.continuum.core.api.security.Participant;
 import com.kinotic.continuum.core.api.security.Permissions;
@@ -40,8 +40,10 @@ public class DummySecurityService implements SecurityService {
     public Mono<Participant> authenticate(String accessKey, String secretToken) {
         return Mono.just(new DefaultParticipant(accessKey,
                                                 Map.of(MetadataConstants.TYPE_KEY, "dummy"),
-                                                new Permissions(List.of(Scheme.SERVICE.raw() + "://*.**", Scheme.STREAM.raw() + "://*.**"),
-                                                                List.of(Scheme.SERVICE.raw() + "://*.**", Scheme.STREAM.raw() + "://*.**"))
+                                                new Permissions(List.of(EventConstants.SERVICE_DESTINATION_SCHEME + "://*.**",
+                                                                        EventConstants.STREAM_DESTINATION_SCHEME + "://*.**"),
+                                                                List.of(EventConstants.SERVICE_DESTINATION_SCHEME + "://*.**",
+                                                                        EventConstants.STREAM_DESTINATION_SCHEME + "://*.**"))
         ));
     }
 
@@ -49,8 +51,10 @@ public class DummySecurityService implements SecurityService {
     public Mono<Participant> findParticipant(String participantIdentity) {
         return Mono.just(new DefaultParticipant(participantIdentity,
                                                 Map.of(MetadataConstants.TYPE_KEY, "dummy"),
-                                                new Permissions(List.of(Scheme.SERVICE.raw() + "://*.**", Scheme.STREAM.raw() + "://*.**"),
-                                                                List.of(Scheme.SERVICE.raw() + "://*.**", Scheme.STREAM.raw() + "://*.**"))
+                                                new Permissions(List.of(EventConstants.SERVICE_DESTINATION_SCHEME + "://*.**",
+                                                                        EventConstants.STREAM_DESTINATION_SCHEME + "://*.**"),
+                                                                List.of(EventConstants.SERVICE_DESTINATION_SCHEME + "://*.**",
+                                                                        EventConstants.STREAM_DESTINATION_SCHEME + "://*.**"))
         ));
     }
 }

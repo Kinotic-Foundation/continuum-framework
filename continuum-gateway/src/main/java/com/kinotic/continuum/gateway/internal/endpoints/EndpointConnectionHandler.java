@@ -18,7 +18,6 @@
 package com.kinotic.continuum.gateway.internal.endpoints;
 
 import com.kinotic.continuum.core.api.event.CRI;
-import com.kinotic.continuum.core.api.Scheme;
 import com.kinotic.continuum.core.api.event.Event;
 import com.kinotic.continuum.core.api.event.EventConstants;
 import com.kinotic.continuum.core.api.security.Participant;
@@ -136,11 +135,11 @@ public class EndpointConnectionHandler {
 
             event.metadata().put(EventConstants.SENDER_HEADER, session.participant().getIdentity());
 
-            if (event.cri().scheme() == Scheme.SERVICE) {
+            if (event.cri().scheme().equals(EventConstants.SERVICE_DESTINATION_SCHEME)) {
 
                 ret = services.eventBusService.sendWithAck(event);
 
-            } else if (event.cri().scheme() == Scheme.STREAM) {
+            } else if (event.cri().scheme().equals(EventConstants.STREAM_DESTINATION_SCHEME)) {
 
                 Mono<Void> hftMono = services.hftQueueManager.write(event)
                                                              .onErrorMap(t -> {
@@ -171,7 +170,7 @@ public class EndpointConnectionHandler {
             throw new IllegalArgumentException("Not Authorized to subscribe to "+cri);
         }
 
-        if (cri.scheme() == Scheme.SERVICE) {
+        if (cri.scheme().equals(EventConstants.SERVICE_DESTINATION_SCHEME)) {
 
             services.eventBusService.listen(cri.baseResource()).subscribe(subscriber);
 
@@ -181,7 +180,7 @@ public class EndpointConnectionHandler {
                 log.debug("New subscription cri: "+cri.raw()+" id: "+subscriptionIdentifier+" for login: "+ session.participant());
             }
 
-        } else if (cri.scheme() == Scheme.STREAM) {
+        } else if (cri.scheme().equals(EventConstants.STREAM_DESTINATION_SCHEME)) {
 
             services.eventStreamService.listen(cri).subscribe(subscriber);
 

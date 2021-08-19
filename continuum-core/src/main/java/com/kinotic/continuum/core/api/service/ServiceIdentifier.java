@@ -19,6 +19,7 @@ package com.kinotic.continuum.core.api.service;
 
 import com.kinotic.continuum.core.api.event.CRI;
 import com.kinotic.continuum.core.api.Scheme;
+import com.kinotic.continuum.core.api.event.EventConstants;
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -54,7 +55,7 @@ public class ServiceIdentifier {
         this.scope = scope;
         this.version = version;
 
-        cri = CRI.create(Scheme.SERVICE, this.scope, this.qualifiedName(), this.version, null);
+        cri = CRI.create(EventConstants.SERVICE_DESTINATION_SCHEME, this.scope, this.qualifiedName(), this.version, null);
     }
 
     /**

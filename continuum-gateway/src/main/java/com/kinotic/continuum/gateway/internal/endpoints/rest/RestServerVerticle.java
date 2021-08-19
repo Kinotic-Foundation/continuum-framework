@@ -78,7 +78,7 @@ public class RestServerVerticle extends AbstractVerticle {
 
     @Override
     public void start(Future<Void> startFuture) {
-        final String replyDestination = EventConstants.SERVICE_DESTINATION_PREFIX + UUID.randomUUID() + "@continuum.java.rest.EventBus";
+        final String replyDestination = EventConstants.SERVICE_DESTINATION_SCHEME + "://" + UUID.randomUUID() + "@continuum.java.rest.EventBus";
         final String restPath = gatewayProperties.getRest().getRestPath();
 
         // Create scheduler for reactor objects

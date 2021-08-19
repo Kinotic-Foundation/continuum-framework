@@ -17,7 +17,7 @@
 
 package com.kinotic.continuum.internal.core.api.security;
 
-import com.kinotic.continuum.core.api.Scheme;
+import com.kinotic.continuum.core.api.event.EventConstants;
 import com.kinotic.continuum.core.api.security.*;
 import com.kinotic.continuum.internal.config.ContinuumIgniteConfigForProfile;
 import com.kinotic.continuum.internal.core.api.aignite.IgniteUtils;
@@ -155,7 +155,7 @@ public class DefaultSessionManager implements SessionManager {
 
 
             // clients can subscribe to any service that is scoped to their identity
-            subscriptionPatterns.add(parser.parse(Scheme.SERVICE.raw() + "://"
+            subscriptionPatterns.add(parser.parse(EventConstants.SERVICE_DESTINATION_SCHEME + "://"
                                                           + encodedIdentity
                                                           + "*@*.**"));
 

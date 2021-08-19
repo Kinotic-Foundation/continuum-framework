@@ -18,7 +18,6 @@
 package com.kinotic.continuum.internal.core.api.service.invoker;
 
 import com.kinotic.continuum.core.api.event.CRI;
-import com.kinotic.continuum.core.api.Scheme;
 import com.kinotic.continuum.core.api.event.Event;
 import com.kinotic.continuum.core.api.event.EventBusService;
 import com.kinotic.continuum.core.api.event.EventConstants;
@@ -335,7 +334,7 @@ public class ServiceInvocationSupervisor {
             String encodedSender = ContinuumUtil.safeEncodeURI(incomingEvent.metadata().get(EventConstants.SENDER_HEADER));
             String correlationId = incomingEvent.metadata().get(EventConstants.CORRELATION_ID_HEADER);
 
-            controlPlaneListener = eventBusService.listen(CRI.create(Scheme.SERVICE, encodedSender, correlationId).raw())
+            controlPlaneListener = eventBusService.listen(CRI.create(EventConstants.SERVICE_DESTINATION_SCHEME, encodedSender, correlationId).raw())
                                                   .subscribe(this::processControlEvent,
                                                       throwable -> {
                                                           log.error("Control plane listener signaled an exception. Terminating Stream!", throwable);

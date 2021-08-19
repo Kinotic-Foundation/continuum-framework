@@ -17,8 +17,6 @@
 
 package com.kinotic.continuum.core.api.event;
 
-import com.kinotic.continuum.core.api.Scheme;
-
 /**
  * {@link CRI} is a Continuum Resource Identifier used by Continuum to route requests appropriately.
  *
@@ -28,7 +26,7 @@ import com.kinotic.continuum.core.api.Scheme;
  *
  *      scheme://[scope@]resourceName[#version][/path]
  *
- * This format can have varied meanings based upon the {@link Scheme} used.
+ * This format can have varied meanings based upon the scheme used.
  *
  *
  * Created by Navid Mitchell on 4/30/20
@@ -36,11 +34,11 @@ import com.kinotic.continuum.core.api.Scheme;
 public interface CRI {
 
     /**
-     * The {@link Scheme} for this {@link CRI}
+     * The scheme for this {@link CRI}
      *
-     * @return the {@link Scheme}
+     * @return a string containing the scheme
      */
-    Scheme scheme();
+    String scheme();
 
     /**
      * The scope for this {@link CRI} or null if not provided
@@ -136,21 +134,21 @@ public interface CRI {
         return new DefaultCRI(rawUrc);
     }
 
-    static CRI create(Scheme scheme, String resourceName){
+    static CRI create(String scheme, String resourceName){
         return new DefaultCRI(scheme, null, resourceName, null, null);
     }
 
     /**
      * Will create a {@link CRI} from the values provided
      */
-    static CRI create(Scheme scheme, String scope, String resourceName){
+    static CRI create(String scheme, String scope, String resourceName){
         return new DefaultCRI(scheme, scope, resourceName, null, null);
     }
 
     /**
      * Will create a {@link CRI} from the values provided
      */
-    static CRI create(Scheme scheme, String scope, String resourceName, String version, String path){
+    static CRI create(String scheme, String scope, String resourceName, String version, String path){
         return new DefaultCRI(scheme, scope, resourceName, version, path);
     }
 

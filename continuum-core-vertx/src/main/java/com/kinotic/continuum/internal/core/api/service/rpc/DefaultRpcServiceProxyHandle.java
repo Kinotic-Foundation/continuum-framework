@@ -17,14 +17,9 @@
 
 package com.kinotic.continuum.internal.core.api.service.rpc;
 
-import com.kinotic.continuum.core.api.event.CRI;
 import com.kinotic.continuum.core.api.RpcServiceProxy;
 import com.kinotic.continuum.core.api.RpcServiceProxyHandle;
-import com.kinotic.continuum.core.api.Scheme;
-import com.kinotic.continuum.core.api.event.Event;
-import com.kinotic.continuum.core.api.event.EventBusService;
-import com.kinotic.continuum.core.api.event.EventConstants;
-import com.kinotic.continuum.core.api.event.Metadata;
+import com.kinotic.continuum.core.api.event.*;
 import com.kinotic.continuum.core.api.service.ServiceIdentifier;
 import com.kinotic.continuum.internal.utils.ContinuumUtil;
 import com.kinotic.continuum.internal.utils.MetaUtil;
@@ -99,7 +94,7 @@ public class DefaultRpcServiceProxyHandle<T> implements RpcServiceProxyHandle<T>
         this.rpcReturnValueHandlerFactory = rpcReturnValueHandlerFactory;
         this.eventBusService = eventBusService;
 
-        this.handlerCRI = CRI.create(Scheme.SERVICE, encodedNodeName + ":" + UUID.randomUUID(), serviceClass.getName()+"RpcProxyResponseHandler", null, null);
+        this.handlerCRI = CRI.create(EventConstants.SERVICE_DESTINATION_SCHEME, encodedNodeName + ":" + UUID.randomUUID(), serviceClass.getName()+"RpcProxyResponseHandler", null, null);
 
         // Verify that an proxy can be built supporting all methods of the provided serviceClass
         ReflectionUtils.doWithMethods(serviceClass, method -> {
@@ -214,7 +209,7 @@ public class DefaultRpcServiceProxyHandle<T> implements RpcServiceProxyHandle<T>
 
                         // TODO: use version string to determine how specific the invocation has to be like npm semantics ^1.0.0 ect
                         // Send data to remote end to trigger service invocation
-                        eventBusService.sendWithAck(Event.create(CRI.create(Scheme.SERVICE,
+                        eventBusService.sendWithAck(Event.create(CRI.create(EventConstants.SERVICE_DESTINATION_SCHEME,
                                                                             scope,
                                                                             serviceIdentifier.qualifiedName(),
                                                                             serviceIdentifier.version(),
@@ -241,7 +236,7 @@ public class DefaultRpcServiceProxyHandle<T> implements RpcServiceProxyHandle<T>
                             metadata.put(EventConstants.CONTROL_HEADER, EventConstants.CONTROL_VALUE_CANCEL);
 
                             // Send data to remote end for control request
-                            eventBusService.sendWithAck(Event.create(CRI.create(Scheme.SERVICE,
+                            eventBusService.sendWithAck(Event.create(CRI.create(EventConstants.SERVICE_DESTINATION_SCHEME,
                                                                                 encodedNodeName,
                                                                                 correlationId),
                                                                      metadata,

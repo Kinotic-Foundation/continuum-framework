@@ -17,8 +17,6 @@
 
 package com.kinotic.continuum.internal.core.api.event;
 
-import com.kinotic.continuum.core.api.event.CRI;
-import com.kinotic.continuum.core.api.Scheme;
 import com.kinotic.continuum.core.api.event.*;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
@@ -43,15 +41,15 @@ public class DefaultEventService implements EventService {
     @Override
     public Mono<Void> send(Event<byte[]> event) {
         Mono<Void> ret;
-        if(event.cri().scheme() == Scheme.SERVICE){
+        if(event.cri().scheme().equals(EventConstants.SERVICE_DESTINATION_SCHEME)){
             ret = eventBusService.sendWithAck(event);
-        }else if(event.cri().scheme() == Scheme.STREAM){
+        }else if(event.cri().scheme().equals(EventConstants.STREAM_DESTINATION_SCHEME)){
             ret = eventStreamService.send(event);
         }else{
             throw new IllegalArgumentException("Event cri must begin with "
-                                                       + Scheme.SERVICE.raw()
+                                                       + EventConstants.SERVICE_DESTINATION_SCHEME
                                                        + " or "
-                                                       + Scheme.STREAM.raw());
+                                                       + EventConstants.STREAM_DESTINATION_SCHEME);
         }
         return ret;
     }
@@ -59,15 +57,15 @@ public class DefaultEventService implements EventService {
     @Override
     public Flux<Event<byte[]>> listen(String cri) {
         Flux<Event<byte[]>> ret;
-        if(cri.startsWith(Scheme.SERVICE.raw())){
+        if(cri.startsWith(EventConstants.SERVICE_DESTINATION_SCHEME)){
             ret = eventBusService.listen(cri);
-        }else if(cri.startsWith(Scheme.STREAM.raw())){
+        }else if(cri.startsWith(EventConstants.STREAM_DESTINATION_SCHEME)){
             ret = eventStreamService.listen(CRI.create(cri));
         }else{
             throw new IllegalArgumentException("Event cri must begin with "
-                                                       + Scheme.SERVICE.raw()
+                                                       + EventConstants.SERVICE_DESTINATION_SCHEME
                                                        + " or "
-                                                       + Scheme.STREAM.raw());
+                                                       + EventConstants.STREAM_DESTINATION_SCHEME);
         }
         return ret;
     }

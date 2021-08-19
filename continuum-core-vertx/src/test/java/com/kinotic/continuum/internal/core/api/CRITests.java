@@ -31,12 +31,14 @@ public class CRITests {
     private static final String SERVICE_NAME = "com.kinotic.tests.TestService";
     private static final String SERVICE_SCOPE = "e35f51d0-6c6e-4b58-9b9d-f5b53dd978b0";
     private static final String SERVICE_VERSION = "0.1.0";
-    private static final String SERVICE_LITERAL1 = EventConstants.SERVICE_DESTINATION_PREFIX
+    private static final String SERVICE_LITERAL1 = EventConstants.SERVICE_DESTINATION_SCHEME
+                                                        + "://"
                                                         + SERVICE_NAME
                                                         + "#"
                                                         + SERVICE_VERSION;
 
-    private static final String SERVICE_LITERAL2 = EventConstants.SERVICE_DESTINATION_PREFIX
+    private static final String SERVICE_LITERAL2 = EventConstants.SERVICE_DESTINATION_SCHEME
+                                                        + "://"
                                                         + SERVICE_SCOPE
                                                         + "@"
                                                         + SERVICE_NAME

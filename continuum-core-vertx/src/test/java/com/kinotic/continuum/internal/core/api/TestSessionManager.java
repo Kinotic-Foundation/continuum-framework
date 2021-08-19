@@ -57,7 +57,7 @@ public class TestSessionManager {
     @Test
     public void testCreateFindRemove(){
         Permissions permissions = new Permissions();
-        permissions.addAllowedSendPattern(EventConstants.SERVICE_DESTINATION_PREFIX+"*.**");
+        permissions.addAllowedSendPattern(EventConstants.SERVICE_DESTINATION_SCHEME+"://*.**");
         Participant participant = new DefaultParticipant(IDENTITY, permissions);
 
         String sessionId = UUID.randomUUID().toString();
@@ -79,7 +79,7 @@ public class TestSessionManager {
     @Test
     public void testAllowAny(){
         Permissions permissions = new Permissions();
-        permissions.addAllowedSendPattern(EventConstants.SERVICE_DESTINATION_PREFIX+"*.**");
+        permissions.addAllowedSendPattern(EventConstants.SERVICE_DESTINATION_SCHEME+"://*.**");
         Participant participant = new DefaultParticipant(IDENTITY, permissions);
         /**
          * Create Session
@@ -89,7 +89,7 @@ public class TestSessionManager {
         /**
          * Now test patterns
          */
-        CRI cri = CRI.create(EventConstants.SERVICE_DESTINATION_PREFIX+"com.somewhere.tests.TestService");
+        CRI cri = CRI.create(EventConstants.SERVICE_DESTINATION_SCHEME+"://com.somewhere.tests.TestService");
         CRI cri2 = CRI.create(cri + "/testMethod");
 
         Validate.isTrue(session.sendAllowed(cri), cri + " Not allowed");
@@ -102,7 +102,7 @@ public class TestSessionManager {
          * Setup Permissions
          */
         Permissions permissions = new Permissions();
-        permissions.addAllowedSendPattern(EventConstants.SERVICE_DESTINATION_PREFIX+"com.somewhere.**");
+        permissions.addAllowedSendPattern(EventConstants.SERVICE_DESTINATION_SCHEME+"://com.somewhere.**");
         Participant participant = new DefaultParticipant(IDENTITY, permissions);
         /**
          * Create Session
@@ -112,13 +112,13 @@ public class TestSessionManager {
         /**
          * Now test patterns
          */
-        CRI cri = CRI.create(EventConstants.SERVICE_DESTINATION_PREFIX+"com.somewhere.tests.TestService");
+        CRI cri = CRI.create(EventConstants.SERVICE_DESTINATION_SCHEME+"://com.somewhere.tests.TestService");
         CRI cri2 = CRI.create(cri + "/testMethod");
 
         Validate.isTrue(session.sendAllowed(cri), cri + " Not allowed");
         Validate.isTrue(session.sendAllowed(cri2), cri2 + " Not allowed");
 
-        CRI invalidCRI = CRI.create(EventConstants.SERVICE_DESTINATION_PREFIX+"com.somewher.tests.TestService");
+        CRI invalidCRI = CRI.create(EventConstants.SERVICE_DESTINATION_SCHEME+"://com.somewher.tests.TestService");
         CRI invalidCRI2 = CRI.create(invalidCRI + "/testMethod");
 
         Validate.isTrue(!session.sendAllowed(invalidCRI), invalidCRI + " Allowed");
@@ -132,8 +132,8 @@ public class TestSessionManager {
          */
         Permissions permissions = new Permissions();
         // try adding a bunch of unrelated paths that should not match first to test performance
-        permissions.addAllowedSendPattern(EventConstants.SERVICE_DESTINATION_PREFIX+"com.somewhere.tests.**");
-        String baseString = EventConstants.SERVICE_DESTINATION_PREFIX+"com.somewhere.test.TestService";
+        permissions.addAllowedSendPattern(EventConstants.SERVICE_DESTINATION_SCHEME+"://com.somewhere.tests.**");
+        String baseString = EventConstants.SERVICE_DESTINATION_SCHEME+"://com.somewhere.test.TestService";
         for(int i = 0; i < 1000; i++){
             permissions.addAllowedSendPattern(baseString + i);
         }
@@ -149,10 +149,10 @@ public class TestSessionManager {
         /**
          * Now test patterns
          */
-        CRI cri = CRI.create(EventConstants.SERVICE_DESTINATION_PREFIX+"com.somewhere.tests.TestService");
+        CRI cri = CRI.create(EventConstants.SERVICE_DESTINATION_SCHEME+"://com.somewhere.tests.TestService");
         CRI cri2 = CRI.create(cri + "/testMethod");
 
-        CRI invalidCRI = CRI.create(EventConstants.SERVICE_DESTINATION_PREFIX+"com.somewher.tests.TestService");
+        CRI invalidCRI = CRI.create(EventConstants.SERVICE_DESTINATION_SCHEME+"://com.somewher.tests.TestService");
         CRI invalidCRI2 = CRI.create(invalidCRI + "/testMethod");
 
 
@@ -177,12 +177,12 @@ public class TestSessionManager {
          */
         Permissions permissions = new Permissions();
 
-        String baseString = EventConstants.SERVICE_DESTINATION_PREFIX+"com.kinotic.tests.TestService";
+        String baseString = EventConstants.SERVICE_DESTINATION_SCHEME+"://com.kinotic.tests.TestService";
         for(int i = 0; i < 1000; i++){
             permissions.addAllowedSendPattern(baseString + i + "/*");
         }
 
-        permissions.addAllowedSendPattern(EventConstants.SERVICE_DESTINATION_PREFIX+"com.kinotic.tests.TestService/*");
+        permissions.addAllowedSendPattern(EventConstants.SERVICE_DESTINATION_SCHEME+"://com.kinotic.tests.TestService/*");
         Participant participant = new DefaultParticipant(IDENTITY, permissions);
         /**
          * Create Session
@@ -192,17 +192,17 @@ public class TestSessionManager {
         /**
          * Now test patterns
          */
-        CRI cri = CRI.create(EventConstants.SERVICE_DESTINATION_PREFIX+"com.kinotic.tests.TestService");
+        CRI cri = CRI.create(EventConstants.SERVICE_DESTINATION_SCHEME+"://com.kinotic.tests.TestService");
         CRI cri2 = CRI.create(cri + "/testMethod");
         CRI cri3 = CRI.create(cri + "/getFreeMemory");
 
-        CRI invalidCRI = CRI.create(EventConstants.SERVICE_DESTINATION_PREFIX+"com.kinotic.tests");
+        CRI invalidCRI = CRI.create(EventConstants.SERVICE_DESTINATION_SCHEME+"://com.kinotic.tests");
         CRI invalidCRI2 = CRI.create(invalidCRI + ".**");
-        CRI invalidCRI3 = CRI.create(EventConstants.SERVICE_DESTINATION_PREFIX+"com.kinotic.tests.SomeService/testMethod");
+        CRI invalidCRI3 = CRI.create(EventConstants.SERVICE_DESTINATION_SCHEME+"://com.kinotic.tests.SomeService/testMethod");
 
         StopWatch stopWatch = StopWatch.createStarted();
 
-        CRI validFromBigList = CRI.create(EventConstants.SERVICE_DESTINATION_PREFIX+"com.kinotic.tests.TestService10/testMethod");
+        CRI validFromBigList = CRI.create(EventConstants.SERVICE_DESTINATION_SCHEME+"://com.kinotic.tests.TestService10/testMethod");
 
         Validate.isTrue(session.sendAllowed(validFromBigList), validFromBigList + " Not allowed");
 
@@ -223,8 +223,8 @@ public class TestSessionManager {
          * Setup Permissions
          */
         Permissions permissions = new Permissions();
-        permissions.addAllowedSubscriptionPattern(EventConstants.SERVICE_DESTINATION_PREFIX + IDENTITY + "*@*.**");
-        permissions.addAllowedSubscriptionPattern(EventConstants.STREAM_DESTINATION_PREFIX + IDENTITY + "*@*.**");
+        permissions.addAllowedSubscriptionPattern(EventConstants.SERVICE_DESTINATION_SCHEME + "://" + IDENTITY + "*@*.**");
+        permissions.addAllowedSubscriptionPattern(EventConstants.SERVICE_DESTINATION_SCHEME + "://" + IDENTITY + "*@*.**");
 
         Participant participant = new DefaultParticipant(IDENTITY, permissions);
         /**
@@ -235,13 +235,13 @@ public class TestSessionManager {
         /**
          * Now test Allowed Sub patterns
          */
-        CRI cri = CRI.create(EventConstants.SERVICE_DESTINATION_PREFIX + IDENTITY + "@com.kinotic.tests.ReplyHandler");
+        CRI cri = CRI.create(EventConstants.SERVICE_DESTINATION_SCHEME + "://" + IDENTITY + "@com.kinotic.tests.ReplyHandler");
 
         Validate.isTrue(session.subscribeAllowed(cri), cri + " Not Allowed");
 
-        CRI criWithParticipantUUID = CRI.create(EventConstants.SERVICE_DESTINATION_PREFIX
+        CRI criWithParticipantUUID = CRI.create(EventConstants.SERVICE_DESTINATION_SCHEME + "://"
                 + IDENTITY + ":"
-                + UUID.randomUUID().toString()
+                + UUID.randomUUID()
                 + "@com.kinotic.tests.ReplyHandler");
 
         Validate.isTrue(session.subscribeAllowed(criWithParticipantUUID), criWithParticipantUUID + " Not Allowed");
@@ -250,25 +250,25 @@ public class TestSessionManager {
         /**
          * Now test Not Allowed Sub patterns
          */
-        CRI invalidCRI = CRI.create(EventConstants.SERVICE_DESTINATION_PREFIX + "somegal." + IDENTITY + "@com.kinotic.tests.ReplyHandler");
+        CRI invalidCRI = CRI.create(EventConstants.SERVICE_DESTINATION_SCHEME + "://" + "somegal." + IDENTITY + "@com.kinotic.tests.ReplyHandler");
 
         Validate.isTrue(!session.subscribeAllowed(invalidCRI), invalidCRI + " Allowed");
 
-        CRI invalidCRIWithParticipantUUID = CRI.create(EventConstants.SERVICE_DESTINATION_PREFIX
+        CRI invalidCRIWithParticipantUUID = CRI.create(EventConstants.SERVICE_DESTINATION_SCHEME + "://"
                 + "someguy_" + IDENTITY + ":"
                 + UUID.randomUUID().toString()
                 + "@com.kinotic.tests.ReplyHandler");
 
         Validate.isTrue(!session.subscribeAllowed(invalidCRIWithParticipantUUID), invalidCRIWithParticipantUUID + " Allowed");
 
-        CRI anotherInvalid = CRI.create(EventConstants.SERVICE_DESTINATION_PREFIX + "somebody@kinotic.com" + "@com.kinotic.tests.ReplyHandler");
+        CRI anotherInvalid = CRI.create(EventConstants.SERVICE_DESTINATION_SCHEME + "://" + "somebody@kinotic.com" + "@com.kinotic.tests.ReplyHandler");
 
         Validate.isTrue(!session.subscribeAllowed(anotherInvalid), anotherInvalid + " Allowed");
     }
 
     @Test
     public void testPartialMethodMatch(){
-        String baseServiceURI = EventConstants.SERVICE_DESTINATION_PREFIX+"com.kinotic.tests.SomeService/register";
+        String baseServiceURI = EventConstants.SERVICE_DESTINATION_SCHEME+"://com.kinotic.tests.SomeService/register";
         Permissions permissions = new Permissions();
         permissions.addAllowedSendPattern(baseServiceURI+"*");
         Participant participant = new DefaultParticipant(IDENTITY, permissions);

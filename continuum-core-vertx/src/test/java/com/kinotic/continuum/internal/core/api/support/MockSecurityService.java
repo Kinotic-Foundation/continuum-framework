@@ -37,7 +37,7 @@ public class MockSecurityService implements SecurityService {
     private final Map<String, Participant> participantMap = Map.of("testuser@kinotic.com",
                                                                    new DefaultParticipant("testuser@kinotic.com",
                                                                                           Map.ofEntries(MetadataConstants.USER_TYPE),
-                                                                                          new Permissions().addAllowedSendPattern(EventConstants.SERVICE_DESTINATION_PREFIX+"*.**")));
+                                                                                          new Permissions().addAllowedSendPattern(EventConstants.SERVICE_DESTINATION_SCHEME+"://*.**")));
 
     @Override
     public Mono<Participant> authenticate(String accessKey, String secretToken) {

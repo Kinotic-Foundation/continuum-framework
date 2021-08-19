@@ -72,9 +72,9 @@ public class EventConstants {
     public static final String CONTROL_VALUE_RESUME = "resume";
 
 
-    public static final String SERVICE_DESTINATION_PREFIX = "srv://";
+    public static final String SERVICE_DESTINATION_SCHEME = "srv";
 
-    public static final String STREAM_DESTINATION_PREFIX = "stream://";
+    public static final String STREAM_DESTINATION_SCHEME = "stream";
 
     /**
      * Event data format that is pretty much a stomp frame.

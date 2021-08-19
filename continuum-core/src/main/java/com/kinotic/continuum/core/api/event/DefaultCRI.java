@@ -17,7 +17,6 @@
 
 package com.kinotic.continuum.core.api.event;
 
-import com.kinotic.continuum.core.api.Scheme;
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -29,13 +28,13 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 class DefaultCRI implements CRI {
 
     private final String raw;
-    private final Scheme scheme;
+    private final String scheme;
     private final String scope;
     private final String resourceName;
     private final String version;
     private final String path;
 
-    public DefaultCRI(Scheme scheme, String scope, String resourceName, String version, String path) {
+    public DefaultCRI(String scheme, String scope, String resourceName, String version, String path) {
 
         // TODO: validate characters in vars.. ie version cannot contain / or else path logic breaks down
 
@@ -46,11 +45,11 @@ class DefaultCRI implements CRI {
         this.resourceName = resourceName;
         this.version = version;
         this.path = path;
-        this.raw = scheme.raw() + "://"
-                                + (this.scope != null && !this.scope.isEmpty() ? this.scope + "@" : "")
-                                + resourceName
-                                + (this.version != null && !this.version.isEmpty() ? "#" + this.version : "")
-                                + (this.path != null ? "/" + this.path : "");
+        this.raw = scheme + "://"
+                          + (this.scope != null && !this.scope.isEmpty() ? this.scope + "@" : "")
+                          + resourceName
+                          + (this.version != null && !this.version.isEmpty() ? "#" + this.version : "")
+                          + (this.path != null ? "/" + this.path : "");
     }
 
     /**
@@ -67,7 +66,7 @@ class DefaultCRI implements CRI {
         int schemeEndIdx = temp.indexOf("://");
         Validate.isTrue(schemeEndIdx != -1, "URC: \""+rawURC+"\" format is invalid. URC must begin with scheme://");
 
-        scheme = Scheme.create(temp.substring(0, schemeEndIdx));
+        scheme = temp.substring(0, schemeEndIdx);
         temp = temp.substring(schemeEndIdx+3);
 
         // find scope if provided
@@ -117,7 +116,7 @@ class DefaultCRI implements CRI {
     }
 
     @Override
-    public Scheme scheme() {
+    public String scheme() {
         return scheme;
     }
 
@@ -158,14 +157,14 @@ class DefaultCRI implements CRI {
 
     @Override
     public String baseResource() {
-        return scheme.raw() + "://" +
+        return scheme + "://" +
                (hasScope() ? scope + "@" : "") +
                resourceName;
     }
 
     @Override
     public String versionedResource() {
-        return scheme.raw() + "://" +
+        return scheme + "://" +
                (hasScope() ? scope + "@" : "") +
                resourceName +
                (hasVersion() ? "#" + version : "");

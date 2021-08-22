@@ -17,8 +17,7 @@
 
 package com.kinotic.continuum.iam.internal.init;
 
-import com.kinotic.continuum.core.api.Scheme;
-import com.kinotic.continuum.iam.api.DeviceService;
+import com.kinotic.continuum.core.api.event.EventConstants;
 import com.kinotic.continuum.iam.api.UserService;
 import com.kinotic.continuum.iam.api.domain.AccessPattern;
 import com.kinotic.continuum.iam.api.domain.AccessPolicy;
@@ -54,15 +53,13 @@ public class DefaultDataInitialization {
     @Autowired
     private UserService userService;
 
-    @Autowired
-    private DeviceService deviceService;
 
     @PostConstruct
     public void init() {
         Optional<Role> iamAdminRole  = roleRepository.findById("iam-admin-role");
         if(iamAdminRole.isEmpty()){
             AccessPolicy accessPolicy = new AccessPolicy("iam-admin-policy");
-            accessPolicy.setAllowedSendPatterns(Collections.singletonList(new AccessPattern(Scheme.SERVICE.raw()
+            accessPolicy.setAllowedSendPatterns(Collections.singletonList(new AccessPattern(EventConstants.SERVICE_DESTINATION_SCHEME
                                                                                             + "://com.kinotic.continuum.iam.api.**")));
             accessPolicy = accessPolicyRepository.save(accessPolicy);
 
@@ -79,11 +76,11 @@ public class DefaultDataInitialization {
         Optional<Role> superRole  = roleRepository.findById("super-role");
         if(superRole.isEmpty()){
             AccessPolicy accessPolicy = new AccessPolicy("super-policy");
-            accessPolicy.setAllowedSendPatterns(List.of(new AccessPattern(Scheme.SERVICE.raw() + "://*.**"),
-                                                        new AccessPattern(Scheme.STREAM.raw() + "://*.**")));
+            accessPolicy.setAllowedSendPatterns(List.of(new AccessPattern(EventConstants.SERVICE_DESTINATION_SCHEME + "://*.**"),
+                                                        new AccessPattern(EventConstants.STREAM_DESTINATION_SCHEME + "://*.**")));
 
-            accessPolicy.setAllowedSubscriptionPatterns(List.of(new AccessPattern(Scheme.SERVICE.raw() + "://*.**"),
-                                                                new AccessPattern(Scheme.STREAM.raw() + "://*.**")));
+            accessPolicy.setAllowedSubscriptionPatterns(List.of(new AccessPattern(EventConstants.SERVICE_DESTINATION_SCHEME + "://*.**"),
+                                                                new AccessPattern(EventConstants.STREAM_DESTINATION_SCHEME + "://*.**")));
 
             accessPolicy = accessPolicyRepository.save(accessPolicy);
 
@@ -100,15 +97,15 @@ public class DefaultDataInitialization {
         Optional<Role> deviceRegistrationRole  = roleRepository.findById(DomainConstants.DEVICE_REGISTRATION_ROLE_ID);
         if(deviceRegistrationRole.isEmpty()){
             AccessPolicy accessPolicy = new AccessPolicy("device-registration-policy");
-            accessPolicy.setAllowedSendPatterns(List.of(new AccessPattern(Scheme.SERVICE.raw()
+            accessPolicy.setAllowedSendPatterns(List.of(new AccessPattern(EventConstants.SERVICE_DESTINATION_SCHEME
                                                                           + "://com.kinotic.continuum.iam.api.DeviceService/registerDevice*"),
-                                                        new AccessPattern(Scheme.SERVICE.raw()
+                                                        new AccessPattern(EventConstants.SERVICE_DESTINATION_SCHEME
                                                                           + "://*@continuum.js.EventBus/replyHandler"), // TODO: find better solution to this
-                                                        new AccessPattern(Scheme.SERVICE.raw()
+                                                        new AccessPattern(EventConstants.SERVICE_DESTINATION_SCHEME
                                                                           + "://*@continuum.js.test.EventTest/replyHandler")));
 
             // for registration response since registration service delegates subscriptions..
-            accessPolicy.setAllowedSubscriptionPatterns(List.of(new AccessPattern(Scheme.SERVICE.raw()
+            accessPolicy.setAllowedSubscriptionPatterns(List.of(new AccessPattern(EventConstants.SERVICE_DESTINATION_SCHEME
                                                                                   + "://*@continuum.cpp.RegistrationRequest/replyHandler")));
             accessPolicy = accessPolicyRepository.save(accessPolicy);
 
@@ -126,9 +123,9 @@ public class DefaultDataInitialization {
         if(defaultDeviceRole.isEmpty()){
             AccessPolicy accessPolicy = new AccessPolicy("default-device-policy");
             // TODO: find better solution to this
-            accessPolicy.setAllowedSendPatterns(List.of(new AccessPattern(Scheme.SERVICE.raw()
+            accessPolicy.setAllowedSendPatterns(List.of(new AccessPattern(EventConstants.SERVICE_DESTINATION_SCHEME
                                                                           + "://*@continuum.js.EventBus/replyHandler"),
-                                                        new AccessPattern(Scheme.SERVICE.raw()
+                                                        new AccessPattern(EventConstants.SERVICE_DESTINATION_SCHEME
                                                                           + "://*@continuum.js.test.EventTest/replyHandler")));
             accessPolicyRepository.save(accessPolicy);
 

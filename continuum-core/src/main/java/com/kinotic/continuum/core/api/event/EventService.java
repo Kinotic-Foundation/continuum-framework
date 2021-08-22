@@ -21,10 +21,10 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
- * Simple facade that sits in front of the {@link EventBusService} and the {@link EventStreamService} .
+ * Simple facade that sits in front of the {@link EventBusService} and the {@link EventStreamService}
  * This service will route to the correct backend based upon the CRI.
- * All {@link com.kinotic.continuum.core.api.Scheme#SERVICE} CRI's will go to the {@link EventBusService}
- * All {@link com.kinotic.continuum.core.api.Scheme#STREAM} CRI's will go to the {@link EventStreamService}
+ * All srv:// CRI's will go to the {@link EventBusService}
+ * All stream:// CRI's will go to the {@link EventStreamService}
  *
  *
  * Created by navid on 12/19/19

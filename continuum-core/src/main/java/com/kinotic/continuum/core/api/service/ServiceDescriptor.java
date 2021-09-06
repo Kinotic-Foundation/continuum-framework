@@ -45,4 +45,14 @@ public interface ServiceDescriptor {
         return new DefaultServiceDescriptor(serviceIdentifier, serviceFunctions);
     }
 
+    /**
+     * Creates a {@link ServiceDescriptor} using refelction
+     * @param serviceIdentifier to use for the {@link ServiceDescriptor}
+     * @param serviceClass to use to determine which {@link ServiceFunction}'s should exist
+     * @return the new {@link ServiceDescriptor}
+     */
+    static ServiceDescriptor create(ServiceIdentifier serviceIdentifier, Class<?> serviceClass){
+        return new ReflectiveServiceDescriptor(serviceIdentifier, serviceClass);
+    }
+
 }

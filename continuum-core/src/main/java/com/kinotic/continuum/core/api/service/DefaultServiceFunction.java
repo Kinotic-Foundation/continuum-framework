@@ -22,7 +22,7 @@ import java.lang.reflect.Method;
 /**
  * Created by Navíd Mitchell 🤬 on 8/18/21.
  */
-public class DefaultServiceFunction implements ServiceFunction{
+class DefaultServiceFunction implements ServiceFunction{
 
     private final String name;
 

@@ -19,12 +19,11 @@ package com.kinotic.continuum.core.api.service;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 /**
  * Created by Navíd Mitchell 🤬 on 8/18/21.
  */
-public class DefaultServiceDescriptor implements ServiceDescriptor{
+class DefaultServiceDescriptor implements ServiceDescriptor{
 
     private final ServiceIdentifier serviceIdentifier;
     private final Collection<ServiceFunction> serviceFunctions;

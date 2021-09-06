@@ -21,8 +21,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kinotic.continuum.api.jsonSchema.JsonSchemaFactory;
 import com.kinotic.continuum.api.jsonSchema.NamespaceJsonSchema;
-import com.kinotic.continuum.core.api.event.CRI;
 import com.kinotic.continuum.core.api.ServiceDirectory;
+import com.kinotic.continuum.core.api.service.ServiceDescriptor;
+import com.kinotic.continuum.core.api.service.ServiceIdentifier;
 import io.vertx.core.*;
 import io.vertx.core.shareddata.AsyncMap;
 import org.slf4j.Logger;
@@ -67,12 +68,12 @@ public class DefaultServiceDirectory implements ServiceDirectory {
     private String deploymentId = null;
 
     @Override
-    public void register(CRI cri, Class<?> serviceInterface) {
+    public void register(ServiceDescriptor serviceDescriptor) {
 
     }
 
     @Override
-    public void unregister(CRI cri) {
+    public void unregister(ServiceIdentifier serviceIdentifier) {
 
     }
 

@@ -23,7 +23,6 @@ import com.kinotic.continuum.core.api.RpcServiceProxyHandle;
 import com.kinotic.continuum.core.api.ServiceRegistry;
 import com.kinotic.continuum.core.api.event.EventBusService;
 import com.kinotic.continuum.core.api.service.ServiceDescriptor;
-import com.kinotic.continuum.core.api.service.ServiceFunction;
 import com.kinotic.continuum.core.api.service.ServiceFunctionInstanceProvider;
 import com.kinotic.continuum.core.api.service.ServiceIdentifier;
 import com.kinotic.continuum.internal.ServiceRegistrationBeanPostProcessor;
@@ -43,11 +42,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ReactiveAdapterRegistry;
 import org.springframework.stereotype.Component;
 import org.springframework.util.MimeTypeUtils;
-import org.springframework.util.ReflectionUtils;
 import reactor.core.publisher.Mono;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -92,21 +88,7 @@ public class DefaultServiceRegistry implements ServiceRegistry {
     @Override
     public Mono<Void> register(ServiceIdentifier serviceIdentifier, Class<?> serviceInterface, Object instance) {
         try {
-            // now build list of service functions
-            Map<String, ServiceFunction> functionMap = new HashMap<>();
-            ReflectionUtils.doWithMethods(serviceInterface, method -> {
-                String methodName = method.getName();
-                if(functionMap.containsKey(methodName)){
-                    // in some cases such as with default methods we may actually get the same method multiple times check for that.
-                    if(!functionMap.get(methodName).invocationMethod().equals(method)){
-                        log.warn(serviceInterface.getName() + " has overloaded method " + methodName + " overloading is not supported. \n "+method.toGenericString()+" will be ignored");
-                    }
-                }else{
-                    functionMap.put(methodName,  ServiceFunction.create(methodName, method));
-                }
-            }, ReflectionUtils.USER_DECLARED_METHODS);
-
-            return register(ServiceDescriptor.create(serviceIdentifier, functionMap.values()), ServiceFunctionInstanceProvider.create(instance));
+            return register(ServiceDescriptor.create(serviceIdentifier, serviceInterface), ServiceFunctionInstanceProvider.create(instance));
         } catch (Exception e) {
             return Mono.error(e);
         }

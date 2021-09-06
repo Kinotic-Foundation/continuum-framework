@@ -47,7 +47,7 @@ public class JsonSchemaConverterComposite implements GenericTypeJsonSchemaConver
 
             Class<?>[] specificTypes = specificConverter.supports();
 
-            for(Class type: specificTypes){
+            for(Class<?> type: specificTypes){
                 Assert.notNull(type, "SpecificTypeJsonSchemaConverter classes returned from supports must not be null");
                 Assert.isTrue(!specificConverters.containsKey(type.getName()),"SpecificTypeJsonSchemaConverter already exists for "+type.getName());
 

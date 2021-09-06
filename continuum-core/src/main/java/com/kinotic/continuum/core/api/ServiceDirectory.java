@@ -17,7 +17,8 @@
 
 package com.kinotic.continuum.core.api;
 
-import com.kinotic.continuum.core.api.event.CRI;
+import com.kinotic.continuum.core.api.service.ServiceDescriptor;
+import com.kinotic.continuum.core.api.service.ServiceIdentifier;
 
 /**
  * ServiceDirectory is responsible for keeping track of all registered service contracts
@@ -27,8 +28,8 @@ import com.kinotic.continuum.core.api.event.CRI;
  */
 public interface ServiceDirectory {
 
-    void register(CRI cri, Class<?> serviceInterface);
+    void register(ServiceDescriptor serviceDescriptor);
 
-    void unregister(CRI cri);
+    void unregister(ServiceIdentifier serviceIdentifier);
 
 }

@@ -19,6 +19,8 @@ import { ICrudServiceProxyFactory } from './ICrudServiceProxyFactory'
 import { ICrudServiceProxy } from './ICrudServiceProxy'
 import { CrudServiceProxy } from './CrudServiceProxy'
 import { Identifiable } from './Identifiable'
+import { ISearchServiceProxy } from './ISearchServiceProxy'
+import { SearchServiceProxy } from './SearchServiceProxy'
 import { IServiceRegistry } from '@/core/api/IServiceRegistry'
 import { injectable, container, inject } from 'inversify-props'
 
@@ -40,6 +42,13 @@ class CrudServiceProxyFactory implements ICrudServiceProxyFactory {
             throw new Error('The serviceIdentifier provided must contain a value')
         }
         return new CrudServiceProxy<T>(this.serviceRegistry.serviceProxy(serviceIdentifier))
+    }
+
+    public searchServiceProxy<T extends Identifiable<string>>(serviceIdentifier: string): ISearchServiceProxy<T> {
+        if ( typeof serviceIdentifier === 'undefined' || serviceIdentifier.length === 0 ) {
+            throw new Error('The serviceIdentifier provided must contain a value')
+        }
+        return new SearchServiceProxy<T>(this.serviceRegistry.serviceProxy(serviceIdentifier))
     }
 
 }

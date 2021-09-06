@@ -48,7 +48,7 @@ dependencies {
     implementation "io.vertx:vertx-web:${vertxVersion}"
     implementation "io.vertx:vertx-auth-common:${vertxVersion}"
     implementation "io.vertx:vertx-mqtt:${vertxVersion}"
-    api "com.kinotic:vertx-stomp-lite:${vertxVersion}"
+    compile "com.kinotic:vertx-stomp-lite:${vertxVersion}"
 
     implementation "org.apache.ignite:ignite-core:${igniteVersion}"
 

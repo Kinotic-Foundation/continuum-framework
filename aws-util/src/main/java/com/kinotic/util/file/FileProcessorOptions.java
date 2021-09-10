@@ -43,9 +43,9 @@ public class FileProcessorOptions {
 
     /**
      * The options for the file processor
-     * @param sourceDirectory to look for file to upload
-     * @param targetDirectory to move files to once uploaded or failed
-     *                        if the file is successfully uploaded and deleteProcessedFiles is true this directory will only be used for failed files
+     * @param sourceDirectory to look for file to process
+     * @param targetDirectory to move files to once processed or failed
+     *                        if the file is successfully processed and deleteProcessedFiles is true this directory will only be used for failed files
      * @param fileConsumer to do the actual work for each file
      *                     If the function returns true the processor will consider this file done and perform the done logic
      *                     If the function returns false the processor will consider this file in process and not do anything with the file

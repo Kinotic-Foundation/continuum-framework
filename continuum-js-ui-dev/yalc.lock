@@ -2,7 +2,7 @@
   "version": "v1",
   "packages": {
     "continuum-js": {
-      "signature": "101b6c499537f6f9d8b552ae61f196c7",
+      "signature": "90a6d31c8c70c2de947c0dcaa51aba2d",
       "pure": true
     }
   }

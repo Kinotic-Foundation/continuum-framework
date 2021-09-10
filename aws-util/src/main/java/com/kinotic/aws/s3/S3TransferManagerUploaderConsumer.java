@@ -80,7 +80,7 @@ public class S3TransferManagerUploaderConsumer implements Function<Path, Boolean
         boolean finished = false;
         String objectKey = getObjectKey(path);
         if(log.isTraceEnabled()){
-            log.trace("Uploading... \n\t"+path.toString()+"\n\tto\n\t"+bucketName+"/"+objectKey);
+            log.trace("Uploading... \n\t"+path+"\n\tto\n\t"+bucketName+"/"+objectKey);
         }
 
         PersistableUpload persistableUpload = null;
@@ -120,8 +120,8 @@ public class S3TransferManagerUploaderConsumer implements Function<Path, Boolean
             throw new UncheckedInterruptedException(e);
         } catch (Exception e){
             // any other error will cause the file to be moved to the failed directory so we just log
-            // the exception since this logic supports resume functionality
-            log.error("Exception occurred processing file "+path.toString(), e);
+            // the exception since this logic supports resume functionality and we do not want the file to ever be failed
+            log.error("Exception occurred processing file "+path, e);
         }
 
         return finished;

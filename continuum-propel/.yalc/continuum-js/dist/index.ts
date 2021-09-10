@@ -135,6 +135,39 @@ var CrudServiceProxy = /** @class */ (function () {
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+var SearchServiceProxy = /** @class */ (function () {
+    function SearchServiceProxy(serviceProxy) {
+        this.serviceProxy = serviceProxy;
+    }
+    SearchServiceProxy.prototype.findAll = function (pageable) {
+        return this.serviceProxy.invoke('findAll', [pageable]);
+    };
+    SearchServiceProxy.prototype.search = function (searchText, pageable) {
+        return this.serviceProxy.invoke('search', [searchText, pageable]);
+    };
+    SearchServiceProxy = __decorate([
+        inversifyProps.injectable(),
+        __metadata("design:paramtypes", [Object])
+    ], SearchServiceProxy);
+    return SearchServiceProxy;
+}());
+
+/*
+ *
+ * Copyright 2008-2021 Kinotic and the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 var DataSourceUtils = /** @class */ (function () {
     function DataSourceUtils() {
     }
@@ -827,6 +860,12 @@ var CrudServiceProxyFactory = /** @class */ (function () {
         }
         return new CrudServiceProxy(this.serviceRegistry.serviceProxy(serviceIdentifier));
     };
+    CrudServiceProxyFactory.prototype.searchServiceProxy = function (serviceIdentifier) {
+        if (typeof serviceIdentifier === 'undefined' || serviceIdentifier.length === 0) {
+            throw new Error('The serviceIdentifier provided must contain a value');
+        }
+        return new SearchServiceProxy(this.serviceRegistry.serviceProxy(serviceIdentifier));
+    };
     CrudServiceProxyFactory = __decorate([
         inversifyProps.injectable(),
         __param(0, inversifyProps.inject()),
@@ -845,6 +884,7 @@ exports.Order = Order;
 exports.Page = Page;
 exports.Pageable = Pageable;
 exports.SearchCriteria = SearchCriteria;
+exports.SearchServiceProxy = SearchServiceProxy;
 exports.ServiceRegistry = ServiceRegistry;
 exports.Sort = Sort;
 exports.StreamData = StreamData;

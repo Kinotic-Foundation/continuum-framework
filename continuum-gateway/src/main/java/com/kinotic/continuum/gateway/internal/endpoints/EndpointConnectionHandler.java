@@ -136,7 +136,7 @@ public class EndpointConnectionHandler {
 
             event.metadata().put(EventConstants.SENDER_HEADER, session.participant().getIdentity());
 
-            Validate reply to has participant scope
+          //FIXME:  Validate reply to has participant scope
 
             if (event.cri().scheme().equals(EventConstants.SERVICE_DESTINATION_SCHEME)) {
 

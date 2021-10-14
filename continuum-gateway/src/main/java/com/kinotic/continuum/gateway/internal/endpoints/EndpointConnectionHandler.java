@@ -42,6 +42,7 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
@@ -135,6 +136,8 @@ public class EndpointConnectionHandler {
 
             event.metadata().put(EventConstants.SENDER_HEADER, session.participant().getIdentity());
 
+            Validate reply to has participant scope
+
             if (event.cri().scheme().equals(EventConstants.SERVICE_DESTINATION_SCHEME)) {
 
                 ret = services.eventBusService.sendWithAck(event);
@@ -172,7 +175,16 @@ public class EndpointConnectionHandler {
 
         if (cri.scheme().equals(EventConstants.SERVICE_DESTINATION_SCHEME)) {
 
-            services.eventBusService.listen(cri.baseResource()).subscribe(subscriber);
+            services.eventBusService.listen(cri.baseResource())
+                                    .doOnNext(new Consumer<Event<byte[]>>() {
+                                        @Override
+                                        public void accept(Event<byte[]> event) {
+                                            if(event.metadata().contains(EventConstants.REPLY_TO_HEADER)){
+
+                                            }
+                                        }
+                                    }) // services we want to make sure reply addresses are implicitly allowed
+                                    .subscribe(subscriber);
 
             subscriptions.put(subscriptionIdentifier, subscriber);
 

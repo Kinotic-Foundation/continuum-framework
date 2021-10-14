@@ -35,6 +35,7 @@ ext {
     awaitilityVersion='4.0.1'
     kafkaVersion='2.6.0' //linked to aws msk supported version, and all kafka zookeeper curator versions are interdependent
     zookeeperVersion='3.5.8'
+    commonsIoVersion='2.8.0'
 }
 
 dependencies {
@@ -88,12 +89,12 @@ dependencies {
     implementation 'org.codehaus.groovy:groovy'
 
     // Misc
-    implementation "org.apache.commons:commons-lang3"
-    implementation "commons-io:commons-io:2.8.0"
+    implementation 'org.apache.commons:commons-lang3'
+    implementation "commons-io:commons-io:${commonsIoVersion}"
     implementation 'ch.qos.logback:logback-core'
     implementation 'ch.qos.logback:logback-classic'
 
-    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 
     implementation "org.awaitility:awaitility:${awaitilityVersion}"
 

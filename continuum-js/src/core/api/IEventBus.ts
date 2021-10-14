@@ -21,7 +21,7 @@ import { Observable } from 'rxjs'
 /**
  * Part of the low level portion of continuum representing data to be processed
  *
- * This is similar to a Stomp Frame but with more required headers and no control plane semantics..
+ * This is similar to a Stomp Frame but with more required information and no control plane semantics..
  *
  *
  * Created by Navid Mitchell on 2019-01-04.

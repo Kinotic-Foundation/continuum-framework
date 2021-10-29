@@ -17,9 +17,11 @@
 
 package com.kinotic.continuum.core.api.event;
 
-import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+
+import java.net.URI;
+import java.net.URISyntaxException;
 
 /**
  *
@@ -27,29 +29,14 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
  */
 class DefaultCRI implements CRI {
 
-    private final String raw;
-    private final String scheme;
-    private final String scope;
-    private final String resourceName;
-    private final String version;
-    private final String path;
+    private final URI uri;
 
-    public DefaultCRI(String scheme, String scope, String resourceName, String version, String path) {
-
-        // TODO: validate characters in vars.. ie version cannot contain / or else path logic breaks down
-
-        Validate.notNull(scheme, "The scheme must not be null");
-        Validate.notBlank(resourceName, "The resourceName must not be null or blank");
-        this.scheme = scheme;
-        this.scope = scope;
-        this.resourceName = resourceName;
-        this.version = version;
-        this.path = path;
-        this.raw = scheme + "://"
-                          + (this.scope != null && !this.scope.isEmpty() ? this.scope + "@" : "")
-                          + resourceName
-                          + (this.version != null && !this.version.isEmpty() ? "#" + this.version : "")
-                          + (this.path != null ? "/" + this.path : "");
+    public DefaultCRI(String scheme, String scope, String resourceName, String path, String version) {
+        try {
+            uri = new URI(scheme, scope,  resourceName, -1, path,null, version);
+        } catch (URISyntaxException x) {
+            throw new IllegalArgumentException(x.getMessage(), x);
+        }
     }
 
     /**
@@ -58,121 +45,65 @@ class DefaultCRI implements CRI {
      * @param rawURC the raw string to create from an {@link CRI}
      */
     public DefaultCRI(String rawURC) {
-        Validate.notNull(rawURC, "The string provided must not be null");
-        this.raw = rawURC;
-        String temp = rawURC;
-
-        // Find scheme
-        int schemeEndIdx = temp.indexOf("://");
-        Validate.isTrue(schemeEndIdx != -1, "URC: \""+rawURC+"\" format is invalid. URC must begin with scheme://");
-
-        scheme = temp.substring(0, schemeEndIdx);
-        temp = temp.substring(schemeEndIdx+3);
-
-        // find scope if provided
-        int atIdx = temp.indexOf("@");
-        if(atIdx != -1){
-            scope = temp.substring(0,atIdx);
-            temp = temp.substring(atIdx+1);
-        }else{
-            scope = null;
-        }
-
-        // find version if provided
-        int hashIdx = temp.indexOf("#");
-        if(hashIdx != -1){
-            resourceName = temp.substring(0, hashIdx);
-            temp = temp.substring(hashIdx+1);
-
-            // version is until the path
-            int pathIndex = temp.indexOf("/");
-            if(pathIndex != -1){
-                version = temp.substring(0, pathIndex);
-                temp = temp.substring(pathIndex+1);
-            }else{
-                version = temp;
-                temp = "";
-            }
-        }else{
-            version = null;
-            // since no version we still need to extract the resource name
-            // which is the remaining string or until the path
-            int pathIndex = temp.indexOf("/");
-            if(pathIndex != -1){
-                resourceName = temp.substring(0, pathIndex);
-                temp = temp.substring(pathIndex+1);
-            }else{
-                resourceName = temp;
-                temp = "";
-            }
-        }
-
-        // if anything is left in temp it is the path
-        if(!temp.isEmpty()){
-            path = temp;
-        }else{
-            path = null;
-        }
+        uri = URI.create(rawURC);
     }
 
     @Override
     public String scheme() {
-        return scheme;
+        return uri.getScheme();
     }
 
     @Override
     public String scope() {
-        return scope;
+        return uri.getRawUserInfo();
     }
 
     @Override
     public boolean hasScope() {
-        return scope != null && !scope.isEmpty();
+        return uri.getRawUserInfo() != null;
     }
 
     @Override
     public String resourceName() {
-        return resourceName;
+        return uri.getHost();
     }
 
     @Override
     public String version() {
-        return version;
+        return uri.getRawFragment();
     }
 
     @Override
     public boolean hasVersion() {
-        return version != null && !version.isEmpty();
+        return uri.getRawFragment() != null;
     }
 
     @Override
     public String path() {
-        return path;
+        return uri.getRawPath();
     }
 
     @Override
     public boolean hasPath() {
-        return path != null && !path.isEmpty();
+        return uri.getRawPath() != null;
     }
 
     @Override
     public String baseResource() {
-        return scheme + "://" +
-               (hasScope() ? scope + "@" : "") +
-               resourceName;
-    }
+        StringBuilder sb = new StringBuilder(scheme());
+        sb.append("://");
+        if(hasScope()){
+            sb.append(scope());
+            sb.append("@");
+        }
+        sb.append(resourceName());
 
-    @Override
-    public String versionedResource() {
-        return scheme + "://" +
-               (hasScope() ? scope + "@" : "") +
-               resourceName +
-               (hasVersion() ? "#" + version : "");
+        return sb.toString();
     }
 
     @Override
     public String raw() {
-        return raw;
+        return uri.toString();
     }
 
     @Override
@@ -184,19 +115,19 @@ class DefaultCRI implements CRI {
         DefaultCRI that = (DefaultCRI) o;
 
         return new EqualsBuilder()
-                .append(raw, that.raw)
+                .append(uri.toString(), that.toString())
                 .isEquals();
     }
 
     @Override
     public int hashCode() {
         return new HashCodeBuilder(17, 37)
-                .append(raw)
+                .append(uri.toString())
                 .toHashCode();
     }
 
     @Override
     public String toString() {
-        return raw;
+        return uri.toString();
     }
 }

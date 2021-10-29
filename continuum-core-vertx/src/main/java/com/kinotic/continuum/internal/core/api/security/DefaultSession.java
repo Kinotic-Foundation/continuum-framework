@@ -31,12 +31,13 @@ import java.util.List;
 public class DefaultSession extends AbstractSession {
 
 
-    public DefaultSession(Participant participant,
+    public DefaultSession(DefaultSessionManager sessionManager,
+                          Participant participant,
                           String sessionId,
                           PathContainer.Options parseOptions,
                           List<PathPattern> sendPathPatterns,
                           List<PathPattern> subscribePathPatterns) {
-        super(participant, sessionId, parseOptions, sendPathPatterns, subscribePathPatterns);
+        super(sessionManager, participant, sessionId, parseOptions, sendPathPatterns, subscribePathPatterns);
     }
 
     @Override

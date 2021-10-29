@@ -24,7 +24,9 @@ package com.kinotic.continuum.core.api.event;
  *
  * Will be in a format as follows where anything surrounded with [] is optional
  *
- *      scheme://[scope@]resourceName[#version][/path]
+ *      scheme://[scope@]resourceName[/path][#version]
+ *
+ * NOTE: TODO: document scope when an user identity is used
  *
  * This format can have varied meanings based upon the scheme used.
  *
@@ -107,17 +109,6 @@ public interface CRI {
     String baseResource();
 
     /**
-     * Versioned Resource is a portion of the fully qualified {@link CRI} containing the following
-     *
-     * scheme://[scope@]resourceName[#version]
-     *
-     * This may be the same as {@link CRI#baseResource()} if {@link CRI#hasVersion()} is false
-     *
-     * @return string containing the baseResource
-     */
-    String versionedResource();
-
-    /**
      * The fully qualified value for this {@link CRI}
      *
      * @return the fully qualified {@link CRI} as a string
@@ -148,8 +139,8 @@ public interface CRI {
     /**
      * Will create a {@link CRI} from the values provided
      */
-    static CRI create(String scheme, String scope, String resourceName, String version, String path){
-        return new DefaultCRI(scheme, scope, resourceName, version, path);
+    static CRI create(String scheme, String scope, String resourceName, String path, String version){
+        return new DefaultCRI(scheme, scope, resourceName, path, version);
     }
 
 }

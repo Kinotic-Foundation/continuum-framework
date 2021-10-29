@@ -54,7 +54,7 @@ public class ServiceIdentifier {
         this.scope = scope;
         this.version = version;
 
-        cri = CRI.create(EventConstants.SERVICE_DESTINATION_SCHEME, this.scope, this.qualifiedName(), this.version, null);
+        cri = CRI.create(EventConstants.SERVICE_DESTINATION_SCHEME, this.scope, this.qualifiedName(),null, this.version);
     }
 
     /**

@@ -25,6 +25,8 @@ import java.util.List;
 /**
  * {@link Permissions} define access that a given authenticated participant has
  *
+ * TODO: DOC pattern specification
+ *
  * Created by navid on 1/22/20
  */
 public class Permissions {

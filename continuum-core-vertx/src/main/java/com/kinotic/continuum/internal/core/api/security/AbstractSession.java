@@ -20,7 +20,6 @@ package com.kinotic.continuum.internal.core.api.security;
 import com.kinotic.continuum.core.api.event.CRI;
 import com.kinotic.continuum.core.api.security.Participant;
 import com.kinotic.continuum.core.api.security.Session;
-import com.kinotic.continuum.internal.util.SecurityUtil;
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -29,6 +28,7 @@ import org.springframework.http.server.PathContainer;
 import org.springframework.web.util.pattern.PathPattern;
 
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -37,23 +37,27 @@ import java.util.List;
  */
 public abstract class AbstractSession implements Session {
 
+    private static final int MAX_TEMPORARY_PATTERNS = 1000;
+
+    private final DefaultSessionManager sessionManager;
     private final Participant participant;
     private final String sessionId;
-    private final String sessionSecret;
     private final PathContainer.Options parseOptions;
     private final List<PathPattern> sendPathPatterns;
     private final List<PathPattern> subscribePathPatterns;
+    private final LinkedList<PathPattern> temporarySendPathPatterns = new LinkedList<>();
 
     protected Date lastUsedDate;
 
-    public AbstractSession(Participant participant,
+    public AbstractSession(DefaultSessionManager sessionManager,
+                           Participant participant,
                            String sessionId,
                            PathContainer.Options parseOptions,
                            List<PathPattern> sendPathPatterns,
                            List<PathPattern> subscribePathPatterns) {
+        this.sessionManager = sessionManager;
         this.participant = participant;
         this.sessionId = sessionId;
-        this.sessionSecret = SecurityUtil.generateRandomPassword(64);
         this.parseOptions = parseOptions;
         this.sendPathPatterns = sendPathPatterns;
         this.subscribePathPatterns = subscribePathPatterns;
@@ -71,33 +75,52 @@ public abstract class AbstractSession implements Session {
     }
 
     @Override
-    public String sessionSecret() {
-        return sessionSecret;
-    }
-
-    @Override
     public Date lastUsedDate() {
         return lastUsedDate;
     }
 
     @Override
+    public void addTemporarySendAllowed(String criPattern) {
+        // TODO: is there a good reason to allow full blown PathPatterns and not just a static value..?
+        if(temporarySendPathPatterns.size() == MAX_TEMPORARY_PATTERNS){
+            temporarySendPathPatterns.removeFirst();
+        }
+        temporarySendPathPatterns.add(sessionManager.getPathPattern(criPattern));
+    }
+
+    @Override
     public boolean sendAllowed(CRI cri){
         Validate.notNull(cri, "The CRI must not be null");
-        return checkMatches(cri.raw(), sendPathPatterns);
+        int result = -1;
+
+        // check one time paths
+        if(temporarySendPathPatterns.size() > 0){
+            result = checkMatches(cri.raw(), temporarySendPathPatterns);
+            // temporary patterns can only match once
+            if(result != -1){
+                temporarySendPathPatterns.remove(result);
+            }
+        }
+
+        // Check configured paths
+        if(result == -1){
+            result = checkMatches(cri.raw(), sendPathPatterns);
+        }
+        return result != -1;
     }
 
     @Override
     public boolean subscribeAllowed(CRI cri){
         Validate.notNull(cri, "The CRI must not be null");
-        return checkMatches(cri.raw(), subscribePathPatterns);
+        return checkMatches(cri.raw(), subscribePathPatterns) != -1;
     }
 
-    private boolean checkMatches(String cri, List<PathPattern> patterns){
-        boolean ret = false;
+    private int checkMatches(String cri, List<PathPattern> patterns){
+        int ret = -1;
         PathContainer pathContainer = PathContainer.parsePath(cri, parseOptions);
-        for(PathPattern pathPattern : patterns){
-            if(pathPattern.matches(pathContainer)){
-                ret = true;
+        for(int i = 0; i < patterns.size(); i++){
+            if(patterns.get(i).matches(pathContainer)){
+                ret = i;
                 break;
             }
         }

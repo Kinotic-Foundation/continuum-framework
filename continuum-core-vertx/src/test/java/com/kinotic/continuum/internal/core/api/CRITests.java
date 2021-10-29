@@ -23,7 +23,7 @@ import org.apache.commons.lang3.Validate;
 import org.junit.jupiter.api.Test;
 
 /**
- *
+ * FIXME: add many more tests to ensure invalid CRI's are detected properly
  * Created by navid on 1/23/20
  */
 public class CRITests {
@@ -54,6 +54,8 @@ public class CRITests {
     public void testRawCRI2(){
         validateCRI(CRI.create(SERVICE_LITERAL2), true);
     }
+
+
 
 
     private void validateCRI(CRI cri, boolean checkScope){

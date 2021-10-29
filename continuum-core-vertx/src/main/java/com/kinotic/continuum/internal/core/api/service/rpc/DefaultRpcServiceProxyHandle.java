@@ -94,7 +94,7 @@ public class DefaultRpcServiceProxyHandle<T> implements RpcServiceProxyHandle<T>
         this.rpcReturnValueHandlerFactory = rpcReturnValueHandlerFactory;
         this.eventBusService = eventBusService;
 
-        this.handlerCRI = CRI.create(EventConstants.SERVICE_DESTINATION_SCHEME, encodedNodeName + ":" + UUID.randomUUID(), serviceClass.getName()+"RpcProxyResponseHandler", null, null);
+        this.handlerCRI = CRI.create(EventConstants.SERVICE_DESTINATION_SCHEME, encodedNodeName + ":" + UUID.randomUUID(), serviceClass.getName()+"RpcProxyResponseHandler");
 
         // Verify that an proxy can be built supporting all methods of the provided serviceClass
         ReflectionUtils.doWithMethods(serviceClass, method -> {
@@ -212,8 +212,8 @@ public class DefaultRpcServiceProxyHandle<T> implements RpcServiceProxyHandle<T>
                         eventBusService.sendWithAck(Event.create(CRI.create(EventConstants.SERVICE_DESTINATION_SCHEME,
                                                                             scope,
                                                                             serviceIdentifier.qualifiedName(),
-                                                                            serviceIdentifier.version(),
-                                                                            method.getName()),
+                                                                            "/" + method.getName(),
+                                                                            serviceIdentifier.version()),
                                                                  metadata,
                                                                  argumentData))
                                        .subscribe(v -> {}, throwable -> {

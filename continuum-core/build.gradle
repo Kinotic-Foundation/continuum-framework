@@ -40,7 +40,7 @@ dependencies {
     api 'org.springframework.data:spring-data-commons' // used for core.api.crud.CrudService definition classes will need to be in apps class path so we set to compile
 
     implementation 'javax.annotation:javax.annotation-api'
-    implementation "org.apache.commons:commons-lang3"
+    implementation'org.apache.commons:commons-lang3'
 
     // JSON
     implementation 'com.fasterxml.jackson.core:jackson-annotations'

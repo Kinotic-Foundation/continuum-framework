@@ -36,6 +36,7 @@ ext {
     kafkaVersion='2.6.0' //linked to aws msk supported version, and all kafka zookeeper curator versions are interdependent
     zookeeperVersion='3.5.8'
     commonsIoVersion='2.8.0'
+    caffeineVersion='2.8.6'
 }
 
 dependencies {
@@ -91,6 +92,7 @@ dependencies {
     // Misc
     implementation 'org.apache.commons:commons-lang3'
     implementation "commons-io:commons-io:${commonsIoVersion}"
+    implementation "com.github.ben-manes.caffeine:caffeine:${caffeineVersion}"
     implementation 'ch.qos.logback:logback-core'
     implementation 'ch.qos.logback:logback-classic'
 
@@ -98,7 +100,6 @@ dependencies {
 
     implementation "org.awaitility:awaitility:${awaitilityVersion}"
 
-    //runtimeOnly 'org.springframework.boot:spring-boot-loader'
 
     testImplementation 'org.springframework.boot:spring-boot-loader-tools'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'

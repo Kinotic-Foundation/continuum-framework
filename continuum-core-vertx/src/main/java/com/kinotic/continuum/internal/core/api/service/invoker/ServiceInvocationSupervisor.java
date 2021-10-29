@@ -285,9 +285,12 @@ public class ServiceInvocationSupervisor {
         for(ServiceFunction serviceFunction : serviceDescriptor.functions()){
             Object instance = instanceProvider.provideInstance(serviceFunction);
             Method specificMethod = AopUtils.selectInvocableMethod(serviceFunction.invocationMethod(), instance.getClass());
-            String methodName = specificMethod.getName();
+
+            // add a / since uri paths contain this
+            String methodName = "/" + specificMethod.getName();
+
             if(ret.containsKey(methodName)){
-                throw new IllegalArgumentException("Multiple ServiceFunctions provided with the name "+methodName);
+                throw new IllegalArgumentException("Multiple ServiceFunctions provided with the name " + specificMethod.getName());
             }else{
                 HandlerMethod handlerMethod = new HandlerMethod(instance, specificMethod);
                 ret.put(methodName,  handlerMethod);

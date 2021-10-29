@@ -49,12 +49,12 @@ public class DefaultSessionManager implements SessionManager {
 
     private final SecurityService securityService;
     private final PathPatternParser parser;
+    // Fixme: this should be a caffeine cache
     private final Map<String, PathPattern> pathPatternCache = new ConcurrentHashMap<>();
     private final IgniteCache<String, DefaultSessionMetadata> sessionCache;
     private final Scheduler scheduler;
 
     public DefaultSessionManager(Vertx vertx,
-                                 @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
                                  @Autowired(required = false) SecurityService securityService,
                                  @Autowired(required = false) Ignite ignite) {
 
@@ -80,7 +80,8 @@ public class DefaultSessionManager implements SessionManager {
             ParticipantPathPatterns participantPathPatterns = new ParticipantPathPatterns(participant);
 
             if(sessionCache != null){
-                IgniteSession igniteSession = new IgniteSession(participant,
+                IgniteSession igniteSession = new IgniteSession(this,
+                                                                participant,
                                                                 sessionId,
                                                                 parser.getPathOptions(),
                                                                 participantPathPatterns.sendPatterns,
@@ -100,7 +101,8 @@ public class DefaultSessionManager implements SessionManager {
                                       () -> sink.success(igniteSession));
 
             }else{
-                sink.success(new DefaultSession(participant,
+                sink.success(new DefaultSession(this,
+                                                participant,
                                                 sessionId,
                                                 parser.getPathOptions(),
                                                 participantPathPatterns.sendPatterns,
@@ -126,7 +128,8 @@ public class DefaultSessionManager implements SessionManager {
                              .map(objects -> {
                                     Participant participant = objects.getT2();
                                     ParticipantPathPatterns participantPathPatterns = new ParticipantPathPatterns(participant);
-                                    return new IgniteSession(participant,
+                                    return new IgniteSession(this,
+                                                             participant,
                                                              objects.getT1().sessionId(),
                                                              parser.getPathOptions(),
                                                              participantPathPatterns.sendPatterns,
@@ -140,6 +143,9 @@ public class DefaultSessionManager implements SessionManager {
         return ret;
     }
 
+    public PathPattern getPathPattern(String pattern) {
+        return pathPatternCache.computeIfAbsent(pattern, parser::parse);
+    }
 
     private class ParticipantPathPatterns {
         List<PathPattern> sendPatterns = new LinkedList<>();
@@ -162,10 +168,6 @@ public class DefaultSessionManager implements SessionManager {
             for(String path: participant.getPermissions().getAllowedSubscriptionPatterns()){
                 subscriptionPatterns.add(getPathPattern(path));
             }
-        }
-
-        private PathPattern getPathPattern(String pattern) {
-            return pathPatternCache.computeIfAbsent(pattern, parser::parse);
         }
     }
 

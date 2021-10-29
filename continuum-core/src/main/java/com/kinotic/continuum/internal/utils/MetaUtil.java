@@ -85,7 +85,7 @@ public class MetaUtil {
      * @return the identifier or null if not present
      */
     public static String getScopeIfAvailable(Method method, Object instance)throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-        String ret = "";
+        String ret = null;
         Scope scope = AnnotationUtils.findAnnotation(method, Scope.class);
 
         if(scope != null){

@@ -18,6 +18,7 @@
 package com.kinotic.continuum.core.api.event;
 
 import org.apache.commons.lang3.Validate;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
  *
@@ -54,5 +55,14 @@ public class DefaultEvent<T> implements Event<T>{
     @Override
     public T data() {
         return data;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("cri", cri)
+                .append("metadata", metadata)
+                .append("data", data)
+                .toString();
     }
 }

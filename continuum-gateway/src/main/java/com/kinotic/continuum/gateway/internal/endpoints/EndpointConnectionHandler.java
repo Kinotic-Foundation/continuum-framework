@@ -23,6 +23,7 @@ import com.kinotic.continuum.core.api.event.EventConstants;
 import com.kinotic.continuum.core.api.security.Participant;
 import com.kinotic.continuum.core.api.security.Session;
 import com.kinotic.continuum.internal.util.SecurityUtil;
+import com.kinotic.continuum.internal.utils.ContinuumUtil;
 import io.vertx.core.Promise;
 import io.vertx.ext.stomp.frame.Frame;
 import org.apache.commons.lang3.StringUtils;
@@ -42,7 +43,6 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
@@ -136,11 +136,18 @@ public class EndpointConnectionHandler {
 
             event.metadata().put(EventConstants.SENDER_HEADER, session.participant().getIdentity());
 
-          //FIXME:  Validate reply to has participant scope
-
             if (event.cri().scheme().equals(EventConstants.SERVICE_DESTINATION_SCHEME)) {
 
-                ret = services.eventBusService.sendWithAck(event);
+                try {
+
+                    // make sure reply-to if present is scoped to sender
+                    validateReplyTo(event);
+
+                    ret = services.eventBusService.sendWithAck(event);
+
+                } catch (Exception e) {
+                    ret = Mono.error(e);
+                }
 
             } else if (event.cri().scheme().equals(EventConstants.STREAM_DESTINATION_SCHEME)) {
 
@@ -164,6 +171,36 @@ public class EndpointConnectionHandler {
         return ret;
     }
 
+    private void validateReplyTo(Event<byte[]> event){
+        String replyTo = event.metadata().get(EventConstants.REPLY_TO_HEADER);
+        if (replyTo != null) {
+            // reply-to must not use any * characters and must be "scoped" to the participant identity
+            if (replyTo.contains("*")) {
+                throw new IllegalArgumentException("reply-to header invalid * are not allowed");
+            }
+
+            CRI replyCRI;
+            try {
+                replyCRI = CRI.create(replyTo);
+            } catch(Exception e){
+                throw new IllegalArgumentException("reply-to header invalid " + e.getMessage());
+            }
+
+            String scope = replyCRI.scope();
+            if (scope != null) {
+                // valid scopes are PARTICIPANT_IDENTITY:UUID or PARTICIPANT_IDENTITY
+                int idx = scope.indexOf(":");
+                if (idx != -1) {
+                    scope = scope.substring(0, idx);
+                }
+                String encodedSender = ContinuumUtil.safeEncodeURI(session.participant().getIdentity());
+                if (!scope.equals(encodedSender)) {
+                    throw new IllegalArgumentException("Scope: " + scope + " is not valid for authenticated participant");
+                }
+            }
+        }
+    }
+
     public void subscribe(CRI cri, String subscriptionIdentifier, BaseSubscriber<Event<byte[]>> subscriber){
         Validate.notNull(cri, "CRI must not be null");
         Validate.notEmpty(subscriptionIdentifier,"subscriptionIdentifier must not be empty");
@@ -176,11 +213,15 @@ public class EndpointConnectionHandler {
         if (cri.scheme().equals(EventConstants.SERVICE_DESTINATION_SCHEME)) {
 
             services.eventBusService.listen(cri.baseResource())
-                                    .doOnNext(new Consumer<Event<byte[]>>() {
-                                        @Override
-                                        public void accept(Event<byte[]> event) {
-                                            if(event.metadata().contains(EventConstants.REPLY_TO_HEADER)){
-
+                                    .doOnNext(event -> {
+                                        // check if reply to is set if so we want to implicitly allow the subscriber to send to the given destination
+                                        String replyTo = event.metadata().get(EventConstants.REPLY_TO_HEADER);
+                                        if(replyTo != null){
+                                            // wildcard in the reply to are not allowed since they could bypass security constraints
+                                            if (!replyTo.contains("*")) {
+                                                session.addTemporarySendAllowed(replyTo);
+                                            } else {
+                                                log.warn("reply-to header contains * and will NOT be ALLOWED for message " + event);
                                             }
                                         }
                                     }) // services we want to make sure reply addresses are implicitly allowed

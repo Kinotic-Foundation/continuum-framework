@@ -33,13 +33,14 @@ public class IgniteSession extends AbstractSession {
 
     private final IgniteCache<String, DefaultSessionMetadata> sessionCache;
 
-    public IgniteSession(Participant participant,
+    public IgniteSession(DefaultSessionManager sessionManager,
+                         Participant participant,
                          String sessionId,
                          PathContainer.Options parseOptions,
                          List<PathPattern> sendPathPatterns,
                          List<PathPattern> subscribePathPatterns,
                          IgniteCache<String, DefaultSessionMetadata> sessionCache) {
-        super(participant, sessionId, parseOptions, sendPathPatterns, subscribePathPatterns);
+        super(sessionManager, participant, sessionId, parseOptions, sendPathPatterns, subscribePathPatterns);
         this.sessionCache = sessionCache;
     }
 

@@ -195,7 +195,7 @@ public class EndpointConnectionHandler {
                 }
                 String encodedSender = ContinuumUtil.safeEncodeURI(session.participant().getIdentity());
                 if (!scope.equals(encodedSender)) {
-                    throw new IllegalArgumentException("Scope: " + scope + " is not valid for authenticated participant");
+                    throw new IllegalArgumentException("reply-to header invalid, scope:" + scope + " is not valid for authenticated participant");
                 }
             }
         }

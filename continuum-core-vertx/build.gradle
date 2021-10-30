@@ -2,7 +2,7 @@ plugins {
     id 'java-library'
     id 'idea'
 
-    // see https://docs.spring.io/dependency-management-plugin/docs/current-SNAPSHOT/reference/html5/
+    // see https://docs.spring.io/dependency-management-plugin/docs/current/reference/html/
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
 }
 

@@ -139,7 +139,7 @@ public class EndpointConnectionHandler {
             if (event.cri().scheme().equals(EventConstants.SERVICE_DESTINATION_SCHEME)) {
 
                 try {
-
+                    // FIXME: Test to ensure this works as expected
                     // make sure reply-to if present is scoped to sender
                     validateReplyTo(event);
 
@@ -195,7 +195,7 @@ public class EndpointConnectionHandler {
                 }
                 String encodedSender = ContinuumUtil.safeEncodeURI(session.participant().getIdentity());
                 if (!scope.equals(encodedSender)) {
-                    throw new IllegalArgumentException("reply-to header invalid, scope:" + scope + " is not valid for authenticated participant");
+                    throw new IllegalArgumentException("reply-to header invalid, scope: " + scope + " is not valid for authenticated participant");
                 }
             }
         }

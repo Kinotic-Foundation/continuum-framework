@@ -43,7 +43,6 @@ import groovy.lang.*;
  * </pre>
  *
  * <p>
- * <tt>my.dsl</tt> can look like this:
  *
  * <pre>
  * foo(1,2) {
@@ -53,7 +52,7 @@ import groovy.lang.*;
  * </pre>
  *
  * <p>
- * {@link DelegatingScript} does this by delegating property access and method invocation to the <tt>delegate</tt> object.
+ * {@link DelegatingScript} does this by delegating property access and method invocation to the delegate object.
  *
  * <p>
  * More formally speaking, given the following script:

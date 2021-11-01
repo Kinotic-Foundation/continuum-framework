@@ -66,7 +66,7 @@ public interface ServiceRegistry {
      * @param <T> the type of the serviceInterface
      * @param serviceIdentifier the identifier of the service to be accessed
      * @param serviceInterface the interface that the service should implement and the target class of the returned proxy
-     * @return the {@link RpcServiceProxyHandle <T>} that can be used to access the service
+     * @return the {@link RpcServiceProxyHandle<T>} that can be used to access the service
      */
     <T> RpcServiceProxyHandle<T> serviceProxy(ServiceIdentifier serviceIdentifier, Class<T> serviceInterface);
 
@@ -77,7 +77,7 @@ public interface ServiceRegistry {
      * @param serviceIdentifier the identifier of the service to be accessed
      * @param serviceInterface the interface that the service should implement and the target class of the returned proxy
      * @param contentTypeExpected a String containing the content type expected by the receiver of the RPC request
-     * @return the {@link RpcServiceProxyHandle <T>} that can be used to access the service
+     * @return the {@link RpcServiceProxyHandle<T>} that can be used to access the service
      */
     <T> RpcServiceProxyHandle<T> serviceProxy(ServiceIdentifier serviceIdentifier, Class<T> serviceInterface, String contentTypeExpected);
 
@@ -87,7 +87,7 @@ public interface ServiceRegistry {
      *
      * @param serviceInterface the interface that the service should implement and the target class of the returned proxy
      * @param <T> the type of the serviceInterface
-     * @return the {@link RpcServiceProxyHandle <T>} that can be used to access the service
+     * @return the {@link RpcServiceProxyHandle<T>} that can be used to access the service
      * @throws IllegalArgumentException if the {@link com.kinotic.continuum.api.annotations.Proxy} annotation is not present or the proxy value is not provided
      */
     <T> RpcServiceProxyHandle<T> serviceProxy(Class<T> serviceInterface);

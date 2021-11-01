@@ -40,6 +40,8 @@ public interface DeviceService extends CrudService<IamParticipant> {
      * Creates a new {@link IamParticipant} that is setup as a device with default permissions
      * @param identity the identity for the device typically a mac address
      * @param authenticators that can be used to authenticate this device
+     * @param roles for the new device
+     *
      * @return a {@link Mono} containing the newly created and persisted {@link IamParticipant} or an error if a exception occurred
      */
     Mono<IamParticipant> createNewDevice(String identity, List<Authenticator> authenticators, List<Role> roles);

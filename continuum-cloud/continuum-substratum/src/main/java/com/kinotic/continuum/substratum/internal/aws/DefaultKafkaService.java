@@ -45,7 +45,7 @@ public class DefaultKafkaService implements KafkaService {
 
     private static final Logger log = LoggerFactory.getLogger(DefaultKafkaService.class);
 
-    private static final String DEFAULT_KAFKA_VERSION = "2.6.0";
+    private static final String DEFAULT_KAFKA_VERSION = "2.6.2";
 
     private final KafkaAsyncClient kafkaAsyncClient;
 

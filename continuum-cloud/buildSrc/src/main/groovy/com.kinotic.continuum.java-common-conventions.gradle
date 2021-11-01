@@ -12,23 +12,11 @@ repositories {
     mavenCentral()
 }
 
-ext{
-  set('groovy.version', "3.0.6")
-  springBootVersion = '2.4.6'
-}
-
 dependencies {
-    // reference platforms for version constraints
-    implementation platform(project(':continuum-platform'))
-    annotationProcessor platform("org.springframework.boot:spring-boot-dependencies:${springBootVersion}")
-
-    implementation "org.apache.commons:commons-lang3"
-
-    implementation "ch.qos.logback:logback-core"
-    implementation "ch.qos.logback:logback-classic"
-
-    testImplementation 'org.junit.jupiter:junit-jupiter-api'
-    testImplementation 'org.junit.jupiter:junit-jupiter-engine'
+    // No dependencies here unless the version is hardcoded..
+    // The platform does not get included properly in consumers of our libraries since we must use
+    // api platform(project(':continuum-platform'))
+    // and "api" is not supported here since the java-library plugin is not declared here
 }
 
 test {

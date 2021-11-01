@@ -58,20 +58,6 @@ public class RpcTests {
     private RpcTestServiceProxy rpcTestServiceProxy;
 
     @Test
-    public void testere(){
-        final Set<String> algorithms = Security.getAlgorithms("SecureRandom");
-
-        for (String algorithm : algorithms) {
-            System.out.println(algorithm);
-        }
-
-        final String defaultAlgorithm = new SecureRandom().getAlgorithm();
-
-        System.out.println("default: " + defaultAlgorithm);
-    }
-
-
-    @Test
     public void testRpcMonoString(){
         Mono<String> mono = rpcTestServiceProxy.getString();
 

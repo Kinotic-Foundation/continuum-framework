@@ -8,8 +8,21 @@ plugins {
 }
 
 dependencies {
+    // We publish the common dependencies in both this and the application conventions plugin. Otherwise the platform did not end up in consumers of these projects..
+    /** Begin Common Dependencies **/
+    api platform(project(':continuum-platform'))
+    annotationProcessor platform(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES)
 
+    implementation "org.apache.commons:commons-lang3"
+
+    implementation "ch.qos.logback:logback-core"
+    implementation "ch.qos.logback:logback-classic"
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api'
+    testImplementation 'org.junit.jupiter:junit-jupiter-engine'
+    /** End Common Dependencies **/
 }
+
 
 java {
     withJavadocJar()
@@ -34,9 +47,8 @@ publishing {
                 }
                 developers {
                     developer {
-                        id = 'NavidMitchell'
-                        name = 'Navid Mitchell'
-                        email = 'navid@kinotic.com'
+                        name = 'Kinotic Developers'
+                        email = 'develop@kinotic.com'
                     }
                 }
                 scm {
@@ -67,6 +79,9 @@ signing {
 
 
 javadoc {
+    // suppress warnings
+    options.addStringOption('Xdoclint:none', '-quiet')
+
     if(JavaVersion.current().isJava9Compatible()) {
         options.addBooleanOption('html5', true)
     }

@@ -14,6 +14,9 @@ dependencies {
     implementation 'org.springframework:spring-aop'
     api 'org.springframework.data:spring-data-commons' // used for core.api.crud.CrudService definition classes will need to be in apps class path so we set to compile
 
+    // To include When.MAYBE to get rid of message
+    implementation 'com.google.code.findbugs:jsr305:3.0.2'
+
     implementation 'javax.annotation:javax.annotation-api'
 
     // JSON

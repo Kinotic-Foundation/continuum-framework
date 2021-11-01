@@ -1,0 +1,36 @@
+plugins {
+    // Apply the java Plugin to add support for Java.
+    id 'java'
+}
+
+group 'com.kinotic'
+version '1.0-SNAPSHOT'
+sourceCompatibility = '15'
+
+repositories {
+    // Use Maven Central for resolving dependencies.
+    mavenCentral()
+}
+
+ext{
+  set('groovy.version', "3.0.6")
+  springBootVersion = '2.4.6'
+}
+
+dependencies {
+    // reference platforms for version constraints
+    implementation platform(project(':continuum-platform'))
+    annotationProcessor platform("org.springframework.boot:spring-boot-dependencies:${springBootVersion}")
+
+    implementation "org.apache.commons:commons-lang3"
+
+    implementation "ch.qos.logback:logback-core"
+    implementation "ch.qos.logback:logback-classic"
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api'
+    testImplementation 'org.junit.jupiter:junit-jupiter-engine'
+}
+
+test {
+    useJUnitPlatform()
+}

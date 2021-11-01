@@ -1,0 +1,12 @@
+{
+  "version": "v1",
+  "packages": {
+    "continuum-js": {
+      "signature": "90a6d31c8c70c2de947c0dcaa51aba2d",
+      "link": true
+    },
+    "continuum-js-ui": {
+      "signature": "c5b43c79fe62918debc47f07791dc0ac"
+    }
+  }
+}

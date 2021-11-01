@@ -1,0 +1,23 @@
+plugins {
+	  id 'com.kinotic.continuum.java-application-conventions'
+}
+
+mainClassName = "com.kinotic.continuum.gatewayserver.ContinuumGatewayServerApplication"
+
+dependencies {
+	// Continuum Dependencies
+	implementation project(':continuum-core')
+	implementation project(':continuum-core-vertx')
+	implementation project(':continuum-gateway')
+
+	implementation 'org.springframework.boot:spring-boot-starter'
+	implementation "org.codehaus.groovy:groovy"
+
+	//Misc
+	implementation "org.apache.commons:commons-lang3"
+
+	implementation "ch.qos.logback:logback-core"
+	implementation "ch.qos.logback:logback-classic"
+
+	testImplementation('org.springframework.boot:spring-boot-starter-test')
+}

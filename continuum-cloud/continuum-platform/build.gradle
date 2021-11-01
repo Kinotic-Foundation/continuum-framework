@@ -1,0 +1,71 @@
+plugins {
+    id 'java-platform'
+}
+
+// allow the definition of dependencies to other platforms to support spring-boot-dependencies
+javaPlatform.allowDependencies()
+
+ext{
+  awsVersion='1.11.1017'
+  jCacheApiVersion='1.0.0'
+  springBootVersion = '2.4.6'
+  vertxVersion='3.9.8'
+  vertxStompLiteVersion='3.9.10'
+  vertxBeansVersion='1.5.0'
+  igniteVersion='2.9.1'
+  awaitilityVersion='4.0.1'
+  kafkaVersion='2.6.0' //linked to aws msk supported version, and all kafka zookeeper curator versions are interdependent
+  zookeeperVersion='3.5.8'
+  commonsIoVersion='2.8.0'
+  caffeineVersion='2.8.6'
+  chronicleQueueVersion='5.20.106'
+}
+
+dependencies {
+    api platform("org.springframework.boot:spring-boot-dependencies:${springBootVersion}")
+
+    constraints {
+        api "org.springframework.boot:spring-boot-configuration-processor:${springBootVersion}"
+
+        api "org.springframework.boot:org.springframework.boot.gradle.plugin:${springBootVersion}"
+
+        api "com.amazonaws:aws-java-sdk-s3:${awsVersion}"
+
+        api "io.vertx:vertx-core:${vertxVersion}"
+        api "io.vertx:vertx-web:${vertxVersion}"
+        api "io.vertx:vertx-web-client:${vertxVersion}"
+        api "io.vertx:vertx-auth-common:${vertxVersion}"
+        api "io.vertx:vertx-mqtt:${vertxVersion}"
+        api "io.vertx:vertx-ignite:${vertxVersion}"
+        api "io.vertx:vertx-reactive-streams:${vertxVersion}"
+        api "com.github.rworsnop:vertx-beans:${vertxBeansVersion}"
+
+        api "com.kinotic:vertx-stomp-lite:${vertxStompLiteVersion}"
+
+        api "org.apache.ignite:ignite-core:${igniteVersion}"
+        api "org.apache.ignite:ignite-indexing:${igniteVersion}"
+        api "org.apache.ignite:ignite-spring:${igniteVersion}"
+        api "org.apache.ignite:ignite-slf4j:${igniteVersion}"
+        api "org.apache.ignite:ignite-zookeeper:${igniteVersion}"
+        // H2 Version tied to ignite, it must be compatible!
+        api('com.h2database:h2') {
+            version {
+                strictly '1.4.197'
+            }
+        }
+
+        // Kafka and Zookeeper dependencies. Declared with versions to handle compatibility
+        // Spring kafka compatibility https://spring.io/projects/spring-kafka
+        api "org.apache.zookeeper:zookeeper:${zookeeperVersion}"
+        api "org.apache.kafka:kafka-clients:${kafkaVersion}"
+
+        api "javax.cache:cache-api:${jCacheApiVersion}"
+
+
+
+        api "net.openhft:chronicle-queue:${chronicleQueueVersion}"
+
+        api "commons-io:commons-io:${commonsIoVersion}"
+    }
+
+}

@@ -1,0 +1,21 @@
+plugins {
+    id 'com.kinotic.continuum.java-library-conventions'
+}
+
+dependencies {
+    // reactive https://github.com/reactive-streams/reactive-streams-jvm
+    // these should be the only reactive interfaces exposed by the Core API!
+    api 'org.reactivestreams:reactive-streams'
+    api 'io.projectreactor:reactor-core'
+
+    implementation 'org.springframework.boot:spring-boot'
+    implementation 'org.springframework:spring-core'
+    implementation 'org.springframework:spring-context'
+    implementation 'org.springframework:spring-aop'
+    api 'org.springframework.data:spring-data-commons' // used for core.api.crud.CrudService definition classes will need to be in apps class path so we set to compile
+
+    implementation 'javax.annotation:javax.annotation-api'
+
+    // JSON
+    implementation 'com.fasterxml.jackson.core:jackson-annotations'
+}

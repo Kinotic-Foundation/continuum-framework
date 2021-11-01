@@ -1,0 +1,3 @@
+rootProject.name = 'continuum-cloud'
+
+include('continuum-platform', 'aws-util', 'continuum-core', 'continuum-core-vertx', 'continuum-gateway', 'continuum-gateway-server')

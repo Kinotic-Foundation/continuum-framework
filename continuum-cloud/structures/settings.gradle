@@ -9,4 +9,3 @@
 
 rootProject.name = 'structures'
 
-includeBuild '../continuum-core'

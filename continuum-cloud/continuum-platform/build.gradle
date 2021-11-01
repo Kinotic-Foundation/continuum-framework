@@ -7,6 +7,8 @@ javaPlatform.allowDependencies()
 
 ext{
   awsVersion='1.11.1017'
+  aws2Version='2.16.66'
+  failsafeVersion='2.4.0'
   jCacheApiVersion='1.0.0'
   springBootVersion = '2.4.6'
   vertxVersion='3.9.8'
@@ -19,6 +21,7 @@ ext{
   commonsIoVersion='2.8.0'
   caffeineVersion='2.8.6'
   chronicleQueueVersion='5.20.106'
+  lombokVersion = '1.18.12'
 }
 
 dependencies {
@@ -28,8 +31,6 @@ dependencies {
         api "org.springframework.boot:spring-boot-configuration-processor:${springBootVersion}"
 
         api "org.springframework.boot:org.springframework.boot.gradle.plugin:${springBootVersion}"
-
-        api "com.amazonaws:aws-java-sdk-s3:${awsVersion}"
 
         api "io.vertx:vertx-core:${vertxVersion}"
         api "io.vertx:vertx-web:${vertxVersion}"
@@ -61,9 +62,25 @@ dependencies {
 
         api "javax.cache:cache-api:${jCacheApiVersion}"
 
+        // Aws
+        api "com.amazonaws:aws-java-sdk-s3:${awsVersion}"
+        api "com.amazonaws:aws-java-sdk-logs:${awsVersion}"
 
+        // AWS 2
+        api "software.amazon.awssdk:ec2:${aws2Version}"
+        api "software.amazon.awssdk:ecs:${aws2Version}"
+        api "software.amazon.awssdk:kafka:${aws2Version}"
+        api "software.amazon.awssdk:rds:${aws2Version}"
+        api "software.amazon.awssdk:route53:${aws2Version}"
+        api "software.amazon.awssdk:acm:${aws2Version}"
+        api "software.amazon.awssdk:elasticloadbalancingv2:${aws2Version}"
+        api "software.amazon.awssdk:secretsmanager:${aws2Version}"
+
+        api "net.jodah:failsafe:${failsafeVersion}"
 
         api "net.openhft:chronicle-queue:${chronicleQueueVersion}"
+
+        api "org.projectlombok:lombok:${lombokVersion}"
 
         api "commons-io:commons-io:${commonsIoVersion}"
     }

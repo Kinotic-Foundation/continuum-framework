@@ -14,6 +14,5 @@ repositories {
 
 
 dependencies {
-
-    implementation 'org.springframework.boot:org.springframework.boot.gradle.plugin:2.4.6'
+    implementation 'org.springframework.boot:org.springframework.boot.gradle.plugin:2.5.6'
 }

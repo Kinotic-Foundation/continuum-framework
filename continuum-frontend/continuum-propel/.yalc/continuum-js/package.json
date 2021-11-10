@@ -1,6 +1,6 @@
 {
   "name": "continuum-js",
-  "version": "1.0.0+90a6d31c",
+  "version": "1.0.0+82fdfe83",
   "author": "Kinotic <develop@kinotic.com>",
   "license": "MIT",
   "scripts": {
@@ -24,5 +24,5 @@
     "inversify": "5.0.5",
     "inversify-props": "1.4.9"
   },
-  "yalcSig": "90a6d31c8c70c2de947c0dcaa51aba2d"
+  "yalcSig": "82fdfe83969b14e37ff35c28b95ed083"
 }

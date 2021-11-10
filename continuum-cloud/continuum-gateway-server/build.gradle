@@ -1,0 +1,11 @@
+plugins {
+	  id 'com.kinotic.continuum.java-application-conventions'
+}
+
+mainClassName = "com.kinotic.continuum.gatewayserver.ContinuumGatewayServerApplication"
+
+dependencies {
+	// Additional Continuum Dependencies
+	implementation project(':continuum-gateway')
+
+}

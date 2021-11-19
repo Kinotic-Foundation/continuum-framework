@@ -40,15 +40,23 @@ public enum SearchComparator {
     }
 
     public static final SearchComparator fromStringValue(String stringValue){
-        return switch (stringValue){
-            case "=" -> EQUALS;
-            case "!" -> NOT;
-            case ">" -> GREATER_THAN;
-            case ">=" -> GREATER_THAN_OR_EQUALS;
-            case "<" -> LESS_THAN;
-            case "<=" -> LESS_THAN_OR_EQUALS;
-            case "~" -> LIKE;
-            default -> throw new IllegalStateException("Unexpected value: " + stringValue);
-        };
+        switch (stringValue) {
+            case "=":
+                return EQUALS;
+            case "!":
+                return NOT;
+            case ">":
+                return GREATER_THAN;
+            case ">=":
+                return GREATER_THAN_OR_EQUALS;
+            case "<":
+                return LESS_THAN;
+            case "<=":
+                return LESS_THAN_OR_EQUALS;
+            case "~":
+                return LIKE;
+            default:
+                throw new IllegalStateException("Unexpected value: " + stringValue);
+        }
     }
 }

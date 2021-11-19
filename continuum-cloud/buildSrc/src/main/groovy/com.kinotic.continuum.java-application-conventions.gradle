@@ -37,6 +37,14 @@ dependencies {
 	testImplementation 'io.projectreactor:reactor-test'
 }
 
+bootBuildImage {
+	buildpacks = [
+			'gcr.io/paketo-buildpacks/amazon-corretto:latest',
+			'gcr.io/paketo-buildpacks/executable-jar:latest',
+			'gcr.io/paketo-buildpacks/dist-zip:latest',
+			'gcr.io/paketo-buildpacks/spring-boot:latest'
+	]
+}
 
 /**
  * Default Environment Vars

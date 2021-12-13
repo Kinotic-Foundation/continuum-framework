@@ -28,7 +28,7 @@
       </v-list>
 
     </v-navigation-drawer>
-    <v-app-bar id="main-app__bar"
+    <v-app-bar id="frontend-app__bar"
                clipped-left
                absolute
                fixed

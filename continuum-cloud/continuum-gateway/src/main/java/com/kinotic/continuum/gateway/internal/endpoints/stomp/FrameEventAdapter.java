@@ -21,7 +21,7 @@ import com.kinotic.continuum.core.api.event.CRI;
 import com.kinotic.continuum.core.api.event.Event;
 import com.kinotic.continuum.core.api.event.Metadata;
 import com.kinotic.continuum.internal.core.api.event.MapMetadataAdapter;
-import io.vertx.ext.stomp.frame.Frame;
+import io.vertx.ext.stomp.lite.frame.Frame;
 
 /**
  * Adapts a {@link Frame} to a {@link Event}

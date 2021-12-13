@@ -25,7 +25,7 @@ import com.kinotic.continuum.core.api.security.Session;
 import com.kinotic.continuum.internal.util.SecurityUtil;
 import com.kinotic.continuum.internal.utils.ContinuumUtil;
 import io.vertx.core.Promise;
-import io.vertx.ext.stomp.frame.Frame;
+import io.vertx.ext.stomp.lite.frame.Frame;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;

@@ -18,7 +18,7 @@
 package com.kinotic.continuum.gateway.api.config;
 
 import com.kinotic.continuum.api.config.ContinuumProperties;
-import io.vertx.ext.stomp.StompServerOptions;
+import io.vertx.ext.stomp.lite.StompServerOptions;
 import io.vertx.mqtt.MqttServerOptions;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;

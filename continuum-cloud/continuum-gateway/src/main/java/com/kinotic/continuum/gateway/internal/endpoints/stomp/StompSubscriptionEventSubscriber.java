@@ -18,8 +18,8 @@
 package com.kinotic.continuum.gateway.internal.endpoints.stomp;
 
 import com.kinotic.continuum.core.api.event.Event;
-import io.vertx.ext.stomp.StompServerConnection;
-import io.vertx.ext.stomp.frame.Frame;
+import io.vertx.ext.stomp.lite.StompServerConnection;
+import io.vertx.ext.stomp.lite.frame.Frame;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.BaseSubscriber;

@@ -23,10 +23,10 @@ import com.kinotic.continuum.gateway.internal.endpoints.EndpointConnectionHandle
 import com.kinotic.continuum.gateway.internal.endpoints.Services;
 import com.kinotic.continuum.internal.utils.ContinuumUtil;
 import io.vertx.core.Promise;
-import io.vertx.ext.stomp.StompServerConnection;
-import io.vertx.ext.stomp.StompServerHandler;
-import io.vertx.ext.stomp.frame.Frame;
-import io.vertx.ext.stomp.frame.InvalidConnectFrame;
+import io.vertx.ext.stomp.lite.StompServerConnection;
+import io.vertx.ext.stomp.lite.StompServerHandler;
+import io.vertx.ext.stomp.lite.frame.Frame;
+import io.vertx.ext.stomp.lite.frame.InvalidConnectFrame;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;

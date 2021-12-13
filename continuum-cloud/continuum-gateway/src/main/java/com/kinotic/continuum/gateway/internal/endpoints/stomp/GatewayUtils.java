@@ -21,9 +21,9 @@ import com.kinotic.continuum.core.api.event.Event;
 import com.kinotic.continuum.core.api.event.EventConstants;
 import com.kinotic.continuum.gateway.internal.hft.HftRawEvent;
 import io.vertx.core.buffer.Buffer;
-import io.vertx.ext.stomp.frame.Frame;
-import io.vertx.ext.stomp.frame.FrameParser;
-import io.vertx.ext.stomp.frame.HeaderCodec;
+import io.vertx.ext.stomp.lite.frame.Frame;
+import io.vertx.ext.stomp.lite.frame.FrameParser;
+import io.vertx.ext.stomp.lite.frame.HeaderCodec;
 import net.openhft.chronicle.bytes.Bytes;
 import net.openhft.chronicle.wire.DocumentContext;
 

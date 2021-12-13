@@ -18,9 +18,9 @@
 package com.kinotic.continuum.gateway.internal.endpoints.stomp;
 
 import com.kinotic.continuum.gateway.internal.endpoints.Services;
-import io.vertx.ext.stomp.StompServerConnection;
-import io.vertx.ext.stomp.StompServerHandler;
-import io.vertx.ext.stomp.StompServerHandlerFactory;
+import io.vertx.ext.stomp.lite.StompServerConnection;
+import io.vertx.ext.stomp.lite.StompServerHandler;
+import io.vertx.ext.stomp.lite.StompServerHandlerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

@@ -125,11 +125,11 @@ export class EventBus implements IEventBus {
                 })
 
                 this.stompClient.serverHeaders$.subscribe((value: StompHeaders) => {
-                    let sessionId: string | undefined = value[EventConstants.SESSION_HEADER]
-                    if (sessionId != null) {
+                    let session: string | undefined = value[EventConstants.SESSION_HEADER]
+                    if (session != null) {
                         delete connectHeaders.login
                         delete connectHeaders.passcode
-                        connectHeaders.session = sessionId
+                        connectHeaders.session = session
                     }
                 })
 

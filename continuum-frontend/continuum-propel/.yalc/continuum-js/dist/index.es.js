@@ -535,11 +535,11 @@ var EventBus = /** @class */ (function () {
                     resolve();
                 });
                 _this.stompClient.serverHeaders$.subscribe(function (value) {
-                    var sessionId = value[EventConstants.SESSION_HEADER];
-                    if (sessionId != null) {
+                    var session = value[EventConstants.SESSION_HEADER];
+                    if (session != null) {
                         delete connectHeaders_1.login;
                         delete connectHeaders_1.passcode;
-                        connectHeaders_1.session = sessionId;
+                        connectHeaders_1.session = session;
                     }
                 });
                 _this.stompClient.activate();

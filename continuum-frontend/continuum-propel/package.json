@@ -55,7 +55,7 @@
     "vue-split-layout": "^0.0.13",
     "vue-virtual-scroll-list": "^2.3.1",
     "vuedraggable": "^2.23.2",
-    "vuetify": "^2.4.9"
+    "vuetify": "^2.6.1"
   },
   "devDependencies": {
     "@fortawesome/fontawesome-free": "^5.12.1",

@@ -59,10 +59,11 @@ public class DefaultStompServerHandler implements StompServerHandler {
     public Promise<Map<String, String>> authenticate(Map<String, String> connectHeaders) {
         Promise<Map<String, String>> ret;
         if(connectHeaders.containsKey(Frame.LOGIN)) {
-            // This data is only needed by legacy devices it can go away once they are all upgraded
+
             String identity = connectHeaders.get(Frame.LOGIN);
             encodedIdentity = ContinuumUtil.safeEncodeURI(identity);
 
+            // This logic is only needed by legacy devices it can go away once they are all upgraded
             String clientVersion = connectHeaders.get("app.version");
             if (clientVersion != null && !clientVersion.startsWith("3")) {
                 translateDestination = true;

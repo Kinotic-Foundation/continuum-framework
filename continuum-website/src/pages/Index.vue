@@ -2,7 +2,7 @@
   <Layout>
     <v-row>
       <v-col cols="12">
-
+ blaha blaadfas
       </v-col>
     </v-row>
     <v-parallax
@@ -15,7 +15,7 @@
             cols="12">
           <div class="et_pb_slide_description">
               <h2>CONTINUUM</h2>
-              <h2>THE PATH BETWEEN ANYTHING AND EVERYTHING</h2>
+              <h2>THE FABRIC BETWEEN ANYTHING AND EVERYTHING</h2>
             <div class="et_pb_slide_content">
               <p>We Help Businesses Connect Things To The Internet With Ease</p>
             </div>
@@ -684,14 +684,6 @@
 
   .container {
     padding: 0 !important;
-  }
-
-  .v-application {
-    font-family: 'Open Sans', Arial, sans-serif !important;
-    color: #666 !important;
-    background-color: #fff !important;
-    -webkit-font-smoothing: antialiased !important;
-    -moz-osx-font-smoothing: grayscale !important;
   }
 
   .et_pb_slide_description h2 {

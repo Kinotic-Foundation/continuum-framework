@@ -30,8 +30,6 @@
     </v-navigation-drawer>
     <v-app-bar id="frontend-app__bar"
                clipped-left
-               absolute
-               fixed
                app>
 
       <v-app-bar-nav-icon @click.stop="frontendState.drawerOpen = !frontendState.drawerOpen"></v-app-bar-nav-icon>

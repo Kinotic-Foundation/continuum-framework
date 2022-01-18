@@ -116,6 +116,12 @@ export default class CrudTable extends Vue {
     @Prop({ type: Array as PropType<DataTableHeader[]> , required: true })
     public headers!: DataTableHeader[]
 
+    @Prop({ type: Boolean, required: false, default: false })
+    public multiSort!: boolean
+
+    @Prop({ type: Boolean, required: false, default: true })
+    public mustSort!: boolean
+
     /**
      * Icons
      */
@@ -150,8 +156,8 @@ export default class CrudTable extends Vue {
         sortDesc: [],
         groupBy: [],
         groupDesc: [],
-        multiSort: false,
-        mustSort: true
+        multiSort: this.multiSort,
+        mustSort: this.mustSort
     }
 
     constructor() {

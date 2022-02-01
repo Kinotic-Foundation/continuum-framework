@@ -17,6 +17,7 @@
 
 package com.kinotic.util.file;
 
+import com.kinotic.util.AbstractWorker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

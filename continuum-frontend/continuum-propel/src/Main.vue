@@ -17,10 +17,6 @@
     @inject()
     public eventBus!: IEventBus
 
-    public beforeMount() {
-    }
-
-
     public async mounted() {
         await this.eventBus.connect('ws://localhost:58503/v1', 'super', 'w3mak3th1sr0ck1nr0ll')
     }

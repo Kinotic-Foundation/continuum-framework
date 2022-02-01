@@ -75,7 +75,7 @@ public class ContinuumIgniteConfigForProfile {
             tcpDiscoveryMulticastIpFinder.setAddresses(Collections.singleton("127.0.0.1"));
             TcpDiscoverySpi spi = new TcpDiscoverySpi();
             spi.setIpFinder(tcpDiscoveryMulticastIpFinder);
-            //Loopback multicast discovery is not working on Mac OS
+            //Loop back multicast discovery is not working on Mac OS
             //(possibly due to http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=7122846).
             if (U.isMacOs()) {
                 spi.setLocalAddress(F.first(U.allLocalIps()));

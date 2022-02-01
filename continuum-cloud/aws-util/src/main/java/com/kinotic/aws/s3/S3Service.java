@@ -20,7 +20,7 @@ package com.kinotic.aws.s3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3Object;
 import com.kinotic.aws.AwsException;
-import com.kinotic.aws.UncheckedInterruptedException;
+import com.kinotic.util.UncheckedInterruptedException;
 
 import java.io.File;
 import java.net.URL;

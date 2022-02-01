@@ -17,7 +17,8 @@
 
 package com.kinotic.util.file;
 
-import com.kinotic.aws.UncheckedInterruptedException;
+import com.kinotic.util.AbstractWorker;
+import com.kinotic.util.UncheckedInterruptedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

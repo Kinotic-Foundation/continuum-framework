@@ -23,7 +23,7 @@ import com.amazonaws.services.s3.transfer.PersistableUpload;
 import com.amazonaws.services.s3.transfer.TransferManager;
 import com.amazonaws.services.s3.transfer.Upload;
 import com.amazonaws.services.s3.transfer.internal.S3SyncProgressListener;
-import com.kinotic.aws.UncheckedInterruptedException;
+import com.kinotic.util.UncheckedInterruptedException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.kinotic.util.file;
+package com.kinotic.util;
 
 /**
  *

@@ -8,17 +8,20 @@ module.exports = (api, options, rootOptions) => {
             'inversify-props': '1.4.9',
             'reflect-metadata': '^0.1.13',
             'roboto-fontface': '*',
-            'vue-class-component': '^7.2.3',
+            'vue-class-component': '^7.2.5',
             'vue-property-decorator': '^9.1.2',
-            'vuetify': '^2.3.12'
+            'vuetify': '^2.6.1'
         },
         devDependencies: {
             '@fortawesome/fontawesome-free': '^5.12.1',
             'sass': '^1.32.0',
-            'sass-loader': '^10.0.0',
+            'sass-loader': '^10.0.3',
             'vue-template-compiler': '^2.6.11',
-            'vuetify-loader': '^1.6.0'
-        }
+            'vuetify-loader': '^1.7.0'
+        },
+        workspaces: [
+            "src/frontends/*"
+        ]
     });
 
     api.render('./template', {

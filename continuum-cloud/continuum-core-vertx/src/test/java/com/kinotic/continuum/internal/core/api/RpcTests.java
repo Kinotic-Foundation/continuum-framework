@@ -17,6 +17,7 @@
 
 package com.kinotic.continuum.internal.core.api;
 
+import com.google.common.collect.Lists;
 import com.kinotic.continuum.internal.core.api.service.rpc.RpcInvocationException;
 import com.kinotic.continuum.internal.core.api.support.ABunchOfArgumentsHolder;
 import com.kinotic.continuum.internal.core.api.support.RpcTestService;
@@ -93,7 +94,7 @@ public class RpcTests {
 
     @Test
     public void testNestedArrays(){
-        List<List<String>> input = List.of(RpcTestService.LIST_OF_STRINGS, RpcTestService.LIST_OF_STRINGS, RpcTestService.LIST_OF_STRINGS);
+        List<List<String>> input = Lists.newArrayList(RpcTestService.LIST_OF_STRINGS, RpcTestService.LIST_OF_STRINGS, RpcTestService.LIST_OF_STRINGS);
         Mono<List<List<String>>> mono = rpcTestServiceProxy.getAListOfLists(input);
         StepVerifier.create(mono)
                     .expectNext(input.stream().map(strings -> strings.stream().map(s -> "Hello "+ s).collect(Collectors.toList())).collect(Collectors.toList()))

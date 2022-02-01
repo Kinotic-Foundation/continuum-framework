@@ -12,6 +12,7 @@ include(
         'continuum-gateway-server',
         'structures',
         'continuum-grind',
+        'continuum-iam',
         //'continuum-substratum',
-        'continuum-iam'
+        'continuum-util'
 )

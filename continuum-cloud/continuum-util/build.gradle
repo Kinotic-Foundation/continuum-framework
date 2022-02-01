@@ -1,0 +1,11 @@
+plugins {
+    id 'com.kinotic.continuum.java-library-conventions'
+}
+
+dependencies {
+
+    api 'org.reactivestreams:reactive-streams'
+    api 'io.projectreactor:reactor-core'
+
+    testImplementation "org.awaitility:awaitility"
+}

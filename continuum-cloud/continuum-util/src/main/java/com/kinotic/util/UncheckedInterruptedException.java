@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.kinotic.aws;
+package com.kinotic.util;
 
 /**
  * Will be thrown as unchecked alternative to {@link InterruptedException}

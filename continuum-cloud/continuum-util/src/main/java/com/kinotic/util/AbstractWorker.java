@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.kinotic.util.file;
+package com.kinotic.util;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +26,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *
  * Created by navid on 9/16/19
  */
-abstract class AbstractWorker implements Runnable, Worker {
+public abstract class AbstractWorker implements Runnable, Worker {
 
     private static final Logger log = LoggerFactory.getLogger(AbstractWorker.class);
 
@@ -73,7 +73,7 @@ abstract class AbstractWorker implements Runnable, Worker {
 
             } catch (Exception e) {
                 if(!stopped.get()) {
-                    log.warn("Exception occurred in worker thread: "+Thread.currentThread().getName(), e);
+                    log.warn("Exception occurred in worker thread: "+threadName, e);
                 }
             }
         }

@@ -17,6 +17,7 @@
 
 package com.kinotic.util.file;
 
+import com.kinotic.util.AbstractWorker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +36,7 @@ import java.util.stream.Stream;
  *
  * Created by navid on 9/16/19
  */
-class FileProcessorMaster extends AbstractWorker{
+class FileProcessorMaster extends AbstractWorker {
     private static final Logger log = LoggerFactory.getLogger(FileProcessorMaster.class);
 
     private final FileProcessorOptions options;

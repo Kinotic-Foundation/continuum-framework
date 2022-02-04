@@ -4,14 +4,14 @@
     debug: true
 
   continuum-gateway:
-    disableIam: false
+    disableIam: true
 
   logging:
     level:
       com:
         kinotic: TRACE
       io:
-        vertx: DEBUG
+        vertx: TRACE
 
   spring:
     devtools:

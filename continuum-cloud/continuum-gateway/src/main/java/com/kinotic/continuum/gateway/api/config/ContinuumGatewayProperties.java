@@ -80,7 +80,7 @@ public class ContinuumGatewayProperties {
 
     /**
      * Determines if the Iam is disabled or not
-     * If it is disabled no com.kinotic.continuum.core.api.security.SecurityService will be required by the continuum cluster
+     * If it is disabled no {@link com.kinotic.continuum.core.api.security.SecurityService} will be required by the continuum cluster
      * @return true if the Iam is disabled false if not
      */
     public boolean isDisableIam() {
@@ -89,7 +89,7 @@ public class ContinuumGatewayProperties {
 
     /**
      * Set if the IAM should be disabled or not
-     * If it is disabled no com.kinotic.continuum.core.api.security.SecurityService will be required by the continuum cluster
+     * If it is disabled no {@link com.kinotic.continuum.core.api.security.SecurityService} will be required by the continuum cluster
      * @param disableIam true if the IAM should be disabled false if not
      */
     public void setDisableIam(boolean disableIam) {

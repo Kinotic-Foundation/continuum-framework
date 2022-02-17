@@ -212,7 +212,7 @@ export default class ActiveSessions extends Vue {
         this.$notify({group: 'info', type: 'activeSessionsInfo', text})
       }
       this.dialog = false
-    } catch (error) {
+    } catch (error: any) {
       this.dialog = false
       this.displayAlert(error.message)
     }

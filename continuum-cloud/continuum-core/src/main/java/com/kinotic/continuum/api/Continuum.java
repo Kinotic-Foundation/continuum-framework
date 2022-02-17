@@ -26,7 +26,7 @@ package com.kinotic.continuum.api;
 public interface Continuum {
 
     /**
-     * Returns a human readable name for this node
+     * Returns a human-readable name for this node
      * @return a string containing the name
      */
     String nodeName();

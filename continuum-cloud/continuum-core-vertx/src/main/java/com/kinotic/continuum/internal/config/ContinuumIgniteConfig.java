@@ -69,13 +69,11 @@ public class ContinuumIgniteConfig {
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     @Bean
     public IgniteConfiguration igniteConfiguration(FailureHandler failureHandler) {
-        // Setup a few system schema Ignite uses
+        // Set up a few system schema Ignite uses
         System.setProperty(IgniteSystemProperties.IGNITE_NO_ASCII, "true");// Turn off ignite console banner
 
+        // Ignite is shutdown by Spring during application context shutdown. This is done because of config in ContinuumIgniteBootstrap
         System.setProperty(IgniteSystemProperties.IGNITE_NO_SHUTDOWN_HOOK, "true");// keep from shutting down before our code
-
-        // Opens H2 Debug Console in web browser on startup
-        //System.setProperty(IgniteSystemProperties.IGNITE_H2_DEBUG_CONSOLE,"true");
 
         IgniteConfiguration cfg = new IgniteConfiguration();
 
@@ -85,14 +83,12 @@ public class ContinuumIgniteConfig {
         cfg.setGridLogger(new Slf4jLogger());
 
         // Turn Stuff OFF
-        //cfg.setConnectorConfiguration(null) // REST Remote Management
         cfg.setMetricsLogFrequency(0);// Metrics Logging to Console
 
         // Override default discovery SPI.
         if(discoverySpi != null) {
             cfg.setDiscoverySpi(discoverySpi);
         }
-
 
         DataStorageConfiguration dataStorageConfiguration = new DataStorageConfiguration();
 

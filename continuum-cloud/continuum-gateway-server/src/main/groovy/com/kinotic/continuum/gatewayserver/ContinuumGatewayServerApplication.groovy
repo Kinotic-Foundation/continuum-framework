@@ -27,12 +27,14 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.FilterType
 
+
 @SpringBootConfiguration
 @ComponentScan(excludeFilters = [ @ComponentScan.Filter(type = FilterType.CUSTOM, classes = TypeExcludeFilter.class),
 			   @ComponentScan.Filter(type = FilterType.CUSTOM, classes = AutoConfigurationExcludeFilter.class) ])
 @EnableConfigurationProperties
 @EnableContinuum
 @EnableContinuumGateway
+@SuppressWarnings('SpringFacetCodeInspection')
 class ContinuumGatewayServerApplication {
 
 	static void main(String[] args) {

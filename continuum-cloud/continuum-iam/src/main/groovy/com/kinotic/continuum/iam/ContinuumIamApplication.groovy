@@ -19,21 +19,26 @@ package com.kinotic.continuum.iam
 
 import com.kinotic.continuum.api.annotations.EnableContinuum
 import org.springframework.boot.SpringApplication
+import org.springframework.boot.SpringBootConfiguration
+import org.springframework.boot.autoconfigure.AutoConfigurationExcludeFilter
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.autoconfigure.data.jpa.JpaRepositoriesAutoConfiguration
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
 import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
+import org.springframework.boot.context.TypeExcludeFilter
 import org.springframework.boot.context.properties.EnableConfigurationProperties
+import org.springframework.context.annotation.ComponentScan
+import org.springframework.context.annotation.FilterType
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 
-@SpringBootApplication(exclude = [DataSourceAutoConfiguration.class,
-                                  DataSourceTransactionManagerAutoConfiguration.class,
-                                  HibernateJpaAutoConfiguration.class,
-                                  JpaRepositoriesAutoConfiguration.class])
+@SpringBootConfiguration
+@ComponentScan(excludeFilters = [ @ComponentScan.Filter(type = FilterType.CUSTOM, classes = TypeExcludeFilter.class),
+        @ComponentScan.Filter(type = FilterType.CUSTOM, classes = AutoConfigurationExcludeFilter.class) ])
 @EnableConfigurationProperties
-@EnableContinuum
 @EnableJpaRepositories
+@EnableContinuum
+@SuppressWarnings('SpringFacetCodeInspection')
 class ContinuumIamApplication {
 
     static void main(String[] args) {

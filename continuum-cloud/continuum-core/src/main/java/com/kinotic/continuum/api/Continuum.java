@@ -37,4 +37,7 @@ public interface Continuum {
      */
     String nodeId();
 
+
+    String applicationName();
+
 }

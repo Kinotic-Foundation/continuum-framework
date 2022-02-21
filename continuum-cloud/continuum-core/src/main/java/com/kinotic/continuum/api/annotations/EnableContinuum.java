@@ -28,6 +28,7 @@ import java.lang.annotation.Target;
 /**
  * Annotation to be used on a Spring Boot application to enable Continuum
  *
+ * Application should only ever include one {@link EnableContinuum} annotation
  *
  * Created by Navid Mitchell 🤬 on 11/28/18.
  */

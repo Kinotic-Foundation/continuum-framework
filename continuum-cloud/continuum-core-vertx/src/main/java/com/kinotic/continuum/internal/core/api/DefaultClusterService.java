@@ -19,7 +19,7 @@ package com.kinotic.continuum.internal.core.api;
 
 import com.kinotic.continuum.core.api.ClusterService;
 import com.kinotic.continuum.internal.core.api.aignite.IgniteServiceAdapter;
-import com.kinotic.continuum.internal.core.api.aignite.IgniteUtils;
+import com.kinotic.continuum.internal.util.IgniteUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.ignite.Ignite;
 import org.apache.ignite.IgniteServices;

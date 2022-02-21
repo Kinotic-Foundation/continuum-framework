@@ -95,6 +95,10 @@ public class DefaultContinuum implements Continuum {
         return nodeId;
     }
 
+    @Override
+    public String applicationName() {
+        return "AddMe";
+    }
 
     @EventListener
     public void onApplicationReadyEvent(ApplicationReadyEvent event) {

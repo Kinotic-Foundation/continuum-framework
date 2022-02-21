@@ -20,9 +20,9 @@ package com.kinotic.continuum.gateway.internal.api.security;
 import com.kinotic.continuum.core.api.event.StreamData;
 import com.kinotic.continuum.core.api.security.SessionMetadata;
 import com.kinotic.continuum.gateway.api.security.SessionInformationService;
-import com.kinotic.continuum.internal.config.ContinuumIgniteConfigForProfile;
+import com.kinotic.continuum.internal.config.IgniteCacheConstants;
 import com.kinotic.continuum.internal.core.api.aignite.IgniteContinuousQueryObserver;
-import com.kinotic.continuum.internal.core.api.aignite.IgniteUtils;
+import com.kinotic.continuum.internal.util.IgniteUtils;
 import com.kinotic.continuum.internal.core.api.security.DefaultSessionMetadata;
 import io.vertx.core.Context;
 import io.vertx.core.Vertx;
@@ -71,7 +71,7 @@ public class DefaultSessionInformationService implements SessionInformationServi
 
         // Will be null when running some tests
         if(ignite !=  null){
-            sessionCache = ignite.cache(ContinuumIgniteConfigForProfile.SESSION_CACHE_NAME);
+            sessionCache = ignite.cache(IgniteCacheConstants.SESSION_CACHE_NAME);
         }else{
             sessionCache = null;
         }
@@ -81,65 +81,7 @@ public class DefaultSessionInformationService implements SessionInformationServi
 
     @Override
     public Flux<Long> countActiveSessionsContinuous() {
-        if(ignite == null){
-            throw new IllegalStateException("This method is not available when ignite is disabled");
-        }
-        Flux<Long> ret;
-
-        ret = Flux.create(sink -> {
-            AtomicLong activeSessionsCount = new AtomicLong();
-
-            Context vertxContext = vertx.getOrCreateContext();
-
-            ContinuousQueryWithTransformer<String, DefaultSessionMetadata, Long> qry = new ContinuousQueryWithTransformer<>();
-            qry.setIncludeExpired(true);
-
-            Factory<IgniteClosure<CacheEntryEvent<? extends String, ? extends DefaultSessionMetadata>, Long>> transformerFactory = FactoryBuilder
-                    .factoryOf(
-                            (IgniteClosure<CacheEntryEvent<? extends String, ? extends DefaultSessionMetadata>, Long>) event  -> {
-                                long change = 0;
-                                if(event.getEventType() == EventType.CREATED){
-                                    change = 1L;
-                                }else if(event.getEventType() == EventType.REMOVED || event.getEventType() == EventType.EXPIRED){
-                                    change = -1L;
-                                }
-                                return change;
-                            });
-
-            qry.setRemoteTransformerFactory(transformerFactory);
-
-            qry.setRemoteFilterFactory((Factory<CacheEntryEventFilter<String, DefaultSessionMetadata>>)
-                                               () -> event -> event.getEventType() != EventType.UPDATED);
-
-            qry.setLocalListener(events -> vertxContext.runOnContext(v ->{
-                for(Long change  : events){
-                    if(!sink.isCancelled()) {
-                        sink.next(activeSessionsCount.addAndGet(change));
-                    }
-                }
-            }));
-
-            // Executing the query.
-            QueryCursor<Cache.Entry<String, DefaultSessionMetadata>> cursor = null;
-            try {
-                // Not sure but it seems we could lose some updates here
-                long currentSize = sessionCache.sizeLong();
-                activeSessionsCount.set(currentSize);
-                sink.next(activeSessionsCount.get());
-
-                cursor = sessionCache.query(qry);
-
-                QueryCursor<Cache.Entry<String, DefaultSessionMetadata>> finalCursor = cursor;
-                sink.onDispose(() -> safeCloseCursor(finalCursor));
-
-            }catch (Exception e){
-                safeCloseCursor(cursor);
-                sink.error(e);
-            }
-
-        });
-
-        return ret.subscribeOn(scheduler);
+        return IgniteUtils.countCacheEntriesContinuous(ignite, vertx, sessionCache);
     }
 
     @Override

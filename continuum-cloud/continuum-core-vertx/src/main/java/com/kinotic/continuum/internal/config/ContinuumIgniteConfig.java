@@ -18,8 +18,12 @@
 package com.kinotic.continuum.internal.config;
 
 import com.kinotic.continuum.api.config.ContinuumProperties;
+import com.kinotic.continuum.core.api.security.SessionMetadata;
+import com.kinotic.continuum.internal.core.api.security.DefaultSessionMetadata;
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.ignite.IgniteSystemProperties;
+import org.apache.ignite.cache.CacheMode;
+import org.apache.ignite.cache.CacheWriteSynchronizationMode;
 import org.apache.ignite.configuration.CacheConfiguration;
 import org.apache.ignite.configuration.DataRegionConfiguration;
 import org.apache.ignite.configuration.DataStorageConfiguration;
@@ -28,18 +32,27 @@ import org.apache.ignite.events.EventType;
 import org.apache.ignite.failure.FailureHandler;
 import org.apache.ignite.failure.NoOpFailureHandler;
 import org.apache.ignite.failure.StopNodeOrHaltFailureHandler;
+import org.apache.ignite.internal.util.typedef.F;
+import org.apache.ignite.internal.util.typedef.internal.U;
 import org.apache.ignite.logger.slf4j.Slf4jLogger;
 import org.apache.ignite.spi.discovery.DiscoverySpi;
+import org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi;
+import org.apache.ignite.spi.discovery.tcp.ipfinder.multicast.TcpDiscoveryMulticastIpFinder;
+import org.apache.ignite.spi.discovery.tcp.ipfinder.sharedfs.TcpDiscoverySharedFsIpFinder;
+import org.apache.ignite.spi.discovery.zk.ZookeeperDiscoverySpi;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
+import javax.cache.expiry.Duration;
+import javax.cache.expiry.TouchedExpiryPolicy;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static org.apache.ignite.failure.FailureType.*;
 
@@ -54,11 +67,9 @@ import static org.apache.ignite.failure.FailureType.*;
         matchIfMissing = true)
 public class ContinuumIgniteConfig {
 
+    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     @Autowired
     private ContinuumProperties continuumProperties;
-
-    @Autowired(required = false)
-    private DiscoverySpi discoverySpi;
 
     @Autowired(required = false)
     private List<CacheConfiguration<?,?>> caches;
@@ -66,9 +77,43 @@ public class ContinuumIgniteConfig {
     @Autowired(required = false)
     private List<DataRegionConfiguration> dataRegions;
 
+
+    @Bean
+    public DiscoverySpi tcpDiscoverySpi() {
+        DiscoverySpi ret;
+        if(continuumProperties.getDiscovery().equals("sharedfs")){
+            TcpDiscoverySharedFsIpFinder finder = new TcpDiscoverySharedFsIpFinder();
+            TcpDiscoverySpi spi = new TcpDiscoverySpi();
+            spi.setIpFinder(finder);
+            ret = spi;
+        }else if(continuumProperties.getDiscovery().equals("zookeeper")) {
+            ZookeeperDiscoverySpi spi = new ZookeeperDiscoverySpi();
+            spi.setZkConnectionString(continuumProperties.getZookeeperServers());
+            spi.setSessionTimeout(90000);
+            spi.setJoinTimeout(30000);
+            ret = spi;
+        }else if(continuumProperties.getDiscovery().equals("multicast")){
+            TcpDiscoveryMulticastIpFinder tcpDiscoveryMulticastIpFinder = new TcpDiscoveryMulticastIpFinder();
+            tcpDiscoveryMulticastIpFinder.setAddresses(Collections.singleton("127.0.0.1"));
+            TcpDiscoverySpi spi = new TcpDiscoverySpi();
+            spi.setIpFinder(tcpDiscoveryMulticastIpFinder);
+            //Loop back multicast discovery is not working on Mac OS
+            //(possibly due to http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=7122846).
+            if (U.isMacOs()) {
+                spi.setLocalAddress(F.first(U.allLocalIps()));
+            }
+            ret = spi;
+        }else{
+            throw new IllegalStateException("Unknown discovery setting "+continuumProperties.getDiscovery());
+        }
+        return ret;
+    }
+
+
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     @Bean
-    public IgniteConfiguration igniteConfiguration(FailureHandler failureHandler) {
+    public IgniteConfiguration igniteConfiguration(DiscoverySpi discoverySpi,
+                                                   FailureHandler failureHandler) {
         // Set up a few system schema Ignite uses
         System.setProperty(IgniteSystemProperties.IGNITE_NO_ASCII, "true");// Turn off ignite console banner
 
@@ -123,7 +168,7 @@ public class ContinuumIgniteConfig {
     }
 
     @Bean
-    @Profile({"development"})
+    @Profile("development")
     FailureHandler noopFailureHandler(){
         NoOpFailureHandler ret = new NoOpFailureHandler();
         ret.setIgnoredFailureTypes(Collections.unmodifiableSet(EnumSet.of(SEGMENTATION,

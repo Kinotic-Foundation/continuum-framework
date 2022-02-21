@@ -15,10 +15,19 @@
  * limitations under the License.
  */
 
-package com.kinotic.continuum.internal.core.api.aignite;
+package com.kinotic.continuum.internal.util;
 
 import com.kinotic.continuum.core.api.event.StreamData;
 import com.kinotic.continuum.core.api.event.StreamOperation;
+import com.kinotic.continuum.internal.core.api.aignite.Observer;
+import com.kinotic.continuum.internal.core.api.security.DefaultSessionMetadata;
+import io.vertx.core.Context;
+import io.vertx.core.Vertx;
+import org.apache.ignite.Ignite;
+import org.apache.ignite.IgniteCache;
+import org.apache.ignite.cache.query.ContinuousQueryWithTransformer;
+import org.apache.ignite.cache.query.QueryCursor;
+import org.apache.ignite.lang.IgniteClosure;
 import org.apache.ignite.lang.IgniteFuture;
 import org.apache.ignite.lang.IgniteInClosure;
 import org.slf4j.Logger;
@@ -26,10 +35,16 @@ import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.MonoSink;
+import reactor.core.scheduler.Scheduler;
+import reactor.core.scheduler.Schedulers;
 
 import javax.cache.Cache;
+import javax.cache.configuration.Factory;
+import javax.cache.configuration.FactoryBuilder;
 import javax.cache.event.CacheEntryEvent;
+import javax.cache.event.CacheEntryEventFilter;
 import javax.cache.event.EventType;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Supplier;
 
 /**
@@ -126,4 +141,79 @@ public class IgniteUtils {
         }
         return ret;
     }
+
+    public static <K, V> Flux<Long> countCacheEntriesContinuous(Ignite ignite, Vertx vertx, IgniteCache<K, V> igniteCache){
+        if(ignite == null){
+            throw new IllegalStateException("This method is not available when ignite is disabled");
+        }
+
+        Scheduler scheduler = Schedulers.fromExecutor(command -> vertx.executeBlocking(v -> command.run(), null));
+
+        Flux<Long> ret = Flux.create(sink -> {
+            AtomicLong activeSessionsCount = new AtomicLong();
+
+            Context vertxContext = vertx.getOrCreateContext();
+
+            ContinuousQueryWithTransformer<K, V, Long> qry = new ContinuousQueryWithTransformer<>();
+            qry.setIncludeExpired(true);
+
+            Factory<IgniteClosure<CacheEntryEvent<? extends K, ? extends V>, Long>> transformerFactory = FactoryBuilder
+                    .factoryOf(
+                            (IgniteClosure<CacheEntryEvent<? extends K, ? extends V>, Long>) event  -> {
+                                long change = 0;
+                                if(event.getEventType() == EventType.CREATED){
+                                    change = 1L;
+                                }else if(event.getEventType() == EventType.REMOVED || event.getEventType() == EventType.EXPIRED){
+                                    change = -1L;
+                                }
+                                return change;
+                            });
+
+            qry.setRemoteTransformerFactory(transformerFactory);
+
+            qry.setRemoteFilterFactory((Factory<CacheEntryEventFilter<K, V>>)
+                                               () -> event -> event.getEventType() != EventType.UPDATED);
+
+            qry.setLocalListener(events -> vertxContext.runOnContext(v ->{
+                for(Long change  : events){
+                    if(!sink.isCancelled()) {
+                        sink.next(activeSessionsCount.addAndGet(change));
+                    }
+                }
+            }));
+
+            // Executing the query.
+            QueryCursor<Cache.Entry<K, V>> cursor = null;
+            try {
+                // Not sure but it seems we could lose some updates here
+                long currentSize = igniteCache.sizeLong();
+                activeSessionsCount.set(currentSize);
+                sink.next(activeSessionsCount.get());
+
+                cursor = igniteCache.query(qry);
+
+                QueryCursor<Cache.Entry<K, V>> finalCursor = cursor;
+                sink.onDispose(() -> safeCloseCursor(finalCursor));
+
+            }catch (Exception e){
+                safeCloseCursor(cursor);
+                sink.error(e);
+            }
+
+        });
+
+        return ret.subscribeOn(scheduler);
+    }
+
+    private static void safeCloseCursor(QueryCursor<?> cursor){
+        try {
+            if(cursor != null) {
+                cursor.close();
+            }
+        } catch (Exception ex) {
+            log.warn("Exception closing continuous query",ex);
+        }
+    }
+
+
 }

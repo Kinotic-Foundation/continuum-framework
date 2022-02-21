@@ -21,7 +21,7 @@ import com.kinotic.continuum.core.api.event.Event;
 import com.kinotic.continuum.core.api.event.EventBusService;
 import com.kinotic.continuum.core.api.event.EventConstants;
 import com.kinotic.continuum.core.api.event.ListenerStatus;
-import com.kinotic.continuum.internal.core.api.aignite.IgniteUtils;
+import com.kinotic.continuum.internal.util.IgniteUtils;
 import com.kinotic.continuum.internal.core.api.aignite.SubscriptionInfoCacheEntryEventFilter;
 import com.kinotic.continuum.internal.core.api.aignite.SubscriptionInfoCacheEntryListener;
 import io.vertx.core.AsyncResult;

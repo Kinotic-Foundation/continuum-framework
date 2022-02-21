@@ -19,8 +19,8 @@ package com.kinotic.continuum.internal.core.api.security;
 
 import com.kinotic.continuum.core.api.event.EventConstants;
 import com.kinotic.continuum.core.api.security.*;
-import com.kinotic.continuum.internal.config.ContinuumIgniteConfigForProfile;
-import com.kinotic.continuum.internal.core.api.aignite.IgniteUtils;
+import com.kinotic.continuum.internal.config.IgniteCacheConstants;
+import com.kinotic.continuum.internal.util.IgniteUtils;
 import com.kinotic.continuum.internal.utils.ContinuumUtil;
 import io.vertx.core.Vertx;
 import org.apache.ignite.Ignite;
@@ -65,7 +65,7 @@ public class DefaultSessionManager implements SessionManager {
 
         // Will be null when running some tests
         if(ignite !=  null){
-            sessionCache = ignite.cache(ContinuumIgniteConfigForProfile.SESSION_CACHE_NAME);
+            sessionCache = ignite.cache(IgniteCacheConstants.SESSION_CACHE_NAME);
         }else{
             sessionCache = null;
         }

@@ -17,12 +17,20 @@
 
 package com.kinotic.continuum.internal.utils;
 
+import com.kinotic.continuum.api.annotations.ContinuumPackages;
+import com.kinotic.continuum.api.annotations.Proxy;
 import com.kinotic.continuum.api.annotations.Scope;
+import com.kinotic.continuum.internal.RpcServiceProxyBeanFactory;
+import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.reflect.FieldUtils;
+import org.springframework.beans.factory.support.BeanDefinitionBuilder;
+import org.springframework.context.ApplicationContext;
 import org.springframework.core.BridgeMethodResolver;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.annotation.AnnotationUtils;
+import org.springframework.core.type.classreading.MetadataReader;
+import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.util.Assert;
 
 import java.lang.annotation.Annotation;
@@ -30,12 +38,40 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.function.Consumer;
 
 /**
  * Created by Navid Mitchell on 7/22/17.
  */
 public class MetaUtil {
+
+    /**
+     * Scans the given packages for classes with the given Annotation
+     *
+     * @param applicationContext the current Spring {@link ApplicationContext}
+     * @param packages to scan
+     * @param annotationClass the Annotation class that should be searched for
+     * @return a List of {@link MetadataReader}'s for the classes that have the desired annotation
+     */
+    public static Set<MetadataReader> findClassesWithAnnotation(ApplicationContext applicationContext,
+                                                                List<String> packages,
+                                                                Class<? extends Annotation> annotationClass){
+        ClassPathScanningMetadataReaderProvider scanner
+                = new ClassPathScanningMetadataReaderProvider(applicationContext.getEnvironment());
+        scanner.setResourceLoader(applicationContext);
+        scanner.addIncludeFilter(new AnnotationTypeFilter(annotationClass));
+
+        Set<MetadataReader> readers = new HashSet<>();
+
+        for(String pack : packages){
+            readers.addAll(scanner.findCandidateComponents(pack));
+        }
+
+        return readers;
+    }
 
     /**
      * Tries to get a valid {@link Scope} from the instance provided

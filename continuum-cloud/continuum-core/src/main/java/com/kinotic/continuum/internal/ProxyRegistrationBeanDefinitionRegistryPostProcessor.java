@@ -20,6 +20,7 @@ package com.kinotic.continuum.internal;
 import com.kinotic.continuum.api.annotations.ContinuumPackages;
 import com.kinotic.continuum.api.annotations.Proxy;
 import com.kinotic.continuum.internal.utils.ClassPathScanningMetadataReaderProvider;
+import com.kinotic.continuum.internal.utils.MetaUtil;
 import org.apache.commons.lang3.ClassUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,19 +60,11 @@ public class ProxyRegistrationBeanDefinitionRegistryPostProcessor implements Bea
     @Override
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
         // scan classpath for all Classes annotated with @Proxy
-        ClassPathScanningMetadataReaderProvider scanner
-                = new ClassPathScanningMetadataReaderProvider(applicationContext.getEnvironment());
-        scanner.setResourceLoader(applicationContext);
-        scanner.addIncludeFilter(new AnnotationTypeFilter(Proxy.class));
 
         List<String> packages = ContinuumPackages.get(this.applicationContext);
         packages.add("com.kinotic.continuum.internal"); // core continuum proxies
 
-        Set<MetadataReader> readers = new HashSet<>();
-
-        for(String pack : packages){
-            readers.addAll(scanner.findCandidateComponents(pack));
-        }
+        Set<MetadataReader> readers = MetaUtil.findClassesWithAnnotation(applicationContext, packages, Proxy.class);
 
         for(MetadataReader reader: readers){
             String serviceClassName = reader.getClassMetadata().getClassName();

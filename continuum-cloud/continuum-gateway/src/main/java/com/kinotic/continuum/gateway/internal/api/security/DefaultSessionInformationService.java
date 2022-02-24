@@ -64,7 +64,7 @@ public class DefaultSessionInformationService implements SessionInformationServi
 
 
     public DefaultSessionInformationService(Vertx vertx,
-                                 @Autowired(required = false) Ignite ignite) {
+                                            @Autowired(required = false) Ignite ignite) {
 
         this.vertx = vertx;
         this.ignite = ignite;

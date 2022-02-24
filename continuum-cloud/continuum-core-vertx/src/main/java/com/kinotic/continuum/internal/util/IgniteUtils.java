@@ -23,6 +23,7 @@ import com.kinotic.continuum.internal.core.api.aignite.Observer;
 import com.kinotic.continuum.internal.core.api.security.DefaultSessionMetadata;
 import io.vertx.core.Context;
 import io.vertx.core.Vertx;
+import org.apache.commons.lang3.Validate;
 import org.apache.ignite.Ignite;
 import org.apache.ignite.IgniteCache;
 import org.apache.ignite.cache.query.ContinuousQueryWithTransformer;
@@ -143,9 +144,9 @@ public class IgniteUtils {
     }
 
     public static <K, V> Flux<Long> countCacheEntriesContinuous(Ignite ignite, Vertx vertx, IgniteCache<K, V> igniteCache){
-        if(ignite == null){
-            throw new IllegalStateException("This method is not available when ignite is disabled");
-        }
+        Validate.notNull(ignite, "Ignite must not be null");
+        Validate.notNull(vertx, "Vertx must not be null");
+        Validate.notNull(igniteCache, "The IgniteCache provided must not be null");
 
         Scheduler scheduler = Schedulers.fromExecutor(command -> vertx.executeBlocking(v -> command.run(), null));
 
@@ -174,13 +175,13 @@ public class IgniteUtils {
             qry.setRemoteFilterFactory((Factory<CacheEntryEventFilter<K, V>>)
                                                () -> event -> event.getEventType() != EventType.UPDATED);
 
-            qry.setLocalListener(events -> vertxContext.runOnContext(v ->{
+            qry.setLocalListener(events -> vertxContext.executeBlocking(v ->{
                 for(Long change  : events){
                     if(!sink.isCancelled()) {
                         sink.next(activeSessionsCount.addAndGet(change));
                     }
                 }
-            }));
+            }, null));
 
             // Executing the query.
             QueryCursor<Cache.Entry<K, V>> cursor = null;

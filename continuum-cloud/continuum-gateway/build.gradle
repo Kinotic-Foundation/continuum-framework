@@ -13,8 +13,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-autoconfigure' // Used for conditionally wiring beans
 
     implementation 'io.vertx:vertx-core'
-    implementation 'io.vertx:vertx-web'
-    implementation 'io.vertx:vertx-auth-common'
+    api 'io.vertx:vertx-web'
     implementation 'io.vertx:vertx-mqtt'
     implementation 'com.kinotic:vertx-stomp-lite'
 

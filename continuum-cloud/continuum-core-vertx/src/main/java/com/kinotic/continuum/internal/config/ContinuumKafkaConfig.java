@@ -20,15 +20,10 @@ package com.kinotic.continuum.internal.config;
 import com.kinotic.continuum.api.config.ContinuumProperties;
 import com.kinotic.continuum.internal.util.KafkaUtils;
 import org.apache.commons.lang3.Validate;
-import org.apache.curator.RetryPolicy;
-import org.apache.curator.framework.CuratorFramework;
-import org.apache.curator.framework.CuratorFrameworkFactory;
-import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaAdmin;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -49,17 +44,6 @@ public class ContinuumKafkaConfig {
 
     @Autowired
     private ContinuumProperties continuumProperties;
-
-    @Lazy
-    @Bean(initMethod = "start", destroyMethod = "close")
-    public CuratorFramework curatorFramework() {
-        RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, 10);
-        return CuratorFrameworkFactory.builder()
-                                      .retryPolicy(retryPolicy)
-                                      .connectString(continuumProperties.getZookeeperServers())
-                                      .namespace("__continuum_")
-                                      .build();
-    }
 
     @Bean
     public KafkaAdmin admin() {

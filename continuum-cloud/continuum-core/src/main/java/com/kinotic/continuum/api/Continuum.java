@@ -40,4 +40,7 @@ public interface Continuum {
 
     String applicationName();
 
+
+    String applicationVersion();
+
 }

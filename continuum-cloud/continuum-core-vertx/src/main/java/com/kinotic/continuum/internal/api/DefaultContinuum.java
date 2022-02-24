@@ -18,19 +18,27 @@
 package com.kinotic.continuum.internal.api;
 
 import com.kinotic.continuum.api.Continuum;
+import com.kinotic.continuum.api.annotations.ContinuumPackages;
+import com.kinotic.continuum.api.annotations.EnableContinuum;
+import com.kinotic.continuum.api.annotations.Proxy;
 import com.kinotic.continuum.api.config.ContinuumProperties;
+import com.kinotic.continuum.internal.utils.MetaUtil;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
 import io.vertx.core.spi.cluster.ClusterManager;
+import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.text.WordUtils;
+import org.apache.ignite.Ignite;
 import org.apache.ignite.internal.util.typedef.internal.U;
 import org.awaitility.Awaitility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.core.type.classreading.MetadataReader;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PreDestroy;
@@ -38,14 +46,12 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 /**
- *
+ * Provides information about the Continuum process and handles controlled shutdown of Vertx and Ignite.
  * Created by navid on 9/24/19
  */
 @Component
@@ -57,13 +63,19 @@ public class DefaultContinuum implements Continuum {
     private static final int ANIMAL_COUNT = 587;
     private final String name;
     private final ContinuumProperties continuumProperties;
+    private final Ignite ignite;
     private final Vertx vertx;
+    private String applicationName;
+    private String applicationVersion;
     private final String nodeId;
 
     public DefaultContinuum(ResourceLoader resourceLoader,
                             @Autowired(required = false)
                             ClusterManager clusterManager,
+                            @Autowired(required = false)
+                            Ignite ignite,
                             Vertx vertx,
+                            ApplicationContext applicationContext,
                             ContinuumProperties continuumProperties) throws IOException {
         String name;
 
@@ -80,9 +92,29 @@ public class DefaultContinuum implements Continuum {
             name = name + " " + WordUtils.capitalize(temp);
         }
         this.name = name;
+        this.ignite = ignite;
         this.vertx = vertx;
         this.continuumProperties = continuumProperties;
         this.nodeId = (clusterManager != null  ?  clusterManager.getNodeID() : UUID.randomUUID().toString());
+
+        // find Continuum application name
+        List<String> packages = ContinuumPackages.get(applicationContext);
+        MetadataReader[] readers = MetaUtil.findClassesWithAnnotation(applicationContext, packages, EnableContinuum.class)
+                                              .toArray(new MetadataReader[0]);
+        if(readers.length > 1) {
+            log.error("More than one " + EnableContinuum.class.getSimpleName() + " Annotation Found");
+        }
+
+        MetadataReader reader = readers[0];
+        Map<String, Object> annotationAttributes = reader.getAnnotationMetadata()
+                                                         .getAnnotationAttributes(EnableContinuum.class.getName());
+        if(annotationAttributes != null){
+            applicationName = (String) annotationAttributes.get("name");
+            applicationVersion = (String) annotationAttributes.get("version");
+        }
+        if(applicationName == null){
+            applicationName = ClassUtils.getShortCanonicalName(reader.getClassMetadata().getClassName());
+        }
     }
 
     @Override
@@ -97,7 +129,13 @@ public class DefaultContinuum implements Continuum {
 
     @Override
     public String applicationName() {
-        return "AddMe";
+        return applicationName;
+    }
+
+
+    @Override
+    public String applicationVersion() {
+        return applicationVersion;
     }
 
     @EventListener

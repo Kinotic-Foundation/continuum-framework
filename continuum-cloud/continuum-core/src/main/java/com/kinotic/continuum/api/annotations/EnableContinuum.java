@@ -38,4 +38,15 @@ import java.lang.annotation.Target;
 @ContinuumPackage
 public @interface EnableContinuum {
 
+    /**
+     * The logical name for the Continuum application
+     * If this is not provided the class name is used
+     */
+    String name() default "";
+
+    /**
+     * The version of the Continuum application.
+     */
+    String version() default "";
+
 }

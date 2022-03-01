@@ -25,7 +25,7 @@ import java.nio.charset.Charset;
 
 /**
  *
- * Created by Navid Mitchell 🤬 on 2/18/21.
+ * Created by Navid Mitchell 🤪 on 2/18/21.
  * TODO: Move into common util project and combine with FileUtil from aws-util
  */
 public class FileUtil {

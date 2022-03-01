@@ -21,7 +21,7 @@ import java.util.Collection;
 
 /**
  * Describes services that can be registered with the Continuum
- * Created by Navíd Mitchell 🤬 on 7/18/21.
+ * Created by Navíd Mitchell 🤪 on 7/18/21.
  */
 public interface ServiceDescriptor {
 

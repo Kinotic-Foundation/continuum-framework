@@ -19,7 +19,7 @@ package com.kinotic.continuum.api.config;
 
 /**
  *
- * Created by Navíd Mitchell 🤬 on 1/18/21
+ * Created by Navíd Mitchell 🤪 on 1/18/21
  */
 public interface ContinuumProperties {
 

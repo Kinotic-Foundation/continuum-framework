@@ -30,7 +30,7 @@ import java.lang.annotation.Target;
  *
  * Application should only ever include one {@link EnableContinuum} annotation
  *
- * Created by Navid Mitchell 🤬 on 11/28/18.
+ * Created by Navid Mitchell 🤪 on 11/28/18.
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)

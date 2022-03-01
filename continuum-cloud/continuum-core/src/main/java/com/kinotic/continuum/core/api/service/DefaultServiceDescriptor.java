@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 /**
- * Created by Navíd Mitchell 🤬 on 8/18/21.
+ * Created by Navíd Mitchell 🤪 on 8/18/21.
  */
 class DefaultServiceDescriptor implements ServiceDescriptor{
 

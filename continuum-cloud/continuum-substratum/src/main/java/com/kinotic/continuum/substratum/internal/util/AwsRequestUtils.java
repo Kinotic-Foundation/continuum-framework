@@ -23,7 +23,7 @@ import java.util.Map;
 
 /**
  *
- * Created by Navíd Mitchell 🤬 on 7/6/21.
+ * Created by Navíd Mitchell 🤪 on 7/6/21.
  */
 public class AwsRequestUtils {
 

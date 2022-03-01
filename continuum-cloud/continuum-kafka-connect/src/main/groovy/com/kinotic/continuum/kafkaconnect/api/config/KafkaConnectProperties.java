@@ -27,7 +27,7 @@ import java.util.Map;
  * Kafka Connect Worker Properties to be supplied to the internal Worker
  *
  *
- * Created by Navid Mitchell 🤬 on 1/8/21
+ * Created by Navid Mitchell 🤪 on 1/8/21
  */
 @Component
 @ConfigurationProperties(prefix = "kafka-connect")

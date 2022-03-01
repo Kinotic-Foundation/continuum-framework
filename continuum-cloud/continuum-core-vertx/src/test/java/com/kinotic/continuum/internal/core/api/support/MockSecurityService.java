@@ -29,7 +29,7 @@ import reactor.core.publisher.Mono;
 import java.util.Map;
 
 /**
- * Created by Navíd Mitchell 🤬 on 7/16/21.
+ * Created by Navíd Mitchell 🤪 on 7/16/21.
  */
 @Component
 public class MockSecurityService implements SecurityService {

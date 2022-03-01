@@ -20,7 +20,7 @@ package com.kinotic.continuum.core.api.service;
 import java.lang.reflect.Method;
 
 /**
- * Created by Navíd Mitchell 🤬 on 8/18/21.
+ * Created by Navíd Mitchell 🤪 on 8/18/21.
  */
 class DefaultServiceFunction implements ServiceFunction{
 

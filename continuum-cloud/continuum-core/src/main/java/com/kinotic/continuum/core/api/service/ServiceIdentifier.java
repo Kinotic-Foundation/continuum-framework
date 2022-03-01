@@ -25,7 +25,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
  * The {@link ServiceIdentifier} identifies a {@link ServiceDescriptor}
- * Created by Navíd Mitchell 🤬 on 8/18/21.
+ * Created by Navíd Mitchell 🤪 on 8/18/21.
  */
 public class ServiceIdentifier {
 

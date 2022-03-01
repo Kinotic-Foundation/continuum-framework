@@ -18,7 +18,7 @@
 package com.kinotic.continuum.core.api.crud;
 
 /**
- * Created by Navíd Mitchell 🤬 on 7/30/21.
+ * Created by Navíd Mitchell 🤪 on 7/30/21.
  */
 public enum SearchComparator {
     EQUALS("="),

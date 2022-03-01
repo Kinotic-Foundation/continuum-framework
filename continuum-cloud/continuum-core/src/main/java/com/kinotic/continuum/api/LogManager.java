@@ -28,7 +28,7 @@ import java.util.Map;
 /**
  * Interface providing the ability to work with runtime logging configuration per node
  *
- * Created by Navid Mitchell on 7/9/20
+ * Created by Navid Mitchell 🤪 on 7/9/20
  */
 @Publish(version = "0.1.0")
 public interface LogManager {

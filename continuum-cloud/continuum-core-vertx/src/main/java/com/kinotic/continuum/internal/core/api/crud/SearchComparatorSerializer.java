@@ -26,7 +26,7 @@ import org.springframework.boot.jackson.JsonComponent;
 import java.io.IOException;
 
 /**
- * Created by Navíd Mitchell 🤬 on 7/30/21.
+ * Created by Navíd Mitchell 🤪 on 7/30/21.
  */
 @JsonComponent
 public class SearchComparatorSerializer extends JsonSerializer<SearchComparator> {

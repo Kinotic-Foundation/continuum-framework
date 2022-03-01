@@ -8,7 +8,6 @@ This is the core Continuum javascript library
 - Then in project that depends on this one you can run ```yalc link continuum-js```
 
 ### Useful Dependency Documentation
-- [ow](https://github.com/sindresorhus/ow) Function argument Validation library
 
 
 ### Possible Typescript Libraries to Use

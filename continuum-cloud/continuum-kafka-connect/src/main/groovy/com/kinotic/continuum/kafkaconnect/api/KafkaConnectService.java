@@ -36,7 +36,7 @@ import java.util.Set;
 
 /**
  *
- * Created by Navid Mitchell 🤬 on 1/8/21
+ * Created by Navid Mitchell 🤪 on 1/8/21
  */
 @Publish(version = "0.1.0")
 public interface KafkaConnectService {

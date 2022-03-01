@@ -32,7 +32,7 @@ import java.lang.annotation.Target;
  *       For production use you should run a stand alone Continuum Gateway by deploying the Continuum Gateway Server application
  *
  *
- * Created by Navid Mitchell 🤬 on 2/10/20
+ * Created by Navid Mitchell 🤪 on 2/10/20
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)

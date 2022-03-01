@@ -31,7 +31,7 @@ import java.lang.annotation.Target;
  * Continuum Grind provides a generic {@link com.kinotic.continuum.grind.api.Task} abstraction that supports Autowiring
  *
  *
- * Created by Navid Mitchell 🤬 on 2/10/20
+ * Created by Navid Mitchell 🤪 on 2/10/20
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)

@@ -1,5 +1,5 @@
 import {Command, Flags} from '@oclif/core'
-import * as inquirer from 'inquirer'
+import inquirer from 'inquirer'
 
 export default class Create extends Command {
   static description = 'Creates Continuum projects, applications, and services'

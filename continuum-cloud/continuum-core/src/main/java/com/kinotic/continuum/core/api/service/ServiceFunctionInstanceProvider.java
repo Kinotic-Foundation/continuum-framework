@@ -23,7 +23,7 @@ import java.util.Map;
  * The {@link ServiceFunctionInstanceProvider} provides object instances for {@link ServiceFunction}'s
  * This allows the {@link ServiceFunction#invocationMethod()} to be invoked with the proper object instance
  *
- * Created by Navíd Mitchell 🤬 on 8/18/21.
+ * Created by Navíd Mitchell 🤪 on 8/18/21.
  */
 public interface ServiceFunctionInstanceProvider {
 

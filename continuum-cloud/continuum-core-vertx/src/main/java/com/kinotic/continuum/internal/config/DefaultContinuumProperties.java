@@ -26,7 +26,7 @@ import org.springframework.stereotype.Component;
 
 /**
  *
- * Created by Navid Mitchell 🤬 on 10/24/19
+ * Created by Navid Mitchell 🤪 on 10/24/19
  */
 @Component
 @ConfigurationProperties(prefix = "continuum")

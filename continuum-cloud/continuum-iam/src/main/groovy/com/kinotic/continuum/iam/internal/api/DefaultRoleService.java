@@ -58,7 +58,7 @@ public class DefaultRoleService implements RoleService {
     public Mono<Role> findByIdentity(String identity) {
         return Mono.fromSupplier(() -> transactionTemplate.execute(status -> {
             Optional<Role> value = roleRepository.findById(identity);
-            // force lazy loaded data so it will be available for the UI
+            // force lazy loaded data, so it will be available for the UI
             value.ifPresent(role -> Hibernate.initialize(role.getAccessPolicies()));
             return value.orElse(null);
         }));

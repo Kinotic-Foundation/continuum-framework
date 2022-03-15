@@ -53,7 +53,7 @@ public class ServiceRegistrationBeanPostProcessor implements DestructionAwareBea
     public void postProcessBeforeDestruction(Object bean, String beanName) throws BeansException {
         processBean(bean, (serviceIdentifier, clazz) -> {
 
-            log.debug("Un-Registering Service "+ serviceIdentifier);
+            log.info("Un-Registering Service "+ serviceIdentifier);
 
             serviceRegistry.unregister(serviceIdentifier)
                            .subscribe(null,
@@ -71,7 +71,7 @@ public class ServiceRegistrationBeanPostProcessor implements DestructionAwareBea
 
         processBean(bean, (serviceIdentifier, clazz) -> {
 
-            log.debug("Registering Service "+ serviceIdentifier);
+            log.info("Registering Service "+ serviceIdentifier);
 
             serviceRegistry.register(serviceIdentifier, clazz, bean)
                            .subscribe(null,
@@ -93,7 +93,7 @@ public class ServiceRegistrationBeanPostProcessor implements DestructionAwareBea
                     for (Class<?> inter : interfaces) {
 
                         Publish publish = AnnotationUtils.findAnnotation(inter, Publish.class);
-                        String namespace = publish.namespace().isEmpty() ? inter.getPackageName() : publish.namespace();
+                        String namespace = publish.namespace().isEmpty() ? encodePackageName(inter.getPackageName()) : publish.namespace();
                         String name = publish.name().isEmpty() ? inter.getSimpleName() : publish.name();
                         String scope = MetaUtil.getScopeIfAvailable(instance, inter);
                         ServiceIdentifier serviceIdentifier = new ServiceIdentifier(namespace, name, scope, publish.version());
@@ -105,6 +105,15 @@ public class ServiceRegistrationBeanPostProcessor implements DestructionAwareBea
                 log.warn("Error processing Meta for bean:" + instance, e);
             }
         }
+    }
+
+    /**
+     * Encodes characters allowed in package name but not in an URI
+     * @param packageName of the package to encode
+     * @return the encoded package name
+     */
+    private String encodePackageName(String packageName){
+        return packageName.replaceAll("_", "-").replaceAll("\\$", "-");
     }
 
 }

@@ -139,16 +139,16 @@ export default class FrontendLayout extends Vue {
       } else {
         this.$vuetify.theme.dark = false;
       }
-    } //else if ( // This defaults theme based on user preferences. We don't do this yet since dark mode has not been tested for all of our uis
-    //     window.matchMedia &&
-    //     window.matchMedia("(prefers-color-scheme: dark)").matches
-    // ) {
-    //   this.$vuetify.theme.dark = true;
-    //   localStorage.setItem(
-    //       "dark_theme",
-    //       this.$vuetify.theme.dark.toString()
-    //   );
-    // }
+    }else if ( // Sets default theme based on user preferences.
+        window.matchMedia &&
+        window.matchMedia("(prefers-color-scheme: dark)").matches
+    ) {
+      this.$vuetify.theme.dark = true;
+      localStorage.setItem(
+          "dark_theme",
+          this.$vuetify.theme.dark.toString()
+      );
+    }
   }
 
   public onFrontendSelected(routeConfig: RouteConfig):void {

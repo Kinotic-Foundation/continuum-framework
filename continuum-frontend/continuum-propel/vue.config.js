@@ -29,7 +29,7 @@ module.exports = {
     //         .end()
     // },
 
-    // added this so we can actually access source files from the browser
+    // added this, so we can easily access source files from the browser
     configureWebpack: (config) => {
         if (process.env.NODE_ENV === 'development') {
             config.devtool = 'source-map';

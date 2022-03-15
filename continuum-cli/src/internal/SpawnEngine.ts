@@ -24,7 +24,7 @@ export default class SpawnEngine {
                              })
     this.engine.registerFilter('packageToPath', v => v.replaceAll('.', '/'))
     this.engine.registerFilter('encodePackage', (v: string) => {
-      v = v.replaceAll('-', "_")
+      v = v.replaceAll('-', "")
       v = v.replaceAll('/\\.(\\d+)/', '._$1')
       return v
     })

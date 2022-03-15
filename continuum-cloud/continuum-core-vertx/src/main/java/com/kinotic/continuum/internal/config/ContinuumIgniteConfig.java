@@ -122,8 +122,8 @@ public class ContinuumIgniteConfig {
 
         IgniteConfiguration cfg = new IgniteConfiguration();
 
-        Path workPath = Path.of(SystemUtils.getUserHome().getAbsolutePath(),".continuum", "ignite", "work");
-        cfg.setWorkDirectory(workPath.toAbsolutePath().toString());
+//        Path workPath = Path.of(SystemUtils.getUserHome().getAbsolutePath(),".continuum", "ignite", "work");
+//        cfg.setWorkDirectory(workPath.toAbsolutePath().toString());
 
         cfg.setGridLogger(new Slf4jLogger());
 

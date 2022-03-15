@@ -1,7 +1,6 @@
-import { ICrudServiceProxy, IServiceRegistry } from 'continuum-js'
+import { ICrudServiceProxy, IServiceRegistry, Pageable, Page, IServiceProxy } from 'continuum-js'
 import { inject, injectable, container } from 'inversify-props'
 import { AccessPolicy } from '@/frontends/iam/models/AccessPolicy'
-import { Pageable, Page, IServiceProxy} from 'continuum-js'
 import { ServiceIdentifierConstants } from '@/frontends/iam/Constants'
 
 

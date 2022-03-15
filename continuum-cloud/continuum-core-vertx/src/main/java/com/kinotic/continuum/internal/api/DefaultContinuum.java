@@ -102,7 +102,7 @@ public class DefaultContinuum implements Continuum {
         MetadataReader[] readers = MetaUtil.findClassesWithAnnotation(applicationContext, packages, EnableContinuum.class)
                                               .toArray(new MetadataReader[0]);
         if(readers.length > 1) {
-            log.error("More than one " + EnableContinuum.class.getSimpleName() + " Annotation Found");
+            log.warn("More than one " + EnableContinuum.class.getSimpleName() + " Annotation Found");
         }
 
         MetadataReader reader = readers[0];

@@ -13,7 +13,7 @@ export interface IUserState {
 export class UserState implements IUserState{
 
     @inject()
-    public eventBus!: IEventBus
+    private eventBus!: IEventBus
 
     private authenticated: boolean = false
 

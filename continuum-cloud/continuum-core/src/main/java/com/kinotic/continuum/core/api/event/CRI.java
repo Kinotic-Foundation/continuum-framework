@@ -20,13 +20,13 @@ package com.kinotic.continuum.core.api.event;
 /**
  * {@link CRI} is a Continuum Resource Identifier used by Continuum to route requests appropriately.
  *
- * The {@link CRI} is similar to an URI with a few changes for Continuum
+ * The {@link CRI} is similar to an URI the parts are just name differently for clarity as to purpose within Continuum
  *
  * Will be in a format as follows where anything surrounded with [] is optional
  *
  *      scheme://[scope@]resourceName[/path][#version]
  *
- * NOTE: TODO: document scope when an user identity is used
+ * NOTE: If scope needs to be used to identify a sub-scope it will follow the form scope = scope:sub-scope
  *
  * This format can have varied meanings based upon the scheme used.
  *

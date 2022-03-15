@@ -47,13 +47,9 @@ public class IgniteSession extends AbstractSession {
     @Override
     public void touch() {
         lastUsedDate = new Date();
-        sessionCache.invoke(sessionId(), (entry, args) -> {
-            DefaultSessionMetadata meta = entry.getValue();
-            meta.lastUsedDate(lastUsedDate);
-            entry.setValue(meta);
-            return null;
-        });
-
+        DefaultSessionMetadata meta = sessionCache.get(sessionId());
+        meta.lastUsedDate(lastUsedDate);
+        sessionCache.put(sessionId(), meta);
     }
 
 }

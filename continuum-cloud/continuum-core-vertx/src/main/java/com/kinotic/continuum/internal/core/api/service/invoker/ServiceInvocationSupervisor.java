@@ -242,7 +242,7 @@ public class ServiceInvocationSupervisor {
 
             }else{
 
-                // All long running results require a CORRELATION_ID_HEADER to be able to coordinate with the requester
+                // All long-running results require a CORRELATION_ID_HEADER to be able to coordinate with the requester
                 if(!incomingEvent.metadata().contains(EventConstants.CORRELATION_ID_HEADER)){
                     throw new IllegalArgumentException("Streaming results require a CORRELATION_ID_HEADER to be set");
                 }

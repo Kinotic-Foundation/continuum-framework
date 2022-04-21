@@ -78,18 +78,16 @@ export default class UserAddEdit extends Vue {
     private passwordConfirm: string = ''
     private changePassword: boolean = false
     private passwordRules: RuleValidator[] = [ (v) => !!v || 'Password required']
-    private confirmPassRules: RuleValidator[] = []
+    private confirmPassRules: RuleValidator[] = [
+                                                  (v) => !!v || 'Confirm password required',
+                                                  (v) => v === this.password || 'Passwords do not match'
+                                                ]
 
     constructor() {
         super()
     }
 
     public mounted() {
-        this.confirmPassRules = [
-            (v) => !!v || 'Confirm password required',
-            (v) => v === this.password || 'Passwords do not match'
-        ]
-
         // if identity is null this is a new user else we are editing in that case we do not edit pass by default
         this.changePassword = this.identity == null
     }
@@ -100,7 +98,7 @@ export default class UserAddEdit extends Vue {
             const hash = bcrypt.hashSync(this.password, salt)
             user.authenticators = [ new PasswordAuthenticator(user.identity, hash) ]
         } else {
-            // The backend will automatically used the saved authenticators if we return null for authenticators.
+            // The backend will automatically use the saved authenticators if we return null for authenticators.
             // Any value such as an empty array or new authenticators will be used if provided
             user.authenticators = null
         }

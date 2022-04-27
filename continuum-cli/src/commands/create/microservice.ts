@@ -1,5 +1,4 @@
 import {Command, Flags} from '@oclif/core'
-import fs from 'fs'
 import path from 'path'
 import {spawnEngine} from '../../internal/SpawnEngine'
 

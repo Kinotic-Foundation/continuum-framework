@@ -1,0 +1,12 @@
+build
+
+### IntelliJ IDEA ###
+/out/
+
+### MAC SPECIFIC ###
+*.DS_Store
+
+## node
+node_modules
+
+dist/

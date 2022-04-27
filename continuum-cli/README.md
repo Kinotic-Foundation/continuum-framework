@@ -16,7 +16,7 @@ oclif example Hello World CLI
 # Usage
 <!-- usage -->
 ```sh-session
-$ npm install -g continuum-cli
+$ yarn install -g continuum-cli
 $ continuum COMMAND
 running command...
 $ continuum (--version)
@@ -29,8 +29,6 @@ USAGE
 <!-- usagestop -->
 # Commands
 <!-- commands -->
-* [`continuum hello PERSON`](#continuum-hello-person)
-* [`continuum hello world`](#continuum-hello-world)
 * [`continuum help [COMMAND]`](#continuum-help-command)
 * [`continuum plugins`](#continuum-plugins)
 * [`continuum plugins:inspect PLUGIN...`](#continuum-pluginsinspect-plugin)
@@ -39,45 +37,6 @@ USAGE
 * [`continuum plugins:uninstall PLUGIN...`](#continuum-pluginsuninstall-plugin)
 * [`continuum plugins update`](#continuum-plugins-update)
 
-## `continuum hello PERSON`
-
-Say hello
-
-```
-USAGE
-  $ continuum hello [PERSON] -f <value>
-
-ARGUMENTS
-  PERSON  Person to say hello to
-
-FLAGS
-  -f, --from=<value>  (required) Whom is saying hello
-
-DESCRIPTION
-  Say hello
-
-EXAMPLES
-  $ oex hello friend --from oclif
-  hello friend from oclif! (./src/commands/hello/index.ts)
-```
-
-_See code: [dist/commands/hello/index.ts](https://github.com/NavidMitchell/continuum-framework/blob/v0.0.0/dist/commands/hello/index.ts)_
-
-## `continuum hello world`
-
-Say hello world
-
-```
-USAGE
-  $ continuum hello world
-
-DESCRIPTION
-  Say hello world
-
-EXAMPLES
-  $ oex hello world
-  hello world! (./src/commands/hello/world.ts)
-```
 
 ## `continuum help [COMMAND]`
 

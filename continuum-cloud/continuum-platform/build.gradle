@@ -41,7 +41,7 @@ ext{
     igniteVersion='2.12.0'
     jCacheApiVersion='1.0.0'
     lombokVersion = '1.18.12'
-    springBootVersion = '2.5.6'
+    springBootVersion = '2.6.7'
     vertxVersion='3.9.9'
     vertxStompLiteVersion='3.9.11-SNAPSHOT'
     vertxBeansVersion='1.5.0'

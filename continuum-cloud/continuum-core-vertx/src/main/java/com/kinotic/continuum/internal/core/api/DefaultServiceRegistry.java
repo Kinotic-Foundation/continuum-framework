@@ -175,6 +175,6 @@ public class DefaultServiceRegistry implements ServiceRegistry {
                                                                     proxyAnnotation.name(),
                                                                     null,
                                                                     proxyAnnotation.version());
-        return serviceProxy(serviceIdentifier, serviceInterface, proxyAnnotation.contentTypeExpected());
+        return serviceProxy(serviceIdentifier, serviceInterface, MimeTypeUtils.APPLICATION_JSON_VALUE);
     }
 }

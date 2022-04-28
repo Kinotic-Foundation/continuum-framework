@@ -1,92 +1,23 @@
 plugins {
-	id 'org.springframework.boot' version '2.4.6'
-	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
-	id 'groovy'
-	id 'application'
+	id 'com.kinotic.continuum.java-application-conventions'
 }
-
-group = 'com.kinotic'
-version = '1.0-SNAPSHOT'
-sourceCompatibility = '15'
 
 mainClassName = "com.kinotic.continuum.orbiter.ContinuumOrbiterApplication"
 
-configurations {
-	developmentOnly
-	runtimeClasspath {
-		extendsFrom developmentOnly
-	}
-	compileOnly {
-		extendsFrom annotationProcessor
-	}
-}
-
-repositories {
-	mavenCentral()
-}
-
-// TODO: figure out how to make this come from the base continuum-vertx-core
-dependencyManagement {
-	dependencies {
-		dependency 'com.h2database:h2:1.4.197' // Tied to Ignite version. We make sure this is correct for ignite expectations
-	}
-}
-
-ext {
-	set('groovy.version', '3.0.6')
-	continuumVersion='1.0-SNAPSHOT'
-	lombokVersion = '1.18.12'
-	apacheCuratorVersion='4.3.0'
-}
-
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter'
-	implementation 'org.codehaus.groovy:groovy'
-	implementation 'org.codehaus.groovy:groovy-json'
+	api project(':continuum-core')
+	api project(':continuum-core-vertx')
 
-	// Continuum Dependencies
-	implementation "com.kinotic:continuum-core:${continuumVersion}"
-	implementation "com.kinotic:continuum-core-vertx:${continuumVersion}"
+	implementation "org.apache.curator:curator-client"
+	implementation "org.apache.curator:curator-framework"
+	implementation "org.apache.curator:curator-recipes"
+	implementation "org.apache.curator:curator-x-discovery"
 
-	implementation "org.apache.curator:curator-client:${apacheCuratorVersion}"
-	implementation "org.apache.curator:curator-framework:${apacheCuratorVersion}"
-	implementation "org.apache.curator:curator-recipes:${apacheCuratorVersion}"
-	implementation "org.apache.curator:curator-x-discovery:${apacheCuratorVersion}"
+	annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
 
-	//Misc
-	implementation "org.apache.commons:commons-lang3"
+	compileOnly "org.projectlombok:lombok"
+	annotationProcessor "org.projectlombok:lombok"
 
-	implementation "ch.qos.logback:logback-core"
-	implementation "ch.qos.logback:logback-classic"
-
-	annotationProcessor('org.springframework.boot:spring-boot-configuration-processor')
-
-	compileOnly "org.projectlombok:lombok:${lombokVersion}"
-	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
-
-	testCompileOnly "org.projectlombok:lombok:${lombokVersion}"
-	testAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
-
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testCompileOnly "org.projectlombok:lombok"
+	testAnnotationProcessor "org.projectlombok:lombok"
 }
-
-test {
-	useJUnitPlatform()
-}
-
-/**
- * Default Environment Vars
- * The following should be configured on launch as well
- * 		"--spring.profiles.active=production"
- */
-// These properties
-applicationDefaultJvmArgs = [
-		"-Djava.awt.headless=true",
-		"-Djava.net.preferIPv4Stack=true",
-		"-Dvertx.disableDnsResolver=true", // done because of this issue.. https://github.com/eclipse/vert.x/issues/1753 http://stackoverflow.com/questions/42110790/vertx-httpclient-getnow-not-working
-		"-server",
-		"-XX:+AlwaysPreTouch",
-		"-XX:+UseG1GC",
-		"-XX:+ScavengeBeforeFullGC",
-		"-XX:+DisableExplicitGC"
-]

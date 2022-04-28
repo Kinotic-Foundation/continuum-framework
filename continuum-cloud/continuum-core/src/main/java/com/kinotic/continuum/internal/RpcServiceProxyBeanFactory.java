@@ -33,25 +33,23 @@ import org.springframework.beans.factory.config.AbstractFactoryBean;
  */
 public class RpcServiceProxyBeanFactory extends AbstractFactoryBean<Object> {
 
-    private final String serviceInterfaceClassName;
+    private final Class<?> serviceClass;
     private final ServiceIdentifier serviceIdentifier;
 
-    private Class<?> serviceClass;
     private RpcServiceProxyHandle<?> serviceHandle;
 
     @Autowired
     private ServiceRegistry serviceRegistry;
 
 
-    public RpcServiceProxyBeanFactory(String serviceInterfaceClassName) {
-        this.serviceInterfaceClassName = serviceInterfaceClassName;
-        this.serviceIdentifier = null;
+    public RpcServiceProxyBeanFactory(Class<?> serviceClass) {
+        this(serviceClass, null);
         setSingleton(true);
     }
 
-    public RpcServiceProxyBeanFactory(String serviceInterfaceClassName,
+    public RpcServiceProxyBeanFactory(Class<?> serviceClass,
                                       ServiceIdentifier serviceIdentifier) {
-        this.serviceInterfaceClassName = serviceInterfaceClassName;
+        this.serviceClass = serviceClass;
         this.serviceIdentifier = serviceIdentifier;
         setSingleton(true);
     }
@@ -65,13 +63,6 @@ public class RpcServiceProxyBeanFactory extends AbstractFactoryBean<Object> {
 
     @Override
     public synchronized Class<?> getObjectType() {
-        try {
-            if(serviceClass == null){
-                serviceClass = Class.forName(serviceInterfaceClassName);
-            }
-        } catch (ClassNotFoundException e) {
-            throw new IllegalStateException(e);
-        }
         return serviceClass;
     }
 

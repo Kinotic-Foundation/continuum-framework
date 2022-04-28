@@ -20,7 +20,7 @@ package com.kinotic.continuum.api.annotations;
 import java.lang.annotation.*;
 
 /**
- * Allows for an Alias to be defined for a (@Publish)ed class or methods.
+ * Allows for an Alias to be defined for a {@link Publish}ed class or methods.
  * This is mostly used for accessing services via a command line or other human interfaces.
  *
  *

@@ -19,12 +19,14 @@ package com.kinotic.continuum.internal;
 
 import com.kinotic.continuum.api.annotations.ContinuumPackages;
 import com.kinotic.continuum.api.annotations.Proxy;
+import com.kinotic.continuum.api.annotations.Publish;
 import com.kinotic.continuum.internal.utils.ClassPathScanningMetadataReaderProvider;
 import com.kinotic.continuum.internal.utils.MetaUtil;
 import org.apache.commons.lang3.ClassUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.FatalBeanException;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -32,6 +34,7 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.core.type.classreading.MetadataReader;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.stereotype.Component;
@@ -43,7 +46,6 @@ import java.util.Set;
 
 /**
  * {@link BeanFactoryPostProcessor} that registers {@link Proxy} beans with the given {@link org.springframework.context.ApplicationContext}
- *
  *
  * Created by Navid Mitchell on 04/17/19.
  */
@@ -59,8 +61,17 @@ public class ProxyRegistrationBeanDefinitionRegistryPostProcessor implements Bea
      */
     @Override
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
-        // scan classpath for all Classes annotated with @Proxy
+        ConfigurableListableBeanFactory listableBeanFactory = null;
+        if(registry instanceof ConfigurableListableBeanFactory){
+            listableBeanFactory = (ConfigurableListableBeanFactory) registry;
+        }
 
+        if(listableBeanFactory == null){
+            log.error("BeanDefinitionRegistry is not of type ConfigurableListableBeanFactory. Proxies cannot be created!");
+            throw new FatalBeanException("BeanDefinitionRegistry is not of type ConfigurableListableBeanFactory");
+        }
+
+        // scan classpath for all Classes annotated with @Proxy
         List<String> packages = ContinuumPackages.get(this.applicationContext);
         packages.add("com.kinotic.continuum.internal"); // core continuum proxies
 
@@ -68,11 +79,23 @@ public class ProxyRegistrationBeanDefinitionRegistryPostProcessor implements Bea
 
         for(MetadataReader reader: readers){
             String serviceClassName = reader.getClassMetadata().getClassName();
+            Class<?> serviceClass;
+            try {
+                serviceClass = Class.forName(serviceClassName);
+            } catch (ClassNotFoundException e) {
+                throw new FatalBeanException("Could not load class. Should never happen!",e);
+            }
 
-            BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(RpcServiceProxyBeanFactory.class);
-            builder.addConstructorArgValue(serviceClassName);
-            log.debug("Registering bean factory for RPC Proxy: "+serviceClassName);
-            registry.registerBeanDefinition(ClassUtils.getShortClassName(serviceClassName)+"Factory", builder.getBeanDefinition());
+            // We check if there is a bean implementing the Proxy interface.
+            // This allows an interface to be Annotated with both Proxy and Publish, when this is done multiple services can share the Interface definitions
+            if(listableBeanFactory.getBeanNamesForType(serviceClass).length == 0) {
+
+                BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(RpcServiceProxyBeanFactory.class);
+                builder.addConstructorArgValue(serviceClass);
+
+                log.debug("Registering bean factory for RPC Proxy: " + serviceClassName);
+                registry.registerBeanDefinition(ClassUtils.getShortClassName(serviceClassName) + "Factory", builder.getBeanDefinition());
+            }
         }
     }
 

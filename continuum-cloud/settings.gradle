@@ -13,6 +13,7 @@ include(
         'structures',
         'continuum-grind',
         'continuum-iam',
-        //'continuum-substratum',
+        'continuum-orbiter',
+        'continuum-substratum',
         'continuum-util'
 )

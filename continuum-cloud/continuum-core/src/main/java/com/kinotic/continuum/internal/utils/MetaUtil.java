@@ -168,7 +168,7 @@ public class MetaUtil {
         }
         // If there is a superclass we need its interfaces as well
         if(clazz.getSuperclass() != null){
-            ret.addAll(getInterfaceDeclaringAnnotation(clazz.getSuperclass(),annotation));
+            ret.addAll(getInterfaceDeclaringAnnotation(clazz.getSuperclass(), annotation));
         }
         return ret;
     }

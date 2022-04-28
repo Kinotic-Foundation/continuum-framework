@@ -42,7 +42,7 @@ public class ContinuumGatewaySecurityConfig {
             matchIfMissing = true)
     @ConditionalOnMissingBean(SecurityService.class)
     RpcServiceProxyBeanFactory securityServiceFactory(){
-        return new RpcServiceProxyBeanFactory(SecurityService.class.getName(),
+        return new RpcServiceProxyBeanFactory(SecurityService.class,
                                               new ServiceIdentifier("com.kinotic.continuum.core.api.security",
                                                                     "SecurityService",
                                                                     null,

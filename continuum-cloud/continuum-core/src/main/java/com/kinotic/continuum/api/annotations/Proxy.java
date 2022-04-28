@@ -21,9 +21,7 @@ import java.lang.annotation.*;
 
 /**
  * {@link Proxy} annotations mark an interface as a proxy to a {@link Publish}ed service.
- * The will automatically be detected when the spring application boots
- * if any exist in the {@link ContinuumPackages}.
- *
+ * They will automatically be detected when the spring application boots if any exist in the {@link ContinuumPackages}.
  *
  * Created by Navid Mitchell on 2019-02-03.
  */
@@ -49,9 +47,4 @@ public @interface Proxy {
      */
     String version();
 
-    /**
-     * The Mime Type that input arguments should be converted to prior to sending
-     * @return a string containing a valid mime type that has a configured converter
-     */
-    String contentTypeExpected() default "application/json";
 }

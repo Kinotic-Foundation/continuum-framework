@@ -46,6 +46,7 @@ ext{
     vertxStompLiteVersion='3.9.11-SNAPSHOT'
     vertxBeansVersion='1.5.0'
     zookeeperVersion='3.5.9'
+    apacheCuratorVersion='4.3.0'
 }
 
 dependencies {
@@ -83,6 +84,13 @@ dependencies {
         }
 
         api "org.apache.zookeeper:zookeeper:${zookeeperVersion}"
+
+        // curator
+        api "org.apache.curator:curator-client:${apacheCuratorVersion}"
+        api "org.apache.curator:curator-framework:${apacheCuratorVersion}"
+        api "org.apache.curator:curator-recipes:${apacheCuratorVersion}"
+        api "org.apache.curator:curator-x-discovery:${apacheCuratorVersion}"
+
 
         api "javax.cache:cache-api:${jCacheApiVersion}"
 

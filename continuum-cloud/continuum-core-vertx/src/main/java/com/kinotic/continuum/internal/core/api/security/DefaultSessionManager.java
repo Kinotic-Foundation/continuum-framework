@@ -17,6 +17,8 @@
 
 package com.kinotic.continuum.internal.core.api.security;
 
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.kinotic.continuum.core.api.event.EventConstants;
 import com.kinotic.continuum.core.api.security.*;
 import com.kinotic.continuum.internal.config.IgniteCacheConstants;
@@ -34,11 +36,10 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
+import java.time.Duration;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  *
@@ -49,10 +50,9 @@ public class DefaultSessionManager implements SessionManager {
 
     private final SecurityService securityService;
     private final PathPatternParser parser;
-    // Fixme: this should be a caffeine cache
-    private final Map<String, PathPattern> pathPatternCache = new ConcurrentHashMap<>();
     private final IgniteCache<String, DefaultSessionMetadata> sessionCache;
     private final Scheduler scheduler;
+    private final LoadingCache<String, PathPattern> pathPatternCache;
 
     public DefaultSessionManager(Vertx vertx,
                                  @Autowired(required = false) SecurityService securityService,
@@ -71,6 +71,10 @@ public class DefaultSessionManager implements SessionManager {
         }
 
         scheduler = Schedulers.fromExecutor(command -> vertx.executeBlocking(v -> command.run(), null));
+
+        pathPatternCache = Caffeine.newBuilder()
+                                   .expireAfterAccess(Duration.ofHours(12))
+                                   .build(parser::parse);
     }
 
     @Override
@@ -144,7 +148,7 @@ public class DefaultSessionManager implements SessionManager {
     }
 
     public PathPattern getPathPattern(String pattern) {
-        return pathPatternCache.computeIfAbsent(pattern, parser::parse);
+        return pathPatternCache.get(pattern);
     }
 
     private class ParticipantPathPatterns {

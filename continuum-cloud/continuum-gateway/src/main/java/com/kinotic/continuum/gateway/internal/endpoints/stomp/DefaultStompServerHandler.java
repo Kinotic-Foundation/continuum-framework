@@ -198,7 +198,7 @@ public class DefaultStompServerHandler implements StompServerHandler {
 
     @Override
     public void exception(Throwable t) {
-        // FIXME: log invalid connect frames and any other bad frame somewhere for tracking
+        // TODO: Add support for auto blacklisting client
         if(t instanceof InvalidConnectFrame){
             log.error("Invalid connect frame "+t.getMessage()+"\nFrame: "+((InvalidConnectFrame)t).getData().toString());
         }else{

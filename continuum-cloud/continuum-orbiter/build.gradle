@@ -5,8 +5,8 @@ plugins {
 mainClassName = "com.kinotic.continuum.orbiter.ContinuumOrbiterApplication"
 
 dependencies {
-	api project(':continuum-core')
-	api project(':continuum-core-vertx')
+	implementation project(':continuum-core')
+	implementation project(':continuum-core-vertx')
 
 	implementation "org.apache.curator:curator-client"
 	implementation "org.apache.curator:curator-framework"

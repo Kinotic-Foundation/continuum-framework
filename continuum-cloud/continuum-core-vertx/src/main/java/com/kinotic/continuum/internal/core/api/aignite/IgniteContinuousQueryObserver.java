@@ -140,27 +140,6 @@ public class IgniteContinuousQueryObserver<K, V> implements Observer<StreamData<
                 looper = new IterableEventLooper<>(vertx, igniteCache.query(continuousQuery), false);
 
                 looper.handler(new ConverterHandler<>(IgniteUtils::cacheEntryToStreamData, observerDataHandler));
-                // TODO: is a segment really needed
-//                looper.completionHandler(event -> {
-//                    //When we get here were done so.. Send an end of Stream Segment
-//                    if (!closed.get()) {
-//                        observerContext.runOnContext(ce -> {
-//                            try {
-//
-//                                StreamValue<K, V> segment
-//                                        = new StreamValue<>(StreamOperation.SEGMENT, null, null);
-//
-//                                observerDataHandler.handle(segment);
-//
-//                            } catch (Exception e) {
-//                                // In this case we do not notify the observer since it threw the exception
-//                                log.debug("IgniteContinuousQueryObserver data handler threw an error " + e.getMessage());
-//                                log.debug("Terminating Observable!");
-//                                invokeObserverExceptionHandler(e);
-//                            }
-//                        });
-//                    }
-//                });
 
                 looper.exceptionHandler(this::invokeObserverExceptionHandler);
                 looper.start();

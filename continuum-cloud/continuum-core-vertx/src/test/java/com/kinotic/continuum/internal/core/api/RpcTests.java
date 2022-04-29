@@ -17,7 +17,6 @@
 
 package com.kinotic.continuum.internal.core.api;
 
-import com.google.common.collect.Lists;
 import com.kinotic.continuum.internal.core.api.service.rpc.RpcInvocationException;
 import com.kinotic.continuum.internal.core.api.support.ABunchOfArgumentsHolder;
 import com.kinotic.continuum.internal.core.api.support.RpcTestService;
@@ -36,12 +35,9 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
-
-import java.security.SecureRandom;
-import java.security.Security;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
@@ -94,7 +90,11 @@ public class RpcTests {
 
     @Test
     public void testNestedArrays(){
-        List<List<String>> input = Lists.newArrayList(RpcTestService.LIST_OF_STRINGS, RpcTestService.LIST_OF_STRINGS, RpcTestService.LIST_OF_STRINGS);
+
+        List<List<String>> input = new ArrayList<>();
+        input.add(RpcTestService.LIST_OF_STRINGS);
+        input.add(RpcTestService.LIST_OF_STRINGS);
+        input.add(RpcTestService.LIST_OF_STRINGS);
         Mono<List<List<String>>> mono = rpcTestServiceProxy.getAListOfLists(input);
         StepVerifier.create(mono)
                     .expectNext(input.stream().map(strings -> strings.stream().map(s -> "Hello "+ s).collect(Collectors.toList())).collect(Collectors.toList()))
@@ -187,18 +187,10 @@ public class RpcTests {
         Flux<String> flux = rpcTestServiceProxy.getInfiniteFlux();
 
         StepVerifier.create(flux)
-                    .expectNextMatches(s -> {
-                        return s.startsWith("Hello Sucka");
-                    })
-                    .expectNextMatches(s -> {
-                        return s.startsWith("Hello Sucka");
-                    })
-                    .expectNextMatches(s -> {
-                        return s.startsWith("Hello Sucka");
-                    })
-                    .expectNextMatches(s -> {
-                        return s.startsWith("Hello Sucka");
-                    })
+                    .expectNextMatches(s -> s.startsWith("Hello Sucka"))
+                    .expectNextMatches(s -> s.startsWith("Hello Sucka"))
+                    .expectNextMatches(s -> s.startsWith("Hello Sucka"))
+                    .expectNextMatches(s -> s.startsWith("Hello Sucka"))
                     .thenCancel()
                     .verify();
     }

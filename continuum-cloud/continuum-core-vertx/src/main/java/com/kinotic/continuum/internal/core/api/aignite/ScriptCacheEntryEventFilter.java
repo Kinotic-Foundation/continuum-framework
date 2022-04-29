@@ -61,7 +61,6 @@ public class ScriptCacheEntryEventFilter<K, V> implements CacheEntryEventFilter<
             if(ret instanceof Boolean){
                 return (boolean) ret;
             }else{
-                // TODO: should we swallow
                 throw new CacheEntryListenerException("Entry Filter script did not return a boolean");
             }
         } catch (Exception e) {

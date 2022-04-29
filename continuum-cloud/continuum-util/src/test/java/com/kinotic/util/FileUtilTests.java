@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-package com.kinotic.continuum.internal.core.api;
+package com.kinotic.util;
 
-import com.kinotic.continuum.internal.util.FileUtil;
+import com.kinotic.util.file.FileUtil;
 import org.apache.commons.lang3.ArrayUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

@@ -17,9 +17,12 @@
 
 package com.kinotic.util.file;
 
+import org.apache.commons.io.input.ReversedLinesFileReader;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
-import java.io.IOException;
+import java.io.*;
+import java.nio.charset.Charset;
 import java.nio.file.*;
 
 /**
@@ -27,6 +30,84 @@ import java.nio.file.*;
  * Created by navid on 9/16/19
  */
 public class FileUtil {
+
+    /**
+     * Copies the lines in a file reversely (similar to a BufferedReader, but starting at the last line). Useful for e.g
+     * @param sourceFile to copy to the destinationFle
+     * @param destinationFile where the file will be copied
+     * @throws IOException if an error occurs during copying
+     */
+    public static void copyFileLinesInReverse(File sourceFile, File destinationFile) throws IOException {
+        try(BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(destinationFile))) {
+            copyFileLinesInReverse(sourceFile, bos);
+        }
+    }
+
+
+    /**
+     * Copies the lines in a file reversely (similar to a BufferedReader, but starting at the last line). Useful for e.g
+     * @param sourceFile to copy to the destinationFle
+     * @param destinationStream where the file will be copied
+     * @throws IOException if an error occurs during copying
+     */
+    public static void copyFileLinesInReverse(File sourceFile, OutputStream destinationStream) throws IOException {
+        Charset charset = Charset.defaultCharset();
+        try(ReversedLinesFileReader fileReader = new ReversedLinesFileReader(sourceFile, charset)) {
+            String line = fileReader.readLine();
+            while (line != null) {
+                //noinspection StringConcatenationInLoop
+                line = line + "\n";
+                destinationStream.write(line.getBytes(charset));
+                line = fileReader.readLine();
+            }
+        }
+    }
+
+    /**
+     * Copy the given file in to the destination reversing all the bytes
+     * @param sourceFile to copy to the destinationFle
+     * @param destinationFile where the file will be copied
+     * @throws IOException if an error occurs during copying
+     */
+    public static void copyFileInReverse(File sourceFile, File destinationFile) throws IOException {
+        try(BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(destinationFile))) {
+            copyFileInReverse(sourceFile, bos);
+        }
+    }
+
+    /**
+     * Copy the given file in to the destination reversing all the bytes
+     * @param sourceFile to copy to the destinationFle
+     * @param destinationStream where the file will be copied
+     * @throws IOException if an error occurs during copying
+     */
+    public static void copyFileInReverse(File sourceFile, OutputStream destinationStream) throws IOException {
+        byte[] buffer = new byte[1024];
+        try(RandomAccessFile raf = new RandomAccessFile(sourceFile, "r")) {
+
+            long bytesLeftToCopy = raf.length();
+            long offset = bytesLeftToCopy;
+
+            while (bytesLeftToCopy > 0) {
+                int lenBytesToCopy = bytesLeftToCopy > 1024 ? 1024 : (int) bytesLeftToCopy;
+                offset -= lenBytesToCopy;
+
+                raf.seek(offset);
+                int bytesRead = raf.read(buffer, 0, lenBytesToCopy);
+                // sanity check,
+                if (bytesRead != lenBytesToCopy) {
+                    throw new IllegalStateException("Not all bytes could be copied");
+                }
+
+                ArrayUtils.reverse(buffer);
+                int arrayOffset = 1024 - lenBytesToCopy;
+                destinationStream.write(buffer, arrayOffset, bytesRead);
+
+                bytesLeftToCopy -= bytesRead;
+            }
+        }
+    }
+
 
     public static Path moveWithRetry(Path source, Path target, int tries) throws IOException{
         Path ret;

@@ -24,6 +24,8 @@ import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.server.PathContainer;
 import org.springframework.web.util.pattern.PathPattern;
 
@@ -36,6 +38,8 @@ import java.util.List;
  * Created by navid on 1/23/20
  */
 public abstract class AbstractSession implements Session {
+
+    private static final Logger log = LoggerFactory.getLogger(AbstractSession.class);
 
     private static final int MAX_TEMPORARY_PATTERNS = 1000;
 
@@ -81,9 +85,10 @@ public abstract class AbstractSession implements Session {
 
     @Override
     public void addTemporarySendAllowed(String criPattern) {
-        // TODO: is there a good reason to allow full blown PathPatterns and not just a static value..?
         if(temporarySendPathPatterns.size() == MAX_TEMPORARY_PATTERNS){
             temporarySendPathPatterns.removeFirst();
+            // Just in case this actually happens in production
+            log.warn("Reached Max Temporary patterns some messages may be dropped");
         }
         temporarySendPathPatterns.add(sessionManager.getPathPattern(criPattern));
     }

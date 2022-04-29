@@ -22,7 +22,9 @@ import com.kinotic.continuum.grind.internal.api.DefaultJobDefinition;
 import java.util.List;
 
 /**
- * TODO: Document me!!
+ * A {@link JobDefinition} provides a unit of work comprised of {@link Task}'s and other {@link JobDefinition}
+ * For every {@link JobDefinition} a Spring {@link org.springframework.context.ApplicationContext} is provided,
+ * to allow {@link Task}'s to automatically store and access data produced by {@link Task}'s
  *
  * Created by Navid Mitchell on 3/19/20
  */

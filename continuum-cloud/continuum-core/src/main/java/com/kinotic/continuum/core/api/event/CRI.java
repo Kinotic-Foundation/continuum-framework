@@ -20,7 +20,7 @@ package com.kinotic.continuum.core.api.event;
 /**
  * {@link CRI} is a Continuum Resource Identifier used by Continuum to route requests appropriately.
  *
- * The {@link CRI} is similar to an URI the parts are just name differently for clarity as to purpose within Continuum
+ * The {@link CRI} is an URI the parts are just name differently for clarity as to purpose within Continuum
  *
  * Will be in a format as follows where anything surrounded with [] is optional
  *

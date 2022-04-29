@@ -139,7 +139,6 @@ public class EndpointConnectionHandler {
             if (event.cri().scheme().equals(EventConstants.SERVICE_DESTINATION_SCHEME)) {
 
                 try {
-                    // FIXME: Test to ensure this works as expected
                     // make sure reply-to if present is scoped to sender
                     validateReplyTo(event);
 
@@ -214,7 +213,15 @@ public class EndpointConnectionHandler {
 
             services.eventBusService.listen(cri.baseResource())
                                     .doOnNext(event -> {
-                                        // check if reply to is set if so we want to implicitly allow the subscriber to send to the given destination
+                                        // If reply-to is set we implicitly allow the subscriber to send a single message to the given destination
+                                        // Reply-To is known to be scoped to the sender because there is a check when the system receives the event above
+                                        // Ex:
+                                        // Device -> subscribes to srv://MAC@device.rpc.channel
+                                        // JS Client sends message to Device with a reply to of srv://CLIENT_ID@continuum.js.EventBus/replyHandler
+                                        //
+                                        // When the system receives the message in the send() handler above it verifies the reply-to matches the sender
+                                        // Then we temporarily allow the device to send to the clients reply-to.
+                                        // Which will allow the message to be routed back to the client.
                                         String replyTo = event.metadata().get(EventConstants.REPLY_TO_HEADER);
                                         if(replyTo != null){
                                             // wildcard in the reply to are not allowed since they could bypass security constraints

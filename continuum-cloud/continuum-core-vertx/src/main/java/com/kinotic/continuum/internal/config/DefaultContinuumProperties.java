@@ -35,7 +35,7 @@ public class DefaultContinuumProperties implements ContinuumProperties {
     public static String DEFAULT_KAFKA_BOOTSTRAP_SERVERS ="127.0.0.1:9092";
     public static String DEFAULT_ZOOKEEPER_SERVERS ="127.0.0.1:2181";
     public static long DEFAULT_SESSION_TIMEOUT = 1000 * 60 * 30;
-    public static String DEFAULT_DISCOVERY = "sharedfs"; //  FIXME: talk to Nick this does not seem like the proper default
+    public static String DEFAULT_DISCOVERY = "sharedfs";
 
     private String kafkaBootstrapServers = DEFAULT_KAFKA_BOOTSTRAP_SERVERS;
     private String zookeeperServers = DEFAULT_ZOOKEEPER_SERVERS;

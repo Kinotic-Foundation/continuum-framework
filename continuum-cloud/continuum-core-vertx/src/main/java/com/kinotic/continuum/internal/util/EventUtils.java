@@ -80,16 +80,16 @@ public class EventUtils {
 
     /**
      * Creates a {@link Event} that can be sent based on the incomingEvent headers and the data to use as the body
-     * @param incomingEvent the original data sent to the {@link com.kinotic.continuum.internal.core.api.service.invoker.ServiceInvocationSupervisor}
+     * @param incomingMetadata the original {@link Metadata} sent to the {@link com.kinotic.continuum.internal.core.api.service.invoker.ServiceInvocationSupervisor}
      * @param headers key value pairs that will be added to the outgoing headers
      * @param bodySupplier that will provide the bytes needed for the message body.
      *                     A supplier is used so all validation can occur prior to doing the work of creating the body bytes..
      * @return the {@link Event} to send
      */
-    public static Event<byte[]> createReplyEvent(Event<byte[]> incomingEvent, Map<String, String> headers, Supplier<byte[]> bodySupplier){
-        Validate.notNull(incomingEvent, "incomingEvent cannot be null");
+    public static Event<byte[]> createReplyEvent(Metadata incomingMetadata, Map<String, String> headers, Supplier<byte[]> bodySupplier){
+        Validate.notNull(incomingMetadata, "incomingEvent cannot be null");
 
-        String replyCRI = incomingEvent.metadata().get(EventConstants.REPLY_TO_HEADER);
+        String replyCRI = incomingMetadata.get(EventConstants.REPLY_TO_HEADER);
         Assert.hasText(replyCRI, "No reply-to header found cannot create outgoing message");
 
         Metadata newMetadata;
@@ -100,7 +100,7 @@ public class EventUtils {
         }
         
         // we must persist any headers that begin with __
-        for(Map.Entry<String, String> entry: incomingEvent.metadata()){
+        for(Map.Entry<String, String> entry: incomingMetadata){
             if(entry.getKey().startsWith("__")) {
                 newMetadata.put(entry.getKey(), entry.getValue());
             }

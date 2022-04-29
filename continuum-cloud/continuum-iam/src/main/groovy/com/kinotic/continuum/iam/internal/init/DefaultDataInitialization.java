@@ -98,11 +98,7 @@ public class DefaultDataInitialization {
         if(deviceRegistrationRole.isEmpty()){
             AccessPolicy accessPolicy = new AccessPolicy("device-registration-policy");
             accessPolicy.setAllowedSendPatterns(List.of(new AccessPattern(EventConstants.SERVICE_DESTINATION_SCHEME
-                                                                          + "://com.kinotic.continuum.iam.api.DeviceService/registerDevice*"),
-                                                        new AccessPattern(EventConstants.SERVICE_DESTINATION_SCHEME
-                                                                          + "://*@continuum.js.EventBus/replyHandler"), // TODO: find better solution to this
-                                                        new AccessPattern(EventConstants.SERVICE_DESTINATION_SCHEME
-                                                                          + "://*@continuum.js.test.EventTest/replyHandler")));
+                                                                          + "://com.kinotic.continuum.iam.api.DeviceService/registerDevice*")));
 
             // for registration response since registration service delegates subscriptions..
             accessPolicy.setAllowedSubscriptionPatterns(List.of(new AccessPattern(EventConstants.SERVICE_DESTINATION_SCHEME
@@ -122,11 +118,6 @@ public class DefaultDataInitialization {
         Optional<Role> defaultDeviceRole  = roleRepository.findById(DomainConstants.DEFAULT_DEVICE_ROLE_ID);
         if(defaultDeviceRole.isEmpty()){
             AccessPolicy accessPolicy = new AccessPolicy("default-device-policy");
-            // TODO: find better solution to this
-            accessPolicy.setAllowedSendPatterns(List.of(new AccessPattern(EventConstants.SERVICE_DESTINATION_SCHEME
-                                                                          + "://*@continuum.js.EventBus/replyHandler"),
-                                                        new AccessPattern(EventConstants.SERVICE_DESTINATION_SCHEME
-                                                                          + "://*@continuum.js.test.EventTest/replyHandler")));
             accessPolicyRepository.save(accessPolicy);
 
             Role role = new Role(DomainConstants.DEFAULT_DEVICE_ROLE_ID);

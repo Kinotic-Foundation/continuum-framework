@@ -127,6 +127,7 @@ publishing {
             from components.javaPlatform
 
             pom {
+                name = 'Continuum Framework'
                 description = 'A Microservice and IOT framework for everyone!'
                 url = 'https://continuumframework.org'
 

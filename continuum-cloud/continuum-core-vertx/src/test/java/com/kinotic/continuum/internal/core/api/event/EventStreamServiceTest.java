@@ -19,13 +19,9 @@ package com.kinotic.continuum.internal.core.api.event;
 
 import com.kinotic.continuum.core.api.event.EventStreamService;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.UUID;
 import java.util.concurrent.Executors;
@@ -35,10 +31,10 @@ import java.util.concurrent.ScheduledExecutorService;
  *
  * Created by navid on 11/4/19
  */
-@ExtendWith(SpringExtension.class)
-@SpringBootTest
-//@EmbeddedKafka TODO: embedded kafka
-@ActiveProfiles("test")
+//@ExtendWith(SpringExtension.class)
+//@SpringBootTest
+////@EmbeddedKafka TODO: embedded kafka
+//@ActiveProfiles("test")
 public class EventStreamServiceTest {
 
     private static final Logger log = LoggerFactory.getLogger(EventStreamServiceTest.class);

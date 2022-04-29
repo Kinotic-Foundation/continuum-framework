@@ -19,12 +19,7 @@ package com.kinotic.continuum.internal.core.api.event;
 
 import com.kinotic.continuum.core.api.event.Event;
 import com.kinotic.continuum.core.api.event.EventBusService;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -39,9 +34,9 @@ import java.util.concurrent.TimeUnit;
  *
  * Created by navid on 11/6/19
  */
-@ExtendWith(SpringExtension.class)
-@SpringBootTest
-@ActiveProfiles("test")
+//@ExtendWith(SpringExtension.class)
+//@SpringBootTest
+//@ActiveProfiles("test")
 public class EventBusServiceTest {
 
     // There are no hard constraints on destinations we are choosing these because of internal conventions
@@ -52,7 +47,7 @@ public class EventBusServiceTest {
 
     private ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
 
-    @Test
+
     public void testEventBusStringData(){
         Event<byte[]> eventConstant = Event.create(DESTINATION, "Hello SuckaAA!".getBytes(StandardCharsets.UTF_8));
         Flux<Event<byte[]>> flux =  eventBusService.listen(DESTINATION);
@@ -74,7 +69,7 @@ public class EventBusServiceTest {
                     .verify();
     }
 
-    @Test
+
     public void testEventBusImmediateStringData(){
         Event<byte[]> eventConstant = Event.create(DESTINATION, "Hello Sucka!".getBytes(StandardCharsets.UTF_8));
         Mono<Flux<Event<byte[]>>> fluxImmediate = eventBusService.listenWithAck(DESTINATION);

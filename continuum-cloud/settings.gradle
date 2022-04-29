@@ -10,10 +10,10 @@ include(
         'continuum-core-vertx',
         'continuum-gateway',
         'continuum-gateway-server',
-        'structures',
+        //'structures',
         'continuum-grind',
         'continuum-iam',
         'continuum-orbiter',
-        'continuum-substratum',
+        //'continuum-substratum',
         'continuum-util'
 )

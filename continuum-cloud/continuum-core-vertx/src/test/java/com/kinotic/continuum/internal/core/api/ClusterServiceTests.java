@@ -23,13 +23,8 @@ import com.kinotic.continuum.internal.core.api.support.DefaultClusterTestService
 import io.vertx.core.Future;
 import org.apache.commons.lang3.Validate;
 import org.awaitility.Awaitility;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.loader.tools.RunProcess;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -37,9 +32,9 @@ import reactor.test.StepVerifier;
  *
  * Created by navid on 10/17/19
  */
-@ExtendWith(SpringExtension.class)
-@SpringBootTest
-@ActiveProfiles({"test"})
+//@ExtendWith(SpringExtension.class)
+//@SpringBootTest
+//@ActiveProfiles({"test"})
 //@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ClusterServiceTests {
 
@@ -88,7 +83,6 @@ public class ClusterServiceTests {
     /**
      * Full integration test of publish, proxy test, un-deploy
      */
-    @Test
     public void fullOnClusterServiceTest() throws Exception{
         Validate.notNull(clusterService, "Cluster service is null");
 
@@ -144,7 +138,6 @@ public class ClusterServiceTests {
     // Discussions https://cwiki.apache.org/confluence/display/IGNITE/IEP-17%3A+Oil+Change+in+Service+Grid
     // Ignite Bugs not sure which one needs to be fixed
     // https://issues.apache.org/jira/browse/IGNITE-13299?jql=project%20%3D%20IGNITE%20AND%20component%20%3D%20%22managed%20services%22
-    @Test
     public void testFailOnDuplicateServiceDeployment() throws Exception{
         /**
          * Deploy service

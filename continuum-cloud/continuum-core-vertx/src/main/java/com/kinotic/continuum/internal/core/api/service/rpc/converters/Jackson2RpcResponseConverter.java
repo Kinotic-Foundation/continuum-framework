@@ -40,7 +40,7 @@ public class Jackson2RpcResponseConverter extends AbstractJackson2Support implem
 
     @Override
     public boolean supports(Event<byte[]> responseEvent, MethodParameter methodParameter) {
-        return containsJsonContent(responseEvent);
+        return containsJsonContent(responseEvent.metadata());
     }
 
     @Override

@@ -17,16 +17,11 @@
 
 package com.kinotic.continuum.internal.core.api.service.invoker;
 
-import com.kinotic.continuum.core.api.event.CRI;
-import com.kinotic.continuum.core.api.event.Event;
-import com.kinotic.continuum.core.api.event.EventBusService;
-import com.kinotic.continuum.core.api.event.EventConstants;
-import com.kinotic.continuum.core.api.event.ListenerStatus;
+import com.kinotic.continuum.core.api.event.*;
 import com.kinotic.continuum.core.api.service.ServiceDescriptor;
 import com.kinotic.continuum.core.api.service.ServiceFunction;
 import com.kinotic.continuum.core.api.service.ServiceFunctionInstanceProvider;
 import com.kinotic.continuum.internal.util.EventUtils;
-import com.kinotic.continuum.internal.utils.ContinuumUtil;
 import io.vertx.core.Vertx;
 import org.apache.commons.lang3.Validate;
 import org.reactivestreams.Subscription;
@@ -60,6 +55,7 @@ public class ServiceInvocationSupervisor {
     private static final Logger log = LoggerFactory.getLogger(ServiceInvocationSupervisor.class);
 
     private final AtomicBoolean active = new AtomicBoolean(false);
+    private final ConcurrentHashMap<String, StreamSubscriber> activeStreamingResults = new ConcurrentHashMap<>();
 
     private final ServiceDescriptor serviceDescriptor;
     private final ArgumentResolver argumentResolver;
@@ -68,12 +64,11 @@ public class ServiceInvocationSupervisor {
     private final EventBusService eventBusService;
     private final ReactiveAdapterRegistry reactiveAdapterRegistry;
     private final Vertx vertx;
-
-    private Map<String, HandlerMethod> methodMap;
+    private final Map<String, HandlerMethod> methodMap;
 
     private Disposable methodInvocationEventListenerDisposable;
 
-    private ConcurrentHashMap<String, StreamSubscriber> activeStreamingResults = new ConcurrentHashMap<>();
+
 
     public ServiceInvocationSupervisor(ServiceDescriptor serviceDescriptor,
                                        ServiceFunctionInstanceProvider instanceProvider,
@@ -164,80 +159,106 @@ public class ServiceInvocationSupervisor {
     }
 
     private void processEvent(Event<byte[]> incomingEvent){
+        boolean isControl = incomingEvent.metadata().contains(EventConstants.CONTROL_HEADER);
         if(log.isTraceEnabled()){
-            log.trace("Service Invocation requested for "+incomingEvent.cri());
+            log.trace("Service "+ (isControl ? "Control" : "Invocation")+" requested for "+incomingEvent.cri());
         }
 
-        if(exceptionConverter.supports(incomingEvent)) {
+        if(exceptionConverter.supports(incomingEvent.metadata())) {
             try {
 
                 // Ensure all headers needed after processing are available
                 Validate.isTrue(incomingEvent.cri().hasPath(), "The methodId must not be blank");
-                Assert.hasText(incomingEvent.metadata().get(EventConstants.REPLY_TO_HEADER), "A reply-to header must be provided");
 
-                // Ensure there is an argument resolver that can handle the incoming data
-                if (argumentResolver.supports(incomingEvent)) {
-
-                        // Resolve arguments based on handler method and incoming data
-                        HandlerMethod handlerMethod = methodMap.get(incomingEvent.cri().path());
-                        Assert.notNull(handlerMethod,
-                                       "No method could be resolved for methodId " + incomingEvent.cri().path());
-
-                        if (!returnValueConverter.supports(incomingEvent,
-                                                           handlerMethod.getReturnType().getParameterType())) {
-                            throw new IllegalStateException("No compatible ReturnValueConverter found");
-                        }
-
-                        Object[] arguments = argumentResolver.resolveArguments(incomingEvent, handlerMethod);
-
-                        // separate try catch since we do not want to log invocation errors
-                        Object result = null;
-                        boolean error = false;
-                        try {
-                            // Invoke the method and then handle the result
-                            result = handlerMethod.invoke(arguments);
-                        } catch (Exception e) {
-                            error = true;
-                            handleException(incomingEvent, e);
-                        }
-
-                        if (!error) {
-                            processMethodInvocationResult(incomingEvent, handlerMethod, result);
-                        }
-
-                } else {
-                    throw new IllegalStateException("No compatible ArgumentResolver found");
+                // See if we are dealing with a control plane message or a regular invocation request
+                if(isControl){
+                    processControlPlaneRequest(incomingEvent);
+                }else{
+                    processInvocationRequest(incomingEvent);
                 }
+
 
             } catch (Exception e) {
                 if(log.isDebugEnabled()){
                     log.debug("Exception occurred processing service request\n" + EventUtils.toString(incomingEvent, true), e);
                 }
-                handleException(incomingEvent, e);
+                handleException(incomingEvent.metadata(), e);
             }
         }else{ // no exception converter found we will not execute message since we can not deal with an exception
             log.error("No exception converter found incoming message will be ignored");
         }
     }
 
+    private void processInvocationRequest(Event<byte[]> incomingEvent) {
+        Assert.hasText(incomingEvent.metadata().get(EventConstants.REPLY_TO_HEADER), "A reply-to header must be provided");
+        // Ensure there is an argument resolver that can handle the incoming data
+        if (argumentResolver.supports(incomingEvent)) {
+
+                // Resolve arguments based on handler method and incoming data
+                HandlerMethod handlerMethod = methodMap.get(incomingEvent.cri().path());
+                Assert.notNull(handlerMethod,
+                               "No method could be resolved for methodId " + incomingEvent.cri().path());
+
+                if (!returnValueConverter.supports(incomingEvent.metadata(),
+                                                   handlerMethod.getReturnType().getParameterType())) {
+                    throw new IllegalStateException("No compatible ReturnValueConverter found");
+                }
+
+                Object[] arguments = argumentResolver.resolveArguments(incomingEvent, handlerMethod);
+
+                // separate try catch since we do not want to log invocation errors
+                Object result = null;
+                boolean error = false;
+                try {
+                    // Invoke the method and then handle the result
+                    result = handlerMethod.invoke(arguments);
+                } catch (Exception e) {
+                    error = true;
+                    handleException(incomingEvent.metadata(), e);
+                }
+
+                if (!error) {
+                    processMethodInvocationResult(incomingEvent, handlerMethod, result);
+                }
+
+        } else {
+            throw new IllegalStateException("No compatible ArgumentResolver found");
+        }
+    }
+
+    private void processControlPlaneRequest(Event<byte[]> incomingEvent){
+        // All control plane requests require a CORRELATION_ID_HEADER to know what long-running request is being referenced
+        String correlationId = incomingEvent.metadata().get(EventConstants.CORRELATION_ID_HEADER);
+        Validate.notNull(correlationId, "Streaming control plain messages require a CORRELATION_ID_HEADER to be set");
+
+        activeStreamingResults.computeIfPresent(correlationId, (s, streamSubscriber) -> {
+            streamSubscriber.processControlEvent(incomingEvent);
+            return streamSubscriber;
+        });
+    }
+
+
     private void processMethodInvocationResult(Event<byte[]> incomingEvent, HandlerMethod handlerMethod, Object result){
+
+        Metadata incomingMetadata = incomingEvent.metadata();
+
         // Check if result is reactive if so we only complete once result is complete
         ReactiveAdapter reactiveAdapter = reactiveAdapterRegistry.getAdapter(null, result);
         if(reactiveAdapter == null){
 
-            convertAndSend(incomingEvent, handlerMethod, result);
+            convertAndSend(incomingMetadata, handlerMethod, result);
 
         }else{
 
             if(!reactiveAdapter.isMultiValue()){
 
                 Mono<?> mono = Mono.from(reactiveAdapter.toPublisher(result));
-                mono.doOnSuccess((Consumer<Object>) o -> convertAndSend(incomingEvent, handlerMethod, o))
+                mono.doOnSuccess((Consumer<Object>) o -> convertAndSend(incomingMetadata, handlerMethod, o))
                     .subscribe(v -> {}, t -> {
                         if(log.isDebugEnabled()){
                             log.debug("Exception occurred processing service request\n" + EventUtils.toString(incomingEvent, true), t);
                         }
-                        handleException(incomingEvent, t);
+                        handleException(incomingMetadata, t);
                     }); // We use an empty consumer this is handled with doOnSuccess, this is done so we get a single "signal" instead of onNext, onComplete type logic..
 
             }else{
@@ -255,7 +276,7 @@ public class ServiceInvocationSupervisor {
                     CRI replyCRI = CRI.create(incomingEvent.metadata().get(EventConstants.REPLY_TO_HEADER));
                     Flux<ListenerStatus> replyListenerStatus = eventBusService.monitorListenerStatus(replyCRI.baseResource());
 
-                    StreamSubscriber streamSubscriber = new StreamSubscriber(incomingEvent, handlerMethod, replyListenerStatus);
+                    StreamSubscriber streamSubscriber = new StreamSubscriber(incomingMetadata, handlerMethod, replyListenerStatus);
                     flux.subscribe(streamSubscriber);
                     return streamSubscriber;
                 });
@@ -263,16 +284,16 @@ public class ServiceInvocationSupervisor {
         }
     }
 
-    private void convertAndSend(Event<byte[]> incomingEvent, HandlerMethod handlerMethod, Object result) {
-        Event<byte[]> resultEvent = returnValueConverter.convert(incomingEvent,
+    private void convertAndSend(Metadata incomingMetadata, HandlerMethod handlerMethod, Object result) {
+        Event<byte[]> resultEvent = returnValueConverter.convert(incomingMetadata,
                                                                  handlerMethod.getReturnType()
                                                                               .getParameterType(),
                                                                  result);
         eventBusService.send(resultEvent);
     }
 
-    private void sendCompletionEvent(Event<byte[]> incomingEvent){
-        Event<byte[]> completionEvent = EventUtils.createReplyEvent(incomingEvent,
+    private void sendCompletionEvent(Metadata incomingMetadata){
+        Event<byte[]> completionEvent = EventUtils.createReplyEvent(incomingMetadata,
                                                                     Map.of(EventConstants.CONTROL_HEADER, EventConstants.CONTROL_VALUE_COMPLETE),
                                                                     null);
         eventBusService.send(completionEvent);
@@ -299,9 +320,9 @@ public class ServiceInvocationSupervisor {
         return ret;
     }
 
-    private void handleException(Event<byte[]> event, Throwable e) {
+    private void handleException(Metadata incomingMetadata, Throwable e) {
         try {
-            Event<byte[]> convertedEvent = exceptionConverter.convert(event, e);
+            Event<byte[]> convertedEvent = exceptionConverter.convert(incomingMetadata, e);
             eventBusService.send(convertedEvent);
         } catch (Exception ex) {
             log.error("Error occurred when calling exception converter",e);
@@ -314,16 +335,15 @@ public class ServiceInvocationSupervisor {
      */
     private class StreamSubscriber extends BaseSubscriber<Object> {
 
-        private final Event<byte[]> incomingEvent;
+        private final Metadata incomingMetadata;
         private final HandlerMethod handlerMethod;
         private final Flux<ListenerStatus> replyListenerStatus;
         private ReplyListenerStatusSubscriber replyListenerStatusSubscriber;
-        private Disposable controlPlaneListener = null;
 
-        public StreamSubscriber(Event<byte[]> incomingEvent,
+        public StreamSubscriber(Metadata incomingMetadata,
                                 HandlerMethod handlerMethod,
                                 Flux<ListenerStatus> replyListenerStatus) {
-            this.incomingEvent = incomingEvent;
+            this.incomingMetadata = incomingMetadata;
             this.handlerMethod = handlerMethod;
             this.replyListenerStatus = replyListenerStatus;
         }
@@ -334,23 +354,11 @@ public class ServiceInvocationSupervisor {
             replyListenerStatusSubscriber = new ReplyListenerStatusSubscriber(this);
             replyListenerStatus.subscribe(replyListenerStatusSubscriber);
 
-            String encodedSender = ContinuumUtil.safeEncodeURI(incomingEvent.metadata().get(EventConstants.SENDER_HEADER));
-            String correlationId = incomingEvent.metadata().get(EventConstants.CORRELATION_ID_HEADER);
-
-            controlPlaneListener = eventBusService.listen(CRI.create(EventConstants.SERVICE_DESTINATION_SCHEME, encodedSender, correlationId).raw())
-                                                  .subscribe(this::processControlEvent,
-                                                      throwable -> {
-                                                          log.error("Control plane listener signaled an exception. Terminating Stream!", throwable);
-                                                          this.cancel();
-                                                      }, () ->{
-                                                          log.error("Control plane listener signaled completion. Terminating Stream!");
-                                                          this.cancel();
-                                                      });
             super.hookOnSubscribe(subscription);
         }
 
 
-        private void processControlEvent(Event<byte[]> incomingEvent){
+        public void processControlEvent(Event<byte[]> incomingEvent){
             String control = incomingEvent.metadata().get(EventConstants.CONTROL_HEADER);
             if(log.isTraceEnabled()){
                 log.trace("Processing control event "+control);
@@ -366,7 +374,7 @@ public class ServiceInvocationSupervisor {
                     this.requestUnbounded();
                     break;
                 default:
-                    log.error("Unknown control header value " + control);
+                    throw new IllegalArgumentException("Unknown control header value " + control);
             }
         }
 
@@ -375,13 +383,13 @@ public class ServiceInvocationSupervisor {
             if(log.isTraceEnabled()){
                 log.trace("Next stream value " + value);
             }
-            convertAndSend(incomingEvent, handlerMethod, value);
+            convertAndSend(incomingMetadata, handlerMethod, value);
         }
 
         @Override
         protected void hookOnComplete() {
             log.trace("Stream Complete");
-            sendCompletionEvent(incomingEvent);
+            sendCompletionEvent(incomingMetadata);
         }
 
         @Override
@@ -389,20 +397,16 @@ public class ServiceInvocationSupervisor {
             if(log.isTraceEnabled()){
                 log.trace("Stream Error",throwable);
             }
-            handleException(incomingEvent, throwable);
+            handleException(incomingMetadata, throwable);
         }
 
         @Override
         protected void hookFinally(SignalType type) {
             log.trace("Stream Cleanup Now");
 
-            if(controlPlaneListener != null){
-                controlPlaneListener.dispose();
-            }
-
             replyListenerStatusSubscriber.cancel();
 
-            String correlationId = incomingEvent.metadata().get(EventConstants.CORRELATION_ID_HEADER);
+            String correlationId = incomingMetadata.get(EventConstants.CORRELATION_ID_HEADER);
             // we must do this in a background thread since if the flux is created like Flux.just this will be executed in the same thread as the invocation
             // and hence inside the activeStreamingResults.computeIfAbsent block
             vertx.executeBlocking(p -> {

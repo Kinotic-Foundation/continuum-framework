@@ -74,7 +74,6 @@ public class MonoRpcReturnValueHandler implements RpcReturnValueHandler {
                     monoSink.success(rpcResponseConverter.convert(incomingEvent, methodParameter));
                 }
             } catch (Exception e) {
-                // TODO: how to best manage these errors. from the system perspective, Take the service offline ? Circuit break? ect..
                 log.error("Error converting the incoming message to expected java type", e);
                 monoSink.error(e);
             }
@@ -89,6 +88,7 @@ public class MonoRpcReturnValueHandler implements RpcReturnValueHandler {
 
     @Override
     public synchronized Object getReturnValue(RpcRequest rpcRequest) {
+        //noinspection ReactiveStreamsUnusedPublisher
         return Mono.create(objectMonoSink -> {
             monoSink = objectMonoSink;
             // in case this was canceled before the Mono was subscribed to
@@ -107,7 +107,7 @@ public class MonoRpcReturnValueHandler implements RpcReturnValueHandler {
 
     @Override
     public synchronized void cancel(String message) {
-        // cancel can be called before RpcRequest.send()
+        // cancel can be called before getReturnValue()
         if(monoSink != null){
             monoSink.error(new IllegalStateException(message));
         }else{

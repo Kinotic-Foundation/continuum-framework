@@ -176,7 +176,7 @@ public class DefaultRpcServiceProxyHandle<T> implements RpcServiceProxyHandle<T>
             if(!shouldInvokeLocally(method)) {
 
                 // Get all data for remote invocation. If anything fails in this step the error automatically props up
-                // This way no ReturnValueHandler is setup until message is ready to get dispatched to remote end
+                // This way no ReturnValueHandler is created until message is ready to get dispatched to remote end
 
 
                 // if there is an scope parameter remove it from args to be sent, and store it as part of the CRI
@@ -190,32 +190,34 @@ public class DefaultRpcServiceProxyHandle<T> implements RpcServiceProxyHandle<T>
                 byte[] argumentData = rpcArgumentConverter.convert(method, args);
                 String correlationId = UUID.randomUUID().toString();
 
-                // Now create response handler and store so we can propagate response in replyMessageConsumer
+                // Now create response handler and store, so we can propagate response in replyMessageConsumer
                 RpcReturnValueHandler handler = rpcReturnValueHandlerFactory.createReturnValueHandler(method, args);
                 responseMap.put(correlationId, handler);
+
+
+                // Create Event to be sent to remote end to cause service invocation
+                Metadata metadata = Metadata.create();
+                metadata.put(EventConstants.SENDER_HEADER, nodeName);
+                metadata.put(EventConstants.REPLY_TO_HEADER, handlerCRI.raw());
+                metadata.put(EventConstants.CORRELATION_ID_HEADER, correlationId);
+                metadata.put(EventConstants.CONTENT_TYPE_HEADER, rpcArgumentConverter.producesContentType());
+
+                // TODO: use version string to determine how specific the invocation has to be like npm semantics ^1.0.0 ect
+                CRI requestCri = CRI.create(EventConstants.SERVICE_DESTINATION_SCHEME,
+                                            scope,
+                                            serviceIdentifier.qualifiedName(),
+                                            "/" + method.getName(),
+                                            serviceIdentifier.version());
+
+                Event<byte[]> rpcOutboundEvent = Event.create(requestCri,
+                                                              metadata,
+                                                              argumentData);
 
                 ret = handler.getReturnValue(new RpcRequest() {
                     @Override
                     public void send() {
-                        // TODO: should we guard against multiple requests from invoke or add code to support it.
-                        // This would be something that only effects the RpcReturnValueHandler
-
-                        // Now publish message for remote service invocation
-                        Metadata metadata = Metadata.create();
-                        metadata.put(EventConstants.SENDER_HEADER, nodeName);
-                        metadata.put(EventConstants.REPLY_TO_HEADER, handlerCRI.raw());
-                        metadata.put(EventConstants.CORRELATION_ID_HEADER, correlationId);
-                        metadata.put(EventConstants.CONTENT_TYPE_HEADER, rpcArgumentConverter.producesContentType());
-
-                        // TODO: use version string to determine how specific the invocation has to be like npm semantics ^1.0.0 ect
                         // Send data to remote end to trigger service invocation
-                        eventBusService.sendWithAck(Event.create(CRI.create(EventConstants.SERVICE_DESTINATION_SCHEME,
-                                                                            scope,
-                                                                            serviceIdentifier.qualifiedName(),
-                                                                            "/" + method.getName(),
-                                                                            serviceIdentifier.version()),
-                                                                 metadata,
-                                                                 argumentData))
+                        eventBusService.sendWithAck(rpcOutboundEvent)
                                        .subscribe(v -> {}, throwable -> {
                                            // send failed, signal handler so failure can be relayed to the return value
                                            try{
@@ -234,13 +236,12 @@ public class DefaultRpcServiceProxyHandle<T> implements RpcServiceProxyHandle<T>
                             // Now publish message for remote control
                             Metadata metadata = Metadata.create();
                             metadata.put(EventConstants.CONTROL_HEADER, EventConstants.CONTROL_VALUE_CANCEL);
+                            metadata.put(EventConstants.CORRELATION_ID_HEADER, correlationId);
 
                             // Send data to remote end for control request
-                            eventBusService.sendWithAck(Event.create(CRI.create(EventConstants.SERVICE_DESTINATION_SCHEME,
-                                                                                encodedNodeName,
-                                                                                correlationId),
+                            eventBusService.sendWithAck(Event.create(requestCri,
                                                                      metadata,
-                                                                     argumentData))
+                                                                     null))
                                            .doFinally(signalType -> responseMap.remove(correlationId))
                                            .subscribe();
                         } else {
@@ -250,7 +251,7 @@ public class DefaultRpcServiceProxyHandle<T> implements RpcServiceProxyHandle<T>
                 });
 
             }else{
-                // Method not defined on service interface pass call directly this service handle. ex: toString()
+                // Method not defined on service interface pass call directly to this service handle. ex: toString()
                 Class<?>[] paramTypes = new Class[args.length];
                 for(int i = 0; i < args.length; i++){
                     paramTypes[i] = args[i].getClass();
@@ -271,9 +272,6 @@ public class DefaultRpcServiceProxyHandle<T> implements RpcServiceProxyHandle<T>
     private boolean shouldInvokeLocally(Method method){
         boolean ret = false;
 
-        // TODO: should we use this logic instead
-        // !(!method.isBridge() && !method.isSynthetic() && method.getDeclaringClass() != Object.class)
-
         String methodName = method.getName();
         if(methodName.equals("toString")){
             ret = true;
@@ -289,4 +287,5 @@ public class DefaultRpcServiceProxyHandle<T> implements RpcServiceProxyHandle<T>
                 .append("handlerCRI", handlerCRI)
                 .toString();
     }
+
 }

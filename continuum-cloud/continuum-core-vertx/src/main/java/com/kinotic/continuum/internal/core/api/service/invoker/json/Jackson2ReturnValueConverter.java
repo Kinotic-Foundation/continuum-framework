@@ -20,6 +20,7 @@ package com.kinotic.continuum.internal.core.api.service.invoker.json;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kinotic.continuum.core.api.event.Event;
 import com.kinotic.continuum.core.api.event.EventConstants;
+import com.kinotic.continuum.core.api.event.Metadata;
 import com.kinotic.continuum.internal.core.api.service.invoker.ReturnValueConverter;
 import com.kinotic.continuum.internal.core.api.service.json.AbstractJackson2Support;
 import org.springframework.core.ReactiveAdapterRegistry;
@@ -41,12 +42,12 @@ public class Jackson2ReturnValueConverter extends AbstractJackson2Support implem
     }
 
     @Override
-    public boolean supports(Event<byte[]> incomingEvent, Class<?> returnType) {
-        return containsJsonContent(incomingEvent);
+    public boolean supports(Metadata incomingMetadata, Class<?> returnType) {
+        return containsJsonContent(incomingMetadata);
     }
 
     @Override
-    public Event<byte[]> convert(Event<byte[]> incomingEvent, Class<?> returnType, Object returnValue) {
+    public Event<byte[]> convert(Metadata incomingMetadata, Class<?> returnType, Object returnValue) {
         // insure void return types are not mistakenly seen as null
         if(Void.TYPE.isAssignableFrom(returnType)){
             returnValue = Void.TYPE;
@@ -54,7 +55,7 @@ public class Jackson2ReturnValueConverter extends AbstractJackson2Support implem
         HashMap<String,String> headers = new HashMap<>(1);
         headers.put(EventConstants.CONTENT_TYPE_HEADER, MimeTypeUtils.APPLICATION_JSON_VALUE);
 
-        return createOutgoingEvent(incomingEvent, headers, returnValue);
+        return createOutgoingEvent(incomingMetadata, headers, returnValue);
     }
 
 }

@@ -233,9 +233,10 @@ export class EventBus implements IEventBus {
 
                 return () => {
                     if (sendControlEvents && !serverSignaledCompletion) {
-                        const controlDestination = EventConstants.SERVICE_DESTINATION_PREFIX + this.encodedIdentity + '@' + correlationId
-                        const controlEvent: Event = new Event(controlDestination)
+                        // create control event to cancel long-running request
+                        const controlEvent: Event = new Event(event.cri)
                         controlEvent.setHeader(EventConstants.CONTROL_HEADER, EventConstants.CONTROL_VALUE_CANCEL)
+                        controlEvent.setHeader(EventConstants.CORRELATION_ID_HEADER, correlationId)
                         this.send(controlEvent)
                     }
                 }

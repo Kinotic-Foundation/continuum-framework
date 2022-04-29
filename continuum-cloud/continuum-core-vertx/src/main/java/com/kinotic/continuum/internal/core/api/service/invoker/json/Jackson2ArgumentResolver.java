@@ -41,7 +41,7 @@ public class Jackson2ArgumentResolver extends AbstractJackson2Support implements
 
     @Override
     public boolean supports(Event<byte[]> incomingEvent) {
-        return containsJsonContent(incomingEvent);
+        return containsJsonContent(incomingEvent.metadata());
     }
 
     @Override

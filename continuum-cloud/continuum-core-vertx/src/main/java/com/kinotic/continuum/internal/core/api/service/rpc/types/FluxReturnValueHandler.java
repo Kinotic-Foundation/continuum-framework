@@ -66,32 +66,35 @@ public class FluxReturnValueHandler implements RpcReturnValueHandler {
         if(fluxSink == null){
             log.error("For some reason processResponse was called before the FluxSink was set. This should never happen!!");
         }else {
-            try {
-                if(incomingEvent.metadata().contains(EventConstants.ERROR_HEADER)){
-                    finished = true;
-                    fluxSink.error(EventUtils.createThrowableForEventWithError(incomingEvent, objectMapper));
-
-                }else if(incomingEvent.metadata().contains(EventConstants.CONTROL_HEADER)){
-
-                    String control = incomingEvent.metadata().get(EventConstants.CONTROL_HEADER);
-                    if(control.equals(EventConstants.CONTROL_VALUE_COMPLETE)){
+            if(!fluxSink.isCancelled()) {
+                try {
+                    if (incomingEvent.metadata().contains(EventConstants.ERROR_HEADER)) {
                         finished = true;
-                        fluxSink.complete();
-                    }else{
-                        finished = true;
-                        log.warn("Unknown control header. Terminated flux with an error");
-                        fluxSink.error(new IllegalStateException("Unknown control header"));
+                        fluxSink.error(EventUtils.createThrowableForEventWithError(incomingEvent, objectMapper));
+
+                    } else if (incomingEvent.metadata().contains(EventConstants.CONTROL_HEADER)) {
+
+                        String control = incomingEvent.metadata().get(EventConstants.CONTROL_HEADER);
+                        if (control.equals(EventConstants.CONTROL_VALUE_COMPLETE)) {
+                            finished = true;
+                            fluxSink.complete();
+                        } else {
+                            finished = true;
+                            log.warn("Unknown control header. Terminated flux with an error");
+                            fluxSink.error(new IllegalStateException("Unknown control header"));
+                        }
+
+                    } else {
+                        fluxSink.next(rpcResponseConverter.convert(incomingEvent, methodParameter));
                     }
 
-                }else{
-                    fluxSink.next(rpcResponseConverter.convert(incomingEvent, methodParameter));
+                } catch (Exception e) {
+                    log.error("Error converting the incoming message to expected java type", e);
+                    finished = true;
+                    fluxSink.error(e);
                 }
-
-            } catch (Exception e) {
-                // TODO: how to best manage these errors. from the system perspective, Take the service offline ? Circuit break? ect..
-                log.error("Error converting the incoming message to expected java type", e);
+            }else{
                 finished = true;
-                fluxSink.error(e);
             }
         }
         return finished;
@@ -108,6 +111,7 @@ public class FluxReturnValueHandler implements RpcReturnValueHandler {
             fluxSink = sink;
             // in case this was canceled before the Flux was subscribed to
             if(cancelMessage == null){
+
                 rpcRequest.send();
 
                 fluxSink.onCancel(rpcRequest::cancelRequest);
@@ -125,7 +129,7 @@ public class FluxReturnValueHandler implements RpcReturnValueHandler {
 
     @Override
     public synchronized void cancel(String message) {
-        // cancel can be called before RpcRequest.send()
+        // cancel can be called before getReturnValue()
         if(fluxSink != null){
             fluxSink.error(new IllegalStateException(message));
         }else{

@@ -18,6 +18,7 @@
 package com.kinotic.continuum.internal.core.api.service.invoker;
 
 import com.kinotic.continuum.core.api.event.Event;
+import com.kinotic.continuum.core.api.event.Metadata;
 
 /**
  * Converts the return value to a {@link Event} that can bes sent on the {@link com.kinotic.continuum.core.api.event.EventBusService}
@@ -28,8 +29,21 @@ import com.kinotic.continuum.core.api.event.Event;
  */
 public interface ReturnValueConverter {
 
-    boolean supports(Event<byte[]> incomingEvent, Class<?> returnType);
+    /**
+     * Checks it a given {@link ReturnValueConverter} supports the incoming {@link Event} by checking the data provided
+     * @param incomingMetadata the original {@link Metadata} sent to the {@link ServiceInvocationSupervisor}
+     * @param returnType of the {@link java.lang.reflect.Method} that will be invoked
+     * @return true if this converter can handle the data
+     */
+    boolean supports(Metadata incomingMetadata, Class<?> returnType);
 
-    Event<byte[]> convert(Event<byte[]> incomingEvent, Class<?> returnType, Object returnValue);
+    /**
+     * Converts the return value to an {@link Event} to send
+     * @param incomingMetadata the original {@link Metadata} sent to the {@link ServiceInvocationSupervisor}
+     * @param returnType of the {@link java.lang.reflect.Method} that was invoked to get this return value
+     * @param returnValue that was returned by the invoked method
+     * @return the {@link Event} containing the converted data
+     */
+    Event<byte[]> convert(Metadata incomingMetadata, Class<?> returnType, Object returnValue);
 
 }

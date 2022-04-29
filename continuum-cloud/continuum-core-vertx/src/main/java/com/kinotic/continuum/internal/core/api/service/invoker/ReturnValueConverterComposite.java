@@ -18,6 +18,7 @@
 package com.kinotic.continuum.internal.core.api.service.invoker;
 
 import com.kinotic.continuum.core.api.event.Event;
+import com.kinotic.continuum.core.api.event.Metadata;
 import org.springframework.util.Assert;
 
 import java.util.Collections;
@@ -52,21 +53,21 @@ public class ReturnValueConverterComposite implements ReturnValueConverter {
     }
 
     @Override
-    public boolean supports(Event<byte[]> incomingEvent, Class<?> returnType) {
-        return selectConverter(incomingEvent, returnType) != null;
+    public boolean supports(Metadata incomingMetadata, Class<?> returnType) {
+        return selectConverter(incomingMetadata, returnType) != null;
     }
 
     @Override
-    public Event<byte[]> convert(Event<byte[]> incomingEvent, Class<?> returnType, Object returnValue) {
-        ReturnValueConverter converter = selectConverter(incomingEvent, returnType);
+    public Event<byte[]> convert(Metadata incomingMetadata, Class<?> returnType, Object returnValue) {
+        ReturnValueConverter converter = selectConverter(incomingMetadata, returnType);
         Assert.notNull(converter,"Unsupported Return Value no ReturnValueConverter can be found. Should call supports() first.");
-        return converter.convert(incomingEvent, returnType, returnValue);
+        return converter.convert(incomingMetadata, returnType, returnValue);
     }
 
-    private ReturnValueConverter selectConverter(Event<byte[]> incomingMessage, Class<?> returnType){
+    private ReturnValueConverter selectConverter(Metadata incomingMetadata, Class<?> returnType){
         ReturnValueConverter ret = null;
         for(ReturnValueConverter converter : converters){
-            if(converter.supports(incomingMessage, returnType)){
+            if(converter.supports(incomingMetadata, returnType)){
                 ret = converter;
                 break;
             }

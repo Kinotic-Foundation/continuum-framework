@@ -18,6 +18,7 @@
 package com.kinotic.continuum.internal.core.api.service.invoker;
 
 import com.kinotic.continuum.core.api.event.Event;
+import com.kinotic.continuum.core.api.event.Metadata;
 import org.springframework.util.Assert;
 
 import java.util.Collections;
@@ -50,21 +51,21 @@ public class ExceptionConverterComposite implements ExceptionConverter {
     }
     
     @Override
-    public boolean supports(Event<byte[]> incomingEvent) {
-        return selectConverter(incomingEvent) != null;
+    public boolean supports(Metadata incomingMetadata) {
+        return selectConverter(incomingMetadata) != null;
     }
 
     @Override
-    public Event<byte[]> convert(Event<byte[]> incomingEvent, Throwable throwable) {
-        ExceptionConverter converter = selectConverter(incomingEvent);
+    public Event<byte[]> convert(Metadata incomingMetadata, Throwable throwable) {
+        ExceptionConverter converter = selectConverter(incomingMetadata);
         Assert.notNull(converter,"No ExceptionConverter can be found. Should call supports() first.");
-        return converter.convert(incomingEvent, throwable);
+        return converter.convert(incomingMetadata, throwable);
     }
 
-    private ExceptionConverter selectConverter(Event<byte[]> incomingMessage){
+    private ExceptionConverter selectConverter(Metadata incomingMetadata){
         ExceptionConverter ret = null;
         for(ExceptionConverter converter : converters){
-            if(converter.supports(incomingMessage)){
+            if(converter.supports(incomingMetadata)){
                 ret = converter;
                 break;
             }

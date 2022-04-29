@@ -18,20 +18,21 @@
 package com.kinotic.continuum.internal.core.api.service.invoker;
 
 import com.kinotic.continuum.core.api.event.Event;
+import com.kinotic.continuum.core.api.event.Metadata;
 
 /**
  * Converts an exception to a message that can bes sent on the event bus
  *
- * NOTE: All implementations should be threadsafe.
+ * NOTE: All implementations should be thread safe.
  *
  *
  * Created by Navid Mitchell on 2019-03-30.
  */
 public interface ExceptionConverter {
 
-    boolean supports(Event<byte[]> incomingEvent);
+    boolean supports(Metadata incomingMetadata);
 
-    Event<byte[]> convert(Event<byte[]> incomingEvent, Throwable throwable);
+    Event<byte[]> convert(Metadata incomingMetadata, Throwable throwable);
 
 }
 

@@ -22,10 +22,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kinotic.continuum.api.config.ContinuumProperties;
 import com.kinotic.continuum.core.api.event.Event;
 import com.kinotic.continuum.core.api.event.EventConstants;
+import com.kinotic.continuum.core.api.event.Metadata;
 import com.kinotic.continuum.core.api.service.ServiceExceptionWrapper;
 import com.kinotic.continuum.internal.util.EventUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.codec.EncodingException;
 import org.springframework.stereotype.Component;
@@ -42,8 +41,6 @@ import java.util.Map;
 @Order
 public class BasicExceptionConverter implements ExceptionConverter {
 
-    private static final Logger log = LoggerFactory.getLogger(BasicExceptionConverter.class);
-
     private final ContinuumProperties properties;
     private final ObjectMapper objectMapper;
 
@@ -53,18 +50,18 @@ public class BasicExceptionConverter implements ExceptionConverter {
     }
 
     @Override
-    public boolean supports(Event<byte[]> incomingEvent) {
+    public boolean supports(Metadata incomingMetadata) {
         return true;
     }
 
     @Override
-    public Event<byte[]> convert(Event<byte[]> incomingEvent, Throwable throwable) {
+    public Event<byte[]> convert(Metadata incomingMetadata, Throwable throwable) {
         Map<String, String> headers = new HashMap<>(2);
 
         headers.put(EventConstants.ERROR_HEADER, throwable.getMessage());
         headers.put(EventConstants.CONTENT_TYPE_HEADER, MimeTypeUtils.APPLICATION_JSON_VALUE);
 
-        return EventUtils.createReplyEvent(incomingEvent, headers, () -> {
+        return EventUtils.createReplyEvent(incomingMetadata, headers, () -> {
             ServiceExceptionWrapper wrapper = new ServiceExceptionWrapper(throwable.getMessage(), throwable.getClass().getName());
 
             if(properties.isDebug()) {

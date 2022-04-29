@@ -68,7 +68,6 @@ public class VertxFutureRpcReturnValueHandler implements RpcReturnValueHandler {
                 returnValue.complete(rpcResponseConverter.convert(incomingEvent, methodParameter));
             }
         }catch (Exception e){
-            // TODO: how to best manage these errors. from the system perspective, Take the service offline ? Circuit break? ect..
             log.error("Error converting the incoming message to expected java type", e);
             returnValue.fail(e);
         }

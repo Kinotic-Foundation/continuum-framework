@@ -22,7 +22,6 @@ import com.kinotic.continuum.core.api.event.Event;
 /**
  * Handles responses from remote service invocations and translates them into Java side objects returned from proxy invocations
  *
- *
  * Created by navid on 2019-04-24.
  */
 public interface RpcReturnValueHandler {
@@ -33,16 +32,16 @@ public interface RpcReturnValueHandler {
      *
      * NOTE: {@link RpcRequest#send()} must be called by the {@link RpcReturnValueHandler} in all cases
      *
-     * @param rpcRequest allows the actual request to be deferred and invoked by the return value
+     * @param rpcRequest allows the actual request to be deferred and invoked by the return value at the appropriate time
      * @return the object that should be returned from the proxy invocation
      */
     Object getReturnValue(RpcRequest rpcRequest);
 
     /**
      * Return {@code true} if the return type can produce more than 1 value
-     * can be produced and is therefore a good fit to adapt to {@code Flux}.
+     * can be produced and is therefore a good fit to adapt to {@link reactor.core.publisher.Flux}.
      * A {@code false} return value implies the return type can produce 1
-     * value at most and is therefore a good fit to adapt to {@code Mono}.
+     * value at most and is therefore a good fit to adapt to {@link reactor.core.publisher.Mono}.
      * This is used to determine the correct values to send to the remote end.
      */
     boolean isMultiValue();
@@ -63,7 +62,7 @@ public interface RpcReturnValueHandler {
     void processError(Throwable throwable);
 
     /**
-     * Can be called if no response will be ever received such as when the system shuts down.
+     * Can be called if processResponse will not be called again such as when the system shuts down.
      * @param message the reason that the response will never be processed
      */
     void cancel(String message);

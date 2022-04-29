@@ -26,6 +26,7 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
 import com.kinotic.continuum.core.api.event.Event;
 import com.kinotic.continuum.core.api.event.EventConstants;
+import com.kinotic.continuum.core.api.event.Metadata;
 import com.kinotic.continuum.internal.core.api.service.invoker.ServiceInvocationSupervisor;
 import com.kinotic.continuum.internal.util.EventUtils;
 import org.apache.commons.lang3.Validate;
@@ -67,12 +68,12 @@ public abstract class AbstractJackson2Support {
 
     /**
      * Tests if the content is considered json
-     * @param incomingEvent to evaluate
+     * @param incomingMetadata to evaluate
      * @return true if the content-type header of the message is application/json
      */
-    protected boolean containsJsonContent(Event<?> incomingEvent) {
+    protected boolean containsJsonContent(Metadata incomingMetadata) {
         boolean ret = false;
-        String contentType = incomingEvent.metadata().get(EventConstants.CONTENT_TYPE_HEADER);
+        String contentType = incomingMetadata.get(EventConstants.CONTENT_TYPE_HEADER);
         if(contentType != null && contentType.length() > 0){
             ret =  MimeTypeUtils.APPLICATION_JSON_VALUE.contentEquals(contentType);
         }
@@ -90,11 +91,11 @@ public abstract class AbstractJackson2Support {
     protected Object[] createJavaObjectsFromJsonEvent(Event<byte[]> event, MethodParameter[] parameters, boolean dataInArray){
         Validate.notNull(event, "event cannot be null");
         Validate.notNull(parameters, "parameters must not be null");
-        // TODO: should we use the Jackson2Tokenizer borrowed from spring? We are not really taking advantage of the claimed non blocking or the Flux themselves
+
+        // Should we use the Jackson2Tokenizer borrowed from spring? We are not really taking advantage of the claimed non blocking or the Flux themselves
         // I really don't see a way to do that anyhow since all Arguments at least for the invoker must be available upfront.
         // A return value could be parsed and streamed but that would require more machinery.
         // And we would want to plum that all the way to the caller.
-
         List<TokenBuffer> tokens = Jackson2Tokenizer.tokenize(Flux.just(event.data()),
                                                               getObjectMapper().getFactory(),
                                                               getObjectMapper(),
@@ -162,13 +163,13 @@ public abstract class AbstractJackson2Support {
 
     /**
      * Creates a {@link Event} that can be sent based on the incomingMessage headers and the data to use as the body
-     * @param incomingEvent the original data sent to the {@link ServiceInvocationSupervisor}
+     * @param incomingMetadata the original {@link Metadata} sent to the {@link ServiceInvocationSupervisor}
      * @param headers key value pairs that will be added to the outgoing headers
      * @param body the value that will be converted to a Json string and set as the body
      * @return the {@link Event} to send
      */
-    protected Event<byte[]> createOutgoingEvent(Event<byte[]> incomingEvent, Map<String, String> headers, Object body){
-        return EventUtils.createReplyEvent(incomingEvent, headers, () -> {
+    protected Event<byte[]> createOutgoingEvent(Metadata incomingMetadata, Map<String, String> headers, Object body){
+        return EventUtils.createReplyEvent(incomingMetadata, headers, () -> {
             byte[] jsonBytes;
             try {
 

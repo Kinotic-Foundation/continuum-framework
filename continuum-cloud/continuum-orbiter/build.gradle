@@ -1,0 +1,18 @@
+plugins {
+	id 'com.kinotic.continuum.java-application-conventions'
+	id "io.freefair.lombok" version "6.4.3"
+}
+
+mainClassName = "com.kinotic.continuum.orbiter.ContinuumOrbiterApplication"
+
+dependencies {
+	implementation project(':continuum-core')
+	implementation project(':continuum-core-vertx')
+
+	implementation "org.apache.curator:curator-client"
+	implementation "org.apache.curator:curator-framework"
+	implementation "org.apache.curator:curator-recipes"
+	implementation "org.apache.curator:curator-x-discovery"
+
+	annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
+}

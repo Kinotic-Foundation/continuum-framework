@@ -1,0 +1,28 @@
+{
+  "name": "continuum-js",
+  "version": "1.0.0+bbc3a476",
+  "author": "Kinotic <develop@kinotic.com>",
+  "license": "MIT",
+  "scripts": {
+    "build": "rollup -c",
+    "watch": "rollup -cw"
+  },
+  "main": "dist/index.ts",
+  "module": "dist/index.es.js",
+  "files": [
+    "dist"
+  ],
+  "types": "dist/index.d.ts",
+  "dependencies": {
+    "@stomp/rx-stomp": "^0.3.5",
+    "angular2-uuid": "^1.1.1",
+    "elliptic": "^6.5.4",
+    "rxjs": "^6.5.5",
+    "typescript-optional": "^2.0.1"
+  },
+  "peerDependencies": {
+    "inversify": "5.0.5",
+    "inversify-props": "1.4.9"
+  },
+  "yalcSig": "bbc3a476bf4c20de1eee884eb2c23244"
+}

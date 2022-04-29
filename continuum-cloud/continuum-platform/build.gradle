@@ -1,0 +1,169 @@
+plugins {
+    id 'java-platform'
+
+    id 'maven-publish'
+    id 'signing'
+}
+
+group 'com.kinotic'
+version '1.0-SNAPSHOT'
+
+javaPlatform {
+    // Declare that your platform contains dependencies
+    allowDependencies()
+}
+
+/**
+ * Spring Boot Managed Dependency Coordinates
+ * https://docs.spring.io/spring-boot/docs/2.5.6//reference/html/dependency-versions.html
+ *
+ * Kafka Version Compatibility Guides
+ *
+ * NOTE: Im sticking all the links here for reference. To determine actual versions needed you really have to look at and think about all of the pieces.
+ *
+ * Links:
+ *  AWS MSK Kafka versions
+ *  https://docs.aws.amazon.com/msk/latest/developerguide/supported-kafka-versions.html
+ *
+ *  Spring Kafka Version Requirements
+ *  https://docs.spring.io/spring-kafka/docs/current/reference/html/#compatibility
+ */
+
+
+ext{
+    awaitilityVersion='4.0.1'
+    awsVersion='1.11.1017'
+    aws2Version='2.16.66'
+    chronicleQueueVersion='5.20.106'
+    commonsIoVersion='2.8.0'
+    failsafeVersion='2.4.0'
+    groovyVersion='3.0.9'
+    igniteVersion='2.12.0'
+    jCacheApiVersion='1.0.0'
+    lombokVersion = '1.18.12'
+    vertxVersion='3.9.13'
+    springBootVersion = '2.6.7'
+    vertxStompLiteVersion='3.9.12'
+    vertxBeansVersion='1.5.0'
+    zookeeperVersion='3.5.9'
+    apacheCuratorVersion='4.3.0'
+}
+
+dependencies {
+    api platform("org.springframework.boot:spring-boot-dependencies:${springBootVersion}")
+
+    constraints {
+
+        api "org.codehaus.groovy:groovy:${groovyVersion}"
+
+        api "org.springframework.boot:spring-boot-configuration-processor:${springBootVersion}"
+
+        api "org.springframework.boot:org.springframework.boot.gradle.plugin:${springBootVersion}"
+
+        api "io.vertx:vertx-core:${vertxVersion}"
+        api "io.vertx:vertx-web:${vertxVersion}"
+        api "io.vertx:vertx-web-client:${vertxVersion}"
+        api "io.vertx:vertx-auth-common:${vertxVersion}"
+        api "io.vertx:vertx-mqtt:${vertxVersion}"
+        api "io.vertx:vertx-ignite:${vertxVersion}"
+        api "io.vertx:vertx-reactive-streams:${vertxVersion}"
+        api "com.github.rworsnop:vertx-beans:${vertxBeansVersion}"
+
+        api "com.kinotic:vertx-stomp-lite:${vertxStompLiteVersion}"
+
+        api "org.apache.ignite:ignite-core:${igniteVersion}"
+        api "org.apache.ignite:ignite-indexing:${igniteVersion}"
+        api "org.apache.ignite:ignite-spring:${igniteVersion}"
+        api "org.apache.ignite:ignite-slf4j:${igniteVersion}"
+        api "org.apache.ignite:ignite-zookeeper:${igniteVersion}"
+        // H2 Version tied to ignite, it must be compatible!
+        api('com.h2database:h2') {
+            version {
+                strictly '1.4.197'
+            }
+        }
+
+        api "org.apache.zookeeper:zookeeper:${zookeeperVersion}"
+
+        // curator
+        api "org.apache.curator:curator-client:${apacheCuratorVersion}"
+        api "org.apache.curator:curator-framework:${apacheCuratorVersion}"
+        api "org.apache.curator:curator-recipes:${apacheCuratorVersion}"
+        api "org.apache.curator:curator-x-discovery:${apacheCuratorVersion}"
+
+
+        api "javax.cache:cache-api:${jCacheApiVersion}"
+
+        // Aws
+        api "com.amazonaws:aws-java-sdk-s3:${awsVersion}"
+        api "com.amazonaws:aws-java-sdk-logs:${awsVersion}"
+
+        // AWS 2
+        api "software.amazon.awssdk:ec2:${aws2Version}"
+        api "software.amazon.awssdk:ecs:${aws2Version}"
+        api "software.amazon.awssdk:kafka:${aws2Version}"
+        api "software.amazon.awssdk:rds:${aws2Version}"
+        api "software.amazon.awssdk:route53:${aws2Version}"
+        api "software.amazon.awssdk:acm:${aws2Version}"
+        api "software.amazon.awssdk:elasticloadbalancingv2:${aws2Version}"
+        api "software.amazon.awssdk:secretsmanager:${aws2Version}"
+
+        api "net.jodah:failsafe:${failsafeVersion}"
+
+        api "net.openhft:chronicle-queue:${chronicleQueueVersion}"
+
+        api "org.projectlombok:lombok:${lombokVersion}"
+
+        api "commons-io:commons-io:${commonsIoVersion}"
+    }
+
+}
+
+
+publishing {
+    publications {
+        mavenPlatform(MavenPublication) {
+
+            from components.javaPlatform
+
+            pom {
+                description = 'A Microservice and IOT framework for everyone!'
+                url = 'https://continuumframework.org'
+
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        name = 'Kinotic Developers'
+                        email = 'develop@kinotic.com'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:https://github.com/Kinotic-Foundation/continuum-framework.git'
+                    developerConnection = 'scm:git:https://github.com/Kinotic-Foundation/continuum-framework.git'
+                    url = 'https://github.com/Kinotic-Foundation/continuum-framework'
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            def releasesRepoUrl = 'https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/'
+            def snapshotsRepoUrl = 'https://s01.oss.sonatype.org/content/repositories/snapshots/'
+            url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+            credentials {
+                username = System.getenv('MAVEN_USERNAME')
+                password = System.getenv('MAVEN_PASSWORD')
+            }
+        }
+    }
+}
+
+signing {
+    useGpgCmd()
+    sign publishing.publications.mavenPlatform
+}

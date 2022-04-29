@@ -1,0 +1,24 @@
+plugins {
+    // Apply the java Plugin to add support for Java.
+    id 'java'
+}
+
+group 'com.kinotic'
+version '1.0.0'
+sourceCompatibility = '11'
+
+repositories {
+    // Use Maven Central for resolving dependencies.
+    mavenCentral()
+}
+
+dependencies {
+    // No dependencies here unless the version is hardcoded..
+    // The platform does not get included properly in consumers of our libraries since we must use
+    // api platform(project(':continuum-platform'))
+    // and "api" is not supported here since the java-library plugin is not declared here
+}
+
+test {
+    useJUnitPlatform()
+}

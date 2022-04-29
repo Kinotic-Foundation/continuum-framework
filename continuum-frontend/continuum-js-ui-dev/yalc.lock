@@ -1,0 +1,9 @@
+{
+  "version": "v1",
+  "packages": {
+    "continuum-js": {
+      "signature": "bbc3a476bf4c20de1eee884eb2c23244",
+      "pure": true
+    }
+  }
+}

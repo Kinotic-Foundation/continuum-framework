@@ -43,7 +43,7 @@ ext{
     lombokVersion = '1.18.12'
     vertxVersion='3.9.13'
     springBootVersion = '2.6.7'
-    vertxStompLiteVersion='3.9.11-SNAPSHOT'
+    vertxStompLiteVersion='3.9.12'
     vertxBeansVersion='1.5.0'
     zookeeperVersion='3.5.9'
     apacheCuratorVersion='4.3.0'

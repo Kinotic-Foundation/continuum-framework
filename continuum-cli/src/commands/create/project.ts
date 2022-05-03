@@ -4,7 +4,7 @@ import path from 'path'
 import process from 'process'
 import {spawnEngine} from '../../internal/SpawnEngine'
 import {spawnResolver} from '../../internal/SpawnResolver'
-import camelCase from 'lodash/camelCase'
+import upperFirst from 'lodash/upperFirst'
 
 export default class Project extends Command {
   static description = 'Creates a Continuum Project'
@@ -36,7 +36,7 @@ export default class Project extends Command {
     await spawnEngine.renderSpawn('microserviceGateway',
                                   context.projectName + '-gateway',
                                   {...context,
-                                           name: camelCase(context.projectName) + 'Gateway',
+                                           name: upperFirst(context.projectName) + 'Gateway',
                                            artifactId: context.projectName.toLowerCase() + '-gateway',
                                            basePackage: context.groupId + '.gateway'
                                   }

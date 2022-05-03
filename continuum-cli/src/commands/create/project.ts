@@ -30,6 +30,16 @@ export default class Project extends Command {
                                   context)
 
     process.chdir(projectDir)
+    
+    // now create Continuum Gateway project
+    await spawnEngine.renderSpawn('microserviceGateway',
+                                  context.projectName + 'Gateway',
+                                  {...context,
+                                           name: context.projectName + 'Gateway',
+                                           artifactId: context.projectName.toLowerCase() + '-gateway',
+                                           basePackage: context.groupId + '.gateway'
+                                  }
+    )
 
     await spawnResolver.copySpawnsFromRepositoryToDirectory('microserviceCommon', 'microserviceProject')
 

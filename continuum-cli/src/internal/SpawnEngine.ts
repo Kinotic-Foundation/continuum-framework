@@ -51,6 +51,7 @@ export default class SpawnEngine {
    * @return a promise containing all the original values plus any added during rendering
    */
   public async renderSpawn(spawn: string, destination: string, context?: object): Promise<object|undefined> {
+    let contextInternal = undefined
     if(!fs.existsSync(destination)){
 
       let source:string = await this.spawnResolver.resolveSpawn(spawn)
@@ -95,19 +96,19 @@ export default class SpawnEngine {
         }
 
         // now merge globals with context, context taking precedence
-        context = {...globals, ...context}
+        contextInternal = {...globals, ...context}
 
         // now prompt user for any needed properties not provided in the context
-        context = await this.promptForMissingProperties(propertySchemas, context)
+        contextInternal = await this.promptForMissingProperties(propertySchemas, contextInternal)
       }
 
       await makeDir(destination)
 
       for(let src of sources.reverse()){
-        await this._renderDirectory(src, src, destination, context)
+        await this._renderDirectory(src, src, destination, contextInternal)
       }
 
-      return context
+      return contextInternal
 
     }else{
       throw new Error(`The target directory ${destination} already exists`)
@@ -115,13 +116,12 @@ export default class SpawnEngine {
   }
 
   private async promptForMissingProperties(propertySchema: PropertySchemaType, context?: object): Promise<object>{
-    if(!context){
-      context = {}
-    }
+    let ret = (!context ? {} : {...context})
+
     let questions: any[] = []
     for(let key in propertySchema){
 
-      if(!context.hasOwnProperty(key)) {
+      if(!ret.hasOwnProperty(key)) {
         let schema: JSONSchema7 = propertySchema[key]
         let question: any = {name: key}
 
@@ -158,10 +158,10 @@ export default class SpawnEngine {
 
     if(questions.length > 0) {
       console.log('Please provide the following...\n')
-      context = await inquirer.prompt(questions, context) as object
+      ret = await inquirer.prompt(questions, ret) as object
     }
 
-    return context
+    return ret
   }
 
 

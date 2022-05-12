@@ -15,10 +15,10 @@
  * limitations under the License.
  */
 
-package com.kinotic.continuum.internal.core.api.service.rpc;
+package com.kinotic.continuum.api.exceptions;
 
 /**
- * Ths exception is thrown When the original error message cannot be rethrown during a rpc service invocation
+ * This exception is thrown When the original error message cannot be rethrown during a rpc service invocation
  *
  * Created by navid on 11/7/19
  */

@@ -22,7 +22,7 @@ import com.kinotic.continuum.core.api.event.Event;
 /**
  * Supports resolving arguments from an incoming {@link Event<byte[]>}
  *
- * NOTE: All implementations should be threadsafe.
+ * NOTE: All implementations should be thread safe.
  *
  *
  * Created by Navid Mitchell on 2019-03-29.

@@ -17,11 +17,10 @@
 
 package com.kinotic.continuum.internal.core.api;
 
-import com.kinotic.continuum.internal.core.api.service.rpc.RpcInvocationException;
-import com.kinotic.continuum.internal.core.api.support.ABunchOfArgumentsHolder;
-import com.kinotic.continuum.internal.core.api.support.RpcTestService;
-import com.kinotic.continuum.internal.core.api.support.RpcTestServiceProxy;
-import com.kinotic.continuum.internal.core.api.support.SimpleObject;
+import com.kinotic.continuum.api.exceptions.RpcMissingMethodException;
+import com.kinotic.continuum.api.exceptions.RpcInvocationException;
+import com.kinotic.continuum.api.exceptions.RpcMissingServiceException;
+import com.kinotic.continuum.internal.core.api.support.*;
 import io.vertx.core.Future;
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.Assertions;
@@ -53,6 +52,10 @@ public class RpcTests {
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") // these are not detected because continuum wires them..
     @Autowired
     private RpcTestServiceProxy rpcTestServiceProxy;
+
+    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") // these are not detected because continuum wires them..
+    @Autowired
+    private NonExistentServiceProxy nonExistentServiceProxy;
 
     @Test
     public void testRpcMonoString(){
@@ -274,7 +277,16 @@ public class RpcTests {
         Mono<String> mono = rpcTestServiceProxy.getMissingRemoteMethodFailure();
 
         StepVerifier.create(mono)
-                    .expectError(IllegalArgumentException.class)
+                    .expectError(RpcMissingMethodException.class)
+                    .verify();
+    }
+
+    @Test
+    public void testMissingServiceFailure() {
+        Mono<Void> mono = nonExistentServiceProxy.probablyNotHome();
+
+        StepVerifier.create(mono)
+                    .expectError(RpcMissingServiceException.class)
                     .verify();
     }
 

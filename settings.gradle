@@ -1,4 +1,4 @@
-rootProject.name = 'continuum-cloud'
+rootProject.name = 'continuum-framework'
 
 include(
         'continuum-platform',
@@ -8,10 +8,11 @@ include(
         'continuum-core-vertx',
         'continuum-gateway',
         'continuum-gateway-server',
-        //'structures',
         'continuum-grind',
         'continuum-iam',
+        'continuum-util',
+        'continuum-clients:continuum-js'
         //'continuum-orbiter',
         //'continuum-substratum',
-        'continuum-util'
+        //'structures',
 )

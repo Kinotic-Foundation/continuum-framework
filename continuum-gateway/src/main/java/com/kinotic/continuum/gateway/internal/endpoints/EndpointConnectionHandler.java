@@ -17,6 +17,7 @@
 
 package com.kinotic.continuum.gateway.internal.endpoints;
 
+import com.kinotic.continuum.api.exceptions.RpcMissingServiceException;
 import com.kinotic.continuum.core.api.event.CRI;
 import com.kinotic.continuum.core.api.event.Event;
 import com.kinotic.continuum.core.api.event.EventConstants;
@@ -25,6 +26,8 @@ import com.kinotic.continuum.core.api.security.Session;
 import com.kinotic.continuum.internal.util.SecurityUtil;
 import com.kinotic.continuum.internal.utils.ContinuumUtil;
 import io.vertx.core.Promise;
+import io.vertx.core.eventbus.ReplyException;
+import io.vertx.core.eventbus.ReplyFailure;
 import io.vertx.ext.stomp.lite.frame.Frame;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
@@ -47,8 +50,8 @@ import java.util.function.Function;
 
 /**
  * Generic class to perform {@link com.kinotic.continuum.core.api.event.Event} handling coming from various endpoints
- *
- *
+ * <p>
+ * <p>
  * Created by Navid Mitchell on 11/3/20
  */
 public class EndpointConnectionHandler {
@@ -70,7 +73,7 @@ public class EndpointConnectionHandler {
         Promise<Map<String, String>> ret = Promise.promise();
 
         // Check if session is being used to authenticate
-        if(connectHeaders.containsKey(EventConstants.SESSION_HEADER)){
+        if (connectHeaders.containsKey(EventConstants.SESSION_HEADER)) {
 
             String sessionId = connectHeaders.get(EventConstants.SESSION_HEADER);
             services.sessionManager
@@ -79,11 +82,11 @@ public class EndpointConnectionHandler {
                         sessionActive(s);
                         ret.complete(Collections.singletonMap(EventConstants.SESSION_HEADER, session.sessionId()));
                     }, throwable -> {
-                        log.error("Session could not be found "+sessionId, throwable);
+                        log.error("Session could not be found " + sessionId, throwable);
                         ret.fail("Session is invalid");
                     });
 
-        }else{
+        } else {
             String identity = connectHeaders.get(Frame.LOGIN);
             String secret = connectHeaders.get(Frame.PASSCODE);
             if (StringUtils.isNotBlank(identity) && StringUtils.isNotBlank(secret)) {
@@ -106,8 +109,8 @@ public class EndpointConnectionHandler {
                                 return services.sessionManager.create(sessionId, participant);
 
                             } catch (Exception e) {
-                                log.error("Session could not be created for identity: "+identity, e);
-                                return Mono.error(new IllegalStateException("Session could not be created",e));
+                                log.error("Session could not be created for identity: " + identity, e);
+                                return Mono.error(new IllegalStateException("Session could not be created", e));
                             }
                         })
                         .subscribe(s -> {
@@ -123,7 +126,7 @@ public class EndpointConnectionHandler {
         return ret;
     }
 
-    private void sessionActive(Session session){
+    private void sessionActive(Session session) {
         this.session = session;
         // update session at least every half the time of the timeout
         long sessionUpdateInterval = services.continuumProperties.getSessionTimeout() / 2;
@@ -142,7 +145,18 @@ public class EndpointConnectionHandler {
                     // make sure reply-to if present is scoped to sender
                     validateReplyTo(event);
 
-                    ret = services.eventBusService.sendWithAck(event);
+                    ret = services.eventBusService
+                            .sendWithAck(event)
+                            .onErrorMap(throwable -> { // map errors that occurred because no Service invoker was listening
+                                boolean predicateRet = false;
+                                if (throwable instanceof ReplyException) {
+                                    ReplyException replyException = (ReplyException) throwable;
+                                    if (replyException.failureType() == ReplyFailure.NO_HANDLERS) {
+                                        predicateRet = true;
+                                    }
+                                }
+                                return predicateRet;
+                            }, RpcMissingServiceException::new);
 
                 } catch (Exception e) {
                     ret = Mono.error(e);
@@ -170,7 +184,7 @@ public class EndpointConnectionHandler {
         return ret;
     }
 
-    private void validateReplyTo(Event<byte[]> event){
+    private void validateReplyTo(Event<byte[]> event) {
         String replyTo = event.metadata().get(EventConstants.REPLY_TO_HEADER);
         if (replyTo != null) {
             // reply-to must not use any * characters and must be "scoped" to the participant identity
@@ -181,7 +195,7 @@ public class EndpointConnectionHandler {
             CRI replyCRI;
             try {
                 replyCRI = CRI.create(replyTo);
-            } catch(Exception e){
+            } catch (Exception e) {
                 throw new IllegalArgumentException("reply-to header invalid " + e.getMessage());
             }
 
@@ -200,13 +214,13 @@ public class EndpointConnectionHandler {
         }
     }
 
-    public void subscribe(CRI cri, String subscriptionIdentifier, BaseSubscriber<Event<byte[]>> subscriber){
+    public void subscribe(CRI cri, String subscriptionIdentifier, BaseSubscriber<Event<byte[]>> subscriber) {
         Validate.notNull(cri, "CRI must not be null");
-        Validate.notEmpty(subscriptionIdentifier,"subscriptionIdentifier must not be empty");
+        Validate.notEmpty(subscriptionIdentifier, "subscriptionIdentifier must not be empty");
         Validate.notNull(subscriber, "Subscriber must not be null");
 
-        if(!session.subscribeAllowed(cri)){
-            throw new IllegalArgumentException("Not Authorized to subscribe to "+cri);
+        if (!session.subscribeAllowed(cri)) {
+            throw new IllegalArgumentException("Not Authorized to subscribe to " + cri);
         }
 
         if (cri.scheme().equals(EventConstants.SERVICE_DESTINATION_SCHEME)) {
@@ -223,7 +237,7 @@ public class EndpointConnectionHandler {
                                         // Then we temporarily allow the device to send to the clients reply-to.
                                         // Which will allow the message to be routed back to the client.
                                         String replyTo = event.metadata().get(EventConstants.REPLY_TO_HEADER);
-                                        if(replyTo != null){
+                                        if (replyTo != null) {
                                             // wildcard in the reply to are not allowed since they could bypass security constraints
                                             if (!replyTo.contains("*")) {
                                                 session.addTemporarySendAllowed(replyTo);
@@ -236,8 +250,8 @@ public class EndpointConnectionHandler {
 
             subscriptions.put(subscriptionIdentifier, subscriber);
 
-            if(log.isDebugEnabled()){
-                log.debug("New subscription cri: "+cri.raw()+" id: "+subscriptionIdentifier+" for login: "+ session.participant());
+            if (log.isDebugEnabled()) {
+                log.debug("New subscription cri: " + cri.raw() + " id: " + subscriptionIdentifier + " for login: " + session.participant());
             }
 
         } else if (cri.scheme().equals(EventConstants.STREAM_DESTINATION_SCHEME)) {
@@ -246,8 +260,8 @@ public class EndpointConnectionHandler {
 
             subscriptions.put(subscriptionIdentifier, subscriber);
 
-            if(log.isDebugEnabled()){
-                log.debug("New subscription cri: "+cri.raw()+" id: "+subscriptionIdentifier+" for login: "+ session.participant());
+            if (log.isDebugEnabled()) {
+                log.debug("New subscription cri: " + cri.raw() + " id: " + subscriptionIdentifier + " for login: " + session.participant());
             }
 
         } else {
@@ -256,34 +270,34 @@ public class EndpointConnectionHandler {
     }
 
 
-    public void unsubscribe(String subscriptionIdentifier){
-        Validate.notEmpty(subscriptionIdentifier,"subscriptionIdentifier must not be empty");
+    public void unsubscribe(String subscriptionIdentifier) {
+        Validate.notEmpty(subscriptionIdentifier, "subscriptionIdentifier must not be empty");
 
-        if(subscriptions.containsKey(subscriptionIdentifier)){
+        if (subscriptions.containsKey(subscriptionIdentifier)) {
             subscriptions.remove(subscriptionIdentifier).cancel();
-        }else{
-            log.debug("No subscription exists for subscriptionIdentifier: "+subscriptionIdentifier);
+        } else {
+            log.debug("No subscription exists for subscriptionIdentifier: " + subscriptionIdentifier);
         }
 
     }
 
-    public void removeSession(){
-        if(session != null){
+    public void removeSession() {
+        if (session != null) {
             services.sessionManager
                     .removeSession(session.sessionId())
                     .subscribe(value -> {
-                                   if(!value){
-                                       log.error("Could not remove sessionId: "+session.sessionId());
+                                   if (!value) {
+                                       log.error("Could not remove sessionId: " + session.sessionId());
                                    }
                                },
-                               throwable -> log.error("Could not remove sessionId: "+session.sessionId(), throwable));
-        }else{
+                               throwable -> log.error("Could not remove sessionId: " + session.sessionId(), throwable));
+        } else {
             log.error("No session for connection was set");
         }
     }
 
-    public void shutdown(){
-        if(sessionTimer != -1){
+    public void shutdown() {
+        if (sessionTimer != -1) {
             services.vertx.cancelTimer(sessionTimer);
         }
 

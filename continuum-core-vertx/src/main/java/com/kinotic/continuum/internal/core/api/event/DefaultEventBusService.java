@@ -105,11 +105,11 @@ public class DefaultEventBusService implements EventBusService {
             vertx.eventBus().request(event.cri().baseResource(),
                                      event.data(),
                                      deliveryOptions,
-                                     (Handler<AsyncResult<Message<Void>>>) event1 -> {
-                                       if(event1.succeeded()){
+                                     (Handler<AsyncResult<Message<Void>>>) reply -> {
+                                       if(reply.succeeded()){
                                            sink.success();
                                        }else{
-                                           sink.error(event1.cause());
+                                           sink.error(reply.cause());
                                        }
                                      });
         });

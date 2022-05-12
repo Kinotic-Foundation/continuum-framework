@@ -21,6 +21,7 @@ import com.kinotic.continuum.core.api.event.*;
 import com.kinotic.continuum.core.api.service.ServiceDescriptor;
 import com.kinotic.continuum.core.api.service.ServiceFunction;
 import com.kinotic.continuum.core.api.service.ServiceFunctionInstanceProvider;
+import com.kinotic.continuum.api.exceptions.RpcMissingMethodException;
 import com.kinotic.continuum.internal.util.EventUtils;
 import io.vertx.core.Vertx;
 import org.apache.commons.lang3.Validate;
@@ -196,8 +197,9 @@ public class ServiceInvocationSupervisor {
 
                 // Resolve arguments based on handler method and incoming data
                 HandlerMethod handlerMethod = methodMap.get(incomingEvent.cri().path());
-                Assert.notNull(handlerMethod,
-                               "No method could be resolved for methodId " + incomingEvent.cri().path());
+                if(handlerMethod == null){
+                    throw new RpcMissingMethodException("No method could be resolved for methodId " + incomingEvent.cri().path());
+                }
 
                 if (!returnValueConverter.supports(incomingEvent.metadata(),
                                                    handlerMethod.getReturnType().getParameterType())) {

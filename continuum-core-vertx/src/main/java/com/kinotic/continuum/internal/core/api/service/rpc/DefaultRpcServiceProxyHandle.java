@@ -17,6 +17,7 @@
 
 package com.kinotic.continuum.internal.core.api.service.rpc;
 
+import com.kinotic.continuum.api.exceptions.RpcMissingServiceException;
 import com.kinotic.continuum.core.api.RpcServiceProxy;
 import com.kinotic.continuum.core.api.RpcServiceProxyHandle;
 import com.kinotic.continuum.core.api.event.*;
@@ -24,6 +25,8 @@ import com.kinotic.continuum.core.api.service.ServiceIdentifier;
 import com.kinotic.continuum.internal.utils.ContinuumUtil;
 import com.kinotic.continuum.internal.utils.MetaUtil;
 import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.eventbus.ReplyException;
+import io.vertx.core.eventbus.ReplyFailure;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -218,10 +221,20 @@ public class DefaultRpcServiceProxyHandle<T> implements RpcServiceProxyHandle<T>
                     public void send() {
                         // Send data to remote end to trigger service invocation
                         eventBusService.sendWithAck(rpcOutboundEvent)
-                                       .subscribe(v -> {}, throwable -> {
+                                       .subscribe(v -> {},
+                                                  throwable -> {
                                            // send failed, signal handler so failure can be relayed to the return value
                                            try{
+
                                                responseMap.remove(correlationId);
+
+                                               // TODO: refactor into util, this is also done in the EndpointConnectionHandler
+                                               if (throwable instanceof ReplyException) {
+                                                   ReplyException replyException = (ReplyException) throwable;
+                                                   if (replyException.failureType() == ReplyFailure.NO_HANDLERS) {
+                                                       throwable = new RpcMissingServiceException(throwable);
+                                                   }
+                                               }
                                                handler.processError(throwable);
                                            }catch (Exception e){
                                                log.error("URGENT: Unhandled exception in RpcReturnValueHandler.processError, Proxy Will be Released!!", e);

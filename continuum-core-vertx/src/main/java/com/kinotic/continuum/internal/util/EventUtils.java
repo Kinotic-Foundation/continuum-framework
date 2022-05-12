@@ -22,7 +22,7 @@ import com.kinotic.continuum.core.api.event.Event;
 import com.kinotic.continuum.core.api.event.EventConstants;
 import com.kinotic.continuum.core.api.event.Metadata;
 import com.kinotic.continuum.core.api.service.ServiceExceptionWrapper;
-import com.kinotic.continuum.internal.core.api.service.rpc.RpcInvocationException;
+import com.kinotic.continuum.api.exceptions.RpcInvocationException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
@@ -42,6 +42,13 @@ public class EventUtils {
 
     private static final Logger log = LoggerFactory.getLogger(EventUtils.class);
 
+    /**
+     * Creates a {@link Throwable} that is the same as the original exception thrown for the {@link Event}
+     * If the {@link Exception} class is not on the class path a {@link RpcInvocationException} will be returned
+     * @param incomingEvent to be
+     * @param objectMapper {@link ObjectMapper} to use to deserialize the response
+     * @return the new {@link Throwable} representing the Error
+     */
     public static Throwable createThrowableForEventWithError(Event<byte[]> incomingEvent, ObjectMapper objectMapper){
         Throwable ret = null;
         if(StringUtils.equals(MimeTypeUtils.APPLICATION_JSON_VALUE, incomingEvent.metadata().get(EventConstants.CONTENT_TYPE_HEADER))){

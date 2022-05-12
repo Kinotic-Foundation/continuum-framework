@@ -93,7 +93,9 @@ public class DefaultStompServerHandler implements StompServerHandler {
 
         endpointConnectionHandler.send(new FrameEventAdapter(frame))
                                  .subscribe(null,
-                                            connection::sendErrorAndDisconnect,
+                                            throwable -> {
+                                                connection.sendErrorAndDisconnect(throwable);
+                                            },
                                             () -> {
                                                 connection.sendReceiptIfNeeded(frame);
                                                 connection.resume();

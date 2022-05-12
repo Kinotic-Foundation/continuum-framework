@@ -53,9 +53,8 @@ public class ContinuumGatewayEndpointInitializer {
         log.info("Deploying Stomp Server Endpoint");
         vertx.deployVerticle(stompServerVerticle);
 
-        // TODO: Finish security impl in verticle prior to enabling
-        //log.info("Deploying REST Server Endpoint");
-        //vertx.deployVerticle(restServerVerticle);
+        log.info("Deploying REST Server Endpoint");
+        vertx.deployVerticle(restServerVerticle);
     }
 
 }

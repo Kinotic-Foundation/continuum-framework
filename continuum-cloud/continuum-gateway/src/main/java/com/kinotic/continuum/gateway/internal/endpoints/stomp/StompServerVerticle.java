@@ -61,7 +61,7 @@ public class StompServerVerticle extends AbstractVerticle {
             response.end(RESPONSE);
         });
 
-
+        // FIXME: check CORS, see if it is protected or actually allowing any..?
         StompServerOptions properties = gatewayProperties.getStomp();
 
         httpServer = vertx.createHttpServer(new HttpServerOptions().setWebSocketSubProtocols(List.of("v12.stomp")))

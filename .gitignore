@@ -91,3 +91,11 @@ continuum-propel/.yalc/continuum-js/dist/index.js
 continuum-propel/.yalc/continuum-js/package.json
 
 continuum-propel/.yalc/continuum-js/yalc.sig
+
+continuum-cloud/continuum-core-vertx/ignite/
+
+continuum-cloud/continuum-gateway/ignite/
+
+continuum-cloud/continuum-orbiter/ignite/
+
+continuum-cloud/continuum-iam/ignite/

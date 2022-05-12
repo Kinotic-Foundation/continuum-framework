@@ -17,6 +17,6 @@ dependencies {
 
     annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
 
-    testImplementation 'com.h2database:h2'
+    testImplementation 'org.hsqldb:hsqldb'
 }
 

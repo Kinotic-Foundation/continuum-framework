@@ -1,9 +1,18 @@
-  # YAML Reference http://www.yaml.org/refcard.html
-  continuum:
-    debug: true
+continuum:
+  debug: true
 
-  # h2 mem db
-  continuum-iam:
-    jdbcDriverClassName: org.h2.Driver
-    jdbcUrl: jdbc:h2:mem:continuum-iam
-    secret: asdfasdfa0234amsmfalk24&asdf{}asf34as21
+ # h2 db
+continuum-iam:
+  jdbcUrl: jdbc:hsqldb:mem:continuum-iam;DB_CLOSE_DELAY=-1
+  jdbcDriverClassName: org.hsqldb.jdbc.JDBCDriver
+
+logging:
+  level:
+    com:
+      kinotic: TRACE
+
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true

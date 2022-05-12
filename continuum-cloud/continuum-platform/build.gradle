@@ -6,7 +6,7 @@ plugins {
 }
 
 group 'com.kinotic'
-version '1.0-SNAPSHOT'
+version "${continuumVersion}"
 
 javaPlatform {
     // Declare that your platform contains dependencies
@@ -15,7 +15,7 @@ javaPlatform {
 
 /**
  * Spring Boot Managed Dependency Coordinates
- * https://docs.spring.io/spring-boot/docs/2.5.6//reference/html/dependency-versions.html
+ * https://docs.spring.io/spring-boot/docs/2.6.7/reference/html/dependency-versions.html
  *
  * Kafka Version Compatibility Guides
  *
@@ -28,26 +28,6 @@ javaPlatform {
  *  Spring Kafka Version Requirements
  *  https://docs.spring.io/spring-kafka/docs/current/reference/html/#compatibility
  */
-
-
-ext{
-    awaitilityVersion='4.0.1'
-    awsVersion='1.11.1017'
-    aws2Version='2.16.66'
-    chronicleQueueVersion='5.20.106'
-    commonsIoVersion='2.8.0'
-    failsafeVersion='2.4.0'
-    groovyVersion='3.0.9'
-    igniteVersion='2.12.0'
-    jCacheApiVersion='1.0.0'
-    lombokVersion = '1.18.12'
-    vertxVersion='3.9.13'
-    springBootVersion = '2.6.7'
-    vertxStompLiteVersion='3.9.12'
-    vertxBeansVersion='1.5.0'
-    zookeeperVersion='3.5.9'
-    apacheCuratorVersion='4.3.0'
-}
 
 dependencies {
     api platform("org.springframework.boot:spring-boot-dependencies:${springBootVersion}")

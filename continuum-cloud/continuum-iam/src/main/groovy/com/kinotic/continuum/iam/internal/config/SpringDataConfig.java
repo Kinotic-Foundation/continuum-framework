@@ -22,9 +22,6 @@ import com.fasterxml.jackson.datatype.hibernate5.Hibernate5Module;
 import com.kinotic.continuum.iam.api.config.ContinuumIamProperties;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnSingleCandidate;
-import org.springframework.boot.autoconfigure.transaction.TransactionAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor;
@@ -34,7 +31,6 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-import org.springframework.transaction.support.TransactionOperations;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.persistence.EntityManagerFactory;
@@ -51,18 +47,18 @@ public class SpringDataConfig {
 
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     @Bean
-    @ConditionalOnMissingBean
     public DataSource dataSource(ContinuumIamProperties properties) {
         HikariConfig config = new HikariConfig();
-        config.setUsername(properties.getUsername());
-        config.setPassword(properties.getPassword());
+        if(properties.getUsername() != null && properties.getUsername().length() > 0) {
+            config.setUsername(properties.getUsername());
+            config.setPassword(properties.getPassword());
+        }
         config.setDriverClassName(properties.getJdbcDriverClassName());
         config.setJdbcUrl(properties.getJdbcUrl());
         return new HikariDataSource(config);
     }
 
     @Bean
-    @ConditionalOnMissingBean(EntityManagerFactory.class)
     public LocalContainerEntityManagerFactoryBean entityManagerFactory(DataSource dataSource){
         LocalContainerEntityManagerFactoryBean ret = new LocalContainerEntityManagerFactoryBean();
         ret.setDataSource(dataSource);
@@ -79,7 +75,6 @@ public class SpringDataConfig {
     }
 
     @Bean
-    @ConditionalOnMissingBean
     public PlatformTransactionManager transactionManager(EntityManagerFactory emf) {
         JpaTransactionManager transactionManager = new JpaTransactionManager();
         transactionManager.setEntityManagerFactory(emf);

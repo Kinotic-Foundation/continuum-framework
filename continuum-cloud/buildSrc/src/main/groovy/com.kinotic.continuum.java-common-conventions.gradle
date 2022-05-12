@@ -4,7 +4,7 @@ plugins {
 }
 
 group 'com.kinotic'
-version '1.0.0'
+version "${continuumVersion}"
 sourceCompatibility = '11'
 
 repositories {

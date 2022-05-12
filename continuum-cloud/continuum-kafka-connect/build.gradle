@@ -22,7 +22,6 @@ dependencyManagement {
 
 ext {
 	set('groovy.version', '3.0.6')
-	continuumVersion='1.0-SNAPSHOT'
 	kafkaVersion='2.6.0' //linked to aws msk supported version, and all kafka zookeeper curator versions are interdependent
 }
 

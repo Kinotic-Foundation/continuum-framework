@@ -1,7 +1,5 @@
 rootProject.name = 'continuum-cloud'
 
-includeBuild('../../vertx-stomp-lite')
-
 include(
         'continuum-platform',
         'aws-util',
@@ -13,7 +11,7 @@ include(
         //'structures',
         'continuum-grind',
         'continuum-iam',
-        'continuum-orbiter',
+        //'continuum-orbiter',
         //'continuum-substratum',
         'continuum-util'
 )

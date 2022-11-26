@@ -55,7 +55,7 @@ public class TestJobService {
     public void testSimple(){
 
 
-        JobDefinition definition = sequenceOfCallableJob(5, false);
+        JobDefinition definition = sequenceOfCallableJob(5, true);
 
         Flux<Result<?>> jobResult = jobService.assemble(definition);
 

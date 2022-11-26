@@ -182,7 +182,7 @@ public class DefaultRpcServiceProxyHandle<T> implements RpcServiceProxyHandle<T>
                 // This way no ReturnValueHandler is created until message is ready to get dispatched to remote end
 
 
-                // if there is an scope parameter remove it from args to be sent, and store it as part of the CRI
+                // if there is a scope parameter remove it from args to be sent, and store it as part of the CRI
                 Integer scopeParameter = methodsWithScopeAnnotation.get(method);
                 String scope = (scopeParameter != null ? args[scopeParameter].toString() : null); // effectively final.. lol
                 if(scopeParameter != null){

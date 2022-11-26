@@ -69,7 +69,6 @@ public class JobDefinitionStep extends AbstractStep implements HasSteps {
                 GenericApplicationContext temp;
                 if(jobDefinition.getScope() == JobScope.CHILD){
                     temp = createContext(applicationContext);
-                    cleanupContextOnFinallyDecision = false;
                 }else if(jobDefinition.getScope() == JobScope.ISOLATED){
                     temp = createContext(null);
                     cleanupContextOnFinallyDecision = true;
@@ -146,7 +145,7 @@ public class JobDefinitionStep extends AbstractStep implements HasSteps {
                                                        contextToUse.close();
                                                    }
                                                })
-                                               .subscribe();
+                                               .subscribe(); // TODO: not sure if warning is really an issue, but it should be investigated
                 sink.onCancel(disposable);
 
             } catch (Exception throwable) {

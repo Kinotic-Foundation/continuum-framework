@@ -1,7 +1,7 @@
 {
   "name": "@kinotic-foundation/continuum-js",
   "version": "1.0.0",
-  "author": "Kinotic <develop@kinotic.com>",
+  "author": "Kinotic <develop@kinotic.org>",
   "license": "MIT",
   "scripts": {
     "build": "rollup -c",

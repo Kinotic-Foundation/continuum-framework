@@ -57,7 +57,7 @@ public class TestRest {
     public void testServiceRequestTwoParams(){
         Promise<HttpResponse<Buffer>> response = Promise.promise();
 
-        client.post(properties.getRest().getPort(), "localhost", "/api/srv/com.kinotic.continuum.gateway.internal.support.TestService/test")
+        client.post(properties.getRest().getPort(), "localhost", "/api/srv/org.kinotic.continuum.gateway.internal.support.TestService/test")
               .basicAuthentication("dummy", "dummyPass")
               .putHeader("content-type", "application/json")
               .sendBuffer(Buffer.buffer("[\"Hello\",42]"), response);
@@ -69,7 +69,7 @@ public class TestRest {
     public void testServiceRequestSingleParams(){
         Promise<HttpResponse<Buffer>> response = Promise.promise();
 
-        client.post(properties.getRest().getPort(), "localhost", "/api/srv/com.kinotic.continuum.gateway.internal.support.TestService/hello")
+        client.post(properties.getRest().getPort(), "localhost", "/api/srv/org.kinotic.continuum.gateway.internal.support.TestService/hello")
               .basicAuthentication("dummy", "dummyPass")
               .putHeader("content-type", "application/json")
               .sendBuffer(Buffer.buffer("[\"Bob\"]"), response);
@@ -81,7 +81,7 @@ public class TestRest {
     public void testServiceRequestNoParams(){
         Promise<HttpResponse<Buffer>> response = Promise.promise();
 
-        client.post(properties.getRest().getPort(), "localhost", "/api/srv/com.kinotic.continuum.gateway.internal.support.TestService/noArgs")
+        client.post(properties.getRest().getPort(), "localhost", "/api/srv/org.kinotic.continuum.gateway.internal.support.TestService/noArgs")
               .basicAuthentication("dummy", "dummyPass")
               .putHeader("content-type", "application/json")
               .send(response);
@@ -93,7 +93,7 @@ public class TestRest {
     public void testMissingMethod(){
         Promise<HttpResponse<Buffer>> response = Promise.promise();
 
-        client.post(properties.getRest().getPort(), "localhost", "/api/srv/com.kinotic.continuum.gateway.internal.support.TestService/wat")
+        client.post(properties.getRest().getPort(), "localhost", "/api/srv/org.kinotic.continuum.gateway.internal.support.TestService/wat")
               .basicAuthentication("dummy", "dummyPass")
               .putHeader("content-type", "application/json")
               .send(response);
@@ -111,7 +111,7 @@ public class TestRest {
     public void testServiceRequestMonoSingleParams(){
         Promise<HttpResponse<Buffer>> response = Promise.promise();
 
-        client.post(properties.getRest().getPort(), "localhost", "/api/srv/com.kinotic.continuum.gateway.internal.support.TestService/testMono")
+        client.post(properties.getRest().getPort(), "localhost", "/api/srv/org.kinotic.continuum.gateway.internal.support.TestService/testMono")
               .basicAuthentication("dummy", "dummyPass")
               .putHeader("content-type", "application/json")
               .sendBuffer(Buffer.buffer("[\"Bob\"]"), response);
@@ -123,7 +123,7 @@ public class TestRest {
     public void testServiceRequestMonoNoParams(){
         Promise<HttpResponse<Buffer>> response = Promise.promise();
 
-        client.post(properties.getRest().getPort(), "localhost", "/api/srv/com.kinotic.continuum.gateway.internal.support.TestService/testMonoNoArg")
+        client.post(properties.getRest().getPort(), "localhost", "/api/srv/org.kinotic.continuum.gateway.internal.support.TestService/testMonoNoArg")
               .basicAuthentication("dummy", "dummyPass")
               .putHeader("content-type", "application/json")
               .send(response);

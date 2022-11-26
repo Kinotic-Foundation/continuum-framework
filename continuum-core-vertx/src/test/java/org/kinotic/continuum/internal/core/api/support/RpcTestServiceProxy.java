@@ -28,7 +28,7 @@ import java.util.List;
  *
  * Created by navid on 10/30/19
  */
-@Proxy(namespace = "com.kinotic.continuum.internal.core.api.support",
+@Proxy(namespace = "org.kinotic.continuum.internal.core.api.support",
        name = "RpcTestService",
        version = "0.1.0")
 public interface RpcTestServiceProxy {

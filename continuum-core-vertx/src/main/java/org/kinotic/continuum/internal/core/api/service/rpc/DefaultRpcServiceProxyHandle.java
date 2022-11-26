@@ -20,7 +20,7 @@ package org.kinotic.continuum.internal.core.api.service.rpc;
 import org.kinotic.continuum.api.exceptions.RpcMissingServiceException;
 import org.kinotic.continuum.core.api.RpcServiceProxy;
 import org.kinotic.continuum.core.api.RpcServiceProxyHandle;
-import com.kinotic.continuum.core.api.event.*;
+import org.kinotic.continuum.core.api.event.*;
 import org.kinotic.continuum.core.api.event.*;
 import org.kinotic.continuum.core.api.service.ServiceIdentifier;
 import org.kinotic.continuum.internal.utils.ContinuumUtil;

@@ -62,7 +62,7 @@ public class SpringDataConfig {
     public LocalContainerEntityManagerFactoryBean entityManagerFactory(DataSource dataSource){
         LocalContainerEntityManagerFactoryBean ret = new LocalContainerEntityManagerFactoryBean();
         ret.setDataSource(dataSource);
-        ret.setPackagesToScan("com.kinotic.continuum.iam.api.domain");
+        ret.setPackagesToScan("org.kinotic.continuum.iam.api.domain");
 
         JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
         ret.setJpaVendorAdapter(vendorAdapter);

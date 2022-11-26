@@ -28,6 +28,6 @@ import org.springframework.context.annotation.Configuration;
  * Created by Navid Mitchell on 11/28/18.
  */
 @Configuration
-@ComponentScan("com.kinotic.continuum.internal")
+@ComponentScan("org.kinotic.continuum.internal")
 public class ContinuumConfiguration {
 }

@@ -21,7 +21,7 @@ import org.kinotic.continuum.core.api.security.MetadataConstants;
 import org.kinotic.continuum.iam.api.DeviceRegistrationConstants;
 import org.kinotic.continuum.iam.api.DeviceService;
 import org.kinotic.continuum.iam.api.config.ContinuumIamProperties;
-import com.kinotic.continuum.iam.api.domain.*;
+import org.kinotic.continuum.iam.api.domain.*;
 import org.kinotic.continuum.iam.api.domain.*;
 import org.kinotic.continuum.iam.internal.repositories.IamParticipantRepository;
 import org.kinotic.continuum.iam.internal.repositories.RoleRepository;

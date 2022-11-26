@@ -40,7 +40,7 @@ import java.util.concurrent.TimeUnit;
 public class EventBusServiceTest {
 
     // There are no hard constraints on destinations we are choosing these because of internal conventions
-    private static final String DESTINATION = "srv://com.kinotic.continuum.tests.TestService/serviceMethod";
+    private static final String DESTINATION = "srv://org.kinotic.continuum.tests.TestService/serviceMethod";
 
     @Autowired
     private EventBusService eventBusService;

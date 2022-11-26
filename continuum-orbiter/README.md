@@ -7,9 +7,9 @@ Provides functionality to monitor Continuum and sends errors to concerned admini
 
 
 ## Packages
-1. com.kinotic.continuum.orbiter.api
+1. org.kinotic.continuum.orbiter.api
     * Continnum Orbiter High Level API
-3. com.kinotic.continuum.orbiter.internal
+3. org.kinotic.continuum.orbiter.internal
     * Should only be used by framework implementers. 
     
 ## Caveats

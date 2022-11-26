@@ -5,7 +5,7 @@ plugins {
 	id 'application'
 }
 
-group = 'com.kinotic'
+group = 'org.kinotic'
 version = '1.0-SNAPSHOT'
 sourceCompatibility = '15'
 
@@ -29,8 +29,8 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter'
 	implementation 'org.codehaus.groovy:groovy'
 
-	implementation "com.kinotic:continuum-core:${continuumVersion}"
-	implementation "com.kinotic:continuum-core-vertx:${continuumVersion}"
+	implementation "org.kinotic:continuum-core:${continuumVersion}"
+	implementation "org.kinotic:continuum-core-vertx:${continuumVersion}"
 
 	// Kafka and Zookeeper dependencies. Declared with versions to handle compatibility
 	// Spring kafka compatibility https://spring.io/projects/spring-kafka

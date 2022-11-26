@@ -17,7 +17,7 @@
 
 package org.kinotic.continuum.grind.internal.api;
 
-import com.kinotic.continuum.grind.api.*;
+import org.kinotic.continuum.grind.api.*;
 import org.kinotic.continuum.grind.api.*;
 import org.reactivestreams.Publisher;
 import org.slf4j.Logger;

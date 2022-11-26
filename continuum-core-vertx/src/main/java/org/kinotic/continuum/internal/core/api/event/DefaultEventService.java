@@ -17,7 +17,7 @@
 
 package org.kinotic.continuum.internal.core.api.event;
 
-import com.kinotic.continuum.core.api.event.*;
+import org.kinotic.continuum.core.api.event.*;
 import org.kinotic.continuum.core.api.event.*;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;

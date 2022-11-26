@@ -68,7 +68,7 @@ public class ProxyRegistrationBeanDefinitionRegistryPostProcessor implements Bea
 
         // scan classpath for all Classes annotated with @Proxy
         List<String> packages = ContinuumPackages.get(this.applicationContext);
-        packages.add("com.kinotic.continuum.internal"); // core continuum proxies
+        packages.add("org.kinotic.continuum.internal"); // core continuum proxies
 
         Set<MetadataReader> readers = MetaUtil.findClassesWithAnnotation(applicationContext, packages, Proxy.class);
 

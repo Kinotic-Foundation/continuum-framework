@@ -60,7 +60,7 @@ public class DefaultDataInitialization {
         if(iamAdminRole.isEmpty()){
             AccessPolicy accessPolicy = new AccessPolicy("iam-admin-policy");
             accessPolicy.setAllowedSendPatterns(Collections.singletonList(new AccessPattern(EventConstants.SERVICE_DESTINATION_SCHEME
-                                                                                            + "://com.kinotic.continuum.iam.api.**")));
+                                                                                            + "://org.kinotic.continuum.iam.api.**")));
             accessPolicy = accessPolicyRepository.save(accessPolicy);
 
             Role role = new Role("iam-admin-role");
@@ -98,7 +98,7 @@ public class DefaultDataInitialization {
         if(deviceRegistrationRole.isEmpty()){
             AccessPolicy accessPolicy = new AccessPolicy("device-registration-policy");
             accessPolicy.setAllowedSendPatterns(List.of(new AccessPattern(EventConstants.SERVICE_DESTINATION_SCHEME
-                                                                          + "://com.kinotic.continuum.iam.api.DeviceService/registerDevice*")));
+                                                                          + "://org.kinotic.continuum.iam.api.DeviceService/registerDevice*")));
 
             // for registration response since registration service delegates subscriptions..
             accessPolicy.setAllowedSubscriptionPatterns(List.of(new AccessPattern(EventConstants.SERVICE_DESTINATION_SCHEME

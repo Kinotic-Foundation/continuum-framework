@@ -18,7 +18,7 @@
 package org.kinotic.continuum.internal.api.jsonSchema;
 
 import org.kinotic.continuum.api.annotations.Name;
-import com.kinotic.continuum.api.jsonSchema.*;
+import org.kinotic.continuum.api.jsonSchema.*;
 import org.kinotic.continuum.internal.api.jsonSchema.converters.ConversionContext;
 import org.kinotic.continuum.internal.api.jsonSchema.converters.DefaultConversionContext;
 import org.kinotic.continuum.internal.api.jsonSchema.converters.GenericTypeJsonSchemaConverter;

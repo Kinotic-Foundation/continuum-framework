@@ -17,7 +17,7 @@
 
 package org.kinotic.continuum.internal.core.api.service.invoker;
 
-import com.kinotic.continuum.core.api.event.*;
+import org.kinotic.continuum.core.api.event.*;
 import org.kinotic.continuum.core.api.service.ServiceDescriptor;
 import org.kinotic.continuum.core.api.service.ServiceFunction;
 import org.kinotic.continuum.core.api.service.ServiceFunctionInstanceProvider;

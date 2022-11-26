@@ -25,7 +25,7 @@ import reactor.core.publisher.Mono;
  *
  * Created by navid on 10/17/19
  */
-@Proxy(namespace = "com.kinotic.continuum.internal.core.api.support",
+@Proxy(namespace = "org.kinotic.continuum.internal.core.api.support",
        name="ClusterTestService",
        version = "0.1.0")
 public interface ClusterTestServiceProxy {

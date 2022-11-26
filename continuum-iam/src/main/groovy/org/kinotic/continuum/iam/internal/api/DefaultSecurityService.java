@@ -20,7 +20,7 @@ package org.kinotic.continuum.iam.internal.api;
 import org.kinotic.continuum.core.api.security.Participant;
 import org.kinotic.continuum.core.api.security.Permissions;
 import org.kinotic.continuum.core.api.security.SecurityService;
-import com.kinotic.continuum.iam.api.domain.*;
+import org.kinotic.continuum.iam.api.domain.*;
 import org.kinotic.continuum.iam.api.domain.*;
 import org.kinotic.continuum.iam.internal.repositories.AuthenticatorRepository;
 import org.kinotic.continuum.iam.internal.repositories.IamParticipantRepository;

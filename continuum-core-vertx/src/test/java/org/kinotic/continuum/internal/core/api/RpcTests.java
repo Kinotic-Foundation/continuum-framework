@@ -20,7 +20,7 @@ package org.kinotic.continuum.internal.core.api;
 import org.kinotic.continuum.api.exceptions.RpcMissingMethodException;
 import org.kinotic.continuum.api.exceptions.RpcInvocationException;
 import org.kinotic.continuum.api.exceptions.RpcMissingServiceException;
-import com.kinotic.continuum.internal.core.api.support.*;
+import org.kinotic.continuum.internal.core.api.support.*;
 import io.vertx.core.Future;
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.Assertions;
@@ -170,7 +170,7 @@ public class RpcTests {
             // When the original exception class cannot be instantiated you wll get a RpcInvocationException
             if(throwable instanceof RpcInvocationException){
                 ret = Objects.equals(((RpcInvocationException) throwable).getOriginalClassName(),
-                                     "com.kinotic.continuum.internal.core.api.support.DefaultRpcTestService$UnknownThrowable");
+                                     "org.kinotic.continuum.internal.core.api.support.DefaultRpcTestService$UnknownThrowable");
             }
             return ret;
         }).verify();

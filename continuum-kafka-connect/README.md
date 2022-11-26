@@ -7,7 +7,7 @@ Provides a wrapper around [Kafka Connect](https://docs.confluent.io/5.5.0/connec
 
 
 ## Packages
-1. com.kinotic.continuum.kafkaconnect.api
+1. org.kinotic.continuum.kafkaconnect.api
    * Continnum Kafka Connect High Level API
     
 ## Caveats

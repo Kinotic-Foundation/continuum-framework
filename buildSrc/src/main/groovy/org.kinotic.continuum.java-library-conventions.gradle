@@ -1,6 +1,6 @@
 plugins {
     // Apply the common convention plugin for shared build configuration between library and application projects.
-    id 'com.kinotic.continuum.java-common-conventions'
+    id 'org.kinotic.continuum.java-common-conventions'
 
     id 'java-library'
     id 'maven-publish'
@@ -49,7 +49,7 @@ publishing {
                 developers {
                     developer {
                         name = 'Kinotic Developers'
-                        email = 'develop@kinotic.com'
+                        email = 'develop@kinotic.org'
                     }
                 }
                 scm {

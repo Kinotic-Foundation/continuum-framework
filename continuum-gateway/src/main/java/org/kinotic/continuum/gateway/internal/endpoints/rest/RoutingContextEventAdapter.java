@@ -47,13 +47,13 @@ class RoutingContextEventAdapter implements Event<byte[]> {
         routingContext.request().headers().remove(HttpHeaders.AUTHORIZATION);
         this.metadataAdapter = new MultiMapMetadataAdapter(routingContext.request().headers());
 
-        // add sender, this is set in com.kinotic.continuum.gateway.internal.endpoints.rest.ParticipantToUserAdapter
+        // add sender, this is set in org.kinotic.continuum.gateway.internal.endpoints.rest.ParticipantToUserAdapter
         String identity = routingContext.user().principal().getString("user");
         this.metadataAdapter.put(EventConstants.SENDER_HEADER, identity);
 
         // We adapt the CRI information to the expectations of the current Service Invoker
         // Path provided will be like ex:
-        // http://localhost/api/srv/com.kinotic.testapplication.services.TestService/getFreeMemory
+        // http://localhost/api/srv/org.kinotic.testapplication.services.TestService/getFreeMemory
 
         String pathWithoutRoot = StringUtils.removeStart(routingContext.request().path(), rootPath);
         Validate.notBlank(pathWithoutRoot, "Path must be provided and point to a valid service");

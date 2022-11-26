@@ -42,11 +42,11 @@ import reactor.test.StepVerifier
 @ActiveProfiles(["test"])
 class CrudTests {
 
-    private static String TEST_USER_IDENTITY = "navid@kinotic.com"
+    private static String TEST_USER_IDENTITY = "navid@kinotic.org"
     private static String TEST_USER_PASSWORD = "a1843621"
     private static List<AccessPattern> ALLOWED_SEND_ACCESS_PATHS =
             Arrays.asList(new AccessPattern("srv://*"),
-                          new AccessPattern("srv://com.kinotic.test.TestService/testMethod"))
+                          new AccessPattern("srv://org.kinotic.test.TestService/testMethod"))
 
     @Autowired
     private UserService userService

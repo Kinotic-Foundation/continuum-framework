@@ -1,0 +1,67 @@
+plugins {
+	id 'org.springframework.boot' version '2.4.6'
+	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+	id 'groovy'
+	id 'application'
+}
+
+group = 'org.kinotic'
+version = '1.0-SNAPSHOT'
+sourceCompatibility = '15'
+
+repositories {
+	mavenCentral()
+}
+
+// TODO: figure out how to make this come from the base continuum-vertx-core
+dependencyManagement {
+	dependencies {
+		dependency 'com.h2database:h2:1.4.197' // Tied to Ignite version. We make sure this is correct for ignite expectations
+	}
+}
+
+ext {
+	set('groovy.version', '3.0.6')
+	kafkaVersion='2.6.0' //linked to aws msk supported version, and all kafka zookeeper curator versions are interdependent
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter'
+	implementation 'org.codehaus.groovy:groovy'
+
+	implementation "org.kinotic:continuum-core:${continuumVersion}"
+	implementation "org.kinotic:continuum-core-vertx:${continuumVersion}"
+
+	// Kafka and Zookeeper dependencies. Declared with versions to handle compatibility
+	// Spring kafka compatibility https://spring.io/projects/spring-kafka
+	implementation "org.apache.kafka:kafka-clients:${kafkaVersion}"
+	implementation ("org.apache.kafka:connect-runtime:${kafkaVersion}"){
+		exclude group: "org.slf4j", module: "slf4j-log4j12"
+		exclude group: "log4j", module: "log4j"
+	}
+	implementation "org.springframework.kafka:spring-kafka"
+	implementation 'io.projectreactor.kafka:reactor-kafka'
+
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+test {
+	useJUnitPlatform()
+}
+
+/**
+ * Default Environment Vars
+ * The following should be configured on launch as well
+ * 		"--spring.profiles.active=production,ignite"
+ */
+// These properties
+applicationDefaultJvmArgs = [
+		"-Djava.awt.headless=true",
+		"-Djava.net.preferIPv4Stack=true",
+		"-Dvertx.disableDnsResolver=true", // done because of this issue.. https://github.com/eclipse/vert.x/issues/1753 http://stackoverflow.com/questions/42110790/vertx-httpclient-getnow-not-working
+		"-server",
+		"-XX:+AlwaysPreTouch",
+		"-XX:+UseG1GC",
+		"-XX:+ScavengeBeforeFullGC",
+		"-XX:+DisableExplicitGC"
+]

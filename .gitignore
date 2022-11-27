@@ -2,7 +2,7 @@
 # Reference: https://intellij-support.jetbrains.com/hc/en-us/articles/206544839
 .gradle
 /build/
-*/buildSrc/build/
+/buildSrc/build/
 !gradle/wrapper/gradle-wrapper.jar
 
 # User-specific stuff
@@ -41,38 +41,11 @@
 *.iml
 *.ipr
 
-# CMake
-cmake-build-*/
-
-# Mongo Explorer plugin
-.idea/**/mongoSettings.xml
-
 # File-based project format
 *.iws
 
 # IntelliJ
 out/
-
-# mpeltonen/sbt-idea plugin
-.idea_modules/
-
-# JIRA plugin
-atlassian-ide-plugin.xml
-
-# Cursive Clojure plugin
-.idea/replstate.xml
-
-# Crashlytics plugin (for Android Studio and IntelliJ)
-com_crashlytics_export_strings.xml
-crashlytics.properties
-crashlytics-build.properties
-fabric.properties
-
-# Editor-based Rest Client
-.idea/httpRequests
-
-# Android studio 3.1+ serialized cache file
-.idea/caches/build_file_checksums.sers
 
 ### MAC SPECIFIC ###
 *.DS_Store
@@ -82,12 +55,10 @@ fabric.properties
 
 *.zip
 
-continuum-propel/yalc.lock
+/continuum-core-vertx/ignite/
 
-continuum-propel/.yalc/continuum-js/dist/index.es.js
+/continuum-gateway/ignite/
 
-continuum-propel/.yalc/continuum-js/dist/index.js
+/continuum-orbiter/ignite/
 
-continuum-propel/.yalc/continuum-js/package.json
-
-continuum-propel/.yalc/continuum-js/yalc.sig
+/continuum-iam/ignite/

@@ -1,0 +1,18 @@
+rootProject.name = 'continuum-framework'
+
+include(
+        'continuum-platform',
+        'aws-util',
+        'git-util',
+        'continuum-core',
+        'continuum-core-vertx',
+        'continuum-gateway',
+        'continuum-gateway-server',
+        'continuum-grind',
+        'continuum-iam',
+        'continuum-util',
+        'continuum-clients:continuum-js',
+        //'continuum-orbiter',
+        //'continuum-substratum',
+        //'structures'
+)

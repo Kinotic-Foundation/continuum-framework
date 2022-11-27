@@ -1,0 +1,65 @@
+plugins {
+    id 'org.kinotic.continuum.java-library-conventions'
+}
+
+dependencies {
+    // Continuum Dependencies
+    api project(':continuum-core')
+
+    // spring
+    implementation 'org.springframework:spring-core'
+    implementation 'org.springframework:spring-context'
+    implementation 'org.springframework:spring-aop'
+    implementation 'org.springframework:spring-web' // used for json conversion functionality spring web has a lot of helpful utilities
+    implementation 'javax.annotation:javax.annotation-api'
+    implementation 'org.springframework.boot:spring-boot-autoconfigure' // Used for conditionally wiring beans
+
+    // vertx
+    api 'io.vertx:vertx-core'
+    implementation 'com.github.rworsnop:vertx-beans'
+
+    api 'org.apache.kafka:kafka-clients'
+    api 'org.springframework.kafka:spring-kafka'
+    api 'io.projectreactor.kafka:reactor-kafka'
+    api ('org.apache.zookeeper:zookeeper') {
+        exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+        exclude group: 'log4j', module: 'log4j'
+    }
+
+    // Apache Ignite
+    implementation 'io.vertx:vertx-ignite'
+    implementation 'org.apache.ignite:ignite-core'
+    implementation 'org.apache.ignite:ignite-indexing'
+    implementation 'org.apache.ignite:ignite-spring'
+    implementation 'org.apache.ignite:ignite-slf4j'
+    implementation ('org.apache.ignite:ignite-zookeeper'){
+        exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    }
+    implementation 'javax.cache:cache-api'
+
+    // Json
+    api 'com.fasterxml.jackson.core:jackson-core'
+    api 'com.fasterxml.jackson.core:jackson-annotations'
+    api 'com.fasterxml.jackson.core:jackson-databind'
+    api 'com.fasterxml.jackson.datatype:jackson-datatype-jdk8'
+    api 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+
+    // Dependencies required to handle various JsonSchema converters. These can be moved when that code is separated
+    implementation 'org.codehaus.groovy:groovy'
+
+    // Misc
+    implementation 'commons-io:commons-io'
+    implementation 'com.github.ben-manes.caffeine:caffeine'
+    implementation 'org.awaitility:awaitility'
+
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+
+    testImplementation 'org.springframework.boot:spring-boot-loader-tools'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.kafka:spring-kafka-test'
+    testImplementation 'io.projectreactor:reactor-test'
+}
+
+test {
+    useJUnitPlatform()
+}

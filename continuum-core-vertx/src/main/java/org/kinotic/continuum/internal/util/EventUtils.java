@@ -106,7 +106,7 @@ public class EventUtils {
         }else{
             newMetadata = Metadata.create();
         }
-        
+
         // we must persist any headers that begin with __
         for(Map.Entry<String, String> entry: incomingMetadata){
             if(entry.getKey().startsWith("__")) {
@@ -143,5 +143,10 @@ public class EventUtils {
 
         return sb.toString();
     }
+
+
+
+
+
 
 }

@@ -100,7 +100,7 @@ public class DefaultRpcServiceProxyHandle<T> implements RpcServiceProxyHandle<T>
 
         this.handlerCRI = CRI.create(EventConstants.SERVICE_DESTINATION_SCHEME, encodedNodeName + ":" + UUID.randomUUID(), serviceClass.getName()+"RpcProxyResponseHandler");
 
-        // Verify that an proxy can be built supporting all methods of the provided serviceClass
+        // Verify that a proxy can be built supporting all methods of the provided serviceClass
         ReflectionUtils.doWithMethods(serviceClass, method -> {
 
             if(!rpcReturnValueHandlerFactory.supports(method)){

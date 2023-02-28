@@ -18,13 +18,15 @@
 package org.kinotic.continuum.gateway.internal.support;
 
 import org.kinotic.continuum.api.annotations.Publish;
+import org.kinotic.continuum.api.annotations.Version;
 import reactor.core.publisher.Mono;
 
 /**
  *
  * Created by navid on 12/23/19
  */
-@Publish(version = "0.1.0")
+@Publish
+@Version("0.1.0")
 public interface TestService {
 
     String noArgs();

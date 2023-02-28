@@ -36,6 +36,8 @@ import org.kinotic.continuum.internal.core.api.service.rpc.RpcArgumentConverterR
 import org.kinotic.continuum.internal.core.api.service.rpc.RpcReturnValueHandlerFactory;
 import io.vertx.core.Vertx;
 import org.apache.commons.lang3.Validate;
+import org.kinotic.continuum.internal.utils.ContinuumUtil;
+import org.kinotic.continuum.internal.utils.MetaUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -171,10 +173,16 @@ public class DefaultServiceRegistry implements ServiceRegistry {
     public <T> RpcServiceProxyHandle<T> serviceProxy(Class<T> serviceInterface) {
         Proxy proxyAnnotation = serviceInterface.getAnnotation(Proxy.class);
         Validate.notNull(proxyAnnotation, "The Class provided must be annotated with @Proxy");
-        ServiceIdentifier serviceIdentifier = new ServiceIdentifier(!proxyAnnotation.namespace().isEmpty() ? proxyAnnotation.namespace() : null,
-                                                                    proxyAnnotation.name(),
+
+        String namespace = proxyAnnotation.namespace().isEmpty() ? ContinuumUtil.safeEncodeURI(serviceInterface.getPackageName()) : proxyAnnotation.namespace();
+        String name = proxyAnnotation.name().isEmpty() ? serviceInterface.getSimpleName() : proxyAnnotation.name();
+        String version = MetaUtil.getVersion(serviceInterface);
+
+        ServiceIdentifier serviceIdentifier = new ServiceIdentifier(namespace,
+                                                                    name,
                                                                     null,
-                                                                    proxyAnnotation.version());
+                                                                    version);
+
         return serviceProxy(serviceIdentifier, serviceInterface, MimeTypeUtils.APPLICATION_JSON_VALUE);
     }
 }

@@ -33,6 +33,7 @@ public class ServiceIdentifier {
 
     private final String name;
 
+    // TODO: consider moving this somewhere else. It is not really appropriate for any {@link org.kinotic.continuum.api.annotations.Proxy} definitions
     private final String scope;
 
     private final String version;
@@ -73,8 +74,11 @@ public class ServiceIdentifier {
         return name;
     }
 
+
     /**
      * The scope of this {@link ServiceIdentifier}
+     * The scope allows for multiple instances of the same service to be deployed to the cluster each having their own scope
+     * A service can then be addressed by its scope
      * @return string containing the scope or null if not provided
      */
     public String scope() {

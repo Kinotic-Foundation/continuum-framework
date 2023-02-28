@@ -20,6 +20,7 @@ package org.kinotic.continuum.internal.utils;
 import org.kinotic.continuum.api.annotations.Scope;
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.reflect.FieldUtils;
+import org.kinotic.continuum.api.annotations.Version;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.BridgeMethodResolver;
 import org.springframework.core.MethodParameter;
@@ -150,7 +151,7 @@ public class MetaUtil {
      * Returns the interface or interfaces that declares the given annotation
      * @param clazz to check for the annotation
      * @param annotation to look for
-     * @return
+     * @return a list of interfaces that declare the annotation
      */
     public static List<Class<?>> getInterfaceDeclaringAnnotation(Class<?> clazz, Class<? extends Annotation> annotation){
         ArrayList<Class<?>> ret = new ArrayList<>();
@@ -163,6 +164,29 @@ public class MetaUtil {
         // If there is a superclass we need its interfaces as well
         if(clazz.getSuperclass() != null){
             ret.addAll(getInterfaceDeclaringAnnotation(clazz.getSuperclass(), annotation));
+        }
+        return ret;
+    }
+
+    /**
+     * Gets the version for the class by searching for a {@link @Version} annotation.
+     * If the class contains the annotation that version is returned otherwise it returns the version from the package-info.java file annotation if found.
+     * @param clazz to search for a version
+     * @return the version or null if not found
+     */
+    public static String getVersion(Class<?> clazz){
+        String ret = null;
+        Version version = AnnotationUtils.findAnnotation(clazz, Version.class);
+        if(version != null){
+            ret = version.value();
+        }else{
+            Package pkg = clazz.getPackage();
+            if(pkg != null){
+                version = AnnotationUtils.findAnnotation(pkg, Version.class);
+                if(version != null){
+                    ret = version.value();
+                }
+            }
         }
         return ret;
     }

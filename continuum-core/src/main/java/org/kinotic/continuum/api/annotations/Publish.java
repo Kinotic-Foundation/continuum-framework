@@ -42,9 +42,4 @@ public @interface Publish {
      */
     String name() default "";
 
-    /**
-     * The version of the published interface. This is required.
-     */
-    String version();
-
 }

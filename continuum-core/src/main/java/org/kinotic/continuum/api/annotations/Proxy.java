@@ -42,9 +42,4 @@ public @interface Proxy {
      */
     String name() default "";
 
-    /**
-     * The version of the published interface. This is required.
-     */
-    String version();
-
 }

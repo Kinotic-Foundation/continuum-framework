@@ -73,7 +73,6 @@ public class DefaultRpcServiceProxyHandle<T> implements RpcServiceProxyHandle<T>
 
     private final ConcurrentHashMap<String, RpcReturnValueHandler> responseMap = new ConcurrentHashMap<>();
 
-
     public DefaultRpcServiceProxyHandle(ServiceIdentifier serviceIdentifier,
                                         String nodeName,
                                         Class<T> serviceClass,
@@ -116,8 +115,7 @@ public class DefaultRpcServiceProxyHandle<T> implements RpcServiceProxyHandle<T>
 
         }, ReflectionUtils.USER_DECLARED_METHODS);
 
-        //noinspection unchecked
-        serviceProxy = (T) Proxy.newProxyInstance(classLoader, new Class[] { serviceClass, RpcServiceProxy.class}, this);
+        serviceProxy = serviceClass.cast(Proxy.newProxyInstance(classLoader, new Class[] { serviceClass, RpcServiceProxy.class}, this));
 
         /*
           Response handler logic to correlate response from remote service invocation's

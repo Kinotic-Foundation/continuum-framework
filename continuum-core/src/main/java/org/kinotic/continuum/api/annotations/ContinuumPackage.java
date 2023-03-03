@@ -28,7 +28,7 @@ import java.lang.annotation.*;
  *
  * Created by navid on 2/11/20
  */
-@Target(ElementType.TYPE)
+@Target({ElementType.TYPE, ElementType.PACKAGE})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited

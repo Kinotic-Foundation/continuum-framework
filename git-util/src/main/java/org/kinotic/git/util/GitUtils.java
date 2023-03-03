@@ -40,7 +40,7 @@ public class GitUtils {
      * Provides a method to get a specific File in a specific commit. You can then read the InputStream or get the raw bytes.
      * @param repository - a built Repository that is not null
      * @param pathForNeededObject - path to file existing within the specified git commit tree. (i.e. src/main/groovy/com/zepath/File.groovy)
-     * @param revString - git commit string -> HEAD(current state) or HEAD^(previous commit)
+     * @param revString - git commit string - HEAD(current state) or HEAD^(previous commit)
      * @return
      * @throws IOException if we have problems reading from the git directory.
      * @throws IllegalStateException if we are not able to find the provided file in the git commit.

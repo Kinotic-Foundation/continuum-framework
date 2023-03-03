@@ -23,7 +23,7 @@ import org.kinotic.continuum.api.annotations.Publish;
  *
  * Created by navid on 10/17/19
  */
-@Publish(version = "0.1.0")
+@Publish
 public interface ClusterTestService {
 
     Long getFreeMemory();

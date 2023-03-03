@@ -17,18 +17,25 @@
 
 package org.kinotic.continuum.internal;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Validate;
 import org.kinotic.continuum.api.annotations.Publish;
+import org.kinotic.continuum.api.annotations.Version;
 import org.kinotic.continuum.core.api.RpcServiceProxy;
 import org.kinotic.continuum.core.api.ServiceRegistry;
 import org.kinotic.continuum.core.api.service.ServiceIdentifier;
+import org.kinotic.continuum.internal.utils.ContinuumUtil;
 import org.kinotic.continuum.internal.utils.MetaUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.FatalBeanException;
 import org.springframework.beans.factory.config.DestructionAwareBeanPostProcessor;
 import org.springframework.core.annotation.AnnotationUtils;
+import org.springframework.core.type.StandardAnnotationMetadata;
 import org.springframework.stereotype.Component;
 
+import java.beans.Beans;
 import java.util.List;
 import java.util.function.BiConsumer;
 
@@ -60,7 +67,7 @@ public class ServiceRegistrationBeanPostProcessor implements DestructionAwareBea
                                       throwable -> log.error("Error Un-Registering service "+ serviceIdentifier, throwable));
         });
     }
-    
+
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
         return bean;
@@ -81,10 +88,10 @@ public class ServiceRegistrationBeanPostProcessor implements DestructionAwareBea
     }
 
     private void processBean(Object instance, BiConsumer<ServiceIdentifier, Class<?>> consumer){
-        // Do not wrap RpcServiceProxies with invokers.. Infinite Recursion boom!
+        // Do not wrap RpcServiceProxies with invokers. Infinite Recursion boom!
         if(!(instance instanceof RpcServiceProxy)) {
             try {
-                // See if any of the interfaces have a publish annotation
+                // See if any of the interfaces have a @Publish annotation
                 Class<?> clazz = instance.getClass();
                 List<Class<?>> interfaces = MetaUtil.getInterfaceDeclaringAnnotation(clazz, Publish.class);
 
@@ -93,27 +100,27 @@ public class ServiceRegistrationBeanPostProcessor implements DestructionAwareBea
                     for (Class<?> inter : interfaces) {
 
                         Publish publish = AnnotationUtils.findAnnotation(inter, Publish.class);
-                        String namespace = publish.namespace().isEmpty() ? encodePackageName(inter.getPackageName()) : publish.namespace();
+                        String namespace = publish.namespace().isEmpty() ? ContinuumUtil.safeEncodeURI(inter.getPackageName()) : publish.namespace();
                         String name = publish.name().isEmpty() ? inter.getSimpleName() : publish.name();
                         String scope = MetaUtil.getScopeIfAvailable(instance, inter);
-                        ServiceIdentifier serviceIdentifier = new ServiceIdentifier(namespace, name, scope, publish.version());
+                        String version = MetaUtil.getVersion(inter);
+
+                        if (!StringUtils.isNotBlank(version)) {
+                            throw new FatalBeanException("Version must be specified on the Published interface " + inter.getName() + " or an ancestor package.");
+                        }
+
+                        ServiceIdentifier serviceIdentifier = new ServiceIdentifier(namespace, name, scope, version);
 
                         consumer.accept(serviceIdentifier, inter);
                     }
                 }
+            } catch (FatalBeanException e) {
+                throw e;
             } catch (Exception e) {
                 log.warn("Error processing Meta for bean:" + instance, e);
             }
         }
     }
 
-    /**
-     * Encodes characters allowed in package name but not in an URI
-     * @param packageName of the package to encode
-     * @return the encoded package name
-     */
-    private String encodePackageName(String packageName){
-        return packageName.replaceAll("_", "-").replaceAll("\\$", "-");
-    }
 
 }

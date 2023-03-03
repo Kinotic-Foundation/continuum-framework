@@ -33,8 +33,7 @@ import org.springframework.util.StringUtils;
 import java.util.*;
 
 /**
- * Class for storing continuum packages for reference later (e.g. by JPA entity
- * scanner).
+ * Class for storing continuum packages for reference later (e.g. by Service scanner).
  *
  * Adapted from Spring Boot
  *

@@ -30,7 +30,7 @@ import java.util.List;
  *
  * Created by navid on 10/30/19
  */
-@Publish(version = "0.1.0")
+@Publish
 public interface RpcTestService {
 
     /**

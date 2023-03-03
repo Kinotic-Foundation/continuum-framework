@@ -20,7 +20,7 @@ package org.kinotic.continuum.core.api;
 import org.kinotic.continuum.api.annotations.Publish;
 
 /**
- * Marker interface so Rpc Service Proxies can be easily detected and made not eligible for {@link Publish}
+ * Marker interface so Rpc Service Proxies can be easily detected and made not eligible for {@link Publish}.
  *
  * Created by Navid Mitchell on 5/3/20
  */

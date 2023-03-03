@@ -19,6 +19,7 @@ package org.kinotic.continuum.internal;
 
 import org.kinotic.continuum.api.annotations.ContinuumPackages;
 import org.kinotic.continuum.api.annotations.Proxy;
+import org.kinotic.continuum.api.annotations.Version;
 import org.kinotic.continuum.internal.utils.MetaUtil;
 import org.apache.commons.lang3.ClassUtils;
 import org.slf4j.Logger;
@@ -82,6 +83,7 @@ public class ProxyRegistrationBeanDefinitionRegistryPostProcessor implements Bea
             }
 
             // We check if there is a bean implementing the Proxy interface.
+            // If there is no proxy will be created
             // This allows an interface to be Annotated with both Proxy and Publish, when this is done multiple services can share the Interface definitions
             if(listableBeanFactory.getBeanNamesForType(serviceClass).length == 0) {
 

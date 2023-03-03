@@ -29,8 +29,7 @@ import java.util.List;
  * Created by navid on 10/30/19
  */
 @Proxy(namespace = "org.kinotic.continuum.internal.core.api.support",
-       name = "RpcTestService",
-       version = "0.1.0")
+       name = "RpcTestService")
 public interface RpcTestServiceProxy {
 
     Mono<String> getString();

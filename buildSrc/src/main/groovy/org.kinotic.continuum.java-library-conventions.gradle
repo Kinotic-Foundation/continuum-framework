@@ -11,6 +11,7 @@ dependencies {
     // We publish the common dependencies in both this and the application conventions plugin. Otherwise the platform did not end up in consumers of these projects..
     /** Begin Common Dependencies **/
     api platform(project(':continuum-platform'))
+    //noinspection DependencyNotationArgument
     annotationProcessor platform(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES)
 
     implementation "org.apache.commons:commons-lang3"

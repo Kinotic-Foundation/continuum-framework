@@ -19,6 +19,7 @@ package org.kinotic.continuum.api;
 
 import org.kinotic.continuum.api.annotations.Publish;
 import org.kinotic.continuum.api.annotations.Scope;
+import org.kinotic.continuum.api.annotations.Version;
 import org.springframework.boot.logging.LogLevel;
 import org.springframework.boot.logging.LoggerConfiguration;
 
@@ -30,7 +31,8 @@ import java.util.Map;
  *
  * Created by Navid Mitchell 🤪 on 7/9/20
  */
-@Publish(version = "0.1.0")
+@Publish
+@Version("0.1.0")
 public interface LogManager {
 
     @Scope

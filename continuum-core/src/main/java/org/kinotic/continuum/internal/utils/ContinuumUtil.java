@@ -29,11 +29,7 @@ import java.util.function.Function;
 public class ContinuumUtil {
 
     public static String safeEncodeURI(String uri){
-        try {
-            return URLEncoder.encode(uri, StandardCharsets.UTF_8.toString());
-        } catch (UnsupportedEncodingException e) {
-            throw new IllegalStateException(e);
-        }
+        return URLEncoder.encode(uri, StandardCharsets.UTF_8);
     }
 
     /**

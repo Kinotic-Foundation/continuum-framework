@@ -13,6 +13,7 @@ dependencies {
     implementation 'org.springframework:spring-web' // used for json conversion functionality spring web has a lot of helpful utilities
     implementation 'javax.annotation:javax.annotation-api'
     implementation 'org.springframework.boot:spring-boot-autoconfigure' // Used for conditionally wiring beans
+    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
 
     // vertx
     api 'io.vertx:vertx-core'
@@ -51,8 +52,6 @@ dependencies {
     implementation 'commons-io:commons-io'
     implementation 'com.github.ben-manes.caffeine:caffeine'
     implementation 'org.awaitility:awaitility'
-
-    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 
     testImplementation 'org.springframework.boot:spring-boot-loader-tools'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'

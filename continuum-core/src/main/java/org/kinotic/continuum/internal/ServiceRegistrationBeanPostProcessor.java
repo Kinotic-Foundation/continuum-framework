@@ -100,18 +100,31 @@ public class ServiceRegistrationBeanPostProcessor implements DestructionAwareBea
                     for (Class<?> inter : interfaces) {
 
                         Publish publish = AnnotationUtils.findAnnotation(inter, Publish.class);
-                        String namespace = publish.namespace().isEmpty() ? ContinuumUtil.safeEncodeURI(inter.getPackageName()) : publish.namespace();
-                        String name = publish.name().isEmpty() ? inter.getSimpleName() : publish.name();
-                        String scope = MetaUtil.getScopeIfAvailable(instance, inter);
-                        String version = MetaUtil.getVersion(inter);
 
-                        if (!StringUtils.isNotBlank(version)) {
-                            throw new FatalBeanException("Version must be specified on the Published interface " + inter.getName() + " or an ancestor package.");
+                        if(publish != null) {
+                            String namespace = publish.namespace().isEmpty()
+                                    ? ContinuumUtil.safeEncodeURI(inter.getPackageName())
+                                    : ContinuumUtil.safeEncodeURI(publish.namespace());
+
+                            String name = publish.name().isEmpty() ? inter.getSimpleName() : publish.name();
+                            String scope = MetaUtil.getScopeIfAvailable(instance, inter);
+                            String version = MetaUtil.getVersion(inter);
+
+                            if (!StringUtils.isNotBlank(version)) {
+                                throw new FatalBeanException("Version must be specified on the Published interface " + inter.getName() + " or an ancestor package.");
+                            }
+
+                            ServiceIdentifier serviceIdentifier = new ServiceIdentifier(namespace,
+                                                                                        name,
+                                                                                        scope,
+                                                                                        version);
+
+                            consumer.accept(serviceIdentifier, inter);
+
+                        }else{
+                            // Ths should never happen
+                            throw new FatalBeanException("Publish scanning failed for bean:" + instance);
                         }
-
-                        ServiceIdentifier serviceIdentifier = new ServiceIdentifier(namespace, name, scope, version);
-
-                        consumer.accept(serviceIdentifier, inter);
                     }
                 }
             } catch (FatalBeanException e) {

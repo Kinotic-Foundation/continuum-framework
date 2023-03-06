@@ -17,6 +17,7 @@
 
 package org.kinotic.continuum.internal.api;
 
+import org.apache.commons.text.WordUtils;
 import org.kinotic.continuum.api.Continuum;
 import org.kinotic.continuum.api.annotations.ContinuumPackages;
 import org.kinotic.continuum.api.annotations.EnableContinuum;
@@ -26,13 +27,13 @@ import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
 import io.vertx.core.spi.cluster.ClusterManager;
 import org.apache.commons.lang3.ClassUtils;
-import org.apache.commons.lang3.text.WordUtils;
 import org.apache.ignite.Ignite;
 import org.apache.ignite.internal.util.typedef.internal.U;
 import org.awaitility.Awaitility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.event.EventListener;
@@ -62,7 +63,6 @@ public class DefaultContinuum implements Continuum {
     private static final int ANIMAL_COUNT = 587;
     private final String name;
     private final ContinuumProperties continuumProperties;
-    private final Ignite ignite;
     private final Vertx vertx;
     private String applicationName;
     private String applicationVersion;
@@ -71,8 +71,6 @@ public class DefaultContinuum implements Continuum {
     public DefaultContinuum(ResourceLoader resourceLoader,
                             @Autowired(required = false)
                             ClusterManager clusterManager,
-                            @Autowired(required = false)
-                            Ignite ignite,
                             Vertx vertx,
                             ApplicationContext applicationContext,
                             ContinuumProperties continuumProperties) throws IOException {
@@ -91,7 +89,6 @@ public class DefaultContinuum implements Continuum {
             name = name + " " + WordUtils.capitalize(temp);
         }
         this.name = name;
-        this.ignite = ignite;
         this.vertx = vertx;
         this.continuumProperties = continuumProperties;
         this.nodeId = (clusterManager != null  ?  clusterManager.getNodeID() : UUID.randomUUID().toString());
@@ -100,20 +97,30 @@ public class DefaultContinuum implements Continuum {
         List<String> packages = ContinuumPackages.get(applicationContext);
         MetadataReader[] readers = MetaUtil.findClassesWithAnnotation(applicationContext, packages, EnableContinuum.class)
                                               .toArray(new MetadataReader[0]);
-        if(readers.length > 1) {
-            log.warn("More than one " + EnableContinuum.class.getSimpleName() + " Annotation Found");
+
+        MetadataReader readerToUse = null;
+        for(MetadataReader reader : readers) {
+            if(reader.getAnnotationMetadata().hasAnnotation(SpringBootApplication.class.getName())){
+                readerToUse = reader;
+                break;
+            }
         }
 
-        MetadataReader reader = readers[0];
-        Map<String, Object> annotationAttributes = reader.getAnnotationMetadata()
-                                                         .getAnnotationAttributes(EnableContinuum.class.getName());
-        if(annotationAttributes != null){
-            applicationName = (String) annotationAttributes.get("name");
-            applicationVersion = (String) annotationAttributes.get("version");
+        if(readerToUse != null){
+            Map<String, Object> annotationAttributes = readerToUse.getAnnotationMetadata()
+                                                             .getAnnotationAttributes(EnableContinuum.class.getName());
+            if(annotationAttributes != null){
+                applicationName = (String) annotationAttributes.get("name");
+                applicationVersion = (String) annotationAttributes.get("version");
+            }
+            if(applicationName == null){
+                applicationName = ClassUtils.getShortCanonicalName(readerToUse.getClassMetadata().getClassName());
+            }
+        }else{
+            // Probably will not happen!
+            log.warn("No @SpringBootApplication could be found with @EnableContinuum annotation.");
         }
-        if(applicationName == null){
-            applicationName = ClassUtils.getShortCanonicalName(reader.getClassMetadata().getClassName());
-        }
+
     }
 
     @Override

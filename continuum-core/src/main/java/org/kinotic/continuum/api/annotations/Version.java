@@ -6,7 +6,7 @@ import java.lang.annotation.*;
  * Specifies the version of a {@link Publish}ed service or {@link Proxy} interface.
  * Created by Navíd Mitchell 🤪 on 2/28/23.
  */
-@Target({ElementType.TYPE,ElementType.PACKAGE})
+@Target({ElementType.TYPE, ElementType.PACKAGE})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface Version {

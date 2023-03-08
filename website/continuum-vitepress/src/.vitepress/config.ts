@@ -5,7 +5,7 @@ export default defineConfig({
   title: "Continuum",
   description: "Insanely versatile IoT and Microservice framework",
   themeConfig: {
-    logo: '/logo.png',
+    logo: '/images/icon.png',
     // https://vitepress.vuejs.org/reference/default-theme-config
     nav: [
       { text: 'Guide', link: '/introduction/overview' },
@@ -16,7 +16,7 @@ export default defineConfig({
       {
         text: 'Introduction',
         items: [
-          { text: 'What is Continuum', link: '/introduction/overview' },
+          { text: 'What is Continuum?', link: '/introduction/overview' },
           { text: 'Getting Started', link: '/introduction/getting-started' }
         ]
       }
@@ -24,6 +24,10 @@ export default defineConfig({
 
     socialLinks: [
       { icon: 'github', link: ' https://github.com/Kinotic-Foundation/continuum-framework' }
-    ]
+    ],
+    footer: {
+      message: 'Released under the Apache License.',
+      copyright: 'Copyright © 2018-present Kinotic Foundation'
+    }
   }
 })

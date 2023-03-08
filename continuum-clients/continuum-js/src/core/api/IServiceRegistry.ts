@@ -64,7 +64,7 @@ export interface IServiceProxy {
 
 
 /**
- * Provides the functionality to register services as well as access proxies for those services
+ * Provides the functionality to register services as well as create proxies for those services
  *
  *
  * Created by Navid Mitchell on 2019-02-08.

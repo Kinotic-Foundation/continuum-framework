@@ -20,9 +20,10 @@ import { EventConstants, IEvent, IEventBus } from './IEventBus'
 import { Event } from './EventBus'
 import { Observable } from 'rxjs'
 import { first, map } from 'rxjs/operators'
-import { injectable, inject, container } from 'inversify-props'
 
-
+/**
+ * An implementation of a {@link IEventFactory} which uses JSON content
+ */
 export class JsonEventFactory implements IEventFactory {
 
     create(cri: string, args: any[] | null | undefined): IEvent {
@@ -36,9 +37,11 @@ export class JsonEventFactory implements IEventFactory {
 
         return event
     }
-
 }
 
+/**
+ * An implementation of a {@link IEventFactory} which uses text content
+ */
 export class TextEventFactory implements IEventFactory {
 
     create(cri: string, args: any[] | null | undefined): IEvent {
@@ -66,12 +69,14 @@ export class TextEventFactory implements IEventFactory {
 
 }
 
-@injectable()
+/**
+ * The default implementation of {@link IServiceRegistry}
+ */
 export class ServiceRegistry implements IServiceRegistry {
 
     private readonly eventBus: IEventBus
 
-    constructor(@inject() eventBus: IEventBus) {
+    constructor(eventBus: IEventBus) {
          this.eventBus = eventBus
     }
 
@@ -80,6 +85,9 @@ export class ServiceRegistry implements IServiceRegistry {
     }
 }
 
+/**
+ * The default implementation of {@link IEventFactory} which uses JSON content
+ */
 const defaultEventFactory: IEventFactory = new JsonEventFactory()
 
 /**
@@ -144,4 +152,3 @@ class ServiceProxy implements IServiceProxy {
     }
 }
 
-container.addSingleton<IServiceRegistry>(ServiceRegistry)

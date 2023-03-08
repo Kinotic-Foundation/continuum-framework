@@ -42,6 +42,7 @@ public class ContextUtils {
                                                                                  .getPropertySources()
                                                                                  .get(GrindConstants.GRIND_MAP_PROPERTY_SOURCE);
         Validate.notNull(propertySource, "Could not find Grind property source");
+
         //noinspection unchecked
         return (T) propertySource.getProperty(propertyName);
     }

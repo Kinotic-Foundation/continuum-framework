@@ -20,6 +20,9 @@ import {Page} from './Page'
 import {Pageable} from './Pageable'
 import {IEditableDataSource} from "./IDataSource";
 
+/**
+ * A {@link ICrudServiceProxy} is a proxy for a remote CRUD service
+ */
 export interface ICrudServiceProxy<T extends Identifiable<string>> extends IEditableDataSource<T>{
 
     /**

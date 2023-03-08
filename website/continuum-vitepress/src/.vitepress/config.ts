@@ -19,6 +19,13 @@ export default defineConfig({
           { text: 'What is Continuum?', link: '/introduction/overview' },
           { text: 'Getting Started', link: '/introduction/getting-started' }
         ]
+      },
+      {
+        text: 'Guide',
+        items: [
+          { text: 'Command Line', link: '/guide/cli-overview' },
+          { text: 'Services', link: '/guide/services' }
+        ]
       }
     ],
 

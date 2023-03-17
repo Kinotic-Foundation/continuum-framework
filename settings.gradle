@@ -14,5 +14,5 @@ include(
         'continuum-clients:continuum-js',
         //'continuum-orbiter',
         //'continuum-substratum',
-        //'structures'
+        'structures'
 )

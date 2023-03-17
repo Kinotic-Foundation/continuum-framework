@@ -22,6 +22,7 @@ import org.kinotic.structures.api.domain.TypeCheckMap;
 import org.kinotic.structures.api.domain.traitlifecycle.HasOnBeforeCreate;
 import org.kinotic.structures.api.services.ItemService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.util.Random;
@@ -29,8 +30,11 @@ import java.util.Random;
 @Component
 public class VpnIp implements HasOnBeforeCreate {
 
-    @Autowired
-    private ItemService itemService;
+    private final ItemService itemService;
+
+    public VpnIp(@Lazy ItemService itemService){
+        this.itemService = itemService;
+    }
 
     @Override
     public TypeCheckMap beforeCreate(TypeCheckMap obj, Structure structure, String fieldName) throws Exception {
@@ -41,4 +45,7 @@ public class VpnIp implements HasOnBeforeCreate {
         return obj;
     }
 
+    public ItemService getItemService() {
+        return itemService;
+    }
 }

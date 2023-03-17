@@ -23,6 +23,7 @@ import org.kinotic.structures.api.domain.traitlifecycle.HasOnBeforeCreate;
 import org.kinotic.structures.api.domain.traitlifecycle.HasOnBeforeModify;
 import org.kinotic.structures.api.services.ItemService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Component;
 
@@ -30,8 +31,12 @@ import java.util.Optional;
 
 @Component
 public class UpdatedTime implements HasOnBeforeCreate, HasOnBeforeModify {
-    @Autowired
-    private ItemService itemService;
+
+    private final ItemService itemService;
+
+    public UpdatedTime(@Lazy ItemService itemService){
+        this.itemService = itemService;
+    }
 
     @Override
     public TypeCheckMap beforeCreate(TypeCheckMap obj, Structure structure, String fieldName) throws Exception {

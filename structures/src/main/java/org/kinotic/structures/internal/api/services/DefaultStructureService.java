@@ -18,11 +18,11 @@
 package org.kinotic.structures.internal.api.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.kinotic.structures.api.domain.AlreadyExistsException;
 import org.kinotic.structures.api.domain.PermenentTraitException;
 import org.kinotic.structures.api.domain.Structure;
 import org.kinotic.structures.api.domain.Trait;
-import org.kinotic.structures.api.services.ItemService;
 import org.kinotic.structures.api.services.StructureService;
 import org.kinotic.structures.api.services.TraitService;
 import org.kinotic.structures.internal.api.services.util.EsHighLevelClientUtil;
@@ -40,13 +40,12 @@ import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.indices.CreateIndexRequest;
 import org.elasticsearch.client.indices.GetIndexRequest;
 import org.elasticsearch.client.indices.PutMappingRequest;
-import org.elasticsearch.common.xcontent.XContentType;
+import org.elasticsearch.xcontent.XContentType;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -62,16 +61,10 @@ public class DefaultStructureService implements StructureService {
     private static final Logger log = LoggerFactory.getLogger(DefaultStructureService.class);
     private final ObjectMapper mapper = new ObjectMapper();
 
-    @Autowired
     private RestHighLevelClient highLevelClient;
 
-    @Autowired
-    private ItemService itemService;
-
-    @Autowired
     private TraitService traitService;
 
-    @Autowired
     private StructureElasticRepository structureElasticRepository;
 
     private Trait id;
@@ -80,6 +73,12 @@ public class DefaultStructureService implements StructureService {
     private Trait createdTime;
     private Trait updatedTime;
     private Trait structureId;
+
+    public DefaultStructureService(RestHighLevelClient highLevelClient, TraitService traitService, StructureElasticRepository structureElasticRepository){
+        this.highLevelClient = highLevelClient;
+        this.traitService = traitService;
+        this.structureElasticRepository = structureElasticRepository;
+    }
 
     @PostConstruct
     void init(){
@@ -466,7 +465,7 @@ public class DefaultStructureService implements StructureService {
             // if its published we should check to see if we can remove the
             // ElasticSearch index, but only if there are not any items created
             if(highLevelClient.indices().exists(new GetIndexRequest(structure.getId().toLowerCase()), RequestOptions.DEFAULT)){
-                long countOfItemsForStructure = itemService.count(structure.getId());
+                long countOfItemsForStructure = this.count(structure.getId());
 
                 if(countOfItemsForStructure > 0){
                     throw new IllegalStateException("you cannot delete a Structure until all Items associated are also deleted.");
@@ -670,6 +669,24 @@ public class DefaultStructureService implements StructureService {
 
         structureElasticRepository.save(structure);
 
+    }
+
+    private long count(String structureId) throws IOException {
+        Optional<Structure> optional = this.getStructureById(structureId);
+        //noinspection OptionalGetWithoutIsPresent
+        Structure structure = optional.get();// will throw null pointer/element not available
+
+        BoolQueryBuilder boolQueryBuilder = new BoolQueryBuilder();
+        boolQueryBuilder.filter(QueryBuilders.termQuery("deleted", false));
+
+        SearchSourceBuilder builder = new SearchSourceBuilder();
+        builder.query(boolQueryBuilder);
+        builder.size(0);
+        SearchRequest request = new SearchRequest(structure.getId().toLowerCase());
+        request.source(builder);
+        SearchResponse response = highLevelClient.search(request, RequestOptions.DEFAULT);
+
+        return response.getHits().getTotalHits().value;
     }
 
     static void checkFieldNameFormat(String fieldName){

@@ -200,18 +200,6 @@ public class DefaultStructureService implements StructureService {
                 temp.setUnique(true);
                 traitService.save(temp);
             }
-            Optional<Trait> serialOptional = traitService.getTraitByName("Serial");
-            if(serialOptional.isEmpty()){
-                Trait temp = new Trait();
-                temp.setName("Serial");
-                temp.setDescribeTrait("Hardware Serial (unique key) that is associated with a device that does not have a HW LAN port.");
-                temp.setSchema("{ \"type\": \"string\" }");
-                temp.setEsSchema("{ \"type\": \"keyword\" }");
-                temp.setRequired(true);
-                temp.setModifiable(false);
-                temp.setUnique(true);
-                traitService.save(temp);
-            }
 
             /**
              * Below are generic fields that provide some quick access. They can be modified within the Structure frontend.

@@ -373,7 +373,7 @@ public class DefaultItemService implements ItemService {
         SearchRequest request = new SearchRequest(structure.getId().toLowerCase());
         request.source(new SearchSourceBuilder()
                             .query(boolQueryBuilder)
-                            .from(from)
+                            .from(from*numberPerPage)
                             .size(numberPerPage));
 
         SearchResponse response = highLevelClient.search(request, RequestOptions.DEFAULT);
@@ -401,7 +401,7 @@ public class DefaultItemService implements ItemService {
         SearchRequest request = new SearchRequest(structure.getId().toLowerCase());
         request.source(new SearchSourceBuilder()
                 .query(boolQueryBuilder)
-                .from(from)
+                .from(from*numberPerPage)
                 .size(numberPerPage));
 
         SearchResponse response = highLevelClient.search(request, RequestOptions.DEFAULT);
@@ -428,7 +428,7 @@ public class DefaultItemService implements ItemService {
         SearchRequest request = new SearchRequest(structure.getId().toLowerCase());
         request.source(new SearchSourceBuilder()
                 .query(boolQueryBuilder)
-                .from(from)
+                .from(from*numberPerPage)
                 .size(numberPerPage));
 
         SearchResponse response = highLevelClient.search(request, RequestOptions.DEFAULT);
@@ -457,7 +457,7 @@ public class DefaultItemService implements ItemService {
         SearchSourceBuilder builder = new SearchSourceBuilder()
                 .query(new QueryStringQueryBuilder(search))
                 .postFilter(QueryBuilders.termQuery("deleted", false))
-                .from(from)
+                .from(from*numberPerPage)
                 .size(numberPerPage);
 
         if(sortField != null){

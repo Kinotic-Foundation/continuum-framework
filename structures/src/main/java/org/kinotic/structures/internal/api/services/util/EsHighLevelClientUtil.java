@@ -33,7 +33,7 @@ public class EsHighLevelClientUtil {
 
     public static SearchSourceBuilder buildGeneric(int numberPerPage, int page, String columnToSortBy, boolean descending){
         SearchSourceBuilder builder = new SearchSourceBuilder()
-                .from(page)
+                .from(page*numberPerPage)
                 .size(numberPerPage);
 
         if(columnToSortBy != null){

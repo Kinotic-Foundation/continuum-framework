@@ -51,6 +51,18 @@ class StructureManager implements IStructureManager {
     }
 
     @Override
+    StructureHolder getStructureById(String id) {
+        Structure structure = structureService.getStructureById(id).get()
+        LinkedList<TraitHolder> traits = new LinkedList<>()
+        int index = 0
+        for(def traitEntry : structure.traits.entrySet()){
+            traits.add(new TraitHolder(index, traitEntry.key, traitEntry.value))
+            index++
+        }
+        return new StructureHolder(structure, traits)
+    }
+
+    @Override
     Structures getAllPublishedAndIdLike(String IdLike, int numberPerPage, int page, String columnToSortBy, boolean descending) {
         gatherStructures(structureService.getAllPublishedAndIdLike(IdLike, numberPerPage, page, columnToSortBy, descending))
     }

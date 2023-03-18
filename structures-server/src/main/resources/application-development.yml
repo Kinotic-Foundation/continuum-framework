@@ -10,6 +10,9 @@ logging:
   level:
     com:
       kinotic: TRACE
+    org:
+      springframework:
+        web: DEBUG
     io:
       vertx: TRACE
 
@@ -24,3 +27,6 @@ elastic:
   useSSL: false
   user:
   password:
+
+server:
+  port: 8088

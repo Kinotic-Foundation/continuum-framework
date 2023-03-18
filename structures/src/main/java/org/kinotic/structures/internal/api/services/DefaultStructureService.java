@@ -242,7 +242,7 @@ public class DefaultStructureService implements StructureService {
                 Trait temp = new Trait();
                 temp.setName("GeoPoint");
                 temp.setDescribeTrait("References a geo point type. Please see https://www.elastic.co/guide/en/elasticsearch/reference/current/geo-point.html");
-                temp.setSchema("{ \"type\": \"geo_point\" }");
+                temp.setSchema("{\"type\": \"object\", \"required\": [\"lat\",\"lon\"],\"properties\": {\"lat\": {type\": \"number\"},\"lon\": {\"type\": \"number\"}}}");
                 temp.setEsSchema("{ \"type\": \"geo_point\" }");
                 temp.setRequired(true);
                 traitService.save(temp);

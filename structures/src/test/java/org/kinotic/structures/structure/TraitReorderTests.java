@@ -45,8 +45,8 @@ public class TraitReorderTests {
     @Test
     public void addToTraitAndMoveBeforeFirst() throws AlreadyExistsException, IOException, PermenentTraitException {
         Structure structure = new Structure();
-        structure.setId("NUC5-" + System.currentTimeMillis());
-        structure.setDescription("Defines the NUC Device properties");
+        structure.setId("Computer5-" + System.currentTimeMillis());
+        structure.setDescription("Defines the Computer Device properties");
 
 
         Optional<Trait> vpnIpOptional = traitService.getTraitByName("VpnIp");
@@ -142,8 +142,8 @@ public class TraitReorderTests {
     @Test
     public void addToTraitAndMoveAfterLast() throws AlreadyExistsException, IOException, PermenentTraitException {
         Structure structure = new Structure();
-        structure.setId("NUC6-" + System.currentTimeMillis());
-        structure.setDescription("Defines the NUC Device properties");
+        structure.setId("Computer6-" + System.currentTimeMillis());
+        structure.setDescription("Defines the Computer Device properties");
 
 
         Optional<Trait> vpnIpOptional = traitService.getTraitByName("VpnIp");

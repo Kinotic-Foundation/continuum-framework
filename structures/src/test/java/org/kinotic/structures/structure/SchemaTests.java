@@ -44,8 +44,8 @@ public class SchemaTests {
     @Test
     public void validateJsonSchemaGeneration() throws AlreadyExistsException, IOException, PermenentTraitException {
         Structure structure = new Structure();
-        structure.setId("NUC11-" + System.currentTimeMillis());
-        structure.setDescription("Defines the NUC Device properties");
+        structure.setId("Computer11-" + System.currentTimeMillis());
+        structure.setDescription("Defines the Computer Device properties");
 
 
         Optional<Trait> vpnIpOptional = traitService.getTraitByName("VpnIp");
@@ -73,8 +73,8 @@ public class SchemaTests {
     @Test
     public void validateElasticSearchMappingGeneration() throws AlreadyExistsException, IOException, PermenentTraitException {
         Structure structure = new Structure();
-        structure.setId("NUC12-" + System.currentTimeMillis());
-        structure.setDescription("Defines the NUC Device properties");
+        structure.setId("Computer12-" + System.currentTimeMillis());
+        structure.setDescription("Defines the Computer Device properties");
 
 
         Optional<Trait> vpnIpOptional = traitService.getTraitByName("VpnIp");

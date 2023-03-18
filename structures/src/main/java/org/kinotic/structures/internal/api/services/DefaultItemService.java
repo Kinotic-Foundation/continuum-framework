@@ -39,7 +39,7 @@ import org.elasticsearch.action.support.WriteRequest;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.common.xcontent.XContentType;
+import org.elasticsearch.xcontent.XContentType;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.IdsQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -51,7 +51,6 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
@@ -69,17 +68,20 @@ public class DefaultItemService implements ItemService {
 
     private static final Logger log = LoggerFactory.getLogger(DefaultItemService.class);
 
-    @Autowired
     private RestHighLevelClient highLevelClient;
-    @Autowired
     private StructureService structureService;
-    @Autowired
     private List<TraitLifecycle> traitLifecycles;
 
     private HashMap<String, TraitLifecycle> traitLifecycleMap = new HashMap<>();
 
     private ConcurrentHashMap<String, BulkProcessor> bulkRequests = new ConcurrentHashMap<>();
     private ConcurrentHashMap<String, AtomicLong> activeBulkRequests = new ConcurrentHashMap<>();
+
+    public DefaultItemService(RestHighLevelClient highLevelClient, StructureService structureService, List<TraitLifecycle> traitLifecycles) {
+        this.highLevelClient = highLevelClient;
+        this.structureService = structureService;
+        this.traitLifecycles = traitLifecycles;
+    }
 
     @PostConstruct
     public void init() {

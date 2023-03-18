@@ -27,6 +27,7 @@ import org.kinotic.structures.internal.repositories.ReferenceLogElasticRepositor
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -43,11 +44,13 @@ import java.util.*;
 @Component
 public class ObjectReference implements HasOnBeforeCreate, HasOnAfterCreate, HasOnBeforeModify, HasOnAfterModify, HasOnAfterGet {
 
-    @Autowired
-    private ItemService itemService;
-    @Autowired
-    private ReferenceLogElasticRepository referenceLogElasticRepository;
+    private final ItemService itemService;
+    private final ReferenceLogElasticRepository referenceLogElasticRepository;
 
+    public ObjectReference(@Lazy ItemService itemService, ReferenceLogElasticRepository referenceLogElasticRepository){
+        this.itemService = itemService;
+        this.referenceLogElasticRepository = referenceLogElasticRepository;
+    }
 
     @Override
     public TypeCheckMap beforeCreate(TypeCheckMap obj, Structure structure, String fieldName) throws Exception {

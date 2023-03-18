@@ -32,8 +32,12 @@ import java.util.Optional;
 
 @Component
 public class Deleted implements HasOnBeforeCreate, HasOnBeforeDelete, HasOnBeforeModify {
-    @Autowired
-    private ReferenceLogElasticRepository referenceLogElasticRepository;
+
+    private final ReferenceLogElasticRepository referenceLogElasticRepository;
+
+    public Deleted(ReferenceLogElasticRepository referenceLogElasticRepository){
+        this.referenceLogElasticRepository = referenceLogElasticRepository;
+    }
 
     @Override
     public TypeCheckMap beforeCreate(TypeCheckMap obj, Structure structure, String fieldName) throws Exception {

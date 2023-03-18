@@ -49,8 +49,8 @@ public class CrudTests {
 	public void createAndDeleteStructure() {
 		Assertions.assertThrows(NoSuchElementException.class, () -> {
 			Structure structure = new Structure();
-			structure.setId("NUC1-" + System.currentTimeMillis());
-			structure.setDescription("Defines the NUC Device properties");
+			structure.setId("Computer1-" + System.currentTimeMillis());
+			structure.setDescription("Defines the Computer Device properties");
 
 
 			Optional<Trait> vpnIpOptional = traitService.getTraitByName("VpnIp");
@@ -80,7 +80,7 @@ public class CrudTests {
 			SearchHits all = structureService.getAll(10000, 0, "id", true);
 			if (all.iterator().hasNext()) {
 				throw new IllegalStateException(
-						"We should have no personalities left, all deleted, however getAll() returned more than 0 personalities");
+						"We should have no structures left, all deleted, however getAll() returned more than 0 structures");
 			}
 
 
@@ -93,8 +93,8 @@ public class CrudTests {
 	public void tryCreateDuplicateStructure(){
 		Assertions.assertThrows(AlreadyExistsException.class, () -> {
 			Structure structure = new Structure();
-			structure.setId("NUC2-" + System.currentTimeMillis());
-			structure.setDescription("Defines the NUC Device properties");
+			structure.setId("Computer2-" + System.currentTimeMillis());
+			structure.setDescription("Defines the Computer Device properties");
 
 
 			Optional<Trait> vpnIpOptional = traitService.getTraitByName("VpnIp");
@@ -122,8 +122,8 @@ public class CrudTests {
 	@Test
 	public void addToTraitMapNotPublishedAndValidate() throws AlreadyExistsException, IOException, PermenentTraitException {
 		Structure structure = new Structure();
-		structure.setId("NUC3-" + System.currentTimeMillis());
-		structure.setDescription("Defines the NUC Device properties");
+		structure.setId("Computer3-" + System.currentTimeMillis());
+		structure.setDescription("Defines the Computer Device properties");
 
 
 		Optional<Trait> vpnIpOptional = traitService.getTraitByName("VpnIp");
@@ -179,8 +179,8 @@ public class CrudTests {
 	@Test
 	public void addToTraitMapAlreadyPublishedAndValidate() throws AlreadyExistsException, IOException, PermenentTraitException {
 		Structure structure = new Structure();
-		structure.setId("NUC4-" + System.currentTimeMillis());
-		structure.setDescription("Defines the NUC Device properties");
+		structure.setId("Computer4-" + System.currentTimeMillis());
+		structure.setDescription("Defines the Computer Device properties");
 
 
 		Optional<Trait> vpnIpOptional = traitService.getTraitByName("VpnIp");
@@ -238,8 +238,8 @@ public class CrudTests {
 	@Test
 	public void publishAndDeleteAStructure() throws AlreadyExistsException, IOException, PermenentTraitException {
 		Structure structure = new Structure();
-		structure.setId("NUC9-" + System.currentTimeMillis());
-		structure.setDescription("Defines the NUC Device properties");
+		structure.setId("Computer9-" + System.currentTimeMillis());
+		structure.setDescription("Defines the Computer Device properties");
 
 
 		Optional<Trait> vpnIpOptional = traitService.getTraitByName("VpnIp");
@@ -262,8 +262,8 @@ public class CrudTests {
 	public void publishAndDeleteAStructureWithAnItem() {
 		Assertions.assertThrows(IllegalStateException.class, () -> {
 			Structure structure = new Structure();
-			structure.setId("NUC10-" + System.currentTimeMillis());
-			structure.setDescription("Defines the NUC Device properties");
+			structure.setId("Computer10-" + System.currentTimeMillis());
+			structure.setDescription("Defines the Computer Device properties");
 
 
 			Optional<Trait> vpnIpOptional = traitService.getTraitByName("VpnIp");

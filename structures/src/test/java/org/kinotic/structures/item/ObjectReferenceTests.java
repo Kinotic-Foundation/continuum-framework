@@ -46,63 +46,62 @@ public class ObjectReferenceTests {
     @Test
     public void createItemThatAlsoHasObjectReference_GetAllShouldNotLazyLoad_ThenDeleteAll() throws Exception {
 
-        Structure nucStructure = getNucStructure();
-        Structure piStructure = getPiStructure();
-        Structure kitStructure = getKitStructure(piStructure,nucStructure);
+        Structure computerStructure = getComputerStructure();
+        Structure deviceStructure = getDeviceStructure();
+        Structure officeStructure = getOfficeStructure(deviceStructure,computerStructure);
 
-        TypeCheckMap nuc = new TypeCheckMap();
-        nuc.put("ip", "192.0.2.101");
-        nuc.put("mac", "111111111111");
+        TypeCheckMap computer = new TypeCheckMap();
+        computer.put("ip", "192.0.2.101");
+        computer.put("mac", "111111111111");
 
-        TypeCheckMap pi1 = new TypeCheckMap();
-        pi1.put("ip", "192.0.2.211");
-        pi1.put("mac", "111111111111");
-        pi1.put("generation", "B+v1.2");
-        pi1.put("type", "SensorPi");
+        TypeCheckMap device1 = new TypeCheckMap();
+        device1.put("ip", "192.0.2.211");
+        device1.put("mac", "111111111111");
+        device1.put("generation", "B+v1.2");
+        device1.put("type", "SensorDevice");
 
-        TypeCheckMap pi2 = new TypeCheckMap();
-        pi2.put("ip", "192.0.2.212");
-        pi2.put("mac", "111111111112");
-        pi2.put("generation", "Bv1.1");
-        pi1.put("type", "CountsPi");
+        TypeCheckMap device2 = new TypeCheckMap();
+        device2.put("ip", "192.0.2.212");
+        device2.put("mac", "111111111112");
+        device2.put("generation", "Bv1.1");
+        device2.put("type", "LightDevice");
 
 
-        TypeCheckMap savedNuc = itemService.createItem(nucStructure.getId(), nuc);
-        TypeCheckMap savedPi1 = itemService.createItem(piStructure.getId(), pi1);
-        TypeCheckMap savedPi2 = itemService.createItem(piStructure.getId(), pi2);
+        TypeCheckMap savedComputer = itemService.createItem(computerStructure.getId(), computer);
+        TypeCheckMap savedDevice1 = itemService.createItem(deviceStructure.getId(), device1);
+        TypeCheckMap savedDevice2 = itemService.createItem(deviceStructure.getId(), device2);
 
-        TypeCheckMap kit = new TypeCheckMap();
-        kit.put("placement", "End1");
-        kit.put("partNumber", "123456789");
-        kit.put("nuc", savedNuc);
-        kit.put("pi1", savedPi1);
-        kit.put("pi2", savedPi2);
+        TypeCheckMap office = new TypeCheckMap();
+        office.put("partNumber", "123456789");
+        office.put("computer", savedComputer);
+        office.put("device1", savedDevice1);
+        office.put("device2", savedDevice2);
 
-        TypeCheckMap savedKit = itemService.createItem(kitStructure.getId(), kit);
+        TypeCheckMap savedOffice = itemService.createItem(officeStructure.getId(), office);
 
         try {
 
             Thread.sleep(1000);// give time for ES to flush the new item
 
-            SearchHits hits = itemService.getAll(kitStructure.getId(), 100, 0);
+            SearchHits hits = itemService.getAll(officeStructure.getId(), 100, 0);
 
             SearchHit hit = hits.getHits()[0];
             TypeCheckMap obj = new TypeCheckMap(hit.getSourceAsMap());
-            final TypeCheckMap nucRef = obj.getTypeCheckMap("nuc");
-            if (nucRef.length() != 2) {
-                throw new IllegalStateException("We saved a Kit which has ObjectReferences, getAll() should never resolve deps, expected 2 fields - structureId, and id - got " + nucRef.length());
+            final TypeCheckMap computerRef = obj.getTypeCheckMap("computer");
+            if (computerRef.length() != 2) {
+                throw new IllegalStateException("We saved a Office which has ObjectReferences, getAll() should never resolve deps, expected 2 fields - structureId, and id - got " + computerRef.length());
             }
 
 
         } finally {
-            itemService.delete(kitStructure.getId(), savedKit.getString("id"));
-            itemService.delete(nucStructure.getId(), savedNuc.getString("id"));
-            itemService.delete(piStructure.getId(), savedPi1.getString("id"));
-            itemService.delete(piStructure.getId(), savedPi2.getString("id"));
+            itemService.delete(officeStructure.getId(), savedOffice.getString("id"));
+            itemService.delete(computerStructure.getId(), savedComputer.getString("id"));
+            itemService.delete(deviceStructure.getId(), savedDevice1.getString("id"));
+            itemService.delete(deviceStructure.getId(), savedDevice2.getString("id"));
             Thread.sleep(1000);
-            structureService.delete(nucStructure.getId());
-            structureService.delete(piStructure.getId());
-            structureService.delete(kitStructure.getId());
+            structureService.delete(computerStructure.getId());
+            structureService.delete(deviceStructure.getId());
+            structureService.delete(officeStructure.getId());
         }
 
     }
@@ -110,71 +109,70 @@ public class ObjectReferenceTests {
     @Test
     public void createItemThatAlsoHasObjectReference_GetOwnerByIdShouldLazyLoad_ThenDeleteAll() throws Exception {
 
-        Structure nucStructure = getNucStructure();
-        Structure piStructure = getPiStructure();
-        Structure kitStructure = getKitStructure(piStructure,nucStructure);
+        Structure computerStructure = getComputerStructure();
+        Structure deviceStructure = getDeviceStructure();
+        Structure officeStructure = getOfficeStructure(deviceStructure,computerStructure);
 
-        TypeCheckMap nuc = new TypeCheckMap();
-        nuc.put("ip", "192.0.2.101");
-        nuc.put("mac", "111111111111");
+        TypeCheckMap computer = new TypeCheckMap();
+        computer.put("ip", "192.0.2.101");
+        computer.put("mac", "111111111111");
 
-        TypeCheckMap pi1 = new TypeCheckMap();
-        pi1.put("ip", "192.0.2.211");
-        pi1.put("mac", "111111111111");
-        pi1.put("generation", "B+v1.2");
-        pi1.put("type", "SensorPi");
+        TypeCheckMap device1 = new TypeCheckMap();
+        device1.put("ip", "192.0.2.211");
+        device1.put("mac", "111111111111");
+        device1.put("generation", "B+v1.2");
+        device1.put("type", "SensorDevice");
 
-        TypeCheckMap pi2 = new TypeCheckMap();
-        pi2.put("ip", "192.0.2.212");
-        pi2.put("mac", "111111111112");
-        pi2.put("generation", "Bv1.1");
-        pi2.put("type", "CountsPi");
+        TypeCheckMap device2 = new TypeCheckMap();
+        device2.put("ip", "192.0.2.212");
+        device2.put("mac", "111111111112");
+        device2.put("generation", "Bv1.1");
+        device2.put("type", "LightDevice");
 
 
-        TypeCheckMap savedNuc = itemService.createItem(nucStructure.getId(), nuc);
-        TypeCheckMap savedPi1 = itemService.createItem(piStructure.getId(), pi1);
-        TypeCheckMap savedPi2 = itemService.createItem(piStructure.getId(), pi2);
+        TypeCheckMap savedComputer = itemService.createItem(computerStructure.getId(), computer);
+        TypeCheckMap savedDevice1 = itemService.createItem(deviceStructure.getId(), device1);
+        TypeCheckMap savedDevice2 = itemService.createItem(deviceStructure.getId(), device2);
 
-        TypeCheckMap kit = new TypeCheckMap();
-        kit.put("placement", "End1");
-        kit.put("partNumber", "123456789");
-        kit.put("nuc", savedNuc);
-        kit.put("pi1", savedPi1);
-        kit.put("pi2", savedPi2);
+        TypeCheckMap office = new TypeCheckMap();
+        office.put("partNumber", "123456789");
+        office.put("computer", savedComputer);
+        office.put("device1", savedDevice1);
+        office.put("device2", savedDevice2);
 
-        TypeCheckMap savedKit = itemService.createItem(kitStructure.getId(), kit);
+        TypeCheckMap savedOffice = itemService.createItem(officeStructure.getId(), office);
 
         try {
 
             Thread.sleep(1000);// give time for ES to flush the new item
 
-            Optional<TypeCheckMap> resolvedKit = itemService.getById(kitStructure, kit.getString("id"));
+            Optional<TypeCheckMap> resolvedOffice = itemService.getById(officeStructure, office.getString("id"));
 
-            final TypeCheckMap nucRef = resolvedKit.get().getTypeCheckMap("nuc");
-            if (nucRef.length() != 9 || !nucRef.getString("ip").equals("192.0.2.101")) {
-                throw new IllegalStateException("We saved a Kit which has ObjectReferences, called getById() and it should resolve all deps, NUC (nuc) expected 9 fields - got " + nucRef.length());
+            final TypeCheckMap computerRef = resolvedOffice.get().getTypeCheckMap("computer");
+            if (computerRef.length() != 9 || !computerRef.getString("ip").equals("192.0.2.101")) {
+                throw new IllegalStateException("We saved a Office which has ObjectReferences, called getById() and it should resolve all deps, Computer (computer) expected 9 fields - got " + computerRef.length());
             }
 
-            final TypeCheckMap pi1Ref = resolvedKit.get().getTypeCheckMap("pi1");
-            if (pi1Ref.length() != 11 || !pi1Ref.getString("type").equals("SensorPi")) {
-                throw new IllegalStateException("We saved a Kit which has ObjectReferences, called getById() and it should resolve all deps, PI (pi1) expected 11 fields - got " + pi1Ref.length());
+            final TypeCheckMap device1Ref = resolvedOffice.get().getTypeCheckMap("device1");
+            if (device1Ref.length() != 11 || !device1Ref.getString("type").equals("SensorDevice")) {
+                throw new IllegalStateException("We saved a Office which has ObjectReferences, called getById() and it should resolve all deps, Device (device1) expected 11 fields - got " + device1Ref.length());
             }
 
-            final TypeCheckMap pi2Ref = resolvedKit.get().getTypeCheckMap("pi2");
-            if (pi2Ref.length() != 11 || !pi2Ref.getString("type").equals("CountsPi")) {
-                throw new IllegalStateException("We saved a Kit which has ObjectReferences, called getById() and it should resolve all deps, PI (pi2) expected 11 fields - got " + pi2Ref.length());
+            final TypeCheckMap device2Ref = resolvedOffice.get().getTypeCheckMap("device2");
+            if (device2Ref.length() != 11 || !device2Ref.getString("type").equals("LightDevice")) {
+                throw new IllegalStateException("We saved a Office which has ObjectReferences, called getById() and it should resolve all deps, Device (device2) expected 11 fields - got " + device2Ref.length());
             }
 
 
         } finally {
-            itemService.delete(kitStructure.getId(), savedKit.getString("id"));
-            itemService.delete(nucStructure.getId(), savedNuc.getString("id"));
-            itemService.delete(piStructure.getId(), savedPi1.getString("id"));
-            itemService.delete(piStructure.getId(), savedPi2.getString("id"));
+            itemService.delete(officeStructure.getId(), savedOffice.getString("id"));
+            itemService.delete(computerStructure.getId(), savedComputer.getString("id"));
+            itemService.delete(deviceStructure.getId(), savedDevice1.getString("id"));
+            itemService.delete(deviceStructure.getId(), savedDevice2.getString("id"));
             Thread.sleep(1000);
-            structureService.delete(nucStructure.getId());
-            structureService.delete(piStructure.getId());
-            structureService.delete(kitStructure.getId());
+            structureService.delete(computerStructure.getId());
+            structureService.delete(deviceStructure.getId());
+            structureService.delete(officeStructure.getId());
         }
 
     }
@@ -182,58 +180,57 @@ public class ObjectReferenceTests {
     @Test
     public void createItemThatAlsoHasObjectReferences_ThenAttemptToDeleteReference_CleanUp() throws Exception {
         Assertions.assertThrows(IsReferencedException.class, () -> {
-            Structure nucStructure = getNucStructure();
-            Structure piStructure = getPiStructure();
-            Structure kitStructure = getKitStructure(piStructure, nucStructure);
+            Structure computerStructure = getComputerStructure();
+            Structure deviceStructure = getDeviceStructure();
+            Structure officeStructure = getOfficeStructure(deviceStructure, computerStructure);
 
-            TypeCheckMap nuc = new TypeCheckMap();
-            nuc.put("ip", "192.0.2.101");
-            nuc.put("mac", "111111111111");
+            TypeCheckMap computer = new TypeCheckMap();
+            computer.put("ip", "192.0.2.101");
+            computer.put("mac", "111111111111");
 
-            TypeCheckMap pi1 = new TypeCheckMap();
-            pi1.put("ip", "192.0.2.211");
-            pi1.put("mac", "111111111111");
-            pi1.put("generation", "B+v1.2");
-            pi1.put("type", "SensorPi");
+            TypeCheckMap device1 = new TypeCheckMap();
+            device1.put("ip", "192.0.2.211");
+            device1.put("mac", "111111111111");
+            device1.put("generation", "B+v1.2");
+            device1.put("type", "SensorDevice");
 
-            TypeCheckMap pi2 = new TypeCheckMap();
-            pi2.put("ip", "192.0.2.212");
-            pi2.put("mac", "111111111112");
-            pi2.put("generation", "Bv1.1");
-            pi1.put("type", "CountsPi");
+            TypeCheckMap device2 = new TypeCheckMap();
+            device2.put("ip", "192.0.2.212");
+            device2.put("mac", "111111111112");
+            device2.put("generation", "Bv1.1");
+            device2.put("type", "LightDevice");
 
 
-            TypeCheckMap savedNuc = itemService.createItem(nucStructure.getId(), nuc);
-            TypeCheckMap savedPi1 = itemService.createItem(piStructure.getId(), pi1);
-            TypeCheckMap savedPi2 = itemService.createItem(piStructure.getId(), pi2);
+            TypeCheckMap savedComputer = itemService.createItem(computerStructure.getId(), computer);
+            TypeCheckMap savedDevice1 = itemService.createItem(deviceStructure.getId(), device1);
+            TypeCheckMap savedDevice2 = itemService.createItem(deviceStructure.getId(), device2);
 
-            TypeCheckMap kit = new TypeCheckMap();
-            kit.put("placement", "End1");
-            kit.put("partNumber", "123456789");
-            kit.put("nuc", savedNuc);
-            kit.put("pi1", savedPi1);
-            kit.put("pi2", savedPi2);
+            TypeCheckMap office = new TypeCheckMap();
+            office.put("partNumber", "123456789");
+            office.put("computer", savedComputer);
+            office.put("device1", savedDevice1);
+            office.put("device2", savedDevice2);
 
-            TypeCheckMap savedKit = itemService.createItem(kitStructure.getId(), kit);
+            TypeCheckMap savedOffice = itemService.createItem(officeStructure.getId(), office);
 
             try {
 
                 Thread.sleep(1000);// give time for ES to flush the new item
 
                 // will throw since it has a reference for it somewhere.
-                itemService.delete(nucStructure.getId(), savedNuc.getString("id"));
+                itemService.delete(computerStructure.getId(), savedComputer.getString("id"));
 
             } catch (Exception e) {
                 throw e;
             } finally {
-                itemService.delete(kitStructure.getId(), savedKit.getString("id"));
-                itemService.delete(nucStructure.getId(), savedNuc.getString("id"));
-                itemService.delete(piStructure.getId(), savedPi1.getString("id"));
-                itemService.delete(piStructure.getId(), savedPi2.getString("id"));
+                itemService.delete(officeStructure.getId(), savedOffice.getString("id"));
+                itemService.delete(computerStructure.getId(), savedComputer.getString("id"));
+                itemService.delete(deviceStructure.getId(), savedDevice1.getString("id"));
+                itemService.delete(deviceStructure.getId(), savedDevice2.getString("id"));
                 Thread.sleep(1000);
-                structureService.delete(nucStructure.getId());
-                structureService.delete(piStructure.getId());
-                structureService.delete(kitStructure.getId());
+                structureService.delete(computerStructure.getId());
+                structureService.delete(deviceStructure.getId());
+                structureService.delete(officeStructure.getId());
             }
         });
     }
@@ -241,66 +238,64 @@ public class ObjectReferenceTests {
     @Test
     public void createItemThatAlsoHasObjectReferences_TryUseSameTypeInReference_CleanUp() throws Exception {
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            Structure nucStructure = getNucStructure();
-            Structure piStructure = getPiStructure();
-            Structure kitStructure = getKitStructure(piStructure, nucStructure);
+            Structure computerStructure = getComputerStructure();
+            Structure deviceStructure = getDeviceStructure();
+            Structure officeStructure = getOfficeStructure(deviceStructure, computerStructure);
 
-            TypeCheckMap nuc = new TypeCheckMap();
-            nuc.put("ip", "192.0.2.101");
-            nuc.put("mac", "111111111111");
+            TypeCheckMap computer = new TypeCheckMap();
+            computer.put("ip", "192.0.2.101");
+            computer.put("mac", "111111111111");
 
-            TypeCheckMap pi1 = new TypeCheckMap();
-            pi1.put("ip", "192.0.2.211");
-            pi1.put("mac", "111111111111");
-            pi1.put("generation", "B+v1.2");
-            pi1.put("type", "SensorPi");
+            TypeCheckMap device1 = new TypeCheckMap();
+            device1.put("ip", "192.0.2.211");
+            device1.put("mac", "111111111111");
+            device1.put("generation", "B+v1.2");
+            device1.put("type", "SensorDevice");
 
-            TypeCheckMap pi2 = new TypeCheckMap();
-            pi2.put("ip", "192.0.2.212");
-            pi2.put("mac", "111111111112");
-            pi2.put("generation", "Bv1.1");
-            pi1.put("type", "CountsPi");
+            TypeCheckMap device2 = new TypeCheckMap();
+            device2.put("ip", "192.0.2.212");
+            device2.put("mac", "111111111112");
+            device2.put("generation", "Bv1.1");
+            device2.put("type", "LightDevice");
 
-            TypeCheckMap savedNuc = itemService.createItem(nucStructure.getId(), nuc);
-            TypeCheckMap savedPi1 = itemService.createItem(piStructure.getId(), pi1);
-            TypeCheckMap savedPi2 = itemService.createItem(piStructure.getId(), pi2);
+            TypeCheckMap savedComputer = itemService.createItem(computerStructure.getId(), computer);
+            TypeCheckMap savedDevice1 = itemService.createItem(deviceStructure.getId(), device1);
+            TypeCheckMap savedDevice2 = itemService.createItem(deviceStructure.getId(), device2);
 
-            TypeCheckMap kit = new TypeCheckMap();
-            kit.put("placement", "End1");
-            kit.put("partNumber", "123456789");
-            kit.put("nuc", savedNuc); // put a PI in a NUC position
-            kit.put("pi1", savedPi1); // put a NUC in a PI position
-            kit.put("pi2", savedPi2);
+            TypeCheckMap office = new TypeCheckMap();
+            office.put("partNumber", "123456789");
+            office.put("computer", savedComputer); // put a Device in a Computer position
+            office.put("device1", savedDevice1); // put a Computer in a Device position
+            office.put("device2", savedDevice2);
 
             // should throw up b/c of the type mismatch
-            TypeCheckMap savedKit = itemService.createItem(kitStructure.getId(), kit);
+            TypeCheckMap savedOffice = itemService.createItem(officeStructure.getId(), office);
 
             try {
 
                 Thread.sleep(1000);// give time for ES to flush the new item
 
-                TypeCheckMap kit2 = new TypeCheckMap();
-                kit2.put("placement", "End1");
-                kit2.put("partNumber", "123456789");
-                kit2.put("nuc", savedKit); // put a PI in a NUC position
-                kit2.put("pi1", savedKit); // put a NUC in a PI position
-                kit2.put("pi2", savedKit);
+                TypeCheckMap office2 = new TypeCheckMap();
+                office2.put("partNumber", "123456789");
+                office2.put("computer", device1); // put a Device in a Computer position
+                office2.put("device1", savedComputer); // put a Computer in a Device position
+                office2.put("device2", device2);
 
                 // should throw up b/c of the type mismatch
-                TypeCheckMap throwUp = itemService.createItem(kitStructure.getId(), kit2);
+                TypeCheckMap throwUp = itemService.createItem(officeStructure.getId(), office2);
 
             } catch (Exception e) {
                 throw e;
             } finally {
-                itemService.delete(kitStructure.getId(), savedKit.getString("id"));
+                itemService.delete(officeStructure.getId(), savedOffice.getString("id"));
                 Thread.sleep(1000);
-                itemService.delete(nucStructure.getId(), savedNuc.getString("id"));
-                itemService.delete(piStructure.getId(), savedPi1.getString("id"));
-                itemService.delete(piStructure.getId(), savedPi2.getString("id"));
+                itemService.delete(computerStructure.getId(), savedComputer.getString("id"));
+                itemService.delete(deviceStructure.getId(), savedDevice1.getString("id"));
+                itemService.delete(deviceStructure.getId(), savedDevice2.getString("id"));
                 Thread.sleep(1000);
-                structureService.delete(nucStructure.getId());
-                structureService.delete(piStructure.getId());
-                structureService.delete(kitStructure.getId());
+                structureService.delete(computerStructure.getId());
+                structureService.delete(deviceStructure.getId());
+                structureService.delete(officeStructure.getId());
             }
         });
 
@@ -309,37 +304,36 @@ public class ObjectReferenceTests {
     @Test
     public void createItemThatAlsoHasObjectReferences_UseInvalidReferenceTypesForField_CleanUp() throws Exception {
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            Structure nucStructure = getNucStructure();
-            Structure piStructure = getPiStructure();
-            Structure kitStructure = getKitStructure(piStructure, nucStructure);
+            Structure computerStructure = getComputerStructure();
+            Structure deviceStructure = getDeviceStructure();
+            Structure officeStructure = getOfficeStructure(deviceStructure, computerStructure);
 
-            TypeCheckMap nuc = new TypeCheckMap();
-            nuc.put("ip", "192.0.2.101");
-            nuc.put("mac", "111111111111");
+            TypeCheckMap computer = new TypeCheckMap();
+            computer.put("ip", "192.0.2.101");
+            computer.put("mac", "111111111111");
 
-            TypeCheckMap pi1 = new TypeCheckMap();
-            pi1.put("ip", "192.0.2.211");
-            pi1.put("mac", "111111111111");
-            pi1.put("generation", "B+v1.2");
-            pi1.put("type", "SensorPi");
+            TypeCheckMap device1 = new TypeCheckMap();
+            device1.put("ip", "192.0.2.211");
+            device1.put("mac", "111111111111");
+            device1.put("generation", "B+v1.2");
+            device1.put("type", "SensorDevice");
 
-            TypeCheckMap pi2 = new TypeCheckMap();
-            pi2.put("ip", "192.0.2.212");
-            pi2.put("mac", "111111111112");
-            pi2.put("generation", "Bv1.1");
-            pi1.put("type", "CountsPi");
+            TypeCheckMap device2 = new TypeCheckMap();
+            device2.put("ip", "192.0.2.212");
+            device2.put("mac", "111111111112");
+            device2.put("generation", "Bv1.1");
+            device2.put("type", "LightDevice");
 
 
-            TypeCheckMap savedNuc = itemService.createItem(nucStructure.getId(), nuc);
-            TypeCheckMap savedPi1 = itemService.createItem(piStructure.getId(), pi1);
-            TypeCheckMap savedPi2 = itemService.createItem(piStructure.getId(), pi2);
+            TypeCheckMap savedComputer = itemService.createItem(computerStructure.getId(), computer);
+            TypeCheckMap savedDevice1 = itemService.createItem(deviceStructure.getId(), device1);
+            TypeCheckMap savedDevice2 = itemService.createItem(deviceStructure.getId(), device2);
 
-            TypeCheckMap kit = new TypeCheckMap();
-            kit.put("placement", "End1");
-            kit.put("partNumber", "123456789");
-            kit.put("nuc", savedPi1); // put a PI in a NUC position
-            kit.put("pi1", savedNuc); // put a NUC in a PI position
-            kit.put("pi2", savedPi2);
+            TypeCheckMap office = new TypeCheckMap();
+            office.put("partNumber", "123456789");
+            office.put("computer", savedDevice1); // put a Device in a Computer position
+            office.put("device1", savedComputer); // put a Computer in a Device position
+            office.put("device2", savedDevice2);
 
 
             try {
@@ -347,26 +341,26 @@ public class ObjectReferenceTests {
                 Thread.sleep(1000);// give time for ES to flush the new item
 
                 // should throw up b/c of the type mismatch
-                TypeCheckMap savedKit = itemService.createItem(kitStructure.getId(), kit);
+                TypeCheckMap savedOffice = itemService.createItem(officeStructure.getId(), office);
 
             } catch (Exception e) {
                 throw e;
             } finally {
-                itemService.delete(nucStructure.getId(), savedNuc.getString("id"));
-                itemService.delete(piStructure.getId(), savedPi1.getString("id"));
-                itemService.delete(piStructure.getId(), savedPi2.getString("id"));
+                itemService.delete(computerStructure.getId(), savedComputer.getString("id"));
+                itemService.delete(deviceStructure.getId(), savedDevice1.getString("id"));
+                itemService.delete(deviceStructure.getId(), savedDevice2.getString("id"));
                 Thread.sleep(1000);
-                structureService.delete(nucStructure.getId());
-                structureService.delete(piStructure.getId());
-                structureService.delete(kitStructure.getId());
+                structureService.delete(computerStructure.getId());
+                structureService.delete(deviceStructure.getId());
+                structureService.delete(officeStructure.getId());
             }
         });
     }
 
-    public Structure getNucStructure() throws Exception {
+    public Structure getComputerStructure() throws Exception {
         Structure structure = new Structure();
-        structure.setId("NUC-" + String.valueOf(System.currentTimeMillis()));
-        structure.setDescription("Defines an NUC");
+        structure.setId("Computer-" + String.valueOf(System.currentTimeMillis()));
+        structure.setDescription("Defines an Computer");
 
         Optional<Trait> vpnIpOptional = traitService.getTraitByName("VpnIp");
         Optional<Trait> ipOptional = traitService.getTraitByName("Ip");
@@ -381,10 +375,10 @@ public class ObjectReferenceTests {
         return structure;
     }
 
-    public Structure getPiStructure() throws Exception {
+    public Structure getDeviceStructure() throws Exception {
         Structure structure = new Structure();
-        structure.setId("PI-" + String.valueOf(System.currentTimeMillis()));
-        structure.setDescription("Defines an PI");
+        structure.setId("EmbeddedDevice-" + String.valueOf(System.currentTimeMillis()));
+        structure.setDescription("Defines an EmbeddedDevice");
 
         Optional<Trait> vpnIpOptional = traitService.getTraitByName("VpnIp");
         Optional<Trait> ipOptional = traitService.getTraitByName("Ip");
@@ -402,25 +396,24 @@ public class ObjectReferenceTests {
         return structure;
     }
 
-    public Structure getKitStructure(Structure piStructure, Structure nucStructure) throws Exception {
+    public Structure getOfficeStructure(Structure deviceStructure, Structure computerStructure) throws Exception {
         Structure structure = new Structure();
-        structure.setId("KIT-" + String.valueOf(System.currentTimeMillis()));
-        structure.setDescription("Defines a KIT");
+        structure.setId("Office-" + String.valueOf(System.currentTimeMillis()));
+        structure.setDescription("Defines a Office");
 
         Optional<Trait> textOptional = traitService.getTraitByName("KeywordString");
-        Optional<Trait> objNucRefOptional = traitService.getTraitByName("Reference "+nucStructure.getId().trim());
-        Optional<Trait> objPiRefOptional = traitService.getTraitByName("Reference "+piStructure.getId().trim());
+        Optional<Trait> objComputerRefOptional = traitService.getTraitByName("Reference "+computerStructure.getId().trim());
+        Optional<Trait> objDeviceRefOptional = traitService.getTraitByName("Reference "+deviceStructure.getId().trim());
 
         // What if we just used some auto generated ObjectReferences when creating structure
         // we create the object reference for the object and we can just use the Name or Description
         // fields to populate or use a pattern in the name so that we can get at the particular structure
         // that we configured.
 
-        structure.getTraits().put("placement", textOptional.get());
         structure.getTraits().put("partNumber", textOptional.get());
-        structure.getTraits().put("nuc", objNucRefOptional.get());
-        structure.getTraits().put("pi1", objPiRefOptional.get());
-        structure.getTraits().put("pi2", objPiRefOptional.get());
+        structure.getTraits().put("computer", objComputerRefOptional.get());
+        structure.getTraits().put("device1", objDeviceRefOptional.get());
+        structure.getTraits().put("device2", objDeviceRefOptional.get());
 
         structureService.save(structure);
         structureService.publish(structure.getId());

@@ -48,8 +48,8 @@ public class FunctionalTests {
     public void tryAddAdditionalFieldOutsideSchema() throws Exception {
         Assertions.assertThrows(ElasticsearchStatusException.class, () -> {
             Structure structure = new Structure();
-            structure.setId("NUC7-" + System.currentTimeMillis());
-            structure.setDescription("Defines the NUC Device properties");
+            structure.setId("Computer7-" + System.currentTimeMillis());
+            structure.setDescription("Defines the Computer Device properties");
 
             Optional<Trait> vpnIpOptional = traitService.getTraitByName("VpnIp");
             Optional<Trait> ipOptional = traitService.getTraitByName("Ip");
@@ -81,8 +81,8 @@ public class FunctionalTests {
     @Test
     public void addTraitAfterPublishedAndNewItemAddedThenUpdateItem() throws Exception {
         Structure structure = new Structure();
-        structure.setId("NUC8-" + System.currentTimeMillis());
-        structure.setDescription("Defines the NUC Device properties");
+        structure.setId("Computer8-" + System.currentTimeMillis());
+        structure.setDescription("Defines the Computer Device properties");
 
 
         Optional<Trait> vpnIpOptional = traitService.getTraitByName("VpnIp");
@@ -140,8 +140,8 @@ public class FunctionalTests {
     @Test
     public void addTraitAfterPublishedAndNewItems() throws Exception {
         Structure structure = new Structure();
-        structure.setId("NUC9-"+System.currentTimeMillis());
-        structure.setDescription("Defines the NUC Device properties");
+        structure.setId("Computer9-"+System.currentTimeMillis());
+        structure.setDescription("Defines the Computer Device properties");
 
 
         Optional<Trait> vpnIpOptional = traitService.getTraitByName("VpnIp");

@@ -11,7 +11,7 @@
       com:
         kinotic: TRACE
       io:
-        vertx: TRACE
+        vertx: INFO
 
   spring:
     devtools:

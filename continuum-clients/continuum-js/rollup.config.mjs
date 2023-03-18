@@ -1,5 +1,5 @@
 import typescript from 'rollup-plugin-typescript2'
-import pkg from './package.json'
+import pkg from './package.json' assert { type: 'json' }
 
 export default {
     input: 'src/index.ts',
@@ -15,12 +15,16 @@ export default {
     ],
     external: [
         ...Object.keys(pkg.dependencies || {}),
+        ...Object.keys(pkg.devDependencies || {}),
         ...Object.keys(pkg.peerDependencies || {}),
     ],
 
     plugins: [
         typescript({
-            typescript: require('typescript'),
+            useTsconfigDeclarationDir: true,
+            tsconfigOverride: {
+                exclude: [],
+            }
         })
     ],
 }

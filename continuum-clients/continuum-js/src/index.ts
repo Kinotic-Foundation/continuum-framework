@@ -22,8 +22,6 @@
 export * from './core/api/crud/ICrudServiceProxy'
 export * from './core/api/crud/CrudServiceProxy'
 export * from './core/api/crud/ICrudServiceProxyFactory'
-export * from './core/api/crud/ISearchServiceProxy'
-export * from './core/api/crud/SearchServiceProxy'
 export * from './core/api/crud/IDataSource'
 export * from './core/api/crud/Identifiable'
 export * from './core/api/crud/Pageable'
@@ -38,5 +36,4 @@ export * from './core/api/ServiceRegistry'
 
 export * from './core/api/StreamData'
 
-// insure DI objects are added to the InversifyJs container that do not need to be exported
-import './core/api/crud/CrudServiceProxyFactory'
+export * from './api/Continuum'

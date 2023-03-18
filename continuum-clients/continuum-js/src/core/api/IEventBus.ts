@@ -106,7 +106,7 @@ export interface IEventBus {
      * Disconnects the client from the server
      * This will clear any subscriptions and close the connection
      */
-    disconnect(): void
+    disconnect(): Promise<void>
 
     /**
      * Send a single {@link IEvent} to the connected server

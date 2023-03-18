@@ -52,7 +52,7 @@ public class DaoRegistrationBeanDefinitionRegistryPostProcessor implements BeanD
      */
     @Override
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
-        // scan classpath for all Classes annotated with @Proxy
+        // scan classpath for all Interfaces extending ItemDao
         ClassPathScanningMetadataReaderProvider scanner
                 = new ClassPathScanningMetadataReaderProvider(applicationContext.getEnvironment());
         scanner.setResourceLoader(applicationContext);

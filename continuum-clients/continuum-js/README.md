@@ -1,5 +1,5 @@
 # Continuum JS
-This is the core Continuum javascript library
+This is the Continuum client javascript library
 
 ## Local Development
 - [Yalc](https://github.com/whitecolor/yalc) will need to be installed locally

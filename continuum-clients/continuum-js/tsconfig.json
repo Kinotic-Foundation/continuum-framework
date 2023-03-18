@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
-    "target": "ES5",
-    "module": "ES2015",
+    "target": "esnext",
+    "module": "esnext",
     "declaration": true,
     "declarationDir": "./dist",
     "outDir": "./dist",
@@ -22,10 +22,7 @@
       ]
     },
     "lib": [
-      "esnext",
-      "dom",
-      "dom.iterable",
-      "scripthost"
+      "esnext"
     ]
   },
 

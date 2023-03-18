@@ -9,7 +9,7 @@ gradle continuum-gateway-server:bootBuildImage
 
 ### To run docker container
 ```shell script
-docker run --rm -d -t -p 58503:58503 -p 58504:58504 continuum-gateway-server:1.0-SNAPSHOT --spring.profiles.active=development
+docker run --rm -d -t -p 58503:58503 -p 58504:58504 kinotic/continuum-gateway-server:latest --spring.profiles.active=development
 ```
 
 ### To see running docker containers

@@ -1,0 +1,22 @@
+plugins {
+	id 'org.kinotic.continuum.java-application-conventions'
+}
+
+mainClassName = "org.kinotic.structuresserver.StructuresServerApplication"
+
+dependencies {
+
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
+
+	// Additional Continuum Dependencies
+	implementation project(':continuum-gateway')
+	implementation project(':structures')
+
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'junit:junit:4.13.1'
+}
+
+test {
+	useJUnitPlatform()
+}

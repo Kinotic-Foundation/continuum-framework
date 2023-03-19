@@ -5,11 +5,15 @@ import org.elasticsearch.search.sort.SortOrder
 import org.kinotic.structures.api.domain.Structure
 import org.kinotic.structures.api.domain.TypeCheckMap
 import org.kinotic.structures.api.services.ItemService
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 
 @Component
 class ItemManager implements IItemManager {
+
+    private static final Logger log = LoggerFactory.getLogger(ItemManager.class)
 
     @Autowired
     ItemService itemService
@@ -66,6 +70,7 @@ class ItemManager implements IItemManager {
 
     @Override
     SearchHits searchWithSort(String structureId, String search, int numberPerPage, int from, String sortField, boolean descending) {
+        log.debug("search text: "+search)
         itemService.search(structureId, search, numberPerPage, from, sortField, descending ? SortOrder.DESC : SortOrder.ASC)
     }
 

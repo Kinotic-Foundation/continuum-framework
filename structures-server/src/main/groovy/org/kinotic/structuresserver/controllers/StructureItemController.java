@@ -31,7 +31,9 @@ public class StructureItemController {
     }
 
     @GetMapping(value = "/{structureId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Mono<String> listItems(@PathVariable String structureId, @RequestParam int page, @RequestParam int size) {
+    public Mono<String> listItems(@PathVariable String structureId,
+                                  @RequestParam(required = false, defaultValue = "0") int page,
+                                  @RequestParam(required = false, defaultValue = "25") int size) {
         return Mono.defer(() -> {
             try {
                 SearchHits searchHits = itemService.getAll(structureId, size, page);

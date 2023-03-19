@@ -90,13 +90,13 @@ public class DefaultOpenApiService implements OpenApiService {
                                                          .in("query")
                                                          .description("The page number to get")
                                                          .required(false)
-                                                         .schema(new IntegerSchema()));
+                                                         .schema(new IntegerSchema()._default(0)));
 
         getAllOperation.addParametersItem(new Parameter().name("size")
                                                          .in("query")
                                                          .description("The number of items per page")
                                                          .required(false)
-                                                         .schema(new IntegerSchema()));
+                                                         .schema(new IntegerSchema()._default(25)));
 
         structurePathItem.get(getAllOperation);
 

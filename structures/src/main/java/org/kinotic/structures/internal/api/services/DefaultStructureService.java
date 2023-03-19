@@ -176,18 +176,18 @@ public class DefaultStructureService implements StructureService {
              * You cannot modify these traits at any point in time nor can you change the actual values after setting.
              */
 
-            Optional<Trait> vpnIpOptional = traitService.getTraitByName("VpnIp");
-            if(vpnIpOptional.isEmpty()){
-                Trait temp = new Trait();
-                temp.setName("VpnIp");
-                temp.setDescribeTrait("VPN IP address that id allocated at request time and kept forever, unless Item is deleted.");
-                temp.setSchema("{ \"type\": \"string\", \"format\": \"ipv4\" }");
-                temp.setEsSchema("{ \"type\": \"ip\" }");
-                temp.setRequired(true);
-                temp.setModifiable(false);
-                temp.setUnique(true);
-                traitService.save(temp);
-            }
+//            Optional<Trait> vpnIpOptional = traitService.getTraitByName("VpnIp");
+//            if(vpnIpOptional.isEmpty()){
+//                Trait temp = new Trait();
+//                temp.setName("VpnIp");
+//                temp.setDescribeTrait("VPN IP address that id allocated at request time and kept forever, unless Item is deleted.");
+//                temp.setSchema("{ \"type\": \"string\", \"format\": \"ipv4\" }");
+//                temp.setEsSchema("{ \"type\": \"ip\" }");
+//                temp.setRequired(true);
+//                temp.setModifiable(false);
+//                temp.setUnique(true);
+//                traitService.save(temp);
+//            }
             Optional<Trait> macOptional = traitService.getTraitByName("Mac");
             if(macOptional.isEmpty()){
                 Trait temp = new Trait();
@@ -471,14 +471,14 @@ public class DefaultStructureService implements StructureService {
             // remove Object Reference Trait that was created when published.
             // if there are not more items then there can be no more reference logs
             // so we are good cleaning up here.
-            Optional<Trait> objectIdOptional = traitService.getTraitByName("Reference "+structure.getId().trim());
-            Trait objRefTrait = objectIdOptional.get();
-
-            DeleteRequest request = new DeleteRequest("trait");
-            request.id(objRefTrait.getId());
-            request.setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE);
-            // FIXME: Need to handle exceptions and edge cases.
-            highLevelClient.delete(request, RequestOptions.DEFAULT);
+//            Optional<Trait> objectIdOptional = traitService.getTraitByName("Reference "+structure.getId().trim());
+//            Trait objRefTrait = objectIdOptional.get();
+//
+//            DeleteRequest request = new DeleteRequest("trait");
+//            request.id(objRefTrait.getId());
+//            request.setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE);
+//            // FIXME: Need to handle exceptions and edge cases.
+//            highLevelClient.delete(request, RequestOptions.DEFAULT);
 
         }
 
@@ -529,25 +529,25 @@ public class DefaultStructureService implements StructureService {
             // we do this here b/c we only ever want to create it once per structure,
             // also we cannot ever query or actually select an structure for object references
             // until you can save some items.. duh.
-            Optional<Trait> objectIdOptional = traitService.getTraitByName("Reference "+structure.getId().trim());
-            if(objectIdOptional.isEmpty()){
-                Trait temp = new Trait();
-                temp.setName("Reference "+structure.getId().trim());
-                temp.setDescribeTrait("Stores a '"+structure.getId().trim()+"' object reference that will be retrieved when building the item.");
-                temp.setSchema("{ \"type\": \"ref\", \"urn\": \""+structure.getId().trim()+"\" }");
-                temp.setEsSchema("{ \"properties\": { \"structureId\":  { \"type\": \"keyword\" }, \"id\":  { \"type\": \"keyword\" } } }");
-                temp.setRequired(true);
-                temp.setModifiable(false);// only system can manage
-                try {
-                    traitService.save(temp);
-                } catch (AlreadyExistsException e) {
-                    log.error("For some reason the system attempted to create an already created Object Trait. We caught a AlreadyExistsException when trying to save an ObjectReference for new Structure.");
-                    // we should never encounter this condition as we only create once per structure.
-                }catch (PermenentTraitException ex){
-                    log.error("For some reason the system attempted to create an already created Object Trait. We caught a PermenentTraitException when trying to save an ObjectReference for new Structure.");
-                    // these are only system level objects, cannot modify but all of these should never have duplicates
-                }
-            }
+//            Optional<Trait> objectIdOptional = traitService.getTraitByName("Reference "+structure.getId().trim());
+//            if(objectIdOptional.isEmpty()){
+//                Trait temp = new Trait();
+//                temp.setName("Reference "+structure.getId().trim());
+//                temp.setDescribeTrait("Stores a '"+structure.getId().trim()+"' object reference that will be retrieved when building the item.");
+//                temp.setSchema("{ \"type\": \"ref\", \"urn\": \""+structure.getId().trim()+"\" }");
+//                temp.setEsSchema("{ \"properties\": { \"structureId\":  { \"type\": \"keyword\" }, \"id\":  { \"type\": \"keyword\" } } }");
+//                temp.setRequired(true);
+//                temp.setModifiable(false);// only system can manage
+//                try {
+//                    traitService.save(temp);
+//                } catch (AlreadyExistsException e) {
+//                    log.error("For some reason the system attempted to create an already created Object Trait. We caught a AlreadyExistsException when trying to save an ObjectReference for new Structure.");
+//                    // we should never encounter this condition as we only create once per structure.
+//                }catch (PermenentTraitException ex){
+//                    log.error("For some reason the system attempted to create an already created Object Trait. We caught a PermenentTraitException when trying to save an ObjectReference for new Structure.");
+//                    // these are only system level objects, cannot modify but all of these should never have duplicates
+//                }
+//            }
         }
     }
 

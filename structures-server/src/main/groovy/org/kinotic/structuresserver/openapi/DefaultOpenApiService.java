@@ -164,6 +164,7 @@ public class DefaultOpenApiService implements OpenApiService {
 
     private static Operation createBaseOperation(String operationSummary, String operationId, String structureId, int responseType) {
         Operation operation = new Operation().summary(operationSummary)
+                                             .tags(List.of(structureId))
                                              .operationId(operationId);
 
         // Add the default responses and the response for the structure item being returned

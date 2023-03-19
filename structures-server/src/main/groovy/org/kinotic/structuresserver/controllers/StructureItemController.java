@@ -1,13 +1,18 @@
 package org.kinotic.structuresserver.controllers;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.elasticsearch.search.SearchHits;
 import org.kinotic.structures.api.domain.TypeCheckMap;
 import org.kinotic.structures.api.services.ItemService;
+import org.kinotic.structuresserver.serializer.SearchHitsSerializer;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -18,26 +23,28 @@ import java.util.Optional;
 public class StructureItemController {
 
     private final ItemService itemService;
+    private final ObjectMapper objectMapper;
 
-    public StructureItemController(ItemService itemService) {
+    public StructureItemController(ItemService itemService, ObjectMapper objectMapper) {
         this.itemService = itemService;
+        this.objectMapper = objectMapper;
     }
 
-    @GetMapping("/{structureId}/{id}")
-    public Mono<LinkedHashMap<String, Object>> getItemById(@PathVariable String structureId, @PathVariable String id) {
+    @GetMapping(value = "/{structureId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Mono<String> listItems(@PathVariable String structureId, @RequestParam int page, @RequestParam int size) {
         return Mono.defer(() -> {
             try {
-                Optional<TypeCheckMap> item = itemService.getItemById(structureId, id);
-                return item.map(typeCheckMap -> Mono.just((LinkedHashMap<String, Object>) typeCheckMap))
-                           .orElseGet(Mono::empty);
+                SearchHits searchHits = itemService.getAll(structureId, size, page);
+                String json = objectMapper.writeValueAsString(searchHits);
+                return Mono.just(json);
             } catch (Exception e) {
                 return Mono.error(e);
             }
         }).subscribeOn(Schedulers.boundedElastic());
     }
 
-    @PostMapping("/{structureId}/create")
-    public Mono<LinkedHashMap<String, Object>> createItem(@PathVariable String structureId, LinkedHashMap<String, Object> item) {
+    @PostMapping("/{structureId}")
+    public Mono<LinkedHashMap<String, Object>> createItem(@PathVariable String structureId, @RequestBody Map<String, Object> item) {
         return Mono.defer(() -> {
             try {
                 return Mono.just((LinkedHashMap<String, Object>)itemService.createItem(structureId, new TypeCheckMap(item)));
@@ -47,8 +54,8 @@ public class StructureItemController {
         }).subscribeOn(Schedulers.boundedElastic());
     }
 
-    @PostMapping("/{structureId}/update")
-    public Mono<LinkedHashMap<String, Object>> updateItem(@PathVariable String structureId, LinkedHashMap<String, Object> item) {
+    @PutMapping("/{structureId}")
+    public Mono<LinkedHashMap<String, Object>> updateItem(@PathVariable String structureId, @RequestBody Map<String, Object> item) {
         return Mono.defer(() -> {
             try {
                 return Mono.just((LinkedHashMap<String, Object>)itemService.updateItem(structureId, new TypeCheckMap(item)));
@@ -58,11 +65,13 @@ public class StructureItemController {
         }).subscribeOn(Schedulers.boundedElastic());
     }
 
-    @GetMapping("/{structureId}")
-    public Mono<SearchHits> listItems(@PathVariable String structureId, @RequestParam int numberPerPage, @RequestParam int from) {
+    @GetMapping("/{structureId}/{id}")
+    public Mono<LinkedHashMap<String, Object>> getItemById(@PathVariable String structureId, @PathVariable String id) {
         return Mono.defer(() -> {
             try {
-                return Mono.just(itemService.getAll(structureId, numberPerPage, from));
+                Optional<TypeCheckMap> item = itemService.getItemById(structureId, id);
+                return item.map(typeCheckMap -> Mono.just((LinkedHashMap<String, Object>) typeCheckMap))
+                           .orElseGet(Mono::empty);
             } catch (Exception e) {
                 return Mono.error(e);
             }

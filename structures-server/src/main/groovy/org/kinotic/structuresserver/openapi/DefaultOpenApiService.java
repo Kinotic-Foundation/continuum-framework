@@ -1,17 +1,16 @@
 package org.kinotic.structuresserver.openapi;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.Operation;
-import io.swagger.v3.oas.models.PathItem;
-import io.swagger.v3.oas.models.Paths;
+import io.swagger.v3.oas.models.*;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.media.*;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.parameters.RequestBody;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.responses.ApiResponses;
-import org.kinotic.continuum.api.jsonSchema.datestyles.DateStyle;
+import io.swagger.v3.oas.models.servers.Server;
+import org.kinotic.continuum.api.jsonSchema.*;
+import org.kinotic.continuum.api.jsonSchema.JsonSchema;
 import org.kinotic.continuum.api.jsonSchema.datestyles.MillsDateStyle;
 import org.kinotic.continuum.api.jsonSchema.datestyles.StringDateStyle;
 import org.kinotic.continuum.api.jsonSchema.datestyles.UnixDateStyle;
@@ -20,8 +19,13 @@ import org.kinotic.structures.api.domain.Trait;
 import org.kinotic.structuresserver.domain.StructureHolder;
 import org.kinotic.structuresserver.serializer.Structures;
 import org.kinotic.structuresserver.structures.IStructureManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -29,6 +33,8 @@ import java.util.Map;
  */
 @Component
 public class DefaultOpenApiService implements OpenApiService {
+
+    private static final Logger log = LoggerFactory.getLogger(DefaultOpenApiService.class);
 
     private final ObjectMapper objectMapper;
     private final IStructureManager structureManager;
@@ -48,38 +54,51 @@ public class DefaultOpenApiService implements OpenApiService {
                 .description("Provides access to Structures Items");
         openAPI.setInfo(info);
 
-        Structures structures = structureManager.getAllPublished(100, 0, "id", false);
+//        List<Server> servers = new ArrayList<>();
+//        servers.add(new Server().url("http://127.0.0.1:8088"));
+//        openAPI.setServers(servers);
 
+        Structures structures = structureManager.getAllPublished(100, 0, "id", false);
+        Components components = new Components();
+        Paths paths = new Paths();
         for(StructureHolder structureHolder : structures.getContent()){
             Structure structure = structureHolder.getStructure();
-            Paths paths = getDefaultPathItemsForStructure(structure);
-            openAPI.setPaths(paths);
+            // Add path items for the structure
+            addPathItemsForStructure(paths, structure);
+
+            // now Add Schema for the structure
+            Schema<?> schema = getSchemaForStructureItem(structure);
+            components.addSchemas(structure.getId(), schema);
         }
+        openAPI.setPaths(paths);
+        openAPI.components(components);
 
         return openAPI;
     }
 
-    public Paths getDefaultPathItemsForStructure(Structure structure){
-        Paths paths = new Paths();
+    public void addPathItemsForStructure(Paths paths, Structure structure){
 
-        // Create a path item for the get all operation
-        paths.put("/api/"+structure.getId(), new PathItem().get(createBaseOperation("Get all "+structure.getId(),
-                                                                                    "getAll"+structure.getId(),
-                                                                                        structure.getId(),
-                                                                                        false)));
+        // Create a path item for all the operations with "/api/"+structure.getId()
+        PathItem structurePathItem = new PathItem();
 
-        // Create a path item for the get by id operation
-        Operation getByIdOperation = createBaseOperation("Get "+structure.getId()+" by id",
-                                                        "get"+structure.getId()+"ById",
+        Operation getAllOperation = createBaseOperation("Get all "+structure.getId(),
+                                                        "getAll"+structure.getId(),
                                                         structure.getId(),
-                                                         true);
+                                                        2);
 
-        getByIdOperation.addParametersItem(new Parameter().name("id")
-                                                          .in("path")
-                                                          .required(true)
-                                                          .schema(new StringSchema()));
-        paths.put("/api/"+structure.getId()+"/{id}", new PathItem().get(getByIdOperation));
+        getAllOperation.addParametersItem(new Parameter().name("page")
+                                                         .in("query")
+                                                         .description("The page number to get")
+                                                         .required(false)
+                                                         .schema(new IntegerSchema()));
 
+        getAllOperation.addParametersItem(new Parameter().name("size")
+                                                         .in("query")
+                                                         .description("The number of items per page")
+                                                         .required(false)
+                                                         .schema(new IntegerSchema()));
+
+        structurePathItem.get(getAllOperation);
 
         // Request body for create or update operations
         Schema<?> refSchema = new Schema<>().$ref(structure.getId());
@@ -87,47 +106,63 @@ public class DefaultOpenApiService implements OpenApiService {
                 .content(new Content().addMediaType("application/json",
                                                     new MediaType().schema(refSchema)));
 
-        // Create a path item for the create operation
+        // Operation for create
         Operation createOperation = createBaseOperation("Create "+structure.getId(),
-                                                       "create"+structure.getId(),
-                                                       structure.getId(),
-                                                        true);
-        createOperation.addParametersItem(new Parameter().name("id")
-                                                         .in("path")
-                                                         .required(true)
-                                                         .schema(new StringSchema()));
+                                                        "create"+structure.getId(),
+                                                        structure.getId(),
+                                                        1);
         createOperation.requestBody(structureRequestBody);
-        paths.put("/api/"+structure.getId(), new PathItem().post(createOperation));
 
+        structurePathItem.post(createOperation);
 
-        // Create a path item for the update operation
+        // Operation for update
         Operation updateOperation = createBaseOperation("Update "+structure.getId(),
-                                                       "update"+structure.getId(),
-                                                       structure.getId(),
-                                                        true);
-        updateOperation.addParametersItem(new Parameter().name("id")
-                                                         .in("path")
-                                                         .required(true)
-                                                         .schema(new StringSchema()));
+                                                        "update"+structure.getId(),
+                                                        structure.getId(),
+                                                        1);
         updateOperation.requestBody(structureRequestBody);
-        paths.put("/api/"+structure.getId()+"/{id}", new PathItem().put(updateOperation));
 
-        // Create a path item for the delete operation
+        structurePathItem.put(updateOperation);
+
+        paths.put("/api/"+structure.getId(), structurePathItem);
+
+
+        // Create a path item for all the operations with "/api/"+structure.getId()+"/{id}"
+        PathItem byIdPathItem = new PathItem();
+
+        // Operation for get by id
+        Operation getByIdOperation = createBaseOperation("Get "+structure.getId()+" by Id",
+                                                        "get"+structure.getId()+"ById",
+                                                        structure.getId(),
+                                                         1);
+
+        getByIdOperation.addParametersItem(new Parameter().name("id")
+                                                          .in("path")
+                                                          .description("The id of the "+structure.getId()+" to get")
+                                                          .required(true)
+                                                          .schema(new StringSchema()));
+
+        byIdPathItem.get(getByIdOperation);
+
+        // Operation for delete
         Operation deleteOperation = createBaseOperation("Delete "+structure.getId(),
-                                                       "delete"+structure.getId(),
-                                                       structure.getId(),
-                                                        true);
+                                                        "delete"+structure.getId(),
+                                                        structure.getId(),
+                                                        0);
+
         deleteOperation.addParametersItem(new Parameter().name("id")
                                                          .in("path")
+                                                         .description("The id of the "+structure.getId()+" to delete")
                                                          .required(true)
                                                          .schema(new StringSchema()));
-        paths.put("/api/"+structure.getId()+"/{id}", new PathItem().delete(deleteOperation));
 
+        byIdPathItem.delete(deleteOperation);
 
-        return paths;
+        paths.put("/api/"+structure.getId()+"/{id}", byIdPathItem);
+
     }
 
-    private static Operation createBaseOperation(String operationSummary, String operationId, String structureId, boolean singleItem) {
+    private static Operation createBaseOperation(String operationSummary, String operationId, String structureId, int responseType) {
         Operation operation = new Operation().summary(operationSummary)
                                              .operationId(operationId);
 
@@ -135,17 +170,22 @@ public class DefaultOpenApiService implements OpenApiService {
         ApiResponses defaultResponses = getDefaultResponses();
 
         // create a response for the structure item
-        ApiResponse response = new ApiResponse().description(operationSummary + "response");
+        ApiResponse response = new ApiResponse().description(operationSummary + " OK");
         Content content = new Content();
         MediaType mediaType = new MediaType();
-        if(singleItem){
+        if(responseType == 1){
             mediaType.setSchema(new Schema<>().$ref(structureId));
-        }else{
-            // TODO: fix this to be correct for searchHits response
-            mediaType.setSchema(new ArraySchema().items(new Schema<>().$ref(structureId)));
+            content.addMediaType("application/json", mediaType);
+            response.setContent(content);
+        }else if(responseType == 2){
+            ObjectSchema searchHitsSchema = new ObjectSchema();
+            searchHitsSchema.addProperty("content", new ArraySchema().items(new Schema<>().$ref(structureId)));
+            searchHitsSchema.addProperty("totalElements", new IntegerSchema());
+            mediaType.setSchema(searchHitsSchema);
+            content.addMediaType("application/json", mediaType);
+            response.setContent(content);
         }
-        content.addMediaType("application/json", mediaType);
-        response.setContent(content);
+
         defaultResponses.put("200", response);
 
         operation.setResponses(defaultResponses);
@@ -169,8 +209,14 @@ public class DefaultOpenApiService implements OpenApiService {
         ObjectSchema objectSchema = new ObjectSchema();
         for (Map.Entry<String, Trait> traitEntry : structure.getTraits().entrySet()) {
             try {
-                objectSchema.addProperty(traitEntry.getKey(), getSchemaForTrait(traitEntry.getValue()));
-                if(traitEntry.getValue().isRequired() && traitEntry.getValue().isModifiable()){
+                Schema<?> schema = getSchemaForTrait(traitEntry.getValue());
+                if(schema != null){
+                    objectSchema.addProperty(traitEntry.getKey(), getSchemaForTrait(traitEntry.getValue()));
+                }else{
+                    log.warn("Could not create OpenAPI schema for trait "+traitEntry.getKey()+", skipping");
+                }
+
+                if(traitEntry.getValue().isRequired()){
                     objectSchema.addRequiredItem(traitEntry.getKey());
                 }
             } catch (Exception e) {
@@ -182,24 +228,58 @@ public class DefaultOpenApiService implements OpenApiService {
 
     @Override
     public Schema<?> getSchemaForTrait(Trait trait) throws Exception{
-        Schema<?> schema = objectMapper.readValue(trait.getSchema(), Schema.class);
-        // We have a custom schema for dates as explained here continuum-core/src/main/java/org/kinotic/continuum/api/jsonSchema/JsonSchema.java
-        // We need to adapt to a compatible schema for OpenApi
-        if(schema.getType().equals("date")){
-            DateStyle dateStyle = objectMapper.readValue(schema.getFormat(), DateStyle.class);
-            if(dateStyle instanceof UnixDateStyle){
-                schema = new IntegerSchema().format("int64");
-            }else if (dateStyle instanceof MillsDateStyle){
-                schema = new IntegerSchema().format("int64");
-            } else if (dateStyle instanceof StringDateStyle) {
-                // FIXME: I think the intent here is unclear. The OpenApi spec expects a reg ex. Im not certain this is clear in the continuum json spec
-                StringDateStyle stringDateStyle = (StringDateStyle) dateStyle;
-                schema = new StringSchema().pattern(stringDateStyle.getPattern());
-            }
-        }
-        return schema;
+        JsonSchema schema = objectMapper.readValue(trait.getSchema(), JsonSchema.class);
+        return getSchemaForContinuumJsonSchema(schema);
     }
 
+    private Schema<?> getSchemaForContinuumJsonSchema(JsonSchema schema){
+        Schema<?> ret = null;
+        if(schema instanceof DateJsonSchema){
+            DateJsonSchema dateJsonSchema = (DateJsonSchema) schema;
+            if(dateJsonSchema.getFormat() instanceof UnixDateStyle) {
+                ret = new IntegerSchema().format("int64");
+            }else if(dateJsonSchema.getFormat() instanceof MillsDateStyle) {
+                ret = new IntegerSchema().format("int64");
+            }else if(dateJsonSchema.getFormat() instanceof StringDateStyle) {
+                // FIXME: I think the intent here is unclear. The OpenApi spec expects a reg ex. Im not certain this is clear in the continuum json spec
+                StringDateStyle stringDateStyle = (StringDateStyle) dateJsonSchema.getFormat();
+                ret = new StringSchema().pattern(stringDateStyle.getPattern());
+            }
+        }else if(schema instanceof StringJsonSchema) {
+            StringJsonSchema stringJsonSchema = (StringJsonSchema) schema;
+            ret = new StringSchema();
+            if (stringJsonSchema.getMinLength().isPresent()) {
+                ret.setMinLength(stringJsonSchema.getMinLength().get());
+            }
+            if (stringJsonSchema.getMaxLength().isPresent()) {
+                ret.setMaxLength(stringJsonSchema.getMaxLength().get());
+            }
+            if (stringJsonSchema.getPattern().isPresent()) {
+                ret.setPattern(stringJsonSchema.getPattern().get());
+            }
+        }else if(schema instanceof NumberJsonSchema) {
+            NumberJsonSchema numberJsonSchema = (NumberJsonSchema) schema;
+            ret = new NumberSchema();
+            if (numberJsonSchema.getMinimum().isPresent()) {
+                ret.setMinimum(BigDecimal.valueOf(numberJsonSchema.getMinimum().get()));
+            }
+            if (numberJsonSchema.getMaximum().isPresent()) {
+                ret.setMaximum(BigDecimal.valueOf(numberJsonSchema.getMaximum().get()));
+            }
+        }else if(schema instanceof BooleanJsonSchema){
+            ret = new BooleanSchema();
+        }
+        // TODO: figure how we want to handle arrays
+        // And for the structure as well
+//        else if (schema instanceof ArrayJsonSchema) {
+//            ArrayJsonSchema arrayJsonSchema = (ArrayJsonSchema) schema;
+//            ArraySchema arraySchema = new ArraySchema();
+//            arraySchema.setItems(getSchemaForTrait(arrayJsonSchema.getItems()));
+//            ret = arraySchema;
+//
+//        }
+        return ret;
+    }
 
 
 }

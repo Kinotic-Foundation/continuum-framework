@@ -240,7 +240,7 @@ public class DefaultStructureService implements StructureService {
                 Trait temp = new Trait();
                 temp.setName("TextString");
                 temp.setDescribeTrait("Generic String that is full-text values, such as the body of an email or the description of a product.");
-                temp.setSchema("{ \"type\": \"string\", \"example\": \"no-sort\" }");
+                temp.setSchema("{ \"type\": \"string\", \"description\": \"no-sort\" }");
                 temp.setEsSchema("{ \"type\": \"text\" }");
                 temp.setRequired(true);
                 traitService.save(temp);

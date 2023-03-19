@@ -15,12 +15,6 @@ logging:
     io:
       vertx: TRACE
 
-spring:
-  devtools:
-    livereload:
-      port: 35730
-
-
 elastic:
   hosts: 127.0.0.1:9200
   useSSL: false

@@ -49,7 +49,7 @@ public class DefaultOpenApiService implements OpenApiService {
         OpenAPI openAPI = new OpenAPI();
 
         Info info = new Info()
-                .title("All Structures API")
+                .title("Structures API")
                 .version("1.0")
                 .description("Provides access to Structures Items");
         openAPI.setInfo(info);

@@ -19,13 +19,8 @@ class ItemManager implements IItemManager {
     ItemService itemService
 
     @Override
-    TypeCheckMap createItem(String structureId, TypeCheckMap item) throws Exception {
-        itemService.createItem(structureId, item)
-    }
-
-    @Override
-    TypeCheckMap updateItem(String structureId, TypeCheckMap item) throws Exception {
-        itemService.updateItem(structureId, item)
+    TypeCheckMap upsertItem(String structureId, TypeCheckMap item) throws Exception {
+        itemService.upsertItem(structureId, item)
     }
 
     @Override

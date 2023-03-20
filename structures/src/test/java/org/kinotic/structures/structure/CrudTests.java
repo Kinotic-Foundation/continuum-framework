@@ -17,22 +17,21 @@
 
 package org.kinotic.structures.structure;
 
+import org.elasticsearch.search.SearchHits;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.kinotic.structures.api.domain.*;
 import org.kinotic.structures.api.services.ItemService;
 import org.kinotic.structures.api.services.StructureService;
 import org.kinotic.structures.api.services.TraitService;
-import org.elasticsearch.search.SearchHits;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.IOException;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.util.*;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -45,10 +44,25 @@ public class CrudTests {
     @Autowired
     private ItemService itemService;
 
+	@BeforeEach
+	public void init() throws IOException, PermenentTraitException, AlreadyExistsException {
+		Optional<Trait> ipOptional = traitService.getTraitByName("VpnIp");
+		if(ipOptional.isEmpty()){
+			Trait temp = new Trait();
+			temp.setName("VpnIp");
+			temp.setDescribeTrait("VpnIp address that the devices should be provided on the VLAN.");
+			temp.setSchema("{ \"type\": \"string\", \"format\": \"ipv4\" }");
+			temp.setEsSchema("{ \"type\": \"ip\" }");
+			temp.setRequired(true);
+			traitService.save(temp);
+		}
+	}
+
 	@Test
 	public void createAndDeleteStructure() {
 		Assertions.assertThrows(NoSuchElementException.class, () -> {
 			Structure structure = new Structure();
+			structure.setPrimaryKey(new LinkedList<String>(Collections.singleton("id")));
 			structure.setId("Computer1-" + System.currentTimeMillis());
 			structure.setDescription("Defines the Computer Device properties");
 
@@ -79,8 +93,7 @@ public class CrudTests {
 
 			SearchHits all = structureService.getAll(10000, 0, "id", true);
 			if (all.iterator().hasNext()) {
-				throw new IllegalStateException(
-						"We should have no structures left, all deleted, however getAll() returned more than 0 structures");
+				throw new IllegalStateException("We should have no structures left, all deleted, however getAll() returned more than 0 structures");
 			}
 
 
@@ -93,6 +106,7 @@ public class CrudTests {
 	public void tryCreateDuplicateStructure(){
 		Assertions.assertThrows(AlreadyExistsException.class, () -> {
 			Structure structure = new Structure();
+			structure.setPrimaryKey(new LinkedList<String>(Collections.singleton("id")));
 			structure.setId("Computer2-" + System.currentTimeMillis());
 			structure.setDescription("Defines the Computer Device properties");
 
@@ -122,6 +136,7 @@ public class CrudTests {
 	@Test
 	public void addToTraitMapNotPublishedAndValidate() throws AlreadyExistsException, IOException, PermenentTraitException {
 		Structure structure = new Structure();
+		structure.setPrimaryKey(new LinkedList<String>(Collections.singleton("id")));
 		structure.setId("Computer3-" + System.currentTimeMillis());
 		structure.setDescription("Defines the Computer Device properties");
 
@@ -179,6 +194,7 @@ public class CrudTests {
 	@Test
 	public void addToTraitMapAlreadyPublishedAndValidate() throws AlreadyExistsException, IOException, PermenentTraitException {
 		Structure structure = new Structure();
+		structure.setPrimaryKey(new LinkedList<String>(Collections.singleton("id")));
 		structure.setId("Computer4-" + System.currentTimeMillis());
 		structure.setDescription("Defines the Computer Device properties");
 
@@ -238,6 +254,7 @@ public class CrudTests {
 	@Test
 	public void publishAndDeleteAStructure() throws AlreadyExistsException, IOException, PermenentTraitException {
 		Structure structure = new Structure();
+		structure.setPrimaryKey(new LinkedList<String>(Collections.singleton("id")));
 		structure.setId("Computer9-" + System.currentTimeMillis());
 		structure.setDescription("Defines the Computer Device properties");
 
@@ -262,6 +279,7 @@ public class CrudTests {
 	public void publishAndDeleteAStructureWithAnItem() {
 		Assertions.assertThrows(IllegalStateException.class, () -> {
 			Structure structure = new Structure();
+			structure.setPrimaryKey(new LinkedList<String>(Collections.singleton("id")));
 			structure.setId("Computer10-" + System.currentTimeMillis());
 			structure.setDescription("Defines the Computer Device properties");
 
@@ -285,7 +303,7 @@ public class CrudTests {
 			TypeCheckMap saved = null;
 
 			try {
-				saved = itemService.createItem(structure.getId(), obj);
+				saved = itemService.upsertItem(structure.getId(), obj);
 
 				Thread.sleep(1000);// give time for ES to flush the new item
 

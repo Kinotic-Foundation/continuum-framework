@@ -1,11 +1,9 @@
 package org.kinotic.structuresserver.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.elasticsearch.search.SearchHits;
 import org.kinotic.structures.api.domain.TypeCheckMap;
 import org.kinotic.structures.api.services.ItemService;
-import org.kinotic.structuresserver.serializer.SearchHitsSerializer;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
@@ -49,7 +47,7 @@ public class StructureItemController {
     public Mono<LinkedHashMap<String, Object>> createItem(@PathVariable String structureId, @RequestBody Map<String, Object> item) {
         return Mono.defer(() -> {
             try {
-                return Mono.just((LinkedHashMap<String, Object>)itemService.createItem(structureId, new TypeCheckMap(item)));
+                return Mono.just((LinkedHashMap<String, Object>)itemService.upsertItem(structureId, new TypeCheckMap(item)));
             } catch (Exception e) {
                 return Mono.error(e);
             }
@@ -60,7 +58,7 @@ public class StructureItemController {
     public Mono<LinkedHashMap<String, Object>> updateItem(@PathVariable String structureId, @RequestBody Map<String, Object> item) {
         return Mono.defer(() -> {
             try {
-                return Mono.just((LinkedHashMap<String, Object>)itemService.updateItem(structureId, new TypeCheckMap(item)));
+                return Mono.just((LinkedHashMap<String, Object>)itemService.upsertItem(structureId, new TypeCheckMap(item)));
             } catch (Exception e) {
                 return Mono.error(e);
             }

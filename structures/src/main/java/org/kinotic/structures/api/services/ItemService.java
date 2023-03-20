@@ -32,11 +32,7 @@ import java.util.Map;
 import java.util.Optional;
 
 public interface ItemService {
-
-    TypeCheckMap createItem(String structureId, TypeCheckMap item) throws Exception;
-
-    TypeCheckMap updateItem(String structureId, TypeCheckMap item) throws Exception;
-    TypeCheckMap updateItem(String structureId, TypeCheckMap item, boolean asUpsert) throws Exception;
+    TypeCheckMap upsertItem(String structureId, TypeCheckMap item) throws Exception;
 
     void requestBulkUpdatesForStructure(Structure structure);
     void pushItemForBulkUpdate(Structure structure, TypeCheckMap item) throws Exception;
@@ -77,10 +73,10 @@ public interface ItemService {
             if (getTraitLifecycleMap().containsKey(traitEntry.getValue().getName())) {
                 TraitLifecycle toExecute = getTraitLifecycleMap().get(traitEntry.getValue().getName());
                 obj = process.apply(toExecute, obj, traitEntry.getKey());
-            }else if(traitEntry.getValue().getName().contains("Reference ")){
-                TraitLifecycle toExecute = getTraitLifecycleMap().get("ObjectReference");
-                obj = process.apply(toExecute, obj, traitEntry.getKey());
-            }
+            }//else if(traitEntry.getValue().getName().contains("Reference ")){
+//                TraitLifecycle toExecute = getTraitLifecycleMap().get("ObjectReference");
+//                obj = process.apply(toExecute, obj, traitEntry.getKey());
+//            }
         }
 
         return obj;

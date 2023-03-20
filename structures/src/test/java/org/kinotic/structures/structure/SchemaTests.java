@@ -17,19 +17,22 @@
 
 package org.kinotic.structures.structure;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.kinotic.structures.api.domain.AlreadyExistsException;
 import org.kinotic.structures.api.domain.PermenentTraitException;
 import org.kinotic.structures.api.domain.Structure;
 import org.kinotic.structures.api.domain.Trait;
 import org.kinotic.structures.api.services.StructureService;
 import org.kinotic.structures.api.services.TraitService;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.Optional;
 
 @ExtendWith(SpringExtension.class)
@@ -41,9 +44,24 @@ public class SchemaTests {
     @Autowired
     private StructureService structureService;
 
+    @BeforeEach
+    public void init() throws IOException, PermenentTraitException, AlreadyExistsException {
+        Optional<Trait> ipOptional = traitService.getTraitByName("VpnIp");
+        if(ipOptional.isEmpty()){
+            Trait temp = new Trait();
+            temp.setName("VpnIp");
+            temp.setDescribeTrait("VpnIp address that the devices should be provided on the VLAN.");
+            temp.setSchema("{ \"type\": \"string\", \"format\": \"ipv4\" }");
+            temp.setEsSchema("{ \"type\": \"ip\" }");
+            temp.setRequired(true);
+            traitService.save(temp);
+        }
+    }
+
     @Test
     public void validateJsonSchemaGeneration() throws AlreadyExistsException, IOException, PermenentTraitException {
         Structure structure = new Structure();
+        structure.setPrimaryKey(new LinkedList<String>(Collections.singleton("id")));
         structure.setId("Computer11-" + System.currentTimeMillis());
         structure.setDescription("Defines the Computer Device properties");
 
@@ -73,6 +91,7 @@ public class SchemaTests {
     @Test
     public void validateElasticSearchMappingGeneration() throws AlreadyExistsException, IOException, PermenentTraitException {
         Structure structure = new Structure();
+        structure.setPrimaryKey(new LinkedList<String>(Collections.singleton("id")));
         structure.setId("Computer12-" + System.currentTimeMillis());
         structure.setDescription("Defines the Computer Device properties");
 

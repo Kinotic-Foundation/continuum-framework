@@ -17,21 +17,6 @@
 
 package org.kinotic.structures.item;
 
-import org.kinotic.structures.api.domain.*;
-import org.kinotic.structures.api.services.ItemService;
-import org.kinotic.structures.api.services.StructureService;
-import org.kinotic.structures.api.services.TraitService;
-import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.SearchHits;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-
-import java.util.Optional;
-
 //@ExtendWith(SpringExtension.class)
 //@SpringBootTest
 public class ObjectReferenceTests {
@@ -359,6 +344,7 @@ public class ObjectReferenceTests {
 //
 //    public Structure getComputerStructure() throws Exception {
 //        Structure structure = new Structure();
+//        structure.setPrimaryKey(new LinkedList<String>(Collections.singleton("id")));
 //        structure.setId("Computer-" + String.valueOf(System.currentTimeMillis()));
 //        structure.setDescription("Defines an Computer");
 //
@@ -377,6 +363,7 @@ public class ObjectReferenceTests {
 //
 //    public Structure getDeviceStructure() throws Exception {
 //        Structure structure = new Structure();
+//        structure.setPrimaryKey(new LinkedList<String>(Collections.singleton("id")));
 //        structure.setId("EmbeddedDevice-" + String.valueOf(System.currentTimeMillis()));
 //        structure.setDescription("Defines an EmbeddedDevice");
 //
@@ -398,6 +385,7 @@ public class ObjectReferenceTests {
 //
 //    public Structure getOfficeStructure(Structure deviceStructure, Structure computerStructure) throws Exception {
 //        Structure structure = new Structure();
+//        structure.setPrimaryKey(new LinkedList<String>(Collections.singleton("id")));
 //        structure.setId("Office-" + String.valueOf(System.currentTimeMillis()));
 //        structure.setDescription("Defines a Office");
 //

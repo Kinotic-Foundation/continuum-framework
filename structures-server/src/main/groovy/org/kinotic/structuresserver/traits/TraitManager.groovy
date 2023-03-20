@@ -16,6 +16,9 @@ class TraitManager implements ITraitManager {
 
     @Override
     Trait save(Trait saveTrait) throws AlreadyExistsException, PermenentTraitException {
+        if(saveTrait.isSystemManaged()){
+            throw new PermenentTraitException("An attempt to create/modify a System Managed Trait found, this is not allowed")
+        }
         traitService.save(saveTrait)
     }
 

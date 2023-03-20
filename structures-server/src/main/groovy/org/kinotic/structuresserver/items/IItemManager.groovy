@@ -9,9 +9,8 @@ import org.kinotic.structures.api.domain.TypeCheckMap
 @Publish
 @Version("1.0.0")
 interface IItemManager {
-    TypeCheckMap createItem(String structureId, TypeCheckMap item) throws Exception
 
-    TypeCheckMap updateItem(String structureId, TypeCheckMap item) throws Exception
+    TypeCheckMap upsertItem(String structureId, TypeCheckMap item) throws Exception
 
     long count(String structureId)
 

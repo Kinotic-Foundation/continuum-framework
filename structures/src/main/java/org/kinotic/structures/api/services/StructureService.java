@@ -72,14 +72,14 @@ public interface StructureService {
                     }
                     requires.append("\"").append(traitEntry.getKey()).append("\"");
                 }
-                if(traitEntry.getValue().isModifiable()){
-                    if(modifiable.length() == 0){
-                        modifiable.append("[");
-                    }else{
-                        modifiable.append(",");
-                    }
-                    modifiable.append("\"").append(traitEntry.getKey()).append("\"");
-                }
+//                if(traitEntry.getValue().isModifiable()){
+//                    if(modifiable.length() == 0){
+//                        modifiable.append("[");
+//                    }else{
+//                        modifiable.append(",");
+//                    }
+//                    modifiable.append("\"").append(traitEntry.getKey()).append("\"");
+//                }
             }
         }
         properties.append("}");// end properties

@@ -17,19 +17,21 @@
 
 package org.kinotic.structures.testenv;
 
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.kinotic.structures.api.domain.AlreadyExistsException;
 import org.kinotic.structures.api.domain.Structure;
 import org.kinotic.structures.api.domain.Trait;
 import org.kinotic.structures.api.services.ItemService;
 import org.kinotic.structures.api.services.StructureService;
 import org.kinotic.structures.api.services.TraitService;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.Optional;
 
 @ExtendWith(SpringExtension.class)
@@ -85,6 +87,7 @@ public class GenerateData {
         Structure structure = new Structure();
         structure.setId("Computer-" + System.currentTimeMillis());
         structure.setDescription("Defines an Computer");
+        structure.setPrimaryKey(new LinkedList<String>(Collections.singleton("id")));
 
         Optional<Trait> vpnIpOptional = traitService.getTraitByName("VpnIp");
         Optional<Trait> ipOptional = traitService.getTraitByName("Ip");
@@ -103,6 +106,7 @@ public class GenerateData {
         Structure structure = new Structure();
         structure.setId("Device-" + System.currentTimeMillis());
         structure.setDescription("Defines an Device");
+        structure.setPrimaryKey(new LinkedList<String>(Collections.singleton("id")));
 
         Optional<Trait> vpnIpOptional = traitService.getTraitByName("VpnIp");
         Optional<Trait> ipOptional = traitService.getTraitByName("Ip");
@@ -124,6 +128,7 @@ public class GenerateData {
         Structure structure = new Structure();
         structure.setId("Office-" + System.currentTimeMillis());
         structure.setDescription("Defines a Office");
+        structure.setPrimaryKey(new LinkedList<String>(Collections.singleton("id")));
 
         Optional<Trait> textOptional = traitService.getTraitByName("KeywordString");
         Optional<Trait> objRefOptional = traitService.getTraitByName("ObjectReference");

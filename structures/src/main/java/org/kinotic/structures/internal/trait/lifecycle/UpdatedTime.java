@@ -19,18 +19,13 @@ package org.kinotic.structures.internal.trait.lifecycle;
 
 import org.kinotic.structures.api.domain.Structure;
 import org.kinotic.structures.api.domain.TypeCheckMap;
-import org.kinotic.structures.api.domain.traitlifecycle.HasOnBeforeCreate;
 import org.kinotic.structures.api.domain.traitlifecycle.HasOnBeforeModify;
 import org.kinotic.structures.api.services.ItemService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Component;
 
-import java.util.Optional;
-
 @Component
-public class UpdatedTime implements HasOnBeforeCreate, HasOnBeforeModify {
+public class UpdatedTime implements HasOnBeforeModify {
 
     private final ItemService itemService;
 
@@ -38,31 +33,25 @@ public class UpdatedTime implements HasOnBeforeCreate, HasOnBeforeModify {
         this.itemService = itemService;
     }
 
-    @Override
-    public TypeCheckMap beforeCreate(TypeCheckMap obj, Structure structure, String fieldName) throws Exception {
-        obj.amend("updatedTime", System.currentTimeMillis());
-        return obj;
-    }
 
     @Override
     public TypeCheckMap beforeModify(TypeCheckMap obj, Structure structure, String fieldName) throws Exception {
-//we should be able to turn on internal versioning, and we don't have to do this logic at all.
+        //we should be able to turn on internal versioning, and we don't have to do this logic at all.
         // if we support partial updates,
         //    might not have an updateTime, if we are performing partial updates.
         //    if updatedTime exists we check it against the value stored, they must be equal to persist
         // not sure if this even makes sense, but not sure how to best support concurrency here.
-        if (obj.has("updatedTime")) {
-            // we want to make sure we already have the item in storage - otherwise you must create the item first
-            Optional<TypeCheckMap> stored = itemService.getById(structure, obj.getString("id"));
-            if (stored.isEmpty()) {
-                throw new IllegalArgumentException("Item does not exist in storage, you must first create the item before trying to modify it.");
-            }
-            long updatedTime = obj.getLong("updatedTime");
-            if (updatedTime != stored.get().getLong("updatedTime")) {
-                throw new OptimisticLockingFailureException("Item has been modified since you received it, please reload and try modifications again.");
-            }
-
-        }
+//        if (obj.has("updatedTime")) {
+//            // we want to make sure we already have the item in storage - otherwise you must create the item first
+//            Optional<TypeCheckMap> stored = itemService.getById(structure, obj.getString("id"));
+//            if (stored.isEmpty()) {
+//                throw new IllegalArgumentException("Item does not exist in storage, you must first create the item before trying to modify it.");
+//            }
+//            long updatedTime = obj.getLong("updatedTime");
+//            if (updatedTime != stored.get().getLong("updatedTime")) {
+//                throw new OptimisticLockingFailureException("Item has been modified since you received it, please reload and try modifications again.");
+//            }
+//        }
 
         obj.amend("updatedTime", System.currentTimeMillis());
         return obj;

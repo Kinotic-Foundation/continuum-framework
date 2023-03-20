@@ -19,17 +19,11 @@ package org.kinotic.structures.internal.trait.lifecycle;
 
 import org.kinotic.structures.api.domain.Structure;
 import org.kinotic.structures.api.domain.TypeCheckMap;
-import org.kinotic.structures.api.domain.traitlifecycle.HasOnBeforeCreate;
 import org.kinotic.structures.api.domain.traitlifecycle.HasOnBeforeDelete;
 import org.springframework.stereotype.Component;
 
 @Component
-public class DeletedTime implements HasOnBeforeCreate, HasOnBeforeDelete {
-    @Override
-    public TypeCheckMap beforeCreate(TypeCheckMap obj, Structure structure, String fieldName) throws Exception {
-        obj.amend("deletedTime", 0);
-        return obj;
-    }
+public class DeletedTime implements HasOnBeforeDelete {
 
     @Override
     public TypeCheckMap beforeDelete(TypeCheckMap obj, Structure structure, String fieldName) throws Exception {

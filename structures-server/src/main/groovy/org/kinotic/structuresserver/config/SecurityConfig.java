@@ -13,7 +13,7 @@ public class SecurityConfig {
 
     @Bean
     SecurityService dummySecurityService(){
-        return new DummySecurityService();
+        return new TemporarySecurityService();
     }
 
 }

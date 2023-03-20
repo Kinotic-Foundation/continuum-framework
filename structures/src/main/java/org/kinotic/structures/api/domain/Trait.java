@@ -30,9 +30,8 @@ public class Trait implements Serializable {
     private boolean required = false; // should the GUI require a field to be filled out when looking at the item
 
     private Long updated;
-    private boolean modifiable = true; // should this field be modifiable outside the system
-    private boolean unique = false; // should be a unique field in the index, so no others should exist
     private boolean operational = false; // field that says we do not really add to the schema but provide some type of process
+    private boolean systemManaged = false; // field that means our default traits for all structures
 
     public String getId() {
         return id;
@@ -98,27 +97,19 @@ public class Trait implements Serializable {
         this.updated = updated;
     }
 
-    public boolean isModifiable() {
-        return modifiable;
-    }
-
-    public void setModifiable(boolean modifiable) {
-        this.modifiable = modifiable;
-    }
-
-    public boolean isUnique() {
-        return unique;
-    }
-
-    public void setUnique(boolean unique) {
-        this.unique = unique;
-    }
-
     public boolean isOperational() {
         return operational;
     }
 
     public void setOperational(boolean operational) {
         this.operational = operational;
+    }
+
+    public boolean isSystemManaged() {
+        return systemManaged;
+    }
+
+    public void setSystemManaged(boolean systemManaged) {
+        this.systemManaged = systemManaged;
     }
 }

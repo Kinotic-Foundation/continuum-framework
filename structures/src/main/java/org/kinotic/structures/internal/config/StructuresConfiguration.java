@@ -32,6 +32,7 @@ import org.springframework.data.elasticsearch.repository.config.EnableElasticsea
 @Configuration
 @EnableElasticsearchRepositories(basePackages = "org.kinotic.structures.internal.repositories")
 @ComponentScan(basePackages = "org.kinotic.structures")
+@Profile("!test")
 public class StructuresConfiguration extends AbstractElasticsearchConfiguration implements InitializingBean {
     static {
         System.setProperty("es.set.netty.runtime.available.processors", "false");
@@ -56,7 +57,6 @@ public class StructuresConfiguration extends AbstractElasticsearchConfiguration 
 
     @Bean
     @Override
-    @Profile("!test")
     public RestHighLevelClient elasticsearchClient() {
         ClientConfiguration.MaybeSecureClientConfigurationBuilder builder
                 = ClientConfiguration.builder()

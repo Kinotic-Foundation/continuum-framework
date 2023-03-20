@@ -57,7 +57,7 @@ public interface StructureService {
         StringBuilder ret = new StringBuilder();
         StringBuilder properties = new StringBuilder();
         StringBuilder requires = new StringBuilder();
-        StringBuilder modifiable = new StringBuilder();
+        StringBuilder systemManaged = new StringBuilder();
         for(Map.Entry<String, Trait> traitEntry : structure.getTraits().entrySet()){
             if(!traitEntry.getValue().isOperational()){// operational traits never get added to schema
                 if(properties.length() > 0){
@@ -72,14 +72,14 @@ public interface StructureService {
                     }
                     requires.append("\"").append(traitEntry.getKey()).append("\"");
                 }
-//                if(traitEntry.getValue().isModifiable()){
-//                    if(modifiable.length() == 0){
-//                        modifiable.append("[");
-//                    }else{
-//                        modifiable.append(",");
-//                    }
-//                    modifiable.append("\"").append(traitEntry.getKey()).append("\"");
-//                }
+                if(traitEntry.getValue().isSystemManaged()){
+                    if(systemManaged.length() == 0){
+                        systemManaged.append("[");
+                    }else{
+                        systemManaged.append(",");
+                    }
+                    systemManaged.append("\"").append(traitEntry.getKey()).append("\"");
+                }
             }
         }
         properties.append("}");// end properties
@@ -93,12 +93,12 @@ public interface StructureService {
         }else{
             ret.append(",\"required\":[]");
         }
-        if(modifiable.length() > 0){
-            modifiable.append("]");
-            ret.append(",\"modifiable\":");
-            ret.append(modifiable);
+        if(systemManaged.length() > 0){
+            systemManaged.append("]");
+            ret.append(",\"systemManaged\":");
+            ret.append(systemManaged);
         }else{
-            ret.append(",\"modifiable\":[]");
+            ret.append(",\"systemManaged\":[]");
         }
         ret.append("}");// end schema
 

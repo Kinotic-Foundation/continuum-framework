@@ -4,10 +4,8 @@ spring:
 
 logging:
   level:
-    com:
+    org:
       kinotic: DEBUG
-
-
 
 elastic:
   hosts: localhost:9200

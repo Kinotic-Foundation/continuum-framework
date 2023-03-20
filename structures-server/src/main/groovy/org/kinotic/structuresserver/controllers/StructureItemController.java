@@ -44,18 +44,7 @@ public class StructureItemController {
     }
 
     @PostMapping("/{structureId}")
-    public Mono<LinkedHashMap<String, Object>> createItem(@PathVariable String structureId, @RequestBody Map<String, Object> item) {
-        return Mono.defer(() -> {
-            try {
-                return Mono.just((LinkedHashMap<String, Object>)itemService.upsertItem(structureId, new TypeCheckMap(item)));
-            } catch (Exception e) {
-                return Mono.error(e);
-            }
-        }).subscribeOn(Schedulers.boundedElastic());
-    }
-
-    @PutMapping("/{structureId}")
-    public Mono<LinkedHashMap<String, Object>> updateItem(@PathVariable String structureId, @RequestBody Map<String, Object> item) {
+    public Mono<LinkedHashMap<String, Object>> upsertItem(@PathVariable String structureId, @RequestBody Map<String, Object> item) {
         return Mono.defer(() -> {
             try {
                 return Mono.just((LinkedHashMap<String, Object>)itemService.upsertItem(structureId, new TypeCheckMap(item)));

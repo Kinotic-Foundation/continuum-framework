@@ -8,7 +8,6 @@ import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.parameters.RequestBody;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.responses.ApiResponses;
-import io.swagger.v3.oas.models.servers.Server;
 import org.kinotic.continuum.api.jsonSchema.*;
 import org.kinotic.continuum.api.jsonSchema.JsonSchema;
 import org.kinotic.continuum.api.jsonSchema.datestyles.MillsDateStyle;
@@ -24,7 +23,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -66,9 +64,12 @@ public class DefaultOpenApiService implements OpenApiService {
             // Add path items for the structure
             addPathItemsForStructure(paths, structure);
 
-            // now Add Schema for the structure
-            Schema<?> schema = getSchemaForStructureItem(structure);
+            //Now Add Schemas for the structure, one with all fields and one with only the input fields
+            Schema<?> schema = getSchemaForStructureItem(structure, false);
             components.addSchemas(structure.getId(), schema);
+
+            Schema<?> schemaInput = getSchemaForStructureItem(structure, true);
+            components.addSchemas(structure.getId()+"Input", schemaInput);
         }
         openAPI.setPaths(paths);
         openAPI.components(components);
@@ -81,10 +82,10 @@ public class DefaultOpenApiService implements OpenApiService {
         // Create a path item for all the operations with "/api/"+structure.getId()
         PathItem structurePathItem = new PathItem();
 
-        Operation getAllOperation = createBaseOperation("Get all "+structure.getId(),
-                                                        "getAll"+structure.getId(),
-                                                        structure.getId(),
-                                                        2);
+        Operation getAllOperation = createOperation("Get all "+structure.getId(),
+                                                    "getAll"+structure.getId(),
+                                                    structure.getId(),
+                                                    2);
 
         getAllOperation.addParametersItem(new Parameter().name("page")
                                                          .in("query")
@@ -100,41 +101,30 @@ public class DefaultOpenApiService implements OpenApiService {
 
         structurePathItem.get(getAllOperation);
 
-        // Request body for create or update operations
-        Schema<?> refSchema = new Schema<>().$ref(structure.getId());
+        // Request body for upsert operations
+        Schema<?> refSchema = new Schema<>().$ref(structure.getId()+"Input");
         RequestBody structureRequestBody = new RequestBody()
                 .content(new Content().addMediaType("application/json",
                                                     new MediaType().schema(refSchema)));
 
         // Operation for create
-        Operation createOperation = createBaseOperation("Create "+structure.getId(),
-                                                        "create"+structure.getId(),
-                                                        structure.getId(),
-                                                        1);
+        Operation createOperation = createOperation("Upsert "+structure.getId(),
+                                                    "upsert"+structure.getId(),
+                                                    structure.getId(),
+                                                    1);
         createOperation.requestBody(structureRequestBody);
 
         structurePathItem.post(createOperation);
-
-        // Operation for update
-        Operation updateOperation = createBaseOperation("Update "+structure.getId(),
-                                                        "update"+structure.getId(),
-                                                        structure.getId(),
-                                                        1);
-        updateOperation.requestBody(structureRequestBody);
-
-        structurePathItem.put(updateOperation);
-
-        paths.put("/api/"+structure.getId(), structurePathItem);
 
 
         // Create a path item for all the operations with "/api/"+structure.getId()+"/{id}"
         PathItem byIdPathItem = new PathItem();
 
         // Operation for get by id
-        Operation getByIdOperation = createBaseOperation("Get "+structure.getId()+" by Id",
-                                                        "get"+structure.getId()+"ById",
-                                                        structure.getId(),
-                                                         1);
+        Operation getByIdOperation = createOperation("Get "+structure.getId()+" by Id",
+                                                     "get"+structure.getId()+"ById",
+                                                     structure.getId(),
+                                                     1);
 
         getByIdOperation.addParametersItem(new Parameter().name("id")
                                                           .in("path")
@@ -145,10 +135,10 @@ public class DefaultOpenApiService implements OpenApiService {
         byIdPathItem.get(getByIdOperation);
 
         // Operation for delete
-        Operation deleteOperation = createBaseOperation("Delete "+structure.getId(),
-                                                        "delete"+structure.getId(),
-                                                        structure.getId(),
-                                                        0);
+        Operation deleteOperation = createOperation("Delete "+structure.getId(),
+                                                    "delete"+structure.getId(),
+                                                    structure.getId(),
+                                                    0);
 
         deleteOperation.addParametersItem(new Parameter().name("id")
                                                          .in("path")
@@ -162,7 +152,11 @@ public class DefaultOpenApiService implements OpenApiService {
 
     }
 
-    private static Operation createBaseOperation(String operationSummary, String operationId, String structureId, int responseType) {
+    private static Operation createOperation(String operationSummary,
+                                             String operationId,
+                                             String structureId,
+                                             int responseType) {
+
         Operation operation = new Operation().summary(operationSummary)
                                              .tags(List.of(structureId))
                                              .operationId(operationId);
@@ -205,29 +199,43 @@ public class DefaultOpenApiService implements OpenApiService {
     }
 
 
-    @Override
-    public Schema<?> getSchemaForStructureItem(Structure structure){
+    /**
+     * This gets the Schema for a structure item.
+     * This is not the schema for the structure itself but rather the schema for the items that are defined by the structure.
+     *
+     * @param structure to get the schema for
+     * @return the schema for the structure item
+     */
+    public Schema<?> getSchemaForStructureItem(Structure structure, boolean excludeSystemTraits){
         ObjectSchema objectSchema = new ObjectSchema();
         for (Map.Entry<String, Trait> traitEntry : structure.getTraits().entrySet()) {
-            try {
-                Schema<?> schema = getSchemaForTrait(traitEntry.getValue());
-                if(schema != null){
-                    objectSchema.addProperty(traitEntry.getKey(), getSchemaForTrait(traitEntry.getValue()));
-                }else{
-                    log.warn("Could not create OpenAPI schema for trait "+traitEntry.getKey()+", skipping");
-                }
+            if(!traitEntry.getValue().isSystemManaged() || (traitEntry.getValue().isSystemManaged() && !excludeSystemTraits)) {
+                try {
+                    Schema<?> schema = getSchemaForTrait(traitEntry.getValue());
+                    if (schema != null) {
+                        objectSchema.addProperty(traitEntry.getKey(), getSchemaForTrait(traitEntry.getValue()));
+                    } else {
+                        log.warn("Could not create OpenAPI schema for trait " + traitEntry.getKey() + ", skipping");
+                    }
 
-                if(traitEntry.getValue().isRequired()){
-                    objectSchema.addRequiredItem(traitEntry.getKey());
+                    if (traitEntry.getValue().isRequired()) {
+                        objectSchema.addRequiredItem(traitEntry.getKey());
+                    }
+                } catch (Exception e) {
+                    throw new RuntimeException("Failed to get schema for trait " + traitEntry.getKey(), e);
                 }
-            } catch (Exception e) {
-                throw new RuntimeException("Failed to get schema for trait "+traitEntry.getKey(), e);
             }
         }
         return objectSchema;
     }
 
-    @Override
+    /**
+     * Gets the {@link Schema} that represents the given {@link Trait}
+     *
+     * @param trait to get the schema for
+     * @return the schema for the trait
+     * @throws Exception if there is an error getting the schema
+     */
     public Schema<?> getSchemaForTrait(Trait trait) throws Exception{
         JsonSchema schema = objectMapper.readValue(trait.getSchema(), JsonSchema.class);
         return getSchemaForContinuumJsonSchema(schema);

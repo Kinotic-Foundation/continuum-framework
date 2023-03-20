@@ -191,13 +191,30 @@ public class CrudTests  {
         try {
             Thread.sleep(1000);// give time for ES to flush the new item
 
-            Optional<TypeCheckMap> fresh = itemService.getItemById(structure.getId(), "nevada-las_vegas-111_las_vegas_blvd");
+            Optional<TypeCheckMap> freshOpt = itemService.getItemById(structure.getId(), "nevada-las_vegas-111_las_vegas_blvd");
 
-            if(fresh.isEmpty()){
+            if(freshOpt.isEmpty()){
                 throw new IllegalStateException("Composite Primary Key was not saved as expected");
             }
 
-            if (!fresh.get().getString("firstName").equals("Marco")) {
+            TypeCheckMap fresh = freshOpt.get();
+
+            if (!fresh.getString("firstName").equals("Marco")) {
+                throw new IllegalStateException("Data provided to upsert was not saved properly");
+            }
+
+            fresh.put("firstName", "The");
+            fresh.put("lastName", "Dude");
+
+            TypeCheckMap updated = itemService.upsertItem(structure.getId(), fresh);
+
+            if (!updated.getString("firstName").equals("The") || !updated.getString("lastName").equals("Dude")) {
+                throw new IllegalStateException("Data provided to upsert was not saved properly");
+            }
+
+            TypeCheckMap secondGet = itemService.getItemById(structure.getId(), "nevada-las_vegas-111_las_vegas_blvd").get();
+
+            if (!secondGet.getString("firstName").equals("The") || !secondGet.getString("lastName").equals("Dude")) {
                 throw new IllegalStateException("Data provided to upsert was not saved properly");
             }
 

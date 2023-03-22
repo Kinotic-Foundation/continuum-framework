@@ -27,6 +27,7 @@ import org.apache.ignite.Ignite;
 import org.apache.ignite.internal.util.typedef.internal.U;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -35,6 +36,7 @@ import org.springframework.core.ReactiveAdapterRegistry;
 import org.springframework.core.ReactiveTypeDescriptor;
 import reactor.core.publisher.Mono;
 
+import javax.annotation.PostConstruct;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -84,34 +86,12 @@ public class ContinuumVertxConfig {
         return new IgniteClusterManager(ignite);
     }
 
-
+    // This is configured in org.kinotic.continuum.internal.api.DefaultContinuum
+    // It is done there in case this bean is supplied by spring directly
+    @ConditionalOnMissingBean
     @Bean
     public ReactiveAdapterRegistry reactiveAdapterRegistry(){
-        ReactiveAdapterRegistry reactiveAdapterRegistry = new ReactiveAdapterRegistry();
-        // register adapter for vertx futures
-        reactiveAdapterRegistry.registerReactiveType(ReactiveTypeDescriptor.singleOptionalValue(Future.class,
-                                                                                                (Supplier<Future<?>>) Future::succeededFuture),
-                                                     source -> {
-                                                         Future<?> future = (Future<?>) source;
-                                                         return Mono.create(monoSink -> future.setHandler(
-                                                                 event -> {
-                                                                     if(event.succeeded()){
-                                                                         monoSink.success(event.result());
-                                                                     }else{
-                                                                         monoSink.error(event.cause());
-                                                                     }
-                                                                 }));
-                                                     },
-                                                     publisher -> Future.future(promise -> Mono.from(publisher)
-                                                                                               .doOnSuccess((Consumer<Object>) o -> {
-                                                                                                   if(o != null){
-                                                                                                       promise.complete(o);
-                                                                                                   }else{
-                                                                                                       promise.complete();
-                                                                                                   }
-                                                                                               })
-                                                                                               .subscribe(v -> {}, promise::fail)));// We use an empty consumer this is handled with doOnSuccess, this is done so we get a single "signal" instead of onNext, onComplete type logic..
-        return reactiveAdapterRegistry;
+        return new ReactiveAdapterRegistry();
     }
 
 }

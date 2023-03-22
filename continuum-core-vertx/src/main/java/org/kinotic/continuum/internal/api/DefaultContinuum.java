@@ -17,6 +17,7 @@
 
 package org.kinotic.continuum.internal.api;
 
+import io.vertx.core.Future;
 import org.apache.commons.text.WordUtils;
 import org.kinotic.continuum.api.Continuum;
 import org.kinotic.continuum.api.annotations.ContinuumPackages;
@@ -37,9 +38,12 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.event.EventListener;
+import org.springframework.core.ReactiveAdapterRegistry;
+import org.springframework.core.ReactiveTypeDescriptor;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.type.classreading.MetadataReader;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Mono;
 
 import javax.annotation.PreDestroy;
 import java.io.BufferedReader;
@@ -48,6 +52,8 @@ import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 /**
@@ -73,7 +79,8 @@ public class DefaultContinuum implements Continuum {
                             ClusterManager clusterManager,
                             Vertx vertx,
                             ApplicationContext applicationContext,
-                            ContinuumProperties continuumProperties) throws IOException {
+                            ContinuumProperties continuumProperties,
+                            ReactiveAdapterRegistry reactiveAdapterRegistry) throws IOException {
         String name;
 
         try (Stream<String> fileStream = new BufferedReader(new InputStreamReader(resourceLoader.getResource("classpath:adjectives.txt").getInputStream())).lines()) {
@@ -120,6 +127,31 @@ public class DefaultContinuum implements Continuum {
             // Probably will not happen!
             log.warn("No @SpringBootApplication could be found with @EnableContinuum annotation.");
         }
+
+        // Register Vertx Future with Reactor
+        reactiveAdapterRegistry.registerReactiveType(ReactiveTypeDescriptor.singleOptionalValue(Future.class,
+                                                                                                (Supplier<Future<?>>) Future::succeededFuture),
+                                                     source -> {
+                                                         Future<?> future = (Future<?>) source;
+                                                         return Mono.create(monoSink -> future.setHandler(
+                                                                 event -> {
+                                                                     if(event.succeeded()){
+                                                                         monoSink.success(event.result());
+                                                                     }else{
+                                                                         monoSink.error(event.cause());
+                                                                     }
+                                                                 }));
+                                                     },
+                                                     publisher -> Future.future(promise -> Mono.from(publisher)
+                                                                                               .doOnSuccess((Consumer<Object>) o -> {
+                                                                                                   if(o != null){
+                                                                                                       promise.complete(o);
+                                                                                                   }else{
+                                                                                                       promise.complete();
+                                                                                                   }
+                                                                                               })
+                                                                                               .subscribe(v -> {}, promise::fail)));// We use an empty consumer this is handled with doOnSuccess, this is done so we get a single "signal" instead of onNext, onComplete type logic..
+
 
     }
 

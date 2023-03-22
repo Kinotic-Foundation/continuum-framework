@@ -30,6 +30,6 @@ public interface SpecificTypeJsonSchemaConverter extends JsonSchemaConverter{
     /**
      * @return the classes that can be converted by this {@link SpecificTypeJsonSchemaConverter}
      */
-    Class[] supports();
+    Class<?>[] supports();
 
 }

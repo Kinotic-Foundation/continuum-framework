@@ -58,7 +58,7 @@ public class TestRest {
         Promise<HttpResponse<Buffer>> response = Promise.promise();
 
         client.post(properties.getRest().getPort(), "localhost", "/api/srv/org.kinotic.continuum.gateway.internal.support.TestService/test")
-              .basicAuthentication("dummy", "dummyPass")
+              .basicAuthentication("guest", "guest")
               .putHeader("content-type", "application/json")
               .sendBuffer(Buffer.buffer("[\"Hello\",42]"), response);
 
@@ -70,7 +70,7 @@ public class TestRest {
         Promise<HttpResponse<Buffer>> response = Promise.promise();
 
         client.post(properties.getRest().getPort(), "localhost", "/api/srv/org.kinotic.continuum.gateway.internal.support.TestService/hello")
-              .basicAuthentication("dummy", "dummyPass")
+              .basicAuthentication("guest", "guest")
               .putHeader("content-type", "application/json")
               .sendBuffer(Buffer.buffer("[\"Bob\"]"), response);
 
@@ -82,7 +82,7 @@ public class TestRest {
         Promise<HttpResponse<Buffer>> response = Promise.promise();
 
         client.post(properties.getRest().getPort(), "localhost", "/api/srv/org.kinotic.continuum.gateway.internal.support.TestService/noArgs")
-              .basicAuthentication("dummy", "dummyPass")
+              .basicAuthentication("guest", "guest")
               .putHeader("content-type", "application/json")
               .send(response);
 
@@ -94,7 +94,7 @@ public class TestRest {
         Promise<HttpResponse<Buffer>> response = Promise.promise();
 
         client.post(properties.getRest().getPort(), "localhost", "/api/srv/org.kinotic.continuum.gateway.internal.support.TestService/wat")
-              .basicAuthentication("dummy", "dummyPass")
+              .basicAuthentication("guest", "guest")
               .putHeader("content-type", "application/json")
               .send(response);
 
@@ -112,7 +112,7 @@ public class TestRest {
         Promise<HttpResponse<Buffer>> response = Promise.promise();
 
         client.post(properties.getRest().getPort(), "localhost", "/api/srv/org.kinotic.continuum.gateway.internal.support.TestService/testMono")
-              .basicAuthentication("dummy", "dummyPass")
+              .basicAuthentication("guest", "guest")
               .putHeader("content-type", "application/json")
               .sendBuffer(Buffer.buffer("[\"Bob\"]"), response);
 
@@ -124,7 +124,7 @@ public class TestRest {
         Promise<HttpResponse<Buffer>> response = Promise.promise();
 
         client.post(properties.getRest().getPort(), "localhost", "/api/srv/org.kinotic.continuum.gateway.internal.support.TestService/testMonoNoArg")
-              .basicAuthentication("dummy", "dummyPass")
+              .basicAuthentication("guest", "guest")
               .putHeader("content-type", "application/json")
               .send(response);
 

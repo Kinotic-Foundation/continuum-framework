@@ -34,14 +34,13 @@ import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.indices.CreateIndexRequest;
 import org.elasticsearch.client.indices.GetIndexRequest;
-import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.elasticsearch.common.xcontent.XContentFactory;
-import org.elasticsearch.common.xcontent.XContentType;
+import org.elasticsearch.xcontent.XContentBuilder;
+import org.elasticsearch.xcontent.XContentFactory;
+import org.elasticsearch.xcontent.XContentType;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -56,8 +55,11 @@ public class DefaultTraitService implements TraitService {
 
     private final ObjectMapper mapper = new ObjectMapper();
 
-    @Autowired
     private RestHighLevelClient highLevelClient;
+
+    public DefaultTraitService(RestHighLevelClient highLevelClient){
+        this.highLevelClient = highLevelClient;
+    }
 
     @PostConstruct
     void init() {
@@ -75,9 +77,6 @@ public class DefaultTraitService implements TraitService {
             saveTrait.setCreated(System.currentTimeMillis());
             saveTrait.setUpdated(saveTrait.getCreated());
         }else{
-            if(!saveTrait.isModifiable()){
-                throw new PermenentTraitException("Trait that was requested to be modified is specified as not modifiable - cannot modify.");
-            }
             saveTrait.setUpdated(System.currentTimeMillis());
         }
 
@@ -99,8 +98,7 @@ public class DefaultTraitService implements TraitService {
         builder.field("created", saveTrait.getCreated());
         builder.field("required", saveTrait.isRequired());
         builder.field("updated", saveTrait.getUpdated());
-        builder.field("modifiable", saveTrait.isModifiable());
-        builder.field("unique", saveTrait.isUnique());
+        builder.field("systemManaged", saveTrait.isSystemManaged());
         builder.field("operational", saveTrait.isOperational());
         builder.endObject();
 
@@ -165,8 +163,8 @@ public class DefaultTraitService implements TraitService {
 
         if(traitOptional.isPresent()){
             Trait toBeDeleted = traitOptional.get();
-            if(!toBeDeleted.isModifiable()){
-                throw new PermenentTraitException("Trait that was requested to be deleted is specified as not modifiable - cannot delete.");
+            if(toBeDeleted.isSystemManaged()){
+                throw new PermenentTraitException("Trait that was requested to be deleted is a System Managed Trait - cannot delete.");
             }
 
             DeleteRequest request = new DeleteRequest("trait");
@@ -192,7 +190,7 @@ public class DefaultTraitService implements TraitService {
                 settings.put("index.store.type", "fs");
 
                 CreateIndexRequest indexRequest = new CreateIndexRequest("trait");
-                indexRequest.mapping("{ \"dynamic\": \"strict\", \"properties\":{\"created\":{\"type\":\"date\",\"format\":\"epoch_millis\"},\"describeTrait\":{\"type\":\"text\"},\"esSchema\":{\"type\":\"text\"},\"id\":{\"type\":\"text\",\"fields\":{\"keyword\":{\"type\":\"keyword\",\"ignore_above\":256}}},\"includeInLabel\":{\"type\":\"boolean\"},\"includeInQRCode\":{\"type\":\"boolean\"},\"modifiable\":{\"type\":\"boolean\"},\"name\":{\"type\":\"keyword\"},\"operational\":{\"type\":\"boolean\"},\"required\":{\"type\":\"boolean\"},\"schema\":{\"type\":\"text\"},\"unique\":{\"type\":\"boolean\"},\"updated\":{\"type\":\"date\",\"format\":\"epoch_millis\"}}}}", XContentType.JSON);
+                indexRequest.mapping("{ \"dynamic\": \"strict\", \"properties\":{\"created\":{\"type\":\"date\",\"format\":\"epoch_millis\"},\"describeTrait\":{\"type\":\"text\"},\"esSchema\":{\"type\":\"text\"},\"id\":{\"type\":\"text\",\"fields\":{\"keyword\":{\"type\":\"keyword\",\"ignore_above\":256}}},\"includeInLabel\":{\"type\":\"boolean\"},\"includeInQRCode\":{\"type\":\"boolean\"},\"name\":{\"type\":\"keyword\"},\"operational\":{\"type\":\"boolean\"},\"required\":{\"type\":\"boolean\"},\"schema\":{\"type\":\"text\"},\"systemManaged\":{\"type\":\"boolean\"},\"updated\":{\"type\":\"date\",\"format\":\"epoch_millis\"}}}}", XContentType.JSON);
                 indexRequest.settings(settings);
                 highLevelClient.indices().create(indexRequest, RequestOptions.DEFAULT);
             }

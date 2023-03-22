@@ -26,6 +26,7 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 
 @Document(indexName = "structure", replicas = 2)
 public class Structure implements Serializable {
@@ -41,6 +42,8 @@ public class Structure implements Serializable {
     private boolean published = false;
     @Field(type = FieldType.Long)
     private long publishedTimestamp = 0;
+    @Field(type = FieldType.Keyword)
+    private LinkedList<String> primaryKey;
 
     @Field(type = FieldType.Flattened)
     private LinkedHashMap<String, Trait> traits = new LinkedHashMap<>();
@@ -90,6 +93,14 @@ public class Structure implements Serializable {
 
     public void setPublishedTimestamp(long publishedTimestamp) {
         this.publishedTimestamp = publishedTimestamp;
+    }
+
+    public LinkedList<String> getPrimaryKey() {
+        return primaryKey;
+    }
+
+    public void setPrimaryKey(LinkedList<String> primaryKey) {
+        this.primaryKey = primaryKey;
     }
 
     public LinkedHashMap<String, Trait> getTraits() {

@@ -17,6 +17,8 @@
 
 package org.kinotic.continuum.api.annotations;
 
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 import java.lang.annotation.*;
@@ -24,11 +26,12 @@ import java.lang.annotation.*;
 /**
  * Indicates that the package containing the annotated class should be registered with
  * {@link ContinuumPackages}.
+ * This must be used with the {@link org.springframework.context.annotation.Configuration} annotation, or else it will not be detected.
  *
  *
  * Created by navid on 2/11/20
  */
-@Target({ElementType.TYPE, ElementType.PACKAGE})
+@Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited

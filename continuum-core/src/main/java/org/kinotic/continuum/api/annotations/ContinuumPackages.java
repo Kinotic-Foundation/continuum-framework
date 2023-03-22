@@ -115,47 +115,12 @@ public abstract class ContinuumPackages {
 
 		@Override
 		public void registerBeanDefinitions(AnnotationMetadata metadata, BeanDefinitionRegistry registry) {
-			register(registry, new PackageImport(metadata).getPackageName());
+			register(registry, ClassUtils.getPackageName(metadata.getClassName()));
 		}
 
 		@Override
 		public Set<Object> determineImports(AnnotationMetadata metadata) {
-			return Collections.singleton(new PackageImport(metadata));
-		}
-
-	}
-
-	/**
-	 * Wrapper for a package import.
-	 */
-	private static final class PackageImport {
-
-		private final String packageName;
-
-		PackageImport(AnnotationMetadata metadata) {
-			this.packageName = ClassUtils.getPackageName(metadata.getClassName());
-		}
-
-		String getPackageName() {
-			return this.packageName;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (obj == null || getClass() != obj.getClass()) {
-				return false;
-			}
-			return this.packageName.equals(((PackageImport) obj).packageName);
-		}
-
-		@Override
-		public int hashCode() {
-			return this.packageName.hashCode();
-		}
-
-		@Override
-		public String toString() {
-			return "Package Import " + this.packageName;
+			return Collections.singleton(ClassUtils.getPackageName(metadata.getClassName()));
 		}
 
 	}

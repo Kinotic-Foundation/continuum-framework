@@ -17,19 +17,21 @@
 
 package org.kinotic.structures.internal.trait.lifecycle;
 
-import org.kinotic.structures.api.domain.Structure;
-import org.kinotic.structures.api.domain.ReferenceLog;
-import org.kinotic.structures.api.domain.Trait;
-import org.kinotic.structures.api.domain.TypeCheckMap;
-import org.kinotic.structures.api.domain.traitlifecycle.*;
-import org.kinotic.structures.api.services.ItemService;
-import org.kinotic.structures.internal.repositories.ReferenceLogElasticRepository;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.kinotic.structures.api.domain.ReferenceLog;
+import org.kinotic.structures.api.domain.Structure;
+import org.kinotic.structures.api.domain.Trait;
+import org.kinotic.structures.api.domain.TypeCheckMap;
+import org.kinotic.structures.api.domain.traitlifecycle.HasOnAfterGet;
+import org.kinotic.structures.api.domain.traitlifecycle.HasOnAfterModify;
+import org.kinotic.structures.api.domain.traitlifecycle.HasOnBeforeModify;
+import org.kinotic.structures.api.services.ItemService;
+import org.kinotic.structures.internal.repositories.ReferenceLogElasticRepository;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.Optional;
 
 /**
  * We use a particular syntax for describing the relationships between different items.
@@ -41,22 +43,14 @@ import java.util.*;
  * This gives us everything we could possibly want to query and analyze the relationship.
  */
 @Component
-public class ObjectReference implements HasOnBeforeCreate, HasOnAfterCreate, HasOnBeforeModify, HasOnAfterModify, HasOnAfterGet {
+public class ObjectReference implements HasOnBeforeModify, HasOnAfterModify, HasOnAfterGet {
 
-    @Autowired
-    private ItemService itemService;
-    @Autowired
-    private ReferenceLogElasticRepository referenceLogElasticRepository;
+    private final ItemService itemService;
+    private final ReferenceLogElasticRepository referenceLogElasticRepository;
 
-
-    @Override
-    public TypeCheckMap beforeCreate(TypeCheckMap obj, Structure structure, String fieldName) throws Exception {
-        return manageSave(obj, structure, fieldName);
-    }
-
-    @Override
-    public TypeCheckMap afterCreate(TypeCheckMap obj, Structure structure, String fieldName) throws Exception {
-        return manageReferenceLog(obj, structure, fieldName);
+    public ObjectReference(@Lazy ItemService itemService, ReferenceLogElasticRepository referenceLogElasticRepository){
+        this.itemService = itemService;
+        this.referenceLogElasticRepository = referenceLogElasticRepository;
     }
 
     @Override

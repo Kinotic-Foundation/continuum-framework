@@ -14,7 +14,8 @@ dependencies {
     //noinspection DependencyNotationArgument
     annotationProcessor platform(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES)
 
-    implementation "org.apache.commons:commons-lang3"
+    implementation 'org.apache.commons:commons-lang3'
+    implementation 'org.apache.commons:commons-text'
 
     implementation "ch.qos.logback:logback-core"
     implementation "ch.qos.logback:logback-classic"

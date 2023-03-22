@@ -20,9 +20,7 @@ import { IServiceProxy } from '../IServiceRegistry'
 import { Identifiable } from './Identifiable'
 import { Page } from './Page'
 import { Pageable } from './Pageable'
-import { injectable } from 'inversify-props'
 
-@injectable()
 export class CrudServiceProxy<T extends Identifiable<string>> implements ICrudServiceProxy<T> {
 
     protected serviceProxy: IServiceProxy
@@ -62,4 +60,5 @@ export class CrudServiceProxy<T extends Identifiable<string>> implements ICrudSe
     public search(searchText: string, pageable: Pageable): Promise<Page<T>> {
         return this.serviceProxy.invoke('search', [searchText, pageable])
     }
+
 }

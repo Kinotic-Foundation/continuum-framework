@@ -17,20 +17,22 @@
 
 package org.kinotic.structures.item;
 
-import org.kinotic.structures.api.domain.Structure;
-import org.kinotic.structures.api.domain.Trait;
-import org.kinotic.structures.api.domain.TypeCheckMap;
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHits;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.kinotic.structures.api.domain.*;
 import org.kinotic.structures.api.services.ItemService;
 import org.kinotic.structures.api.services.StructureService;
 import org.kinotic.structures.api.services.TraitService;
-import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.SearchHits;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.io.IOException;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.Optional;
 
 @ExtendWith(SpringExtension.class)
@@ -44,10 +46,25 @@ public class SearchTests {
     @Autowired
     private StructureService structureService;
 
+    @BeforeEach
+    public void init() throws IOException, PermenentTraitException, AlreadyExistsException {
+        Optional<Trait> ipOptional = traitService.getTraitByName("VpnIp");
+        if(ipOptional.isEmpty()){
+            Trait temp = new Trait();
+            temp.setName("VpnIp");
+            temp.setDescribeTrait("VpnIp address that the devices should be provided on the VLAN.");
+            temp.setSchema("{ \"type\": \"string\", \"format\": \"ipv4\" }");
+            temp.setEsSchema("{ \"type\": \"ip\" }");
+            temp.setRequired(true);
+            traitService.save(temp);
+        }
+    }
+
     @Test
     public void tryCreateFiveItemsAndGetAll() throws Exception {
 
         Structure structure = new Structure();
+        structure.setPrimaryKey(new LinkedList<String>(Collections.singleton("id")));
         structure.setId("Search1-" + System.currentTimeMillis());
         structure.setDescription("Defines an Item1");
 
@@ -69,10 +86,11 @@ public class SearchTests {
 
             // now we can create an item with the above fields
             TypeCheckMap obj = new TypeCheckMap();
+            obj.put("vpnIp", "10.0." + index + ".11");
             obj.put("ip", "192.0." + index + ".11");
             obj.put("mac", "00000000000" + index);
 
-            TypeCheckMap saved = itemService.createItem(structure.getId(), obj);
+            TypeCheckMap saved = itemService.upsertItem(structure.getId(), obj);
 
             Thread.sleep(1000);// give time for ES to flush the new item
 
@@ -104,15 +122,14 @@ public class SearchTests {
     public void createFiveItemsAndSearchExact() throws Exception {
 
         Structure structure = new Structure();
+        structure.setPrimaryKey(new LinkedList<String>(Collections.singleton("id")));
         structure.setId("Search2-" + System.currentTimeMillis());
         structure.setDescription("Defines an Item1");
 
 
-        Optional<Trait> vpnIpOptional = traitService.getTraitByName("VpnIp");
         Optional<Trait> ipOptional = traitService.getTraitByName("Ip");
         Optional<Trait> macOptional = traitService.getTraitByName("Mac");
 
-        structure.getTraits().put("vpnIp", vpnIpOptional.get());
         structure.getTraits().put("ip", ipOptional.get());
         structure.getTraits().put("mac", macOptional.get());
         // should also get createdTime, updateTime, and deleted by default
@@ -128,7 +145,7 @@ public class SearchTests {
             obj.put("ip", "192.0." + index + ".11");
             obj.put("mac", "00000000000" + index);
 
-            TypeCheckMap saved = itemService.createItem(structure.getId(), obj);
+            TypeCheckMap saved = itemService.upsertItem(structure.getId(), obj);
 
             Thread.sleep(1000);// give time for ES to flush the new item
 
@@ -174,15 +191,17 @@ public class SearchTests {
     public void createFiveItemsAndSearchForText() throws Exception {
 
         Structure structure = new Structure();
+        structure.setPrimaryKey(new LinkedList<String>(Collections.singleton("id")));
         structure.setId("Search3-" + System.currentTimeMillis());
         structure.setDescription("Defines an Item1");
 
-        Optional<Trait> vpnIpOptional = traitService.getTraitByName("VpnIp");
+        Trait vpnIpOptional = traitService.getTraitByName("VpnIp").get();
+        vpnIpOptional.setRequired(false);
         Optional<Trait> ipOptional = traitService.getTraitByName("Ip");
         Optional<Trait> macOptional = traitService.getTraitByName("Mac");
         Optional<Trait> descriptionOptional = traitService.getTraitByName("TextString");
 
-        structure.getTraits().put("vpnIp", vpnIpOptional.get());
+        structure.getTraits().put("vpnIp", vpnIpOptional);
         structure.getTraits().put("ip", ipOptional.get());
         structure.getTraits().put("mac", macOptional.get());
         structure.getTraits().put("description", descriptionOptional.get());
@@ -196,6 +215,7 @@ public class SearchTests {
 
             // now we can create an item with the above fields
             TypeCheckMap obj = new TypeCheckMap();
+            if(index % 2 == 0) obj.put("vpnIp", "172.16." + index + ".11");
             obj.put("ip", "192.0." + index + ".11");
             obj.put("mac", "00000000000" + index);
             if (index == 0) {
@@ -211,7 +231,7 @@ public class SearchTests {
             }
 
 
-            TypeCheckMap saved = itemService.createItem(structure.getId(), obj);
+            TypeCheckMap saved = itemService.upsertItem(structure.getId(), obj);
 
             Thread.sleep(1000);// give time for ES to flush the new item
 
@@ -264,18 +284,20 @@ public class SearchTests {
     public void createFiveItemsAndSearchUsingLuceneSyntax() throws Exception {
 
         Structure structure = new Structure();
+        structure.setPrimaryKey(new LinkedList<String>(Collections.singleton("id")));
         structure.setId("Search4-" + System.currentTimeMillis());
         structure.setDescription("Defines an Item1");
 
         Optional<Trait> vpnIpOptional = traitService.getTraitByName("VpnIp");
         Optional<Trait> ipOptional = traitService.getTraitByName("Ip");
         Optional<Trait> macOptional = traitService.getTraitByName("Mac");
-        Optional<Trait> descriptionOptional = traitService.getTraitByName("TextString");
+        Trait descriptionOptional = traitService.getTraitByName("TextString").get();
+        descriptionOptional.setRequired(false);
 
         structure.getTraits().put("vpnIp", vpnIpOptional.get());
         structure.getTraits().put("ip", ipOptional.get());
         structure.getTraits().put("mac", macOptional.get());
-        structure.getTraits().put("description", descriptionOptional.get());
+        structure.getTraits().put("description", descriptionOptional);
         // should also get createdTime, updateTime, and deleted by default
 
         structureService.save(structure);
@@ -286,6 +308,7 @@ public class SearchTests {
 
             // now we can create an item with the above fields
             TypeCheckMap obj = new TypeCheckMap();
+            obj.put("vpnIp", "172.16." + index + ".11");
             obj.put("ip", "192.0." + index + ".11");
             obj.put("mac", "00000000000" + index);
             if (index == 0) {
@@ -301,7 +324,7 @@ public class SearchTests {
             }
 
 
-            TypeCheckMap saved = itemService.createItem(structure.getId(), obj);
+            TypeCheckMap saved = itemService.upsertItem(structure.getId(), obj);
 
             Thread.sleep(1000);// give time for ES to flush the new item
 
@@ -340,15 +363,14 @@ public class SearchTests {
     public void tryCreate5ItemsThenDelete2AndPerformGetAll() throws Exception {
 
         Structure structure = new Structure();
+        structure.setPrimaryKey(new LinkedList<String>(Collections.singleton("id")));
         structure.setId("Search5-" + System.currentTimeMillis());
         structure.setDescription("Defines an Item1");
 
 
-        Optional<Trait> vpnIpOptional = traitService.getTraitByName("VpnIp");
         Optional<Trait> ipOptional = traitService.getTraitByName("Ip");
         Optional<Trait> macOptional = traitService.getTraitByName("Mac");
 
-        structure.getTraits().put("vpnIp", vpnIpOptional.get());
         structure.getTraits().put("ip", ipOptional.get());
         structure.getTraits().put("mac", macOptional.get());
         // should also get createdTime, updateTime, and deleted by default
@@ -366,7 +388,7 @@ public class SearchTests {
             obj.put("ip", "192.0." + index + ".11");
             obj.put("mac", "00000000000" + index);
 
-            TypeCheckMap saved = itemService.createItem(structure.getId(), obj);
+            TypeCheckMap saved = itemService.upsertItem(structure.getId(), obj);
 
             if (index == 1) {
                 delete1Id = saved.getString("id");
@@ -409,6 +431,7 @@ public class SearchTests {
     public void tryCreate5ItemsThenDelete2AndPerformSearchExact() throws Exception {
 
         Structure structure = new Structure();
+        structure.setPrimaryKey(new LinkedList<String>(Collections.singleton("id")));
         structure.setId("Search6-" + System.currentTimeMillis());
         structure.setDescription("Defines an Item1");
 
@@ -432,10 +455,11 @@ public class SearchTests {
 
             // now we can create an item with the above fields
             TypeCheckMap obj = new TypeCheckMap();
+            obj.put("vpnIp", "172.16." + index + ".11");
             obj.put("ip", "192.0." + index + ".11");
             obj.put("mac", "00000000000" + index);
 
-            TypeCheckMap saved = itemService.createItem(structure.getId(), obj);
+            TypeCheckMap saved = itemService.upsertItem(structure.getId(), obj);
 
             if (index == 1) {
                 delete1Id = saved.getString("id");
@@ -492,18 +516,18 @@ public class SearchTests {
     public void tryCreate5ItemsThenDelete2AndPerformSearchText() throws Exception {
 
         Structure structure = new Structure();
+        structure.setPrimaryKey(new LinkedList<String>(Collections.singleton("id")));
         structure.setId("Search7-" + System.currentTimeMillis());
         structure.setDescription("Defines an Item1");
 
-        Optional<Trait> vpnIpOptional = traitService.getTraitByName("VpnIp");
         Optional<Trait> ipOptional = traitService.getTraitByName("Ip");
         Optional<Trait> macOptional = traitService.getTraitByName("Mac");
-        Optional<Trait> descriptionOptional = traitService.getTraitByName("TextString");
+        Trait descriptionOptional = traitService.getTraitByName("TextString").get();
+        descriptionOptional.setRequired(false);
 
-        structure.getTraits().put("vpnIp", vpnIpOptional.get());
         structure.getTraits().put("ip", ipOptional.get());
         structure.getTraits().put("mac", macOptional.get());
-        structure.getTraits().put("description", descriptionOptional.get());
+        structure.getTraits().put("description", descriptionOptional);
         // should also get createdTime, updateTime, and deleted by default
 
         structureService.save(structure);
@@ -535,7 +559,7 @@ public class SearchTests {
             }
 
 
-            TypeCheckMap saved = itemService.createItem(structure.getId(), obj);
+            TypeCheckMap saved = itemService.upsertItem(structure.getId(), obj);
 
             if (index == 1) {
                 delete1Id = saved.getString("id");
@@ -599,18 +623,20 @@ public class SearchTests {
     public void tryCreate5ItemsThenDelete2AndPerformSearchLucene() throws Exception {
 
         Structure structure = new Structure();
+        structure.setPrimaryKey(new LinkedList<String>(Collections.singleton("id")));
         structure.setId("Search8-" + System.currentTimeMillis());
         structure.setDescription("Defines an Item1");
 
         Optional<Trait> vpnIpOptional = traitService.getTraitByName("VpnIp");
         Optional<Trait> ipOptional = traitService.getTraitByName("Ip");
         Optional<Trait> macOptional = traitService.getTraitByName("Mac");
-        Optional<Trait> descriptionOptional = traitService.getTraitByName("TextString");
+        Trait descriptionOptional = traitService.getTraitByName("TextString").get();
+        descriptionOptional.setRequired(false);
 
         structure.getTraits().put("vpnIp", vpnIpOptional.get());
         structure.getTraits().put("ip", ipOptional.get());
         structure.getTraits().put("mac", macOptional.get());
-        structure.getTraits().put("description", descriptionOptional.get());
+        structure.getTraits().put("description", descriptionOptional);
         // should also get createdTime, updateTime, and deleted by default
 
         structureService.save(structure);
@@ -623,6 +649,7 @@ public class SearchTests {
 
             // now we can create an item with the above fields
             TypeCheckMap obj = new TypeCheckMap();
+            obj.put("vpnIp", "10.0." + index + ".11");
             obj.put("ip", "192.0." + index + ".11");
             obj.put("mac", "00000000000" + index);
             if (index == 0) {
@@ -638,7 +665,7 @@ public class SearchTests {
             }
 
 
-            TypeCheckMap saved = itemService.createItem(structure.getId(), obj);
+            TypeCheckMap saved = itemService.upsertItem(structure.getId(), obj);
 
             if (index == 1) {
                 delete1Id = saved.getString("id");

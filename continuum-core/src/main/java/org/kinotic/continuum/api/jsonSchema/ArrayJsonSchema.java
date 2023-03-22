@@ -40,7 +40,7 @@ public class ArrayJsonSchema extends JsonSchema {
      * There are two ways in which arrays are generally used in JSON:
      * <p>
      * List validation: is useful for arrays of arbitrary length where each item matches the same schema.
-     * For this kind of array, set the items keyword to a single schema that will be used to validate all of the items in the array.
+     * For this kind of array, set the items keyword to a single schema that will be used to validate all the items in the array.
      * <p>
      * Tuple validation: is useful when the array is a collection of items where each has a different schema and the ordinal index of each item is meaningful.
      * To do this, we set the items keyword to an array, where each item is a schema that corresponds to each index of the document’s array.

@@ -97,8 +97,7 @@ public class ProxyRegistrationBeanDefinitionRegistryPostProcessor implements Bea
     }
 
     @Override
-    public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
-    }
+    public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {}
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {

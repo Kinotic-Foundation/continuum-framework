@@ -17,14 +17,6 @@
 
 package org.kinotic.structures.internal.api.services;
 
-import org.elasticsearch.core.TimeValue;
-import org.kinotic.structures.api.domain.AlreadyExistsException;
-import org.kinotic.structures.api.domain.Structure;
-import org.kinotic.structures.api.domain.Trait;
-import org.kinotic.structures.api.domain.TypeCheckMap;
-import org.kinotic.structures.api.domain.traitlifecycle.*;
-import org.kinotic.structures.api.services.ItemService;
-import org.kinotic.structures.api.services.StructureService;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkProcessor;
@@ -32,14 +24,13 @@ import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.get.GetResponse;
-import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.support.WriteRequest;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.common.xcontent.XContentType;
+import org.elasticsearch.core.TimeValue;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.IdsQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -49,9 +40,15 @@ import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortOrder;
+import org.elasticsearch.xcontent.XContentType;
+import org.kinotic.structures.api.domain.Structure;
+import org.kinotic.structures.api.domain.Trait;
+import org.kinotic.structures.api.domain.TypeCheckMap;
+import org.kinotic.structures.api.domain.traitlifecycle.*;
+import org.kinotic.structures.api.services.ItemService;
+import org.kinotic.structures.api.services.StructureService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
@@ -69,17 +66,20 @@ public class DefaultItemService implements ItemService {
 
     private static final Logger log = LoggerFactory.getLogger(DefaultItemService.class);
 
-    @Autowired
     private RestHighLevelClient highLevelClient;
-    @Autowired
     private StructureService structureService;
-    @Autowired
     private List<TraitLifecycle> traitLifecycles;
 
     private HashMap<String, TraitLifecycle> traitLifecycleMap = new HashMap<>();
 
     private ConcurrentHashMap<String, BulkProcessor> bulkRequests = new ConcurrentHashMap<>();
     private ConcurrentHashMap<String, AtomicLong> activeBulkRequests = new ConcurrentHashMap<>();
+
+    public DefaultItemService(RestHighLevelClient highLevelClient, StructureService structureService, List<TraitLifecycle> traitLifecycles) {
+        this.highLevelClient = highLevelClient;
+        this.structureService = structureService;
+        this.traitLifecycles = traitLifecycles;
+    }
 
     @PostConstruct
     public void init() {
@@ -104,84 +104,35 @@ public class DefaultItemService implements ItemService {
     }
 
     @Override
-    public TypeCheckMap createItem(String structureId, TypeCheckMap item) throws Exception {
-        // we do this to protect against overriding an existing document, user error
-        if (item.has("id")) {
-            throw new AlreadyExistsException("Item you are trying to create looks to be already created, please use updateItem function.");
-        }
-
-
+    public TypeCheckMap upsertItem(String structureId, TypeCheckMap item) throws Exception {
         Optional<Structure> optional = structureService.getStructureById(structureId);
         //noinspection OptionalGetWithoutIsPresent
         final Structure structure = optional.get();// will throw null pointer/element not available
         if (!structure.isPublished()) {
-            throw new IllegalStateException("\'" + structure.getId() + "\' Structure is not published and cannot have Items created for it.");
+            throw new IllegalStateException("\'" + structure.getId() + "\' Structure is not published and cannot have had Items modified for it");
         }
 
-
-        TypeCheckMap ret = (TypeCheckMap) processLifecycle(item, structure, (hook, obj, fieldName) -> {
-            if(hook instanceof HasOnBeforeCreate){
-                obj = ((HasOnBeforeCreate)hook).beforeCreate((TypeCheckMap) obj, structure, fieldName);
-            }
-            return obj;
-        });
-
-        // we check for unique-ness across all fields labeled unique
+        // ensure required fields are present, system managed fields are automatically processed by hooks; so don't require them
         for (Map.Entry<String, Trait> traitEntry : structure.getTraits().entrySet()) {
-            if (traitEntry.getValue().isUnique()) {
-                SearchHits hits = searchTerms(structure.getId(), 10, 0, traitEntry.getKey(), ret.getProp(traitEntry.getKey()));
-                // we do this to protect against overriding an existing document, UUID collision
-                if (hits.getTotalHits().value > 0) {
-                    throw new AlreadyExistsException("An Item already exists for the key \'" + traitEntry.getKey() + "\' in the \'" + structure.getId().toLowerCase() + "\' index, please resubmit your request as some values are dynamically generated.");
-                }
-
+            if (!traitEntry.getValue().isSystemManaged() && traitEntry.getValue().isRequired() && !item.has(traitEntry.getKey())) {
+                throw new IllegalStateException("\'" + structure.getId() + "\' Structure create/modify has been called without all required fields");
             }
-
         }
 
-
-        IndexRequest request = new IndexRequest(structure.getId().toLowerCase());
-        request.id(ret.getString("id"));
-        request.create(true);
-        request.source(ret, XContentType.JSON);
-
-        // forces a cluster refresh of the index.. for high volume data this wouldn't work - lets see how it works in our case.
-        request.setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE);
-
-        highLevelClient.index(request, RequestOptions.DEFAULT);
-        return (TypeCheckMap) processLifecycle(ret, structure, (hook, obj, fieldName) -> {
-            if(hook instanceof HasOnAfterCreate){
-                obj = ((HasOnAfterCreate)hook).afterCreate((TypeCheckMap) obj, structure, fieldName);
-            }
-            return obj;
-        });
-    }
-
-    @Override
-    public TypeCheckMap updateItem(String structureId, TypeCheckMap item) throws Exception {
-        return updateItem(structureId, item, false);
-    }
-
-
-    @Override
-    public TypeCheckMap updateItem(String structureId, TypeCheckMap item, boolean asUpsert) throws Exception {
-        Optional<Structure> optional = structureService.getStructureById(structureId);
-        //noinspection OptionalGetWithoutIsPresent
-        final Structure structure = optional.get();// will throw null pointer/element not available
-        if (!structure.isPublished()) {
-            throw new IllegalStateException("\'" + structure.getId() + "\' Structure is not published and cannot have had Items modified for it.");
-        }
-
-
-        TypeCheckMap ret = (TypeCheckMap) processLifecycle(item, structure, (hook, obj, fieldName) -> {
+        // perform before create/update hooks - id is created if it does not already exist
+        TypeCheckMap toUpsert = (TypeCheckMap) processLifecycle(item, structure, (hook, obj, fieldName) -> {
             if(hook instanceof HasOnBeforeModify){
                 obj = ((HasOnBeforeModify)hook).beforeModify((TypeCheckMap) obj, structure, fieldName);
             }
             return obj;
         });
 
-        processUpdateRequest(structure, ret, asUpsert);
+        // process upsert
+        processUpdateRequest(structure, toUpsert, true);
 
+        // get value fresh from db
+        //noinspection OptionalGetWithoutIsPresent
+        TypeCheckMap ret = getItemById(structureId, toUpsert.getString("id")).get();
         return (TypeCheckMap) processLifecycle(ret, structure, (hook, obj, fieldName) -> {
             if(hook instanceof HasOnAfterModify){
                 obj = ((HasOnAfterModify)hook).afterModify((TypeCheckMap) obj, structure, fieldName);
@@ -239,8 +190,14 @@ public class DefaultItemService implements ItemService {
 
     @Override
     public void pushItemForBulkUpdate(Structure structure, TypeCheckMap item) throws Exception {
-        Assert.notNull(structure, "Must provide valid structure. ");
-        Assert.isTrue(this.bulkRequests.containsKey(structure.getId()), "Your structure not set up for bulk processing, please request new bulk updates for structure.");
+        Assert.notNull(structure, "Must provide valid structure");
+        Assert.isTrue(this.bulkRequests.containsKey(structure.getId()), "Your structure not set up for bulk processing, please request new bulk updates for structure");
+
+        for (Map.Entry<String, Trait> traitEntry : structure.getTraits().entrySet()) {
+            if (!traitEntry.getValue().isSystemManaged() && traitEntry.getValue().isRequired() && !item.has(traitEntry.getKey())) {
+                throw new IllegalStateException("\'" + structure.getId() + "\' Structure create/modify has been called without all required fields");
+            }
+        }
 
         TypeCheckMap ret = (TypeCheckMap) processLifecycle(item, structure, (hook, obj, fieldName) -> {
             if(hook instanceof HasOnBeforeModify){
@@ -371,7 +328,7 @@ public class DefaultItemService implements ItemService {
         SearchRequest request = new SearchRequest(structure.getId().toLowerCase());
         request.source(new SearchSourceBuilder()
                             .query(boolQueryBuilder)
-                            .from(from)
+                            .from(from*numberPerPage)
                             .size(numberPerPage));
 
         SearchResponse response = highLevelClient.search(request, RequestOptions.DEFAULT);
@@ -399,7 +356,7 @@ public class DefaultItemService implements ItemService {
         SearchRequest request = new SearchRequest(structure.getId().toLowerCase());
         request.source(new SearchSourceBuilder()
                 .query(boolQueryBuilder)
-                .from(from)
+                .from(from*numberPerPage)
                 .size(numberPerPage));
 
         SearchResponse response = highLevelClient.search(request, RequestOptions.DEFAULT);
@@ -426,7 +383,7 @@ public class DefaultItemService implements ItemService {
         SearchRequest request = new SearchRequest(structure.getId().toLowerCase());
         request.source(new SearchSourceBuilder()
                 .query(boolQueryBuilder)
-                .from(from)
+                .from(from*numberPerPage)
                 .size(numberPerPage));
 
         SearchResponse response = highLevelClient.search(request, RequestOptions.DEFAULT);
@@ -455,7 +412,7 @@ public class DefaultItemService implements ItemService {
         SearchSourceBuilder builder = new SearchSourceBuilder()
                 .query(new QueryStringQueryBuilder(search))
                 .postFilter(QueryBuilders.termQuery("deleted", false))
-                .from(from)
+                .from(from*numberPerPage)
                 .size(numberPerPage);
 
         if(sortField != null){

@@ -1,0 +1,26 @@
+plugins {
+	id 'org.kinotic.continuum.java-application-conventions'
+}
+
+mainClassName = "org.kinotic.structuresserver.StructuresServerApplication"
+
+dependencies {
+
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
+	// Additional Continuum Dependencies
+	implementation project(':continuum-gateway')
+	implementation project(':structures')
+
+	implementation 'io.swagger.core.v3:swagger-models:2.2.8'
+	implementation 'io.swagger.core.v3:swagger-core:2.2.8'
+
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'junit:junit:4.13.1'
+}
+
+test {
+	useJUnitPlatform()
+}

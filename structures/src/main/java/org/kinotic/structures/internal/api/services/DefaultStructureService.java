@@ -18,35 +18,32 @@
 package org.kinotic.structures.internal.api.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.kinotic.structures.api.domain.AlreadyExistsException;
-import org.kinotic.structures.api.domain.PermenentTraitException;
-import org.kinotic.structures.api.domain.Structure;
-import org.kinotic.structures.api.domain.Trait;
-import org.kinotic.structures.api.services.ItemService;
-import org.kinotic.structures.api.services.StructureService;
-import org.kinotic.structures.api.services.TraitService;
-import org.kinotic.structures.internal.api.services.util.EsHighLevelClientUtil;
-import org.kinotic.structures.internal.repositories.StructureElasticRepository;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
-import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.support.WriteRequest;
 import org.elasticsearch.action.support.master.AcknowledgedResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.indices.CreateIndexRequest;
 import org.elasticsearch.client.indices.GetIndexRequest;
 import org.elasticsearch.client.indices.PutMappingRequest;
-import org.elasticsearch.common.xcontent.XContentType;
+import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.xcontent.XContentType;
+import org.kinotic.structures.api.domain.AlreadyExistsException;
+import org.kinotic.structures.api.domain.PermenentTraitException;
+import org.kinotic.structures.api.domain.Structure;
+import org.kinotic.structures.api.domain.Trait;
+import org.kinotic.structures.api.services.StructureService;
+import org.kinotic.structures.api.services.TraitService;
+import org.kinotic.structures.internal.api.services.util.EsHighLevelClientUtil;
+import org.kinotic.structures.internal.repositories.StructureElasticRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -62,16 +59,10 @@ public class DefaultStructureService implements StructureService {
     private static final Logger log = LoggerFactory.getLogger(DefaultStructureService.class);
     private final ObjectMapper mapper = new ObjectMapper();
 
-    @Autowired
     private RestHighLevelClient highLevelClient;
 
-    @Autowired
-    private ItemService itemService;
-
-    @Autowired
     private TraitService traitService;
 
-    @Autowired
     private StructureElasticRepository structureElasticRepository;
 
     private Trait id;
@@ -80,6 +71,12 @@ public class DefaultStructureService implements StructureService {
     private Trait createdTime;
     private Trait updatedTime;
     private Trait structureId;
+
+    public DefaultStructureService(RestHighLevelClient highLevelClient, TraitService traitService, StructureElasticRepository structureElasticRepository){
+        this.highLevelClient = highLevelClient;
+        this.traitService = traitService;
+        this.structureElasticRepository = structureElasticRepository;
+    }
 
     @PostConstruct
     void init(){
@@ -100,8 +97,7 @@ public class DefaultStructureService implements StructureService {
                 temp.setSchema("{ \"type\": \"string\" }");
                 temp.setEsSchema("{ \"type\": \"keyword\" }");
                 temp.setRequired(true);
-                temp.setModifiable(false);
-                temp.setUnique(true);
+                temp.setSystemManaged(true);
                 this.id = traitService.save(temp);
             }else{
                 this.id = idOptional.get();
@@ -114,7 +110,7 @@ public class DefaultStructureService implements StructureService {
                 temp.setSchema("{ \"type\": \"boolean\" }");
                 temp.setEsSchema("{ \"type\": \"boolean\" }");
                 temp.setRequired(true);
-                temp.setModifiable(false);
+                temp.setSystemManaged(true);
                 this.deleted = traitService.save(temp);
             }else{
                 this.deleted = deletedOptional.get();
@@ -127,7 +123,7 @@ public class DefaultStructureService implements StructureService {
                 temp.setSchema("{ \"type\": \"date\", \"format\": { \"style\": \"unix\" } }");
                 temp.setEsSchema("{ \"type\": \"date\", \"format\": \"epoch_millis\" }");
                 temp.setRequired(true);
-                temp.setModifiable(false);
+                temp.setSystemManaged(true);
                 this.deletedTime = traitService.save(temp);
             }else{
                 this.deletedTime = deletedTimeOptional.get();
@@ -140,7 +136,7 @@ public class DefaultStructureService implements StructureService {
                 temp.setSchema("{ \"type\": \"date\", \"format\": { \"style\": \"unix\" } }");
                 temp.setEsSchema("{ \"type\": \"date\", \"format\": \"epoch_millis\" }");
                 temp.setRequired(true);
-                temp.setModifiable(false);
+                temp.setSystemManaged(true);
                 this.createdTime = traitService.save(temp);
             }else{
                 this.createdTime = createdTimeOptional.get();
@@ -153,7 +149,7 @@ public class DefaultStructureService implements StructureService {
                 temp.setSchema("{ \"type\": \"date\", \"format\": { \"style\": \"unix\" } }");
                 temp.setEsSchema("{ \"type\": \"date\", \"format\": \"epoch_millis\" }");
                 temp.setRequired(true);
-                temp.setModifiable(false);
+                temp.setSystemManaged(true);
                 this.updatedTime = traitService.save(temp);
             }else{
                 this.updatedTime = updatedTimeOptional.get();
@@ -166,7 +162,7 @@ public class DefaultStructureService implements StructureService {
                 temp.setSchema("{ \"type\": \"string\" }");
                 temp.setEsSchema("{ \"type\": \"keyword\" }");
                 temp.setRequired(true);
-                temp.setModifiable(false);
+                temp.setSystemManaged(true);
                 this.structureId = traitService.save(temp);
             }else{
                 this.structureId = structureIdOptional.get();
@@ -177,18 +173,6 @@ public class DefaultStructureService implements StructureService {
              * You cannot modify these traits at any point in time nor can you change the actual values after setting.
              */
 
-            Optional<Trait> vpnIpOptional = traitService.getTraitByName("VpnIp");
-            if(vpnIpOptional.isEmpty()){
-                Trait temp = new Trait();
-                temp.setName("VpnIp");
-                temp.setDescribeTrait("VPN IP address that id allocated at request time and kept forever, unless Item is deleted.");
-                temp.setSchema("{ \"type\": \"string\", \"format\": \"ipv4\" }");
-                temp.setEsSchema("{ \"type\": \"ip\" }");
-                temp.setRequired(true);
-                temp.setModifiable(false);
-                temp.setUnique(true);
-                traitService.save(temp);
-            }
             Optional<Trait> macOptional = traitService.getTraitByName("Mac");
             if(macOptional.isEmpty()){
                 Trait temp = new Trait();
@@ -197,20 +181,6 @@ public class DefaultStructureService implements StructureService {
                 temp.setSchema("{ \"type\": \"string\", \"minLength\": 12, \"maxLength\": 12, \"pattern\": \"^[0-9A-Fa-f]{12}$\" }");
                 temp.setEsSchema("{ \"type\": \"keyword\" }");
                 temp.setRequired(true);
-                temp.setModifiable(false);
-                temp.setUnique(true);
-                traitService.save(temp);
-            }
-            Optional<Trait> serialOptional = traitService.getTraitByName("Serial");
-            if(serialOptional.isEmpty()){
-                Trait temp = new Trait();
-                temp.setName("Serial");
-                temp.setDescribeTrait("Hardware Serial (unique key) that is associated with a device that does not have a HW LAN port.");
-                temp.setSchema("{ \"type\": \"string\" }");
-                temp.setEsSchema("{ \"type\": \"keyword\" }");
-                temp.setRequired(true);
-                temp.setModifiable(false);
-                temp.setUnique(true);
                 traitService.save(temp);
             }
 
@@ -243,7 +213,7 @@ public class DefaultStructureService implements StructureService {
                 Trait temp = new Trait();
                 temp.setName("GeoPoint");
                 temp.setDescribeTrait("References a geo point type. Please see https://www.elastic.co/guide/en/elasticsearch/reference/current/geo-point.html");
-                temp.setSchema("{ \"type\": \"geo_point\" }");
+                temp.setSchema("{\"type\": \"object\", \"required\": [\"lat\",\"lon\"],\"properties\": {\"lat\": {type\": \"number\"},\"lon\": {\"type\": \"number\"}}}");
                 temp.setEsSchema("{ \"type\": \"geo_point\" }");
                 temp.setRequired(true);
                 traitService.save(temp);
@@ -253,7 +223,7 @@ public class DefaultStructureService implements StructureService {
                 Trait temp = new Trait();
                 temp.setName("TextString");
                 temp.setDescribeTrait("Generic String that is full-text values, such as the body of an email or the description of a product.");
-                temp.setSchema("{ \"type\": \"string\" }");
+                temp.setSchema("{ \"type\": \"string\", \"description\": \"no-sort\" }");
                 temp.setEsSchema("{ \"type\": \"text\" }");
                 temp.setRequired(true);
                 traitService.save(temp);
@@ -266,7 +236,6 @@ public class DefaultStructureService implements StructureService {
                 temp.setSchema("{ \"type\": \"date\", \"format\": { \"style\": \"unix\" } }");
                 temp.setEsSchema("{ \"type\": \"date\", \"format\": \"epoch_millis\" }");
                 temp.setRequired(true);
-                temp.setModifiable(true);
                 traitService.save(temp);
             }
             Optional<Trait> longOptional = traitService.getTraitByName("Long");
@@ -277,7 +246,6 @@ public class DefaultStructureService implements StructureService {
                 temp.setSchema("{ \"type\": \"number\", \"minimum\": "+Long.MIN_VALUE+", \"maximum\": "+Long.MAX_VALUE+" }");
                 temp.setEsSchema("{ \"type\": \"long\" }");
                 temp.setRequired(true);
-                temp.setModifiable(true);
                 traitService.save(temp);
             }
             Optional<Trait> integerOptional = traitService.getTraitByName("Integer");
@@ -288,7 +256,6 @@ public class DefaultStructureService implements StructureService {
                 temp.setSchema("{ \"type\": \"number\", \"minimum\": "+Integer.MIN_VALUE+", \"maximum\": "+Integer.MAX_VALUE+" }");
                 temp.setEsSchema("{ \"type\": \"integer\" }");
                 temp.setRequired(true);
-                temp.setModifiable(true);
                 traitService.save(temp);
             }
             Optional<Trait> shortOptional = traitService.getTraitByName("Short");
@@ -299,7 +266,6 @@ public class DefaultStructureService implements StructureService {
                 temp.setSchema("{ \"type\": \"number\", \"minimum\": "+Short.MIN_VALUE+", \"maximum\": "+Short.MAX_VALUE+" }");
                 temp.setEsSchema("{ \"type\": \"short\" }");
                 temp.setRequired(true);
-                temp.setModifiable(true);
                 traitService.save(temp);
             }
             Optional<Trait> doubleOptional = traitService.getTraitByName("Double");
@@ -310,7 +276,6 @@ public class DefaultStructureService implements StructureService {
                 temp.setSchema("{ \"type\": \"number\", \"minimum\": "+Double.MIN_VALUE+", \"maximum\": "+Double.MAX_VALUE+" }");
                 temp.setEsSchema("{ \"type\": \"double\" }");
                 temp.setRequired(true);
-                temp.setModifiable(true);
                 traitService.save(temp);
             }
             Optional<Trait> booleanOptional = traitService.getTraitByName("Boolean");
@@ -321,7 +286,6 @@ public class DefaultStructureService implements StructureService {
                 temp.setSchema("{ \"type\": \"boolean\" }");
                 temp.setEsSchema("{ \"type\": \"boolean\" }");
                 temp.setRequired(true);
-                temp.setModifiable(true);
                 traitService.save(temp);
             }
         }catch (Exception e){
@@ -364,6 +328,13 @@ public class DefaultStructureService implements StructureService {
         for(Map.Entry<String, Trait> traitEntry : structure.getTraits().entrySet()){
             checkFieldNameFormat(traitEntry.getKey());
         }
+
+        if(structure.getPrimaryKey() == null || structure.getPrimaryKey().size() == 0){
+            throw new IllegalStateException("primaryKey must have at least one value");
+        }
+
+        //FIXME: we need to check to ensure our primary key is made up of required fields and
+        // base primitives, keyword string and integers/longs
 
         if(structure.getCreated() == 0){// new structure, name must be unique
             Optional<Structure> alreadyCreated = structureElasticRepository.findById(structure.getId());
@@ -466,7 +437,7 @@ public class DefaultStructureService implements StructureService {
             // if its published we should check to see if we can remove the
             // ElasticSearch index, but only if there are not any items created
             if(highLevelClient.indices().exists(new GetIndexRequest(structure.getId().toLowerCase()), RequestOptions.DEFAULT)){
-                long countOfItemsForStructure = itemService.count(structure.getId());
+                long countOfItemsForStructure = this.count(structure.getId());
 
                 if(countOfItemsForStructure > 0){
                     throw new IllegalStateException("you cannot delete a Structure until all Items associated are also deleted.");
@@ -484,14 +455,14 @@ public class DefaultStructureService implements StructureService {
             // remove Object Reference Trait that was created when published.
             // if there are not more items then there can be no more reference logs
             // so we are good cleaning up here.
-            Optional<Trait> objectIdOptional = traitService.getTraitByName("Reference "+structure.getId().trim());
-            Trait objRefTrait = objectIdOptional.get();
-
-            DeleteRequest request = new DeleteRequest("trait");
-            request.id(objRefTrait.getId());
-            request.setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE);
-            // FIXME: Need to handle exceptions and edge cases.
-            highLevelClient.delete(request, RequestOptions.DEFAULT);
+//            Optional<Trait> objectIdOptional = traitService.getTraitByName("Reference "+structure.getId().trim());
+//            Trait objRefTrait = objectIdOptional.get();
+//
+//            DeleteRequest request = new DeleteRequest("trait");
+//            request.id(objRefTrait.getId());
+//            request.setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE);
+//            // FIXME: Need to handle exceptions and edge cases.
+//            highLevelClient.delete(request, RequestOptions.DEFAULT);
 
         }
 
@@ -542,25 +513,25 @@ public class DefaultStructureService implements StructureService {
             // we do this here b/c we only ever want to create it once per structure,
             // also we cannot ever query or actually select an structure for object references
             // until you can save some items.. duh.
-            Optional<Trait> objectIdOptional = traitService.getTraitByName("Reference "+structure.getId().trim());
-            if(objectIdOptional.isEmpty()){
-                Trait temp = new Trait();
-                temp.setName("Reference "+structure.getId().trim());
-                temp.setDescribeTrait("Stores a '"+structure.getId().trim()+"' object reference that will be retrieved when building the item.");
-                temp.setSchema("{ \"type\": \"ref\", \"urn\": \""+structure.getId().trim()+"\" }");
-                temp.setEsSchema("{ \"properties\": { \"structureId\":  { \"type\": \"keyword\" }, \"id\":  { \"type\": \"keyword\" } } }");
-                temp.setRequired(true);
-                temp.setModifiable(false);// only system can manage
-                try {
-                    traitService.save(temp);
-                } catch (AlreadyExistsException e) {
-                    log.error("For some reason the system attempted to create an already created Object Trait. We caught a AlreadyExistsException when trying to save an ObjectReference for new Structure.");
-                    // we should never encounter this condition as we only create once per structure.
-                }catch (PermenentTraitException ex){
-                    log.error("For some reason the system attempted to create an already created Object Trait. We caught a PermenentTraitException when trying to save an ObjectReference for new Structure.");
-                    // these are only system level objects, cannot modify but all of these should never have duplicates
-                }
-            }
+//            Optional<Trait> objectIdOptional = traitService.getTraitByName("Reference "+structure.getId().trim());
+//            if(objectIdOptional.isEmpty()){
+//                Trait temp = new Trait();
+//                temp.setName("Reference "+structure.getId().trim());
+//                temp.setDescribeTrait("Stores a '"+structure.getId().trim()+"' object reference that will be retrieved when building the item.");
+//                temp.setSchema("{ \"type\": \"ref\", \"urn\": \""+structure.getId().trim()+"\" }");
+//                temp.setEsSchema("{ \"properties\": { \"structureId\":  { \"type\": \"keyword\" }, \"id\":  { \"type\": \"keyword\" } } }");
+//                temp.setRequired(true);
+//                temp.setModifiable(false);// only system can manage
+//                try {
+//                    traitService.save(temp);
+//                } catch (AlreadyExistsException e) {
+//                    log.error("For some reason the system attempted to create an already created Object Trait. We caught a AlreadyExistsException when trying to save an ObjectReference for new Structure.");
+//                    // we should never encounter this condition as we only create once per structure.
+//                }catch (PermenentTraitException ex){
+//                    log.error("For some reason the system attempted to create an already created Object Trait. We caught a PermenentTraitException when trying to save an ObjectReference for new Structure.");
+//                    // these are only system level objects, cannot modify but all of these should never have duplicates
+//                }
+//            }
         }
     }
 
@@ -670,6 +641,24 @@ public class DefaultStructureService implements StructureService {
 
         structureElasticRepository.save(structure);
 
+    }
+
+    private long count(String structureId) throws IOException {
+        Optional<Structure> optional = this.getStructureById(structureId);
+        //noinspection OptionalGetWithoutIsPresent
+        Structure structure = optional.get();// will throw null pointer/element not available
+
+        BoolQueryBuilder boolQueryBuilder = new BoolQueryBuilder();
+        boolQueryBuilder.filter(QueryBuilders.termQuery("deleted", false));
+
+        SearchSourceBuilder builder = new SearchSourceBuilder();
+        builder.query(boolQueryBuilder);
+        builder.size(0);
+        SearchRequest request = new SearchRequest(structure.getId().toLowerCase());
+        request.source(builder);
+        SearchResponse response = highLevelClient.search(request, RequestOptions.DEFAULT);
+
+        return response.getHits().getTotalHits().value;
     }
 
     static void checkFieldNameFormat(String fieldName){

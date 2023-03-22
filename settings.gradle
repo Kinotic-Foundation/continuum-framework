@@ -11,8 +11,9 @@ include(
         'continuum-grind',
         'continuum-iam',
         'continuum-util',
-        'continuum-clients:continuum-js',
+        //'continuum-clients:continuum-js',
         //'continuum-orbiter',
         //'continuum-substratum',
-        //'structures'
+//        'structures',
+//        'structures-server'
 )

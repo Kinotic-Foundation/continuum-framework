@@ -21,7 +21,7 @@ import { Observable } from 'rxjs'
 /**
  * Part of the low level portion of continuum representing data to be processed
  *
- * This is similar to a Stomp Frame but with more required information and no control plane semantics..
+ * This is similar to a Stomp Frame but with more required information and no control plane semantics.
  *
  *
  * Created by Navid Mitchell on 2019-01-04.
@@ -35,7 +35,7 @@ export interface IEvent {
 
     /**
      * Any headers defined for this event.
-     * This will usually contain all of the fields above as well since they are typically wrappers around expected header values.
+     * This will usually contain all the fields above as well since they are typically wrappers around expected header values.
      */
     headers: Map<string, string>
 
@@ -86,7 +86,10 @@ export interface IEvent {
 }
 
 /**
- * TODO: Doc from java side
+ * Part of the low level portion of continuum representing a connection to a continuum server
+ * This is similar to a Stomp Client but with more required information and no control plane semantics.
+ *
+ * Created by Navid Mitchell on 2019-01-04.
  */
 export interface IEventBus {
 
@@ -99,7 +102,11 @@ export interface IEventBus {
      */
     connect(url: string, accessKey: string, secretToken: string): Promise<void>
 
-    disconnect(): void
+    /**
+     * Disconnects the client from the server
+     * This will clear any subscriptions and close the connection
+     */
+    disconnect(): Promise<void>
 
     /**
      * Send a single {@link IEvent} to the connected server
@@ -120,7 +127,7 @@ export interface IEventBus {
      * All response correlation will be handled internally
      * @param event to send as the request
      * @param sendControlEvents if true then control events will be sent to the server when changes to the returned to Observable are requested
-     * @return an {@link Observable<IEvent} that will provided the response stream
+     * @return an {@link Observable<IEvent} that will provide the response stream
      */
     requestStream(event: IEvent, sendControlEvents: boolean): Observable<IEvent>
 
@@ -132,6 +139,9 @@ export interface IEventBus {
 
 }
 
+/**
+ * Constants used within {@link IEvent}'s to control the flow of events
+ */
 export enum EventConstants {
     CONTENT_TYPE_HEADER = 'content-type',
     CONTENT_LENGTH_HEADER = 'content-length',
@@ -174,9 +184,9 @@ export enum EventConstants {
     CONTROL_VALUE_COMPLETE = 'complete',
 
     CONTROL_VALUE_CANCEL = 'cancel',
-    
+
     CONTROL_VALUE_SUSPEND = 'suspend',
-    
+
     CONTROL_VALUE_RESUME = 'resume',
 
     SERVICE_DESTINATION_PREFIX = 'srv://',

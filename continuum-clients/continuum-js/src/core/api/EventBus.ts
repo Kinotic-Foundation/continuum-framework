@@ -17,12 +17,12 @@
 
 import { IEvent, IEventBus, EventConstants } from './IEventBus'
 import { ConnectableObservable, Observable, Subject, Unsubscribable, Subscription, throwError } from 'rxjs'
-import { filter, map, first, multicast } from 'rxjs/operators'
-import { IMessage, StompHeaders, IFrame } from '@stomp/stompjs'
+import { filter, map, multicast } from 'rxjs/operators'
+import { firstValueFrom } from 'rxjs'
+import { IMessage, StompHeaders, IFrame } from '@stomp/rx-stomp'
 import { RxStomp } from '@stomp/rx-stomp'
 import { Optional } from 'typescript-optional'
-import { UUID } from 'angular2-uuid'
-import { injectable, container } from 'inversify-props'
+import { v4 as uuidv4 } from 'uuid';
 
 /**
  * Default IEvent implementation
@@ -77,8 +77,9 @@ export class Event implements IEvent {
     }
 }
 
-
-@injectable()
+/**
+ * Default implementation of {@link IEventBus}
+ */
 export class EventBus implements IEventBus {
 
     private stompClient: RxStomp
@@ -96,7 +97,7 @@ export class EventBus implements IEventBus {
         return new Promise((resolve, reject) => {
             if (!this.connected) {
                 this.encodedIdentity = encodeURIComponent(identity)
-                this.replyToCri = EventConstants.SERVICE_DESTINATION_PREFIX + this.encodedIdentity + ':' + UUID.UUID() + '@continuum.js.EventBus/replyHandler'
+                this.replyToCri = EventConstants.SERVICE_DESTINATION_PREFIX + this.encodedIdentity + ':' + uuidv4() + '@continuum.js.EventBus/replyHandler'
                 this.connected = true
 
                 let connectHeaders: StompHeaders = {
@@ -141,7 +142,7 @@ export class EventBus implements IEventBus {
         })
     }
 
-    public disconnect(): void {
+    public disconnect(): Promise<void> {
         if (this.connected) {
             this.connected = false
 
@@ -153,7 +154,9 @@ export class EventBus implements IEventBus {
                 this.requestRepliesObservable = null
             }
 
-            this.stompClient.deactivate()
+            return this.stompClient.deactivate()
+        }else{
+            return Promise.resolve()
         }
     }
 
@@ -173,12 +176,12 @@ export class EventBus implements IEventBus {
     }
 
     public request(event: IEvent): Promise<IEvent> {
-        return this.requestStream(event, false).pipe(first()).toPromise()
+        return firstValueFrom(this.requestStream(event, false));
     }
 
     public requestStream(event: IEvent, sendControlEvents: boolean = true): Observable<IEvent> {
         if(!this.connected){
-            return throwError(new Error('You must call connect on the event bus before sending any request'))
+            return throwError(() => new Error('You must call connect on the event bus before sending any request'))
         }else {
             return new Observable<IEvent>((subscriber) => {
 
@@ -188,7 +191,7 @@ export class EventBus implements IEventBus {
                 }
 
                 let serverSignaledCompletion = false
-                const correlationId = UUID.UUID()
+                const correlationId = uuidv4()
                 const defaultMessagesSubscription: Unsubscribable = this.requestRepliesObservable
                     .pipe(filter((value: IEvent, index: number): boolean => {
                         return value.headers.get(EventConstants.CORRELATION_ID_HEADER) === correlationId
@@ -273,4 +276,3 @@ export class EventBus implements IEventBus {
 
 }
 
-container.addSingleton<IEventBus>(EventBus)

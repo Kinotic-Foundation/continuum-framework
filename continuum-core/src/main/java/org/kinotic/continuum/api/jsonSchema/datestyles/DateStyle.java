@@ -21,7 +21,7 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 /**
- *
+ * The date style to use when serializing and deserializing dates
  * Created by nic on 2019-12-10.
  */
 @JsonTypeInfo(

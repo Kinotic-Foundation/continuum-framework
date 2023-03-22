@@ -19,17 +19,11 @@ package org.kinotic.structures.internal.trait.lifecycle;
 
 import org.kinotic.structures.api.domain.Structure;
 import org.kinotic.structures.api.domain.TypeCheckMap;
-import org.kinotic.structures.api.domain.traitlifecycle.HasOnBeforeCreate;
 import org.kinotic.structures.api.domain.traitlifecycle.HasOnBeforeModify;
 import org.springframework.stereotype.Component;
 
 @Component
-public class CreatedTime implements HasOnBeforeCreate, HasOnBeforeModify {
-    @Override
-    public TypeCheckMap beforeCreate(TypeCheckMap obj, Structure structure, String fieldName) throws Exception {
-        obj.amend("createdTime", System.currentTimeMillis());
-        return obj;
-    }
+public class CreatedTime implements HasOnBeforeModify {
     @Override
     public TypeCheckMap beforeModify(TypeCheckMap obj, Structure structure, String fieldName) throws Exception {
         if(!obj.has("createdTime")){

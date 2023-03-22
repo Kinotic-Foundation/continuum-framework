@@ -174,7 +174,7 @@ public class DefaultServiceRegistry implements ServiceRegistry {
         Proxy proxyAnnotation = serviceInterface.getAnnotation(Proxy.class);
         Validate.notNull(proxyAnnotation, "The Class provided must be annotated with @Proxy");
 
-        String namespace = proxyAnnotation.namespace().isEmpty() ? ContinuumUtil.safeEncodeURI(serviceInterface.getPackageName()) : proxyAnnotation.namespace();
+        String namespace = proxyAnnotation.namespace().isEmpty() ? ContinuumUtil.safeEncodeURI(serviceInterface.getPackageName()) : ContinuumUtil.safeEncodeURI(proxyAnnotation.namespace());
         String name = proxyAnnotation.name().isEmpty() ? serviceInterface.getSimpleName() : proxyAnnotation.name();
         String version = MetaUtil.getVersion(serviceInterface);
 

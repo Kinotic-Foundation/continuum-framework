@@ -36,7 +36,7 @@ import java.util.*;
 public class ObjectJsonSchema extends JsonSchema {
 
     /**
-     * The properties (key-value pairs) on an object are defined using the properties keyword.
+     * The properties (key-value pairs) on an object are defined using the properties' keyword.
      * The value of properties is an object, where each key is the name of a property and each value is a JSON schema used to validate that property.
      *
      * https://json-schema.org/understanding-json-schema/reference/object.html#properties
@@ -60,7 +60,7 @@ public class ObjectJsonSchema extends JsonSchema {
     /**
      * The names of properties can be validated against a schema, irrespective of their values.
      * This can be useful if you don’t want to enforce specific properties, but you want to make sure that the names of those properties follow a specific convention.
-     * You might, for example, want to enforce that all names are valid ASCII tokens so they can be used as attributes in a particular programming language.
+     * You might, for example, want to enforce that all names are valid ASCII tokens, so they can be used as attributes in a particular programming language.
      *
      * https://json-schema.org/understanding-json-schema/reference/object.html#propertynames
      */

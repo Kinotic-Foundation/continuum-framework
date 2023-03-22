@@ -19,26 +19,30 @@ package org.kinotic.structures.internal.trait.lifecycle;
 
 import org.kinotic.structures.api.domain.Structure;
 import org.kinotic.structures.api.domain.TypeCheckMap;
-import org.kinotic.structures.api.domain.traitlifecycle.HasOnBeforeCreate;
 import org.kinotic.structures.api.domain.traitlifecycle.HasOnBeforeModify;
 import org.springframework.stereotype.Component;
 
+import java.util.Objects;
 import java.util.UUID;
 
 @Component
-public class Id implements HasOnBeforeCreate, HasOnBeforeModify {
-    @Override
-    public TypeCheckMap beforeCreate(TypeCheckMap obj, Structure structure, String fieldName) throws Exception {
-        obj.amend("id", UUID.randomUUID().toString());
-        return obj;
-    }
+public class Id implements HasOnBeforeModify {
 
     @Override
     public TypeCheckMap beforeModify(TypeCheckMap obj, Structure structure, String fieldName) throws Exception {
         if (!obj.has("id")) {
-            throw new IllegalArgumentException("Item supports partial updates but 'id' must be present on all modification requests.");
+            if(structure.getPrimaryKey().size() == 1 && Objects.equals(structure.getPrimaryKey().get(0), "id")){
+                obj.amend("id", UUID.randomUUID().toString());
+            }else{
+                // FIXME: should we sluggify this?
+                StringBuilder id = new StringBuilder();
+                for(String field : structure.getPrimaryKey()){
+                    if(id.length() > 0) id.append('-');
+                    id.append(obj.getString(field).trim().replace(" ", "_"));
+                }
+                obj.amend("id", id.toString().trim().toLowerCase());
+            }
         }
-
         return obj;
     }
 

@@ -17,20 +17,22 @@
 
 package org.kinotic.structures.structure;
 
-import org.kinotic.structures.api.domain.Structure;
-import org.kinotic.structures.api.domain.Trait;
-import org.kinotic.structures.api.domain.TypeCheckMap;
+import org.elasticsearch.ElasticsearchStatusException;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.kinotic.structures.api.domain.*;
 import org.kinotic.structures.api.services.ItemService;
 import org.kinotic.structures.api.services.StructureService;
 import org.kinotic.structures.api.services.TraitService;
-import org.elasticsearch.ElasticsearchStatusException;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.io.IOException;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.Optional;
 
 @ExtendWith(SpringExtension.class)
@@ -44,12 +46,27 @@ public class FunctionalTests {
     @Autowired
     private ItemService itemService;
 
+    @BeforeEach
+    public void init() throws IOException, PermenentTraitException, AlreadyExistsException {
+        Optional<Trait> ipOptional = traitService.getTraitByName("VpnIp");
+        if(ipOptional.isEmpty()){
+            Trait temp = new Trait();
+            temp.setName("VpnIp");
+            temp.setDescribeTrait("VpnIp address that the devices should be provided on the VLAN.");
+            temp.setSchema("{ \"type\": \"string\", \"format\": \"ipv4\" }");
+            temp.setEsSchema("{ \"type\": \"ip\" }");
+            temp.setRequired(true);
+            traitService.save(temp);
+        }
+    }
+
     @Test
     public void tryAddAdditionalFieldOutsideSchema() throws Exception {
         Assertions.assertThrows(ElasticsearchStatusException.class, () -> {
             Structure structure = new Structure();
-            structure.setId("NUC7-" + System.currentTimeMillis());
-            structure.setDescription("Defines the NUC Device properties");
+            structure.setPrimaryKey(new LinkedList<String>(Collections.singleton("id")));
+            structure.setId("Computer7-" + System.currentTimeMillis());
+            structure.setDescription("Defines the Computer Device properties");
 
             Optional<Trait> vpnIpOptional = traitService.getTraitByName("VpnIp");
             Optional<Trait> ipOptional = traitService.getTraitByName("Ip");
@@ -66,9 +83,10 @@ public class FunctionalTests {
 
                 // now we can create an item with the above fields
                 TypeCheckMap obj = new TypeCheckMap();
+                obj.put("vpnIp", "172.16.0.11");
                 obj.put("ip", "192.0.2.11");
                 obj.put("mac", "aaaaaaaaaaa1");
-                itemService.createItem(structure.getId(), obj);
+                itemService.upsertItem(structure.getId(), obj);
 
             } catch (ElasticsearchStatusException e) {
                 throw e;
@@ -81,8 +99,9 @@ public class FunctionalTests {
     @Test
     public void addTraitAfterPublishedAndNewItemAddedThenUpdateItem() throws Exception {
         Structure structure = new Structure();
-        structure.setId("NUC8-" + System.currentTimeMillis());
-        structure.setDescription("Defines the NUC Device properties");
+        structure.setPrimaryKey(new LinkedList<String>(Collections.singleton("id")));
+        structure.setId("Computer8-" + System.currentTimeMillis());
+        structure.setDescription("Defines the Computer Device properties");
 
 
         Optional<Trait> vpnIpOptional = traitService.getTraitByName("VpnIp");
@@ -101,7 +120,7 @@ public class FunctionalTests {
         TypeCheckMap obj = new TypeCheckMap();
         obj.amend("ip", "192.0.2.11");
         obj.amend("vpnIp","10.99.99.9");
-        TypeCheckMap savedJsonItem = itemService.createItem(structure.getId(), obj);
+        TypeCheckMap savedJsonItem = itemService.upsertItem(structure.getId(), obj);
         TypeCheckMap item = null;
 
         try {
@@ -109,7 +128,7 @@ public class FunctionalTests {
 
             savedJsonItem.put("mac", "aaaaaaaaaaa1");
 
-            itemService.updateItem(structure.getId(), savedJsonItem);
+            itemService.upsertItem(structure.getId(), savedJsonItem);
 
             item = itemService.getItemById(structure.getId(), savedJsonItem.getString("id")).get();
 
@@ -140,8 +159,9 @@ public class FunctionalTests {
     @Test
     public void addTraitAfterPublishedAndNewItems() throws Exception {
         Structure structure = new Structure();
-        structure.setId("NUC9-"+System.currentTimeMillis());
-        structure.setDescription("Defines the NUC Device properties");
+        structure.setPrimaryKey(new LinkedList<String>(Collections.singleton("id")));
+        structure.setId("Computer9-"+System.currentTimeMillis());
+        structure.setDescription("Defines the Computer Device properties");
 
 
         Optional<Trait> vpnIpOptional = traitService.getTraitByName("VpnIp");
@@ -160,7 +180,7 @@ public class FunctionalTests {
         TypeCheckMap firstItem = new TypeCheckMap();
         firstItem.amend("ip","192.0.2.11");
         firstItem.amend("vpnIp","10.99.99.9");
-        TypeCheckMap savedJsonItem = itemService.createItem(structure.getId(), firstItem);
+        TypeCheckMap savedJsonItem = itemService.upsertItem(structure.getId(), firstItem);
         TypeCheckMap item = null;
 
         try{
@@ -171,7 +191,7 @@ public class FunctionalTests {
             secondItem.amend("vpnIp","10.99.99.10");
             secondItem.amend("mac", "aaaaaaaaaaa2");
 
-            item = itemService.createItem(structure.getId(), secondItem);
+            item = itemService.upsertItem(structure.getId(), secondItem);
 
             TypeCheckMap freshFromDb = itemService.getItemById(structure.getId(), item.getString("id")).get();
 

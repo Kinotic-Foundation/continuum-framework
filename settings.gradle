@@ -13,7 +13,5 @@ include(
         'continuum-util',
         //'continuum-clients:continuum-js',
         //'continuum-orbiter',
-        //'continuum-substratum',
-//        'structures',
-//        'structures-server'
+        //'continuum-substratum'
 )

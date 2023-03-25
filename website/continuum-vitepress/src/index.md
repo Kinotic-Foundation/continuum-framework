@@ -7,7 +7,7 @@ hero:
   text: "Insanely versatile IoT and Microservice framework"
   tagline: Continuum offers blazing fast, easy-to-use, rapid application development, allowing you to build IoT and Microservice applications in a fraction of the time.
   image:
-    src: /images/circleLogo.png
+    src: /circleLogo.png
     alt: Continuum Logo
   actions:
     - theme: brand
@@ -19,15 +19,15 @@ hero:
 
 features:
   - icon:
-      src: /images/communication_gradiant.png
+      src: /communication_gradiant.png
     title: COMMUNICATE
     details: With the C3 advanced communications ecosystem microservices and devices can integrate and communicate in the blink of an eye.
   - icon:
-      src: /images/control_gradiant.png
+      src: /control_gradiant.png
     title: CONTROL
     details: The C3 control provides unparalleled automatic discovery and registration capabilities. 
   - icon:
-      src: /images/analytics_gradiant.png
+      src: /analytics_gradiant.png
     title: COLLECT DATA
     details: With C3 Collection and Analytics platform Continuum provides instant access to all real-time data sent by all devices.
 ---

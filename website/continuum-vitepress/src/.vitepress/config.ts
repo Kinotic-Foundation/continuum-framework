@@ -6,7 +6,7 @@ export default defineConfig({
   description: "Insanely versatile IoT and Microservice framework",
   base: '/continuum-framework/',
   themeConfig: {
-    logo: '/images/icon.png',
+    logo: '/icon.png',
     // https://vitepress.vuejs.org/reference/default-theme-config
 
     nav: nav(),

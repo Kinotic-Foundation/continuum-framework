@@ -1,3 +1,7 @@
+---
+outline: deep
+---
+
 # The Continuum Framework
 
 The Continuum Framework is an open-source software framework developed by the Kinotic Foundation to provide developers with a powerful set of tools to create high-performance software solutions quickly and efficiently.
@@ -19,3 +23,15 @@ To ensure that the Continuum Framework remains at the forefront of software deve
 As a nonprofit organization, the Kinotic Foundation is dedicated to making the Continuum Framework accessible to all developers, regardless of their background or financial resources, in the hopes of fostering a collaborative and inclusive community of software developers.
 
 Overall, the Continuum Framework empowers developers with the tools and knowledge they need to create innovative and impactful software solutions. Its support for microservices and IoT, coupled with ongoing research and innovation, makes it a comprehensive and adaptable solution for developers seeking to build high-quality software applications.
+
+## Contributing
+
+We welcome contributions to Structures from the community. To contribute, please follow these guidelines:
+
+1. Fork the Structures repository on GitHub.
+2. Make your changes to the codebase.
+3. Submit a pull request with your changes.
+
+## License
+
+Structures is released under the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0).

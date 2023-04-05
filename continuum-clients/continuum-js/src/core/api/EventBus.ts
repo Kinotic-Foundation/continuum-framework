@@ -115,7 +115,7 @@ export class EventBus implements IEventBus {
 
                 const errorSubscription: Subscription = this.stompClient.stompErrors$.subscribe((value: IFrame)  => {
                     errorSubscription.unsubscribe()
-                    const message = value.headers[EventConstants.ERROR_HEADER]
+                    const message = value.headers['message']
                     this.connected = false
                     reject(message)
                 })

@@ -21,7 +21,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
- * Provides functionality for non persistent {@link Event}'s
+ * Provides functionality for non-persistent {@link Event}'s
  *
  * Created by navid on 10/30/19
  */

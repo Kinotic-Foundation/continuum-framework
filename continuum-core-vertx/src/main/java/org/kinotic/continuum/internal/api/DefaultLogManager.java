@@ -17,13 +17,15 @@
 
 package org.kinotic.continuum.internal.api;
 
-import org.kinotic.continuum.api.Continuum;
-import org.kinotic.continuum.api.LogManager;
+import org.kinotic.continuum.api.*;
 import org.apache.commons.lang3.Validate;
+import org.kinotic.continuum.api.log.*;
+import org.kinotic.continuum.api.log.LogLevel;
 import org.springframework.boot.logging.*;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Default impl of {@link LogManager}
@@ -57,54 +59,55 @@ public class DefaultLogManager implements LogManager {
         return continuum.nodeId();
     }
 
-    public Map<String, Object> loggers() {
+    public LoggersDescriptor loggers() {
         Collection<LoggerConfiguration> configurations = this.loggingSystem.getLoggerConfigurations();
         if (configurations == null) {
-            return Collections.emptyMap();
+            return new LoggersDescriptor();
         }
-        Map<String, Object> result = new LinkedHashMap<>();
-        result.put("levels", getLevels());
-        result.put("loggers", getLoggers(configurations));
-        result.put("groups", getGroups());
-        return result;
+        return new LoggersDescriptor(getLevels(), getLoggers(configurations), getGroups());
     }
 
-    private Map<String, LoggerLevels> getGroups() {
-        Map<String, LoggerLevels> groups = new LinkedHashMap<>();
+    private Map<String, GroupLoggerLevelsDescriptor> getGroups() {
+        Map<String, GroupLoggerLevelsDescriptor> groups = new LinkedHashMap<>();
         this.loggerGroups.forEach((group) -> groups.put(group.getName(),
-                                                        new GroupLoggerLevels(group.getConfiguredLevel(), group.getMembers())));
+                                                        new GroupLoggerLevelsDescriptor(LogLevel.fromString(group.getConfiguredLevel().name()), group.getMembers())));
         return groups;
     }
 
-    public LoggerLevels loggerLevels(String name) {
+    public LoggerLevelsDescriptor loggerLevels(String name) {
         Validate.notNull(name, "Name must not be null");
         LoggerGroup group = this.loggerGroups.get(name);
         if (group != null) {
-            return new GroupLoggerLevels(group.getConfiguredLevel(), group.getMembers());
+            return new GroupLoggerLevelsDescriptor(LogLevel.fromString(group.getConfiguredLevel().name()), group.getMembers());
         }
         LoggerConfiguration configuration = this.loggingSystem.getLoggerConfiguration(name);
-        return (configuration != null) ? new SingleLoggerLevels(configuration) : null;
+        return (configuration != null) ? new SingleLoggerLevelsDescriptor(configuration) : null;
     }
 
     public void configureLogLevel(String name, LogLevel configuredLevel) {
-        Validate.notNull(name, "Name must not be empty");
+        Validate.notBlank(name, "Name must not be blank");
+        Validate.notNull(name, "ConfiguredLevel must not be null");
+
         LoggerGroup group = this.loggerGroups.get(name);
+        org.springframework.boot.logging.LogLevel bootLevel = org.springframework.boot.logging.LogLevel.valueOf(configuredLevel.name());
         if (group != null && group.hasMembers()) {
-            group.configureLogLevel(configuredLevel, this.loggingSystem::setLogLevel);
+            group.configureLogLevel(bootLevel, this.loggingSystem::setLogLevel);
             return;
         }
-        this.loggingSystem.setLogLevel(name, configuredLevel);
+        this.loggingSystem.setLogLevel(name, bootLevel);
     }
 
     private NavigableSet<LogLevel> getLevels() {
-        Set<LogLevel> levels = this.loggingSystem.getSupportedLogLevels();
+        Set<LogLevel> levels = this.loggingSystem.getSupportedLogLevels()
+                                                 .stream()
+                                                 .map(logLevel -> LogLevel.fromString(logLevel.name())).collect(Collectors.toSet());
         return new TreeSet<>(levels).descendingSet();
     }
 
-    private Map<String, LoggerLevels> getLoggers(Collection<LoggerConfiguration> configurations) {
-        Map<String, LoggerLevels> loggers = new LinkedHashMap<>(configurations.size());
+    private Map<String, SingleLoggerLevelsDescriptor> getLoggers(Collection<LoggerConfiguration> configurations) {
+        Map<String, SingleLoggerLevelsDescriptor> loggers = new LinkedHashMap<>(configurations.size());
         for (LoggerConfiguration configuration : configurations) {
-            loggers.put(configuration.getName(), new SingleLoggerLevels(configuration));
+            loggers.put(configuration.getName(), new SingleLoggerLevelsDescriptor(configuration));
         }
         return loggers;
     }

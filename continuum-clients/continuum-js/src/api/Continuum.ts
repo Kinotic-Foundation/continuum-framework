@@ -1,6 +1,6 @@
-import { EventBus } from "@/core/api/EventBus"
-import { ServiceRegistry } from "@/core/api/ServiceRegistry"
-import { IServiceProxy } from "@/core/api/IServiceRegistry"
+import { EventBus } from '@/core/api/EventBus'
+import { ServiceRegistry } from '@/core/api/ServiceRegistry'
+import { IServiceProxy } from '@/core/api/IServiceRegistry'
 
 export namespace Continuum {
 

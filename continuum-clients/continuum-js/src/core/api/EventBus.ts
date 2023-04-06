@@ -193,7 +193,7 @@ export class EventBus implements IEventBus {
                 let serverSignaledCompletion = false
                 const correlationId = uuidv4()
                 const defaultMessagesSubscription: Unsubscribable = this.requestRepliesObservable
-                    .pipe(filter((value: IEvent, index: number): boolean => {
+                    .pipe(filter((value: IEvent): boolean => {
                         return value.headers.get(EventConstants.CORRELATION_ID_HEADER) === correlationId
                     })).subscribe({
                         next(value: IEvent): void {

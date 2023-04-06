@@ -5,7 +5,7 @@ on:
     branches:
       - develop
     paths:
-      - 'website/**'
+      - 'website/continuum-vitepress/**'
 
 jobs:
   build_and_deploy:

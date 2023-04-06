@@ -58,7 +58,6 @@ import static org.apache.ignite.failure.FailureType.*;
         matchIfMissing = true)
 public class ContinuumIgniteConfig {
 
-    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     @Autowired
     private ContinuumProperties continuumProperties;
 

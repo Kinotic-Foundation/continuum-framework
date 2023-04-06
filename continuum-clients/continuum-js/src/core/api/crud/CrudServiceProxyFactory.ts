@@ -25,7 +25,7 @@ import { IServiceRegistry } from '@/core/api/IServiceRegistry'
 /**
  * Default implementation of {@link ICrudServiceProxyFactory}
  */
-class CrudServiceProxyFactory implements ICrudServiceProxyFactory {
+export class CrudServiceProxyFactory implements ICrudServiceProxyFactory {
 
     private serviceRegistry: IServiceRegistry
 

@@ -30,7 +30,6 @@ export interface IEventFactory {
 /**
  * {@link IServiceProxy} provides the ability to access a remote service
  *
- *
  * Created by navid on 2019-04-18.
  */
 export interface IServiceProxy {
@@ -65,7 +64,6 @@ export interface IServiceProxy {
 
 /**
  * Provides the functionality to register services as well as create proxies for those services
- *
  *
  * Created by Navid Mitchell on 2019-02-08.
  */

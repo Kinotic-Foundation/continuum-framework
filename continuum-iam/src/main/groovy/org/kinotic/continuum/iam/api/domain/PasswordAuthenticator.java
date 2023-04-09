@@ -28,7 +28,7 @@ import javax.persistence.Entity;
  * An {@link Authenticator} that uses a password to perform authentication
  *
  * NOTE:
- * With this authenticator the {@link PasswordAuthenticator#getAccessKey()} is typically the {@link IamParticipant#getIdentity()}
+ * With this authenticator the {@link PasswordAuthenticator#getAccessKey()} is typically the {@link IamParticipant#getId()}
  * This is a little redundant but allows {@link PasswordAuthenticator} to be looked up the same way as the {@link LegacySharedSecretAuthenticator}
  *
  *

@@ -40,12 +40,12 @@ public interface CrudService<T extends Identifiable<String>> {
      */
     default Mono<T> create(T entity){
         Validate.notNull(entity);
-        return Mono.create(sink -> findByIdentity(entity.getIdentity())
+        return Mono.create(sink -> findById(entity.getId())
             .doOnSuccess(result -> {
                 if(result == null){
                     save(entity).subscribe(ReactorUtils.monoSinkToSubscriber(sink));
                 }else{
-                    sink.error(new IllegalArgumentException(entity.getClass().getSimpleName() + " for the identity " + entity.getIdentity() + " already exists"));
+                    sink.error(new IllegalArgumentException(entity.getClass().getSimpleName() + " for the identity " + entity.getId() + " already exists"));
                 }
             })
             .subscribe(v -> {}, sink::error)); // We use an empty consumer this is handled with doOnSuccess, this is done so we get a single "signal" instead of onNext, onComplete type logic..
@@ -64,11 +64,11 @@ public interface CrudService<T extends Identifiable<String>> {
     /**
      * Retrieves an entity by its identity.
      *
-     * @param identity must not be {@literal null}.
+     * @param id must not be {@literal null}.
      * @return {@link Mono} emitting the entity with the given id or {@link Mono#empty()} if none found.
      * @throws IllegalArgumentException in case the given {@literal identity} is {@literal null}.
      */
-    Mono<T> findByIdentity(String identity);
+    Mono<T> findById(String id);
 
     /**
      * Returns the number of entities available.
@@ -80,11 +80,11 @@ public interface CrudService<T extends Identifiable<String>> {
     /**
      * Deletes the entity with the given identity.
      *
-     * @param identity must not be {@literal null}.
+     * @param id must not be {@literal null}.
      * @return {@link Mono} signaling when operation has completed.
      * @throws IllegalArgumentException in case the given {@literal identity} is {@literal null}.
      */
-    Mono<Void> deleteByIdentity(String identity);
+    Mono<Void> deleteById(String id);
 
     /**
      * Returns a {@link Page} of entities meeting the paging restriction provided in the {@code Pageable} object.

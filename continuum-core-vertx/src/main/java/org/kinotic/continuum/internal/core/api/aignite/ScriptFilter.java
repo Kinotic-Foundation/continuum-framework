@@ -145,7 +145,7 @@ public abstract class ScriptFilter extends Script {
 
         }else if(property.equals("identifier")){
 
-            ret = delegate.getIdentity();
+            ret = delegate.getId();
 
         }else{
 

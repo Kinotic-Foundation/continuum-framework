@@ -36,7 +36,7 @@ public class ParticipantToUserAdapter implements User {
     public ParticipantToUserAdapter(Participant participant) {
         this.participant = participant;
         principal = new JsonObject();
-        principal.put("user", participant.getIdentity());
+        principal.put("user", participant.getId());
     }
 
     @Override

@@ -31,9 +31,9 @@ import java.util.Collection;
  */
 public interface AccessPolicyRepository extends PagingAndSortingRepository<AccessPolicy, String> {
 
-    Page<AccessPolicy> findByIdentityNotIn(Collection<String> ids, Pageable page);
+    Page<AccessPolicy> findByIdNotIn(Collection<String> ids, Pageable page);
 
-    @Query("select a from AccessPolicy a where a.identity LIKE CONCAT('%',?1,'%')")
-    Page<AccessPolicy> findLikeIdentity(String identity, Pageable page);
+    @Query("select a from AccessPolicy a where a.id LIKE CONCAT('%',?1,'%')")
+    Page<AccessPolicy> findLikeId(String id, Pageable page);
 
 }

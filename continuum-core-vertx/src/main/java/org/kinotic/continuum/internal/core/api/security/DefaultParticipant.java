@@ -68,7 +68,7 @@ public class DefaultParticipant implements Participant {
     }
 
     @Override
-    public String getIdentity() {
+    public String getId() {
         return identity;
     }
 
@@ -105,7 +105,7 @@ public class DefaultParticipant implements Participant {
 
         Participant that = (Participant) o;
 
-        return new EqualsBuilder().append(identity, that.getIdentity()).isEquals();
+        return new EqualsBuilder().append(identity, that.getId()).isEquals();
     }
 
     @Override

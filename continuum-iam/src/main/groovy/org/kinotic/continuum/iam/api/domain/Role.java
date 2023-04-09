@@ -38,7 +38,7 @@ public class Role implements Identifiable<String> {
 
     @Id
     @NonNull
-    private String identity;
+    private String id;
 
     @Version
     @NonNull
@@ -52,9 +52,9 @@ public class Role implements Identifiable<String> {
     public Role() {
     }
 
-    public Role(String identity){
-        Validate.notBlank(identity, "The identity provided must not be blank");
-        this.identity = identity;
+    public Role(String id){
+        Validate.notBlank(id, "The identity provided must not be blank");
+        this.id = id;
     }
 
     public Role addAccessPolicy(AccessPolicy accessPolicy){

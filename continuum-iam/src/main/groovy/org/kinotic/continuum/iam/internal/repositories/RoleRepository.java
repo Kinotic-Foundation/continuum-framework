@@ -33,9 +33,9 @@ import java.util.Collection;
 @Repository
 public interface RoleRepository extends PagingAndSortingRepository<Role, String> {
 
-    Page<Role> findByIdentityNotIn(Collection<String> ids, Pageable page);
+    Page<Role> findByIdNotIn(Collection<String> ids, Pageable page);
 
-    @Query("select r from Role r where r.identity LIKE CONCAT('%',?1,'%')")
-    Page<Role> findLikeIdentity(String identity, Pageable page);
+    @Query("select r from Role r where r.id LIKE CONCAT('%',?1,'%')")
+    Page<Role> findLikeId(String id, Pageable page);
 
 }

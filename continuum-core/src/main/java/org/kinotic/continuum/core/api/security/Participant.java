@@ -31,7 +31,7 @@ public interface Participant extends Identifiable<String> {
      * The identity for the given participant
      * @return string containing the identity
      */
-    String getIdentity();
+    String getId();
 
     /**
      * Key value pairs that help to describe this participant

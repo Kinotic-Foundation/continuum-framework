@@ -21,7 +21,6 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 import org.kinotic.continuum.core.api.event.EventConstants;
 import org.kinotic.continuum.core.api.security.*;
-import org.kinotic.continuum.core.api.security.*;
 import org.kinotic.continuum.internal.config.IgniteCacheConstants;
 import org.kinotic.continuum.internal.util.IgniteUtils;
 import org.kinotic.continuum.internal.utils.ContinuumUtil;
@@ -95,7 +94,7 @@ public class DefaultSessionManager implements SessionManager {
 
                 DefaultSessionMetadata sessionMetadata = new DefaultSessionMetadata()
                         .sessionId(sessionId)
-                        .participantIdentity(participant.getIdentity())
+                        .participantIdentity(participant.getId())
                         .participantType(participant.getMetadata().get(MetadataConstants.TYPE_KEY))
                         .lastUsedDate(new Date());
 
@@ -157,7 +156,7 @@ public class DefaultSessionManager implements SessionManager {
         List<PathPattern> subscriptionPatterns = new LinkedList<>();
 
         public ParticipantPathPatterns(Participant participant) {
-            String encodedIdentity = ContinuumUtil.safeEncodeURI(participant.getIdentity());
+            String encodedIdentity = ContinuumUtil.safeEncodeURI(participant.getId());
 
             // Add send patterns
             for(String path: participant.getPermissions().getAllowedSendPatterns()){

@@ -45,11 +45,11 @@ export interface ICrudServiceProxy<T extends Identifiable<string>> extends IEdit
     /**
      * Retrieves an entity by its id.
      *
-     * @param identity must not be {@literal null}.
+     * @param id must not be {@literal null}.
      * @return a {@link Promise} emitting the entity with the given id or {@link Promise#empty()} if none found.
      * @throws IllegalArgumentException in case the given {@literal identity} is {@literal null}.
      */
-    findByIdentity(identity: string): Promise<T>
+    findById(id: string): Promise<T>
 
     /**s
      * Returns the number of entities available.
@@ -61,11 +61,11 @@ export interface ICrudServiceProxy<T extends Identifiable<string>> extends IEdit
     /**
      * Deletes the entity with the given id.
      *
-     * @param identity must not be {@literal null}.
+     * @param id must not be {@literal null}.
      * @return a {@link Promise} signaling when operation has completed.
      * @throws IllegalArgumentException in case the given {@literal identity} is {@literal null}.
      */
-    deleteByIdentity(identity: string): Promise<void>
+    deleteById(id: string): Promise<void>
 
     /**
      * Returns a {@link Page} of entities meeting the paging restriction provided in the {@code Pageable} object.

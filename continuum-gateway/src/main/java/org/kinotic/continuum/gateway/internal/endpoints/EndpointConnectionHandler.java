@@ -137,7 +137,7 @@ public class EndpointConnectionHandler {
         Mono<Void> ret;
         if (session.sendAllowed(event.cri())) {
 
-            event.metadata().put(EventConstants.SENDER_HEADER, session.participant().getIdentity());
+            event.metadata().put(EventConstants.SENDER_HEADER, session.participant().getId());
 
             if (event.cri().scheme().equals(EventConstants.SERVICE_DESTINATION_SCHEME)) {
 
@@ -206,7 +206,7 @@ public class EndpointConnectionHandler {
                 if (idx != -1) {
                     scope = scope.substring(0, idx);
                 }
-                String encodedSender = ContinuumUtil.safeEncodeURI(session.participant().getIdentity());
+                String encodedSender = ContinuumUtil.safeEncodeURI(session.participant().getId());
                 if (!scope.equals(encodedSender)) {
                     throw new IllegalArgumentException("reply-to header invalid, scope: " + scope + " is not valid for authenticated participant");
                 }

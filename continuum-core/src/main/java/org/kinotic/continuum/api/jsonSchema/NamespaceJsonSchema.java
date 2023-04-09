@@ -32,12 +32,12 @@ import java.util.Map;
 public class NamespaceJsonSchema extends JsonSchema {
 
     /**
-     * This is all of the objects defined for a given namespace
+     * This is all the objects defined for a given namespace
      */
     private Map<String, ObjectJsonSchema> objectSchemas = new LinkedHashMap<>();
 
     /**
-     * This is all of the services defined for a given namespace
+     * This is all the services defined for a given namespace
      */
     private Map<String, ServiceJsonSchema> serviceSchemas = new LinkedHashMap<>();
 

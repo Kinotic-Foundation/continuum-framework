@@ -55,7 +55,7 @@ public class DefaultRoleService implements RoleService {
     }
 
     @Override
-    public Mono<Role> findByIdentity(String identity) {
+    public Mono<Role> findById(String identity) {
         return Mono.fromSupplier(() -> transactionTemplate.execute(status -> {
             Optional<Role> value = roleRepository.findById(identity);
             // force lazy loaded data, so it will be available for the UI
@@ -70,7 +70,7 @@ public class DefaultRoleService implements RoleService {
     }
 
     @Override
-    public Mono<Void> deleteByIdentity(String identity) {
+    public Mono<Void> deleteById(String identity) {
         return Mono.fromRunnable(() -> roleRepository.deleteById(identity));
     }
 
@@ -83,7 +83,7 @@ public class DefaultRoleService implements RoleService {
     public Page<Role> findByIdNotIn(Collection<String> collection, Pageable page) {
         Page<Role> ret;
         if(collection != null && collection.size() > 0){
-            ret = roleRepository.findByIdentityNotIn(collection, page);
+            ret = roleRepository.findByIdNotIn(collection, page);
         }else{
             ret = findAll(page);
         }
@@ -92,7 +92,7 @@ public class DefaultRoleService implements RoleService {
 
     @Override
     public Page<Role> search(String searchText, Pageable pageable) {
-        return roleRepository.findLikeIdentity(searchText, pageable);
+        return roleRepository.findLikeId(searchText, pageable);
     }
 
 }

@@ -41,7 +41,7 @@ public class AccessPolicy implements Identifiable<String> {
 
     @Id
     @NonNull
-    private String identity;
+    private String id;
 
     @Version
     @NonNull
@@ -58,9 +58,9 @@ public class AccessPolicy implements Identifiable<String> {
     public AccessPolicy() {
     }
 
-    public AccessPolicy(String identity) {
-        Validate.notBlank(identity, "The identity provided must not be blank");
-        this.identity = identity;
+    public AccessPolicy(String id) {
+        Validate.notBlank(id, "The identity provided must not be blank");
+        this.id = id;
     }
 
 }

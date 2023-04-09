@@ -21,7 +21,6 @@ import org.kinotic.continuum.core.api.security.Participant;
 import org.kinotic.continuum.core.api.security.Permissions;
 import org.kinotic.continuum.core.api.security.SecurityService;
 import org.kinotic.continuum.iam.api.domain.*;
-import org.kinotic.continuum.iam.api.domain.*;
 import org.kinotic.continuum.iam.internal.repositories.AuthenticatorRepository;
 import org.kinotic.continuum.iam.internal.repositories.IamParticipantRepository;
 import org.kinotic.continuum.internal.core.api.security.DefaultParticipant;
@@ -76,7 +75,7 @@ public class DefaultSecurityService implements SecurityService {
                     if (authenticator.get().canAuthenticate(secret)) {
                         IamParticipant iamParticipant = authenticator.get().getIamParticipant();
 
-                        DefaultParticipant participant = new DefaultParticipant(iamParticipant.getIdentity());
+                        DefaultParticipant participant = new DefaultParticipant(iamParticipant.getId());
                         participant.setMetadata(iamParticipant.getMetadata());
                         participant.setPermissions(createPermissionsForParticipant(iamParticipant));
 
@@ -100,7 +99,7 @@ public class DefaultSecurityService implements SecurityService {
             try {
                 Optional<IamParticipant> iamParticipantOptional = iamParticipantRepository.findById(participantIdentity);
                 if (iamParticipantOptional.isPresent()) {
-                    DefaultParticipant participant = new DefaultParticipant(iamParticipantOptional.get().getIdentity());
+                    DefaultParticipant participant = new DefaultParticipant(iamParticipantOptional.get().getId());
                     participant.setMetadata(iamParticipantOptional.get().getMetadata());
                     participant.setPermissions(createPermissionsForParticipant(iamParticipantOptional.get()));
 
@@ -144,7 +143,7 @@ public class DefaultSecurityService implements SecurityService {
      * Right now we just support ${identity} more can be added as we need them
      */
     private String replaceVariables(String pattern, IamParticipant participant){
-        String encodedIdentity = ContinuumUtil.safeEncodeURI(participant.getIdentity());
+        String encodedIdentity = ContinuumUtil.safeEncodeURI(participant.getId());
         return pattern.replace("${identity}", encodedIdentity);
     }
 

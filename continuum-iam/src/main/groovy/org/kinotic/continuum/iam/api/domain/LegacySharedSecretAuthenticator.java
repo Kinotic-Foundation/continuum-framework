@@ -51,7 +51,7 @@ public class LegacySharedSecretAuthenticator extends Authenticator {
 
     @Override
     public boolean canAuthenticate(CharSequence secret) {
-        String mac = getIamParticipant().getIdentity();
+        String mac = getIamParticipant().getId();
         // Fire legacy string to sign is
         String toSign = "minds" + mac;
         return SecurityUtil.canOtpSha1Authenticate(toSign, sharedSecret, secret.toString());

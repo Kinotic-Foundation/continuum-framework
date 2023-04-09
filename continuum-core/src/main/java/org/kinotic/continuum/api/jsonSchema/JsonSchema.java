@@ -56,7 +56,7 @@ import java.util.Optional;
  *      {@link FunctionJsonSchema}
  *
  *  - Service Type:
- *      This is a type to represent an service definition.
+ *      This is a type to represent a service definition.
  *      {@link ServiceJsonSchema}
  *
  * - Namespace Type:

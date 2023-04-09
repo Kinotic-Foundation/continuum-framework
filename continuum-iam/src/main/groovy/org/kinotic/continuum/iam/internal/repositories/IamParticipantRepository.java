@@ -36,9 +36,9 @@ public interface IamParticipantRepository extends PagingAndSortingRepository<Iam
     @Query("select p from IamParticipant p where p.metadata[?1] = ?2")
     Page<IamParticipant> findByMetadataAndValue(String key, String value, Pageable page);
 
-    @Query("select p from IamParticipant p where p.identity LIKE CONCAT('%',?1,'%') and p.metadata[?2] = ?3")
-    Page<IamParticipant> findLikeIdentityByMetadataAndValue(String identity, String key, String value, Pageable page);
+    @Query("select p from IamParticipant p where p.id LIKE CONCAT('%',?1,'%') and p.metadata[?2] = ?3")
+    Page<IamParticipant> findLikeIdByMetadataAndValue(String id, String key, String value, Pageable page);
 
-    Page<IamParticipant> findByIdentityNotIn(Collection<String> ids, Pageable page);
+    Page<IamParticipant> findByIdNotIn(Collection<String> ids, Pageable page);
 
 }

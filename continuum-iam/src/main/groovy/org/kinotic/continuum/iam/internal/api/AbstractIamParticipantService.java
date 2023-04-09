@@ -61,13 +61,13 @@ public abstract class AbstractIamParticipantService implements CrudService<IamPa
     @Override
     public Mono<IamParticipant> create(IamParticipant entity) {
         Validate.notNull(entity);
-        return Mono.create(sink -> findByIdentity(entity.getIdentity())
+        return Mono.create(sink -> findById(entity.getId())
                 .doOnSuccess(result -> {
                     if(result == null){
                         entity.putMetadata(getTypeMetadata());
                         save(entity).subscribe(ReactorUtils.monoSinkToSubscriber(sink));
                     }else{
-                        sink.error(new IllegalArgumentException(entity.getClass().getSimpleName() + " for the identity " + entity.getIdentity() + " already exists"));
+                        sink.error(new IllegalArgumentException(entity.getClass().getSimpleName() + " for the identity " + entity.getId() + " already exists"));
                     }
                 })
                 .subscribe(v -> {}, sink::error)); // We use an empty consumer this is handled with doOnSuccess, this is done so we get a single "signal" instead of onNext, onComplete type logic..
@@ -81,7 +81,7 @@ public abstract class AbstractIamParticipantService implements CrudService<IamPa
             // This was the best way I could figure out how NOT to return the Auth information to the client
             // but also allow intuitive changes on the client side
             if (entity.getAuthenticators() == null) {
-                Optional<IamParticipant> value = iamParticipantRepository.findById(entity.getIdentity());
+                Optional<IamParticipant> value = iamParticipantRepository.findById(entity.getId());
                 value.ifPresent(iamParticipant -> entity.setAuthenticators(iamParticipant.getAuthenticators()));
             } else {
                 // make sure all mapping is bi directional
@@ -94,7 +94,7 @@ public abstract class AbstractIamParticipantService implements CrudService<IamPa
     }
 
     @Override
-    public Mono<IamParticipant> findByIdentity(String identity) {
+    public Mono<IamParticipant> findById(String identity) {
         Validate.notEmpty(identity);
         return Mono.fromSupplier(() -> transactionTemplate.execute(status -> {
             Optional<IamParticipant> value = iamParticipantRepository.findById(identity);
@@ -113,7 +113,7 @@ public abstract class AbstractIamParticipantService implements CrudService<IamPa
     }
 
     @Override
-    public Mono<Void> deleteByIdentity(String identity) {
+    public Mono<Void> deleteById(String identity) {
         return Mono.fromRunnable(() -> iamParticipantRepository.deleteById(identity));
     }
 
@@ -125,12 +125,12 @@ public abstract class AbstractIamParticipantService implements CrudService<IamPa
 
     @Override
     public Page<IamParticipant> findByIdNotIn(Collection<String> collection, Pageable page) {
-        return iamParticipantRepository.findByIdentityNotIn(collection, page);
+        return iamParticipantRepository.findByIdNotIn(collection, page);
     }
 
     @Override
     public Page<IamParticipant> search(String searchText, Pageable pageable) {
         Map.Entry<String, String> type = getTypeMetadata();
-        return iamParticipantRepository.findLikeIdentityByMetadataAndValue(searchText, type.getKey(), type.getValue(), pageable);
+        return iamParticipantRepository.findLikeIdByMetadataAndValue(searchText, type.getKey(), type.getValue(), pageable);
     }
 }

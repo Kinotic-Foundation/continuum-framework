@@ -53,7 +53,7 @@ public class DefaultAccessPolicyService implements AccessPolicyService {
     }
 
     @Override
-    public Mono<AccessPolicy> findByIdentity(String identity) {
+    public Mono<AccessPolicy> findById(String identity) {
         return Mono.fromSupplier(() -> transactionTemplate.execute(status -> {
             Optional<AccessPolicy> value = accessPolicyRepository.findById(identity);
             value.ifPresent(policy -> {
@@ -70,7 +70,7 @@ public class DefaultAccessPolicyService implements AccessPolicyService {
     }
 
     @Override
-    public Mono<Void> deleteByIdentity(String identity) {
+    public Mono<Void> deleteById(String identity) {
         return Mono.fromRunnable(() -> accessPolicyRepository.deleteById(identity));
     }
 
@@ -83,7 +83,7 @@ public class DefaultAccessPolicyService implements AccessPolicyService {
     public Page<AccessPolicy> findByIdNotIn(Collection<String> collection, Pageable page) {
         Page<AccessPolicy> ret;
         if(collection != null && collection.size() > 0){
-            ret = accessPolicyRepository.findByIdentityNotIn(collection, page);
+            ret = accessPolicyRepository.findByIdNotIn(collection, page);
         }else{
             ret = findAll(page);
         }
@@ -92,6 +92,6 @@ public class DefaultAccessPolicyService implements AccessPolicyService {
 
     @Override
     public Page<AccessPolicy> search(String searchText, Pageable pageable) {
-        return accessPolicyRepository.findLikeIdentity(searchText, pageable);
+        return accessPolicyRepository.findLikeId(searchText, pageable);
     }
 }

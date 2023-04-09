@@ -37,16 +37,16 @@ export class CrudServiceProxy<T extends Identifiable<string>> implements ICrudSe
         return this.serviceProxy.invoke('create', [entity])
     }
 
-    public deleteByIdentity(identity: string): Promise<void> {
-        return this.serviceProxy.invoke('deleteByIdentity', [identity])
+    public deleteById(id: string): Promise<void> {
+        return this.serviceProxy.invoke('deleteById', [id])
     }
 
     public findAll(pageable: Pageable): Promise<Page<T>> {
         return this.serviceProxy.invoke('findAll', [pageable])
     }
 
-    public findByIdentity(identity: string): Promise<T> {
-        return this.serviceProxy.invoke('findByIdentity', [identity])
+    public findById(id: string): Promise<T> {
+        return this.serviceProxy.invoke('findById', [id])
     }
 
     public save(entity: T): Promise<T> {

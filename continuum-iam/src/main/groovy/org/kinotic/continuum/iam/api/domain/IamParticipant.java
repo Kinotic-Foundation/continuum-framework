@@ -40,7 +40,7 @@ public class IamParticipant implements Identifiable<String> {
 
     @Id
     @NonNull
-    private String identity;
+    private String id;
 
     @Version
     @NonNull
@@ -58,9 +58,9 @@ public class IamParticipant implements Identifiable<String> {
     public IamParticipant() {
     }
 
-    public IamParticipant(String identity) {
-        Validate.notBlank(identity, "The identity provided must not be blank");
-        this.identity = identity;
+    public IamParticipant(String id) {
+        Validate.notBlank(id, "The identity provided must not be blank");
+        this.id = id;
     }
 
     public IamParticipant addAuthenticator(Authenticator authenticator){

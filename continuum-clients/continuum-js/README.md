@@ -2,9 +2,9 @@
 This is the Continuum client javascript library
 
 ## Local Development
-- [Yalc](https://github.com/whitecolor/yalc) will need to be installed locally
-- Then ```yalc publish```
-- Then you can run ```yarn run watch``` to make sure updates and HMR work on dependent projects
-- Then in project that depends on this one you can run ```yalc link continuum-js```
+- Run Tests with ```pnpm run test```
 
-### Useful Dependency Documentation
+## Build and Publish
+- Run ```pnpm run build```
+- Run ```export NPM_TOKEN=your_access_token```
+- Run ```pnpm publish```

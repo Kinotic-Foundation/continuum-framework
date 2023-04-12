@@ -32,13 +32,13 @@ export class StreamData<I, T> implements Identifiable<I> {
 
     public streamOperation: StreamOperation
 
-    public identity: I
+    public id: I
 
     public value: T
 
-    constructor(streamOperation: StreamOperation, identity: I, value: T) {
+    constructor(streamOperation: StreamOperation, id: I, value: T) {
         this.streamOperation = streamOperation
-        this.identity = identity
+        this.id = id
         this.value = value
     }
 

@@ -79,7 +79,7 @@ public class DefaultSchemaFactory implements SchemaFactory {
         ServiceSchema serviceSchema = new ServiceSchema();
 
         ReflectionUtils.doWithMethods(clazz, method -> {
-            // TODO: make this work properly when an interface defines generics that the implementor will define in implementation, This would require a interface class and a target class above to work correctly
+            // TODO: make this work properly when an interface defines generics that the implementor will define in implementation, This would require an interface class and a target class above to work correctly
 
             FunctionSchema functionSchema = new FunctionSchema();
             functionSchema.setReturnType(conversionContext.convertDependency(ResolvableType.forMethodReturnType(method)));

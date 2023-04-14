@@ -17,8 +17,8 @@
 
 package org.kinotic.continuum.idl.internal.api.converters.jdk;
 
-import org.kinotic.continuum.idl.api.Schema;
-import org.kinotic.continuum.idl.api.VoidSchema;
+import org.kinotic.continuum.idl.api.TypeSchema;
+import org.kinotic.continuum.idl.api.VoidTypeSchema;
 import org.kinotic.continuum.idl.internal.api.converters.ConversionContext;
 import org.kinotic.continuum.idl.internal.api.converters.SpecificTypeSchemaConverter;
 import org.springframework.core.ResolvableType;
@@ -39,7 +39,7 @@ public class VoidSchemaConverter implements SpecificTypeSchemaConverter {
     }
 
     @Override
-    public Schema convert(ResolvableType resolvableType, ConversionContext conversionContext) {
-        return new VoidSchema();
+    public TypeSchema convert(ResolvableType resolvableType, ConversionContext conversionContext) {
+        return new VoidTypeSchema();
     }
 }

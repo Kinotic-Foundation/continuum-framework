@@ -18,8 +18,8 @@
 package org.kinotic.continuum.idl.internal.api.converters.jdk;
 
 import org.apache.commons.lang3.Validate;
-import org.kinotic.continuum.idl.api.MapSchema;
-import org.kinotic.continuum.idl.api.Schema;
+import org.kinotic.continuum.idl.api.MapTypeSchema;
+import org.kinotic.continuum.idl.api.TypeSchema;
 import org.kinotic.continuum.idl.internal.api.converters.ConversionContext;
 import org.kinotic.continuum.idl.internal.api.converters.GenericTypeSchemaConverter;
 import org.springframework.core.ResolvableType;
@@ -46,13 +46,13 @@ public class MapSchemaConverter implements GenericTypeSchemaConverter {
     }
 
     @Override
-    public Schema convert(ResolvableType resolvableType, ConversionContext conversionContext) {
+    public TypeSchema convert(ResolvableType resolvableType, ConversionContext conversionContext) {
 
         ResolvableType keyType = resolvableType.getGeneric(0);
         Validate.notNull(keyType, "Map Key type must not be null for "+ resolvableType);
         ResolvableType valueType = resolvableType.getGeneric(1);
         Validate.notNull(valueType, "Map Value type must not be null for "+ resolvableType);
 
-        return new MapSchema(conversionContext.convertDependency(keyType), conversionContext.convertDependency(valueType));
+        return new MapTypeSchema(conversionContext.convertDependency(keyType), conversionContext.convertDependency(valueType));
     }
 }

@@ -1,8 +1,8 @@
 package org.kinotic.continuum.idl.api;
 
 /**
- * Represents a Short number
+ * Represents a Continuum Schema for a byte
  * Created by Navíd Mitchell 🤪 on 4/13/23.
  */
-public class ShortSchema extends Schema {
+public class ByteTypeSchema extends TypeSchema {
 }

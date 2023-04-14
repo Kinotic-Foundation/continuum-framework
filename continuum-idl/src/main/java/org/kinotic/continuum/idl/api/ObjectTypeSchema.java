@@ -38,23 +38,23 @@ import java.util.Map;
 @Accessors(chain = true)
 @NoArgsConstructor
 @AllArgsConstructor
-public class ObjectSchema extends Schema {
+public class ObjectTypeSchema extends TypeSchema {
 
     /**
      * The parent schema of this object schema
      * This is used to support inheritance
      */
-    private ObjectSchema parent = null;
+    private ObjectTypeSchema parent = null;
 
     /**
      * The properties (key-value pairs) on an object are defined using the properties' keyword.
      * The value of properties is an object, where each key is the name of a property and each value is a Continuum schema used to validate that property.
      */
-    private Map<String, Schema> properties = new LinkedHashMap<>();
+    private Map<String, TypeSchema> properties = new LinkedHashMap<>();
 
-    public ObjectSchema addProperty(String name, Schema schema){
+    public ObjectTypeSchema addProperty(String name, TypeSchema typeSchema){
         Validate.isTrue(!properties.containsKey(name), "ObjectSchema already contains property for name "+name);
-        properties.put(name, schema);
+        properties.put(name, typeSchema);
         return this;
     }
 

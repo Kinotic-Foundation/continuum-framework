@@ -24,7 +24,7 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 
 /**
- * Arrays are used for ordered elements.
+ * Defines a map of key value pairs
  * Created by navid on 2023-4-13.
  */
 @Getter
@@ -32,14 +32,16 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 @NoArgsConstructor
 @AllArgsConstructor
-public class ArraySchema extends Schema {
+public class MapTypeSchema extends TypeSchema {
 
     /**
-     * The type the defined array will contain
-     * <p>
-     * TODO: add not null constraint
+     * The type of the defined maps keys
      */
-    private Schema contains = null;
+    private TypeSchema key;
 
+    /**
+     * The type of the defined maps values
+     */
+    private TypeSchema value;
 
 }

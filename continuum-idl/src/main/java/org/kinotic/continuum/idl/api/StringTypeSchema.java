@@ -17,26 +17,10 @@
 
 package org.kinotic.continuum.idl.api;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.experimental.Accessors;
-
 /**
- * A simple schema to allow referencing other components in the specification, internally and externally.
+ * The string type is used for strings of text. It may contain Unicode characters.
  * Created by navid on 2023-4-13.
  */
-@Getter
-@Setter
-@Accessors(chain = true)
-@NoArgsConstructor
-@AllArgsConstructor
-public class ReferenceSchema extends Schema {
-
-    /**
-     * The urn to the schema being referenced
-     */
-    private String urn = null;
+public class StringTypeSchema extends TypeSchema {
 
 }

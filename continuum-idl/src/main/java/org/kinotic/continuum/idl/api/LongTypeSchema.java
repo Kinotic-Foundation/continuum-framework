@@ -1,8 +1,8 @@
 package org.kinotic.continuum.idl.api;
 
 /**
- * Represents a Continuum Schema for a float
+ * Represents a Continuum Schema for a long
  * Created by Navíd Mitchell 🤪 on 4/13/23.
  */
-public class FloatSchema extends Schema{
+public class LongTypeSchema extends TypeSchema {
 }

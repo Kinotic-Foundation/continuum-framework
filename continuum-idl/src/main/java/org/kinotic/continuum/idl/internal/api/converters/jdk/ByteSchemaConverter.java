@@ -1,7 +1,7 @@
 package org.kinotic.continuum.idl.internal.api.converters.jdk;
 
-import org.kinotic.continuum.idl.api.ByteSchema;
-import org.kinotic.continuum.idl.api.Schema;
+import org.kinotic.continuum.idl.api.ByteTypeSchema;
+import org.kinotic.continuum.idl.api.TypeSchema;
 import org.kinotic.continuum.idl.internal.api.converters.ConversionContext;
 import org.kinotic.continuum.idl.internal.api.converters.SpecificTypeSchemaConverter;
 import org.springframework.core.ResolvableType;
@@ -21,9 +21,9 @@ public class ByteSchemaConverter implements SpecificTypeSchemaConverter {
     }
 
     @Override
-    public Schema convert(ResolvableType resolvableType,
-                          ConversionContext conversionContext) {
-        return new ByteSchema();
+    public TypeSchema convert(ResolvableType resolvableType,
+                              ConversionContext conversionContext) {
+        return new ByteTypeSchema();
     }
 
 }

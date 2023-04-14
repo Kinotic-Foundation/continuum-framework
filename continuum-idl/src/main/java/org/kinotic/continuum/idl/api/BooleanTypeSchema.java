@@ -23,6 +23,6 @@ package org.kinotic.continuum.idl.api;
  * <p>
  * Created by navid on 2023-4-13.
  */
-public class BooleanSchema extends Schema {
+public class BooleanTypeSchema extends TypeSchema {
 
 }

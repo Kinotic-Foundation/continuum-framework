@@ -29,7 +29,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
 
 /**
- * Provides the ability to create {@link Schema}'s
+ * Provides the ability to create {@link TypeSchema}'s
  *
  *
  * Created by navid on 2019-06-13.
@@ -44,16 +44,16 @@ public class DefaultSchemaFactory implements SchemaFactory {
     }
 
     @Override
-    public Schema createForPojo(Class<?> clazz) {
+    public TypeSchema createForClass(Class<?> clazz) {
         DefaultConversionContext conversionContext = new DefaultConversionContext(schemaConverter);
         return this.createForPojo(clazz, conversionContext);
     }
 
-    private Schema createForPojo(Class<?> clazz, ConversionContext conversionContext) {
+    private TypeSchema createForPojo(Class<?> clazz, ConversionContext conversionContext) {
         Assert.notNull(clazz, "Class cannot be null");
         Assert.notNull(conversionContext, "ConversionContext cannot be null");
 
-        Schema ret;
+        TypeSchema ret;
         ResolvableType resolvableType = ResolvableType.forClass(clazz);
         if(schemaConverter.supports(resolvableType)){
 
@@ -88,9 +88,9 @@ public class DefaultSchemaFactory implements SchemaFactory {
 
                 MethodParameter methodParameter = new MethodParameter(method, i);
 
-                Schema schema = conversionContext.convertDependency(ResolvableType.forMethodParameter(methodParameter));
+                TypeSchema typeSchema = conversionContext.convertDependency(ResolvableType.forMethodParameter(methodParameter));
 
-                functionSchema.addArgument(getName(methodParameter), schema);
+                functionSchema.addArgument(getName(methodParameter), typeSchema);
             }
 
             serviceSchema.addFunction(method.getName(), functionSchema);

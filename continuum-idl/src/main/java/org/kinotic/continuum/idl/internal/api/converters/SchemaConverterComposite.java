@@ -17,7 +17,7 @@
 
 package org.kinotic.continuum.idl.internal.api.converters;
 
-import org.kinotic.continuum.idl.api.Schema;
+import org.kinotic.continuum.idl.api.TypeSchema;
 import org.springframework.core.ResolvableType;
 import org.springframework.util.Assert;
 
@@ -80,8 +80,8 @@ public class SchemaConverterComposite implements GenericTypeSchemaConverter {
     }
 
     @Override
-    public Schema convert(ResolvableType resolvableType,
-                          ConversionContext conversionContext) {
+    public TypeSchema convert(ResolvableType resolvableType,
+                              ConversionContext conversionContext) {
         Assert.notNull(resolvableType, "ResolvableType cannot be null");
 
         SchemaConverter converter = selectConverter(resolvableType);

@@ -37,7 +37,7 @@ import java.util.Map;
 @Accessors(chain = true)
 @NoArgsConstructor
 @AllArgsConstructor
-public class ServiceSchema extends Schema {
+public class ServiceSchema {
 
     /**
      * This defines {@link FunctionSchema}'s for this {@link ServiceSchema}

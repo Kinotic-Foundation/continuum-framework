@@ -17,9 +17,9 @@
 
 package org.kinotic.continuum.idl.internal.api.converters;
 
-import org.kinotic.continuum.idl.api.Schema;
-import org.kinotic.continuum.idl.api.ObjectSchema;
-import org.kinotic.continuum.idl.api.ReferenceSchema;
+import org.kinotic.continuum.idl.api.TypeSchema;
+import org.kinotic.continuum.idl.api.ObjectTypeSchema;
+import org.kinotic.continuum.idl.api.ReferenceTypeSchema;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,9 +42,9 @@ public class DefaultConversionContext implements ConversionContext {
 
     private final Deque<ResolvableType> errorStack = new ArrayDeque<>();
 
-    private final Map<String, Schema> schemaCache = new HashMap<>();
+    private final Map<String, TypeSchema> schemaCache = new HashMap<>();
 
-    private final Map<String, ObjectSchema> objectSchemaMap = new LinkedHashMap<>();
+    private final Map<String, ObjectTypeSchema> objectSchemaMap = new LinkedHashMap<>();
 
     /**
      * Creates a new {@link ConversionContext}
@@ -55,14 +55,14 @@ public class DefaultConversionContext implements ConversionContext {
     }
 
     @Override
-    public Schema convert(ResolvableType resolvableType) {
+    public TypeSchema convert(ResolvableType resolvableType) {
 
         if(circularReferenceCheckStack.contains(resolvableType)){
             IllegalStateException ise = new IllegalStateException("Circular reference detected for "+resolvableType);
             logException(ise);
             throw ise;
         }
-        Schema ret;
+        TypeSchema ret;
         try {
 
             circularReferenceCheckStack.addFirst(resolvableType);
@@ -85,19 +85,19 @@ public class DefaultConversionContext implements ConversionContext {
     }
 
     @Override
-    public Schema convertDependency(ResolvableType resolvableType) {
-        Schema schema = convert(resolvableType);
-        if(schema instanceof ObjectSchema){
+    public TypeSchema convertDependency(ResolvableType resolvableType) {
+        TypeSchema typeSchema = convert(resolvableType);
+        if(typeSchema instanceof ObjectTypeSchema){
             Class<?> rawClass = resolvableType.getRawClass();
             Assert.notNull(rawClass, "Cannot determine name for ObjectSchema");
             String name = rawClass.getName();
-            objectSchemaMap.put(name, (ObjectSchema)schema);
-            schema = new ReferenceSchema(name);
+            objectSchemaMap.put(name, (ObjectTypeSchema) typeSchema);
+            typeSchema = new ReferenceTypeSchema(name);
         }
-        return schema;
+        return typeSchema;
     }
 
-    public Map<String, ObjectSchema> getObjectSchemas() {
+    public Map<String, ObjectTypeSchema> getObjectSchemas() {
         return objectSchemaMap;
     }
 

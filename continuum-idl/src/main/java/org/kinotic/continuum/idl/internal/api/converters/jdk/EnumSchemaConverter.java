@@ -1,8 +1,8 @@
 package org.kinotic.continuum.idl.internal.api.converters.jdk;
 
 import org.apache.commons.lang3.Validate;
-import org.kinotic.continuum.idl.api.EnumSchema;
-import org.kinotic.continuum.idl.api.Schema;
+import org.kinotic.continuum.idl.api.EnumTypeSchema;
+import org.kinotic.continuum.idl.api.TypeSchema;
 import org.kinotic.continuum.idl.internal.api.converters.ConversionContext;
 import org.kinotic.continuum.idl.internal.api.converters.SpecificTypeSchemaConverter;
 import org.springframework.core.ResolvableType;
@@ -20,10 +20,10 @@ public class EnumSchemaConverter implements SpecificTypeSchemaConverter {
     }
 
     @Override
-    public Schema convert(ResolvableType resolvableType,
-                          ConversionContext conversionContext) {
+    public TypeSchema convert(ResolvableType resolvableType,
+                              ConversionContext conversionContext) {
 
-        EnumSchema ret = new EnumSchema();
+        EnumTypeSchema ret = new EnumTypeSchema();
 
         @SuppressWarnings("unchecked")
         Class<? extends Enum<?>> enumType = (Class<? extends Enum<?>>) resolvableType.resolve();

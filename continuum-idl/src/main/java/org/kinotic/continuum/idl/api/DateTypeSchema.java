@@ -33,7 +33,7 @@ import org.kinotic.continuum.idl.api.datestyles.DateStyle;
 @Accessors(chain = true)
 @NoArgsConstructor
 @AllArgsConstructor
-public class DateSchema extends Schema {
+public class DateTypeSchema extends TypeSchema {
 
     /**
      * The date format to use when serializing and deserializing dates.

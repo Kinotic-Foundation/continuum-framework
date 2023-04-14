@@ -17,11 +17,11 @@
 
 package org.kinotic.continuum.idl.internal.api.converters;
 
-import org.kinotic.continuum.idl.api.Schema;
+import org.kinotic.continuum.idl.api.TypeSchema;
 import org.springframework.core.ResolvableType;
 
 /**
- * Provides support for converting individual {@link ResolvableType}'s into the appropriate {@link Schema}
+ * Provides support for converting individual {@link ResolvableType}'s into the appropriate {@link TypeSchema}
  *
  *
  * Created by navid on 2019-06-13.
@@ -29,13 +29,13 @@ import org.springframework.core.ResolvableType;
 public interface SchemaConverter {
 
     /**
-     * Converts the given {@link ResolvableType} to the correct {@link Schema}
+     * Converts the given {@link ResolvableType} to the correct {@link TypeSchema}
      *
      * @param resolvableType to convert
      * @param conversionContext for this conversion process
-     * @return the newly created {@link Schema} for the class
+     * @return the newly created {@link TypeSchema} for the class
      */
-    Schema convert(ResolvableType resolvableType,
-                   ConversionContext conversionContext);
+    TypeSchema convert(ResolvableType resolvableType,
+                       ConversionContext conversionContext);
 
 }

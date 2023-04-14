@@ -17,8 +17,8 @@
 
 package org.kinotic.continuum.idl.internal.api.converters;
 
-import org.kinotic.continuum.idl.api.Schema;
-import org.kinotic.continuum.idl.api.ObjectSchema;
+import org.kinotic.continuum.idl.api.TypeSchema;
+import org.kinotic.continuum.idl.api.ObjectTypeSchema;
 import groovy.lang.GroovyObject;
 import groovy.lang.MetaClass;
 import org.springframework.beans.BeanUtils;
@@ -49,10 +49,10 @@ public class PojoSchemaConverter implements GenericTypeSchemaConverter {
     }
 
     @Override
-    public Schema convert(ResolvableType resolvableType,
-                          ConversionContext conversionContext) {
+    public TypeSchema convert(ResolvableType resolvableType,
+                              ConversionContext conversionContext) {
 
-        ObjectSchema ret = new ObjectSchema();
+        ObjectTypeSchema ret = new ObjectTypeSchema();
 
         Class<?> rawClass = resolvableType.getRawClass();
         Assert.notNull(rawClass, "Raw class could not be found for ResolvableType");
@@ -65,9 +65,9 @@ public class PojoSchemaConverter implements GenericTypeSchemaConverter {
 
                 ResolvableType returnTypeResolvableType = ResolvableType.forMethodReturnType(descriptor.getReadMethod());
 
-                Schema fieldSchema = conversionContext.convertDependency(returnTypeResolvableType);
+                TypeSchema fieldTypeSchema = conversionContext.convertDependency(returnTypeResolvableType);
 
-                ret.addProperty(descriptor.getName(), fieldSchema);
+                ret.addProperty(descriptor.getName(), fieldTypeSchema);
             }
         }
         return ret;

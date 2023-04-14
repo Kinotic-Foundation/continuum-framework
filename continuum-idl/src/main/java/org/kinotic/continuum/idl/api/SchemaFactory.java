@@ -18,23 +18,23 @@
 package org.kinotic.continuum.idl.api;
 
 /**
- * Provides the ability to create {@link Schema}'s
+ * Provides the ability to create {@link TypeSchema}'s
  * Created by navid on 2019-06-13.
  */
 public interface SchemaFactory {
 
     /**
-     * Creates a {@link Schema} for the given {@link Class}
-     * This method treats the class as a standard POJO.
+     * Creates a {@link TypeSchema} for the given {@link Class}
+     * This method treats the class as a standard POJO or basic type.
      * If you need to convert a class that is a "service" use {@link SchemaFactory#createForService(Class)}
      *
      * @param clazz the class to create the schema for
-     * @return the newly created {@link Schema}
+     * @return the newly created {@link TypeSchema}
      */
-    Schema createForPojo(Class<?> clazz);
+    TypeSchema createForClass(Class<?> clazz);
 
     /**
-     * Creates a {@link Schema} for the given {@link Class}
+     * Creates a {@link NamespaceSchema} for the given {@link Class}
      * This method treats the class as a java "service"
      *
      * @param clazz the class to create the schema for

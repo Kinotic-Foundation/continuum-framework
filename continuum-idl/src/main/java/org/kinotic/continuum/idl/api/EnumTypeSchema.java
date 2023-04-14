@@ -17,11 +17,11 @@ import java.util.List;
 @Accessors(chain = true)
 @NoArgsConstructor
 @AllArgsConstructor
-public class EnumSchema extends Schema{
+public class EnumTypeSchema extends TypeSchema {
 
     List<String> values = new ArrayList<>();
 
-    public EnumSchema addValue(String value){
+    public EnumTypeSchema addValue(String value){
         values.add(value);
         return this;
     }

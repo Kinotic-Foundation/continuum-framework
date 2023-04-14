@@ -29,7 +29,7 @@ import java.util.Map;
 
 /**
  * Provides functionality to define a namespace with a Continuum schema.
- * A {@link NamespaceSchema} is a collection of {@link ServiceSchema}'s and {@link ObjectSchema}'s defined within a particular namespace.
+ * A {@link NamespaceSchema} is a collection of {@link ServiceSchema}'s and {@link ObjectTypeSchema}'s defined within a particular namespace.
  * <p>
  * Created by navid on 2023-4-13.
  */
@@ -38,12 +38,12 @@ import java.util.Map;
 @Accessors(chain = true)
 @NoArgsConstructor
 @AllArgsConstructor
-public class NamespaceSchema extends Schema {
+public class NamespaceSchema {
 
     /**
      * This is all the objects defined for a given namespace
      */
-    private Map<String, ObjectSchema> objectSchemas = new LinkedHashMap<>();
+    private Map<String, ObjectTypeSchema> objectSchemas = new LinkedHashMap<>();
 
     /**
      * This is all the services defined for a given namespace
@@ -51,7 +51,7 @@ public class NamespaceSchema extends Schema {
     private Map<String, ServiceSchema> serviceSchemas = new LinkedHashMap<>();
 
 
-    public NamespaceSchema addObjectSchema(String name, ObjectSchema schema){
+    public NamespaceSchema addObjectSchema(String name, ObjectTypeSchema schema){
         Validate.isTrue(!objectSchemas.containsKey(name), "This NamespaceSchema already contains an ObjectSchema for name "+name);
         objectSchemas.put(name, schema);
         return this;

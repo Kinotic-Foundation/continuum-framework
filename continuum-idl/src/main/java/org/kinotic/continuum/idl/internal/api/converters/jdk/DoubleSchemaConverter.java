@@ -1,7 +1,7 @@
 package org.kinotic.continuum.idl.internal.api.converters.jdk;
 
-import org.kinotic.continuum.idl.api.DoubleSchema;
-import org.kinotic.continuum.idl.api.Schema;
+import org.kinotic.continuum.idl.api.DoubleTypeSchema;
+import org.kinotic.continuum.idl.api.TypeSchema;
 import org.kinotic.continuum.idl.internal.api.converters.ConversionContext;
 import org.kinotic.continuum.idl.internal.api.converters.SpecificTypeSchemaConverter;
 import org.springframework.core.ResolvableType;
@@ -21,9 +21,9 @@ public class DoubleSchemaConverter implements SpecificTypeSchemaConverter {
     }
 
     @Override
-    public Schema convert(ResolvableType resolvableType,
-                          ConversionContext conversionContext) {
-        return new DoubleSchema();
+    public TypeSchema convert(ResolvableType resolvableType,
+                              ConversionContext conversionContext) {
+        return new DoubleTypeSchema();
     }
 
 }

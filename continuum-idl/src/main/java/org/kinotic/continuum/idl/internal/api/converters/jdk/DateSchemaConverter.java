@@ -17,8 +17,8 @@
 
 package org.kinotic.continuum.idl.internal.api.converters.jdk;
 
-import org.kinotic.continuum.idl.api.DateSchema;
-import org.kinotic.continuum.idl.api.Schema;
+import org.kinotic.continuum.idl.api.DateTypeSchema;
+import org.kinotic.continuum.idl.api.TypeSchema;
 import org.kinotic.continuum.idl.api.datestyles.MillsDateStyle;
 import org.kinotic.continuum.idl.internal.api.converters.ConversionContext;
 import org.kinotic.continuum.idl.internal.api.converters.SpecificTypeSchemaConverter;
@@ -42,8 +42,8 @@ public class DateSchemaConverter implements SpecificTypeSchemaConverter {
     }
 
     @Override
-    public Schema convert(ResolvableType resolvableType,
-                          ConversionContext conversionContext) {
-        return new DateSchema().setFormat(new MillsDateStyle());
+    public TypeSchema convert(ResolvableType resolvableType,
+                              ConversionContext conversionContext) {
+        return new DateTypeSchema().setFormat(new MillsDateStyle());
     }
 }

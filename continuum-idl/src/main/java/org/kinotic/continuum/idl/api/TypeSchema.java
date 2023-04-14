@@ -28,8 +28,8 @@ import lombok.experimental.Accessors;
 import java.util.Map;
 
 /**
- * This is the base class for all schema types.
- * It can be used to create a Continuum {@link Schema} from a JSON string.
+ * This is the base class for all type schemas.
+ * It can be used to create {@link TypeSchema} from use within a Continuum IDL.
  * <p>
  * Created by navid on 2023-4-13.
  */
@@ -37,33 +37,30 @@ import java.util.Map;
         use = JsonTypeInfo.Id.NAME,
         property = "type")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = ArraySchema.class, name = "array"),
-        @JsonSubTypes.Type(value = BooleanSchema.class, name = "boolean"),
-        @JsonSubTypes.Type(value = ByteSchema.class, name = "byte"),
-        @JsonSubTypes.Type(value = CharSchema.class, name = "char"),
-        @JsonSubTypes.Type(value = DateSchema.class, name = "date"),
-        @JsonSubTypes.Type(value = DoubleSchema.class, name = "double"),
-        @JsonSubTypes.Type(value = EnumSchema.class, name = "enum"),
-        @JsonSubTypes.Type(value = FloatSchema.class, name = "float"),
-        @JsonSubTypes.Type(value = FunctionSchema.class, name = "function"),
-        @JsonSubTypes.Type(value = IntSchema.class, name = "int"),
-        @JsonSubTypes.Type(value = LongSchema.class, name = "long"),
-        @JsonSubTypes.Type(value = MapSchema.class, name = "map"),
-        @JsonSubTypes.Type(value = NamespaceSchema.class, name = "namespace"),
-        @JsonSubTypes.Type(value = ObjectSchema.class, name = "object"),
-        @JsonSubTypes.Type(value = ReferenceSchema.class, name = "ref"),
-        @JsonSubTypes.Type(value = ServiceSchema.class, name = "service"),
-        @JsonSubTypes.Type(value = ShortSchema.class, name = "short"),
-        @JsonSubTypes.Type(value = StringSchema.class, name = "string"),
-        @JsonSubTypes.Type(value = UnionSchema.class, name = "union"),
-        @JsonSubTypes.Type(value = VoidSchema.class, name = "void")
+        @JsonSubTypes.Type(value = ArrayTypeSchema.class, name = "array"),
+        @JsonSubTypes.Type(value = BooleanTypeSchema.class, name = "boolean"),
+        @JsonSubTypes.Type(value = ByteTypeSchema.class, name = "byte"),
+        @JsonSubTypes.Type(value = CharTypeSchema.class, name = "char"),
+        @JsonSubTypes.Type(value = DateTypeSchema.class, name = "date"),
+        @JsonSubTypes.Type(value = DoubleTypeSchema.class, name = "double"),
+        @JsonSubTypes.Type(value = EnumTypeSchema.class, name = "enum"),
+        @JsonSubTypes.Type(value = FloatTypeSchema.class, name = "float"),
+        @JsonSubTypes.Type(value = IntTypeSchema.class, name = "int"),
+        @JsonSubTypes.Type(value = LongTypeSchema.class, name = "long"),
+        @JsonSubTypes.Type(value = MapTypeSchema.class, name = "map"),
+        @JsonSubTypes.Type(value = ObjectTypeSchema.class, name = "object"),
+        @JsonSubTypes.Type(value = ReferenceTypeSchema.class, name = "ref"),
+        @JsonSubTypes.Type(value = ShortTypeSchema.class, name = "short"),
+        @JsonSubTypes.Type(value = StringTypeSchema.class, name = "string"),
+        @JsonSubTypes.Type(value = UnionTypeSchema.class, name = "union"),
+        @JsonSubTypes.Type(value = VoidTypeSchema.class, name = "void")
 })
 @JsonInclude(JsonInclude.Include.NON_EMPTY) // do not include any empty or null fields
 @Getter
 @Setter
 @Accessors(chain = true)
 @NoArgsConstructor
-public abstract class Schema {
+public abstract class TypeSchema {
 
     /**
      * You can put nullable on any schema and that will make null be an acceptable value for the schema.

@@ -17,11 +17,26 @@
 
 package org.kinotic.continuum.idl.api;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.Accessors;
+
 /**
- * This is a type to represent a void type.
- * Void types support the values null or void.
- *
+ * A simple schema to allow referencing other components in the specification, internally and externally.
  * Created by navid on 2023-4-13.
  */
-public class VoidSchema extends Schema {
+@Getter
+@Setter
+@Accessors(chain = true)
+@NoArgsConstructor
+@AllArgsConstructor
+public class ReferenceTypeSchema extends TypeSchema {
+
+    /**
+     * The urn to the schema being referenced
+     */
+    private String urn = null;
+
 }

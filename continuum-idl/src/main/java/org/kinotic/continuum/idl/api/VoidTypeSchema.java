@@ -17,31 +17,11 @@
 
 package org.kinotic.continuum.idl.api;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.experimental.Accessors;
-
 /**
- * Defines a map of key value pairs
+ * This is a type to represent a void type.
+ * Void types support the values null or void.
+ *
  * Created by navid on 2023-4-13.
  */
-@Getter
-@Setter
-@Accessors(chain = true)
-@NoArgsConstructor
-@AllArgsConstructor
-public class MapSchema extends Schema {
-
-    /**
-     * The type of the defined maps keys
-     */
-    private Schema key;
-
-    /**
-     * The type of the defined maps values
-     */
-    private Schema value;
-
+public class VoidTypeSchema extends TypeSchema {
 }

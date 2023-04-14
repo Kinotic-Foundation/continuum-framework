@@ -19,9 +19,8 @@ package org.kinotic.continuum.idl.internal.api.converters;
 
 /**
  * Provides a {@link SchemaConverter} that supports specific {@link Class} types.
- *
- * Useful for converting something like {@link java.net.URI} classes
- *
+ * This is useful for converting Classes that are not complex objects.
+ * <p>
  *
  * Created by navid on 2019-06-14.
  */

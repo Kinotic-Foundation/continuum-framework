@@ -17,8 +17,8 @@
 
 package org.kinotic.continuum.idl.internal.api.converters.jdk;
 
-import org.kinotic.continuum.idl.api.ArraySchema;
-import org.kinotic.continuum.idl.api.Schema;
+import org.kinotic.continuum.idl.api.ArrayTypeSchema;
+import org.kinotic.continuum.idl.api.TypeSchema;
 import org.kinotic.continuum.idl.internal.api.converters.ConversionContext;
 import org.kinotic.continuum.idl.internal.api.converters.GenericTypeSchemaConverter;
 import org.springframework.core.ResolvableType;
@@ -37,11 +37,11 @@ public class ArraySchemaConverter implements GenericTypeSchemaConverter {
     }
 
     @Override
-    public Schema convert(ResolvableType resolvableType,
-                          ConversionContext conversionContext) {
+    public TypeSchema convert(ResolvableType resolvableType,
+                              ConversionContext conversionContext) {
 
         ResolvableType componentType = resolvableType.getComponentType();
 
-        return new ArraySchema(conversionContext.convertDependency(componentType));
+        return new ArrayTypeSchema(conversionContext.convertDependency(componentType));
     }
 }

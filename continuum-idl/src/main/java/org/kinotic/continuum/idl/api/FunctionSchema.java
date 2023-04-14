@@ -36,24 +36,24 @@ import java.util.Map;
 @Accessors(chain = true)
 @NoArgsConstructor
 @AllArgsConstructor
-public class FunctionSchema extends Schema {
+public class FunctionSchema {
 
     /**
-     * This is the {@link Schema} that defines the return type of this function.
+     * This is the {@link TypeSchema} that defines the return type of this function.
      */
-    private Schema returnType = new VoidSchema();
+    private TypeSchema returnType = new VoidTypeSchema();
 
     /**
-     * This map defines the {@link Schema}'s that define the arguments for this function.
+     * This map defines the {@link TypeSchema}'s that define the arguments for this function.
      * The Key is the argument name the value is the schema for the argument type.
      * Argument names must be unique.
      */
-    private Map<String, Schema> arguments = new LinkedHashMap<>();
+    private Map<String, TypeSchema> arguments = new LinkedHashMap<>();
 
 
-    public FunctionSchema addArgument(String name, Schema schema){
+    public FunctionSchema addArgument(String name, TypeSchema typeSchema){
         Validate.isTrue(!arguments.containsKey(name), "An argument already exists with the name "+name);
-        arguments.put(name, schema);
+        arguments.put(name, typeSchema);
         return this;
     }
 

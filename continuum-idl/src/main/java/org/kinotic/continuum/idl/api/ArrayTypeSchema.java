@@ -17,10 +17,29 @@
 
 package org.kinotic.continuum.idl.api;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.Accessors;
+
 /**
- * The string type is used for strings of text. It may contain Unicode characters.
+ * Arrays are used for ordered elements.
  * Created by navid on 2023-4-13.
  */
-public class StringSchema extends Schema {
+@Getter
+@Setter
+@Accessors(chain = true)
+@NoArgsConstructor
+@AllArgsConstructor
+public class ArrayTypeSchema extends TypeSchema {
+
+    /**
+     * The type the defined array will contain
+     * <p>
+     * TODO: add not null constraint
+     */
+    private TypeSchema contains = null;
+
 
 }

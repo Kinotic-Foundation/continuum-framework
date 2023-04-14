@@ -2,7 +2,7 @@
  *
  * Copyright 2008-2021 Kinotic and the original author or authors.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -22,7 +22,7 @@ import { firstValueFrom } from 'rxjs'
 import { IMessage, StompHeaders, IFrame } from '@stomp/rx-stomp'
 import { RxStomp } from '@stomp/rx-stomp'
 import { Optional } from 'typescript-optional'
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from 'uuid'
 
 /**
  * Default IEvent implementation
@@ -176,7 +176,7 @@ export class EventBus implements IEventBus {
     }
 
     public request(event: IEvent): Promise<IEvent> {
-        return firstValueFrom(this.requestStream(event, false));
+        return firstValueFrom(this.requestStream(event, false))
     }
 
     public requestStream(event: IEvent, sendControlEvents: boolean = true): Observable<IEvent> {

@@ -19,7 +19,7 @@ package org.kinotic.continuum.iam.api.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.kinotic.continuum.internal.util.SecurityUtil;
+import org.kinotic.continuum.internal.utils.SecurityUtil;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;

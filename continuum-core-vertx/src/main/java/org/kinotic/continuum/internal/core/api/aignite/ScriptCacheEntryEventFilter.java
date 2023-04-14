@@ -18,7 +18,7 @@
 package org.kinotic.continuum.internal.core.api.aignite;
 
 import org.kinotic.continuum.core.api.event.StreamData;
-import org.kinotic.continuum.internal.util.IgniteUtils;
+import org.kinotic.continuum.internal.utils.IgniteUtils;
 import groovy.lang.Binding;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.slf4j.Logger;

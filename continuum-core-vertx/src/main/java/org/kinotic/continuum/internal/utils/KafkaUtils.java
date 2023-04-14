@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.kinotic.continuum.internal.util;
+package org.kinotic.continuum.internal.utils;
 
 import org.kinotic.continuum.api.config.ContinuumProperties;
 import org.apache.commons.lang3.Validate;

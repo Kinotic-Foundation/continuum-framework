@@ -28,7 +28,7 @@ import org.kinotic.continuum.core.api.event.Event;
 import org.kinotic.continuum.core.api.event.EventConstants;
 import org.kinotic.continuum.core.api.event.Metadata;
 import org.kinotic.continuum.internal.core.api.service.invoker.ServiceInvocationSupervisor;
-import org.kinotic.continuum.internal.util.EventUtils;
+import org.kinotic.continuum.internal.utils.EventUtils;
 import org.apache.commons.lang3.Validate;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.core.MethodParameter;

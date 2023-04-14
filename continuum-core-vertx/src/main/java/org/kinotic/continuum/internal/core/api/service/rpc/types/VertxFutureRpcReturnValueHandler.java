@@ -23,7 +23,7 @@ import org.kinotic.continuum.core.api.event.EventConstants;
 import org.kinotic.continuum.internal.core.api.service.rpc.RpcRequest;
 import org.kinotic.continuum.internal.core.api.service.rpc.RpcResponseConverter;
 import org.kinotic.continuum.internal.core.api.service.rpc.RpcReturnValueHandler;
-import org.kinotic.continuum.internal.util.EventUtils;
+import org.kinotic.continuum.internal.utils.EventUtils;
 import io.vertx.core.Future;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

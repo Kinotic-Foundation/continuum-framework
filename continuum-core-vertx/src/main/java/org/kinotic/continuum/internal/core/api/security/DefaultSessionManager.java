@@ -22,7 +22,7 @@ import com.github.benmanes.caffeine.cache.LoadingCache;
 import org.kinotic.continuum.core.api.event.EventConstants;
 import org.kinotic.continuum.core.api.security.*;
 import org.kinotic.continuum.internal.config.IgniteCacheConstants;
-import org.kinotic.continuum.internal.util.IgniteUtils;
+import org.kinotic.continuum.internal.utils.IgniteUtils;
 import org.kinotic.continuum.internal.utils.ContinuumUtil;
 import io.vertx.core.Vertx;
 import org.apache.ignite.Ignite;

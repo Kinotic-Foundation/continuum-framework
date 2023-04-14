@@ -30,7 +30,7 @@ import org.kinotic.continuum.iam.api.domain.AccessPolicy
 import org.kinotic.continuum.iam.api.domain.IamParticipant
 import org.kinotic.continuum.iam.api.domain.LegacySharedSecretAuthenticator
 import org.kinotic.continuum.iam.api.domain.Role
-import org.kinotic.continuum.internal.util.SecurityUtil
+import org.kinotic.continuum.internal.utils.SecurityUtil
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles

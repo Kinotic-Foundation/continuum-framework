@@ -18,7 +18,7 @@
 package org.kinotic.continuum.internal.config;
 
 import org.kinotic.continuum.api.config.ContinuumProperties;
-import org.kinotic.continuum.internal.util.KafkaUtils;
+import org.kinotic.continuum.internal.utils.KafkaUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.springframework.beans.factory.annotation.Autowired;

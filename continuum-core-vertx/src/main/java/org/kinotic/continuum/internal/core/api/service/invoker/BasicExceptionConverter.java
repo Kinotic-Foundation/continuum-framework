@@ -24,7 +24,7 @@ import org.kinotic.continuum.core.api.event.Event;
 import org.kinotic.continuum.core.api.event.EventConstants;
 import org.kinotic.continuum.core.api.event.Metadata;
 import org.kinotic.continuum.core.api.service.ServiceExceptionWrapper;
-import org.kinotic.continuum.internal.util.EventUtils;
+import org.kinotic.continuum.internal.utils.EventUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.codec.EncodingException;
 import org.springframework.stereotype.Component;

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.kinotic.continuum.internal.util;
+package org.kinotic.continuum.internal.utils;
 
 import org.kinotic.continuum.core.api.event.StreamData;
 import org.kinotic.continuum.core.api.event.StreamOperation;

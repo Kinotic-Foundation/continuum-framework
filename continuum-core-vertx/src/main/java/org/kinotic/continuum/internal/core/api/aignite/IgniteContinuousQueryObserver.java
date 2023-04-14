@@ -18,7 +18,7 @@
 package org.kinotic.continuum.internal.core.api.aignite;
 
 import org.kinotic.continuum.core.api.event.StreamData;
-import org.kinotic.continuum.internal.util.IgniteUtils;
+import org.kinotic.continuum.internal.utils.IgniteUtils;
 import io.vertx.core.*;
 import org.apache.commons.lang3.Validate;
 import org.apache.ignite.IgniteCache;

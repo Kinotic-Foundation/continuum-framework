@@ -23,7 +23,7 @@ import org.kinotic.continuum.core.api.event.Event;
 import org.kinotic.continuum.core.api.event.EventConstants;
 import org.kinotic.continuum.core.api.security.Participant;
 import org.kinotic.continuum.core.api.security.Session;
-import org.kinotic.continuum.internal.util.SecurityUtil;
+import org.kinotic.continuum.internal.utils.SecurityUtil;
 import org.kinotic.continuum.internal.utils.ContinuumUtil;
 import io.vertx.core.Promise;
 import io.vertx.core.eventbus.ReplyException;

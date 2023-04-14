@@ -22,7 +22,7 @@ import org.kinotic.continuum.grind.api.JobDefinition;
 import org.kinotic.continuum.grind.api.JobScope;
 import org.kinotic.continuum.grind.api.Task;
 import org.kinotic.continuum.grind.api.Tasks;
-import org.kinotic.continuum.internal.util.SecurityUtil;
+import org.kinotic.continuum.internal.utils.SecurityUtil;
 import org.kinotic.continuum.substratum.internal.util.Names;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;

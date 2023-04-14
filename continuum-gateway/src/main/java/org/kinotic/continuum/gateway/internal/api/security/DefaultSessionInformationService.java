@@ -22,7 +22,7 @@ import org.kinotic.continuum.core.api.security.SessionMetadata;
 import org.kinotic.continuum.gateway.api.security.SessionInformationService;
 import org.kinotic.continuum.internal.config.IgniteCacheConstants;
 import org.kinotic.continuum.internal.core.api.aignite.IgniteContinuousQueryObserver;
-import org.kinotic.continuum.internal.util.IgniteUtils;
+import org.kinotic.continuum.internal.utils.IgniteUtils;
 import org.kinotic.continuum.internal.core.api.security.DefaultSessionMetadata;
 import io.vertx.core.Vertx;
 import org.apache.ignite.Ignite;

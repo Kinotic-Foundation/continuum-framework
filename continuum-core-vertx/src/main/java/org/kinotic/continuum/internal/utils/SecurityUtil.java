@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.kinotic.continuum.internal.util;
+package org.kinotic.continuum.internal.utils;
 
 import javax.crypto.KeyGenerator;
 import javax.crypto.Mac;

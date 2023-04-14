@@ -34,7 +34,7 @@ public class TestSchemaFactory {
 
         Assertions.assertTrue(serviceSchemasOptional.isPresent());
 
-        Assertions.assertEquals("org.kinotic.continuum.idl.internal.support.TestService", serviceSchemasOptional.get().getKey());
+        Assertions.assertEquals(TestService.class.getName(), serviceSchemasOptional.get().getKey());
 
         ServiceSchema serviceSchema = serviceSchemasOptional.get().getValue();
 

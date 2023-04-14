@@ -17,15 +17,11 @@
 
 package org.kinotic.continuum.internal.core.api;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.kinotic.continuum.api.jsonSchema.JsonSchemaFactory;
-import org.kinotic.continuum.api.jsonSchema.NamespaceJsonSchema;
+import io.vertx.core.*;
 import org.kinotic.continuum.core.api.ServiceDirectory;
 import org.kinotic.continuum.core.api.service.ServiceDescriptor;
 import org.kinotic.continuum.core.api.service.ServiceIdentifier;
-import io.vertx.core.*;
-import io.vertx.core.shareddata.AsyncMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,8 +57,6 @@ public class DefaultServiceDirectory implements ServiceDirectory {
     @Autowired
     private Vertx vertx;
 
-    @Autowired
-    private JsonSchemaFactory jsonSchemaFactory;
 
     private ConcurrentLinkedQueue<DirectoryChangeRequest> directoryChangeRequests = new ConcurrentLinkedQueue<>();
     private String deploymentId = null;
@@ -99,29 +93,6 @@ public class DefaultServiceDirectory implements ServiceDirectory {
             });
         }
     }
-
-
-    private void foo(String serviceIdentifier, Class<?> serviceInterface){
-        try {
-            NamespaceJsonSchema namespaceJsonSchema = jsonSchemaFactory.createForService(serviceInterface);
-            log.debug(serviceIdentifier + " Json Schema: \n"+mapper.writerWithDefaultPrettyPrinter().writeValueAsString(namespaceJsonSchema));
-
-            vertx.sharedData().getAsyncMap(CONTINUUM_SERVICE_DIRECTORY_KEY,
-                                           new Handler<AsyncResult<AsyncMap<String, String>>>() {
-                                               @Override
-                                               public void handle(AsyncResult<AsyncMap<String, String>> event) {
-                                                   if(event.succeeded()){
-
-                                                   }else{
-                                                       log.error("Could not get map for "+CONTINUUM_SERVICE_DIRECTORY_KEY);
-                                                   }
-                                               }
-                                           });
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
 
     private class DirectoryWorkerVerticle extends AbstractVerticle implements Handler<Void> {
         private final AtomicBoolean stopped = new AtomicBoolean(false);

@@ -18,8 +18,9 @@ rootDir.toPath().resolveSibling(GRADLE_PROPERTIES).toFile().withInputStream {
 props.each { key, val -> project.ext."$key" = val }
 
 
-
-
 dependencies {
     implementation "org.springframework.boot:org.springframework.boot.gradle.plugin:${springBootVersion}"
+
+    // lombok
+    implementation("io.freefair.gradle:lombok-plugin:${lombokPluginVersion}")
 }

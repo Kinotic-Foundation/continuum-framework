@@ -1,6 +1,6 @@
 plugins {
-    id 'org.kinotic.continuum.java-application-conventions'
-    id "io.freefair.lombok" version "6.4.3"
+    id 'org.kinotic.java-application-conventions'
+    id "io.freefair.lombok"
 }
 
 mainClassName = "org.kinotic.continuum.iam.ContinuumIamApplication"

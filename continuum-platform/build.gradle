@@ -93,8 +93,6 @@ dependencies {
 
         api "net.openhft:chronicle-queue:${chronicleQueueVersion}"
 
-        api "org.projectlombok:lombok:${lombokVersion}"
-
         api "commons-io:commons-io:${commonsIoVersion}"
         api "org.apache.commons:commons-text:${apacheCommonsTextVersion}"
     }

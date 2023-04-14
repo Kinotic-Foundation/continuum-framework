@@ -51,8 +51,8 @@ import java.util.function.Supplier;
  *
  * Created by Navid Mitchell on 5/29/20
  */
-public class IgniteUtils {
-    private static final Logger log = LoggerFactory.getLogger(IgniteUtils.class);
+public class IgniteUtil {
+    private static final Logger log = LoggerFactory.getLogger(IgniteUtil.class);
 
     public static <T> Mono<T> futureToMono(IgniteFuture<T> future){
         return Mono.create(sink ->  {

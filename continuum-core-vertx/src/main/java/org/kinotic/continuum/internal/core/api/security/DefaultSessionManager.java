@@ -22,7 +22,7 @@ import com.github.benmanes.caffeine.cache.LoadingCache;
 import org.kinotic.continuum.core.api.event.EventConstants;
 import org.kinotic.continuum.core.api.security.*;
 import org.kinotic.continuum.internal.config.IgniteCacheConstants;
-import org.kinotic.continuum.internal.utils.IgniteUtils;
+import org.kinotic.continuum.internal.utils.IgniteUtil;
 import org.kinotic.continuum.internal.utils.ContinuumUtil;
 import io.vertx.core.Vertx;
 import org.apache.ignite.Ignite;
@@ -99,8 +99,8 @@ public class DefaultSessionManager implements SessionManager {
                         .lastUsedDate(new Date());
 
 
-                IgniteUtils.futureToMono(sessionCache.putAsync(sessionId, sessionMetadata))
-                           .subscribe(v -> {},
+                IgniteUtil.futureToMono(sessionCache.putAsync(sessionId, sessionMetadata))
+                          .subscribe(v -> {},
                                       t -> sink.error(new IllegalStateException("Could not create session", t)),
                                       () -> sink.success(igniteSession));
 
@@ -119,17 +119,17 @@ public class DefaultSessionManager implements SessionManager {
 
     @Override
     public Mono<Boolean> removeSession(String sessionId) {
-        return IgniteUtils.futureToMono(() -> sessionCache.removeAsync(sessionId)).subscribeOn(scheduler);
+        return IgniteUtil.futureToMono(() -> sessionCache.removeAsync(sessionId)).subscribeOn(scheduler);
     }
 
     @Override
     public Mono<Session> findSession(String sessionId) {
         Mono<Session> ret;
         if(sessionCache != null && securityService != null){
-            ret = IgniteUtils.futureToMono(() -> sessionCache.getAsync(sessionId))
-                             .switchIfEmpty(Mono.error(new IllegalArgumentException("No session can be found for the given id")))
-                             .zipWhen(sessionMetadata -> securityService.findParticipant(sessionMetadata.participantIdentity()))
-                             .map(objects -> {
+            ret = IgniteUtil.futureToMono(() -> sessionCache.getAsync(sessionId))
+                            .switchIfEmpty(Mono.error(new IllegalArgumentException("No session can be found for the given id")))
+                            .zipWhen(sessionMetadata -> securityService.findParticipant(sessionMetadata.participantIdentity()))
+                            .map(objects -> {
                                     Participant participant = objects.getT2();
                                     ParticipantPathPatterns participantPathPatterns = new ParticipantPathPatterns(participant);
                                     return new IgniteSession(this,

@@ -26,7 +26,7 @@ import reactor.core.publisher.MonoSink;
  *
  * Created by navid on 2/3/20
  */
-public class ReactorUtils {
+public class ReactorUtil {
 
     public static <T> BaseSubscriber<T> monoSinkToSubscriber(MonoSink<T> sink){
         return new MonoSinkDelegatingSubscriber<>(sink);

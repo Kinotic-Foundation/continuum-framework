@@ -85,7 +85,7 @@ class ConditionEvaluator {
 
 		if (phase == null) {
 			if (metadata instanceof AnnotationMetadata &&
-					org.kinotic.continuum.internal.utils.ConfigurationClassUtils.isConfigurationCandidate((AnnotationMetadata) metadata)) {
+					ConfigurationClassUtil.isConfigurationCandidate((AnnotationMetadata) metadata)) {
 				return shouldSkip(metadata, ConfigurationPhase.PARSE_CONFIGURATION);
 			}
 			return shouldSkip(metadata, ConfigurationPhase.REGISTER_BEAN);

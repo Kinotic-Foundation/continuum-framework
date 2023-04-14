@@ -18,7 +18,7 @@
 package org.kinotic.continuum.internal.core.api.aignite;
 
 import org.kinotic.continuum.core.api.event.StreamData;
-import org.kinotic.continuum.internal.utils.IgniteUtils;
+import org.kinotic.continuum.internal.utils.IgniteUtil;
 import groovy.lang.Binding;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.slf4j.Logger;
@@ -54,7 +54,7 @@ public class ScriptCacheEntryEventFilter<K, V> implements CacheEntryEventFilter<
     public boolean evaluate(CacheEntryEvent<? extends K, ? extends V> event) throws CacheEntryListenerException {
         StreamData<K,V> streamValue = null;
         try {
-            streamValue = IgniteUtils.cacheEntryEventToStreamData(event);
+            streamValue = IgniteUtil.cacheEntryEventToStreamData(event);
             filterScript.setDelegate(streamValue);
             Object ret = filterScript.run();
 

@@ -28,7 +28,7 @@ import org.kinotic.continuum.core.api.event.Event;
 import org.kinotic.continuum.core.api.event.EventConstants;
 import org.kinotic.continuum.core.api.event.Metadata;
 import org.kinotic.continuum.internal.core.api.service.invoker.ServiceInvocationSupervisor;
-import org.kinotic.continuum.internal.utils.EventUtils;
+import org.kinotic.continuum.internal.utils.EventUtil;
 import org.apache.commons.lang3.Validate;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.core.MethodParameter;
@@ -169,7 +169,7 @@ public abstract class AbstractJackson2Support {
      * @return the {@link Event} to send
      */
     protected Event<byte[]> createOutgoingEvent(Metadata incomingMetadata, Map<String, String> headers, Object body){
-        return EventUtils.createReplyEvent(incomingMetadata, headers, () -> {
+        return EventUtil.createReplyEvent(incomingMetadata, headers, () -> {
             byte[] jsonBytes;
             try {
 

@@ -44,7 +44,7 @@ import java.util.Set;
  * @author Juergen Hoeller
  * @since 3.1
  */
-abstract class ConfigurationClassUtils {
+abstract class ConfigurationClassUtil {
 
 	private static final String CONFIGURATION_CLASS_FULL = "full";
 
@@ -57,7 +57,7 @@ abstract class ConfigurationClassUtils {
 			Conventions.getQualifiedAttributeName(ConfigurationClassPostProcessor.class, "order");
 
 
-	private static final Log logger = LogFactory.getLog(ConfigurationClassUtils.class);
+	private static final Log logger = LogFactory.getLog(ConfigurationClassUtil.class);
 
 	private static final Set<String> candidateIndicators = new HashSet<>(8);
 

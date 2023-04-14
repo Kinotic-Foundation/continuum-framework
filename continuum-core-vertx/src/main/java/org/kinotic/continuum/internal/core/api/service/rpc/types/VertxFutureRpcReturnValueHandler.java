@@ -23,7 +23,7 @@ import org.kinotic.continuum.core.api.event.EventConstants;
 import org.kinotic.continuum.internal.core.api.service.rpc.RpcRequest;
 import org.kinotic.continuum.internal.core.api.service.rpc.RpcResponseConverter;
 import org.kinotic.continuum.internal.core.api.service.rpc.RpcReturnValueHandler;
-import org.kinotic.continuum.internal.utils.EventUtils;
+import org.kinotic.continuum.internal.utils.EventUtil;
 import io.vertx.core.Future;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,7 +63,7 @@ public class VertxFutureRpcReturnValueHandler implements RpcReturnValueHandler {
         try{
             // Error data is returned differently
             if(incomingEvent.metadata().contains(EventConstants.ERROR_HEADER)) {
-                returnValue.fail(EventUtils.createThrowableForEventWithError(incomingEvent, objectMapper));
+                returnValue.fail(EventUtil.createThrowableForEventWithError(incomingEvent, objectMapper));
             }else{
                 returnValue.complete(rpcResponseConverter.convert(incomingEvent, methodParameter));
             }

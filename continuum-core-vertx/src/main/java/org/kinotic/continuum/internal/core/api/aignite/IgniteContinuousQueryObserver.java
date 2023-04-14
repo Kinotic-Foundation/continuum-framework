@@ -18,7 +18,7 @@
 package org.kinotic.continuum.internal.core.api.aignite;
 
 import org.kinotic.continuum.core.api.event.StreamData;
-import org.kinotic.continuum.internal.utils.IgniteUtils;
+import org.kinotic.continuum.internal.utils.IgniteUtil;
 import io.vertx.core.*;
 import org.apache.commons.lang3.Validate;
 import org.apache.ignite.IgniteCache;
@@ -122,7 +122,7 @@ public class IgniteContinuousQueryObserver<K, V> implements Observer<StreamData<
                 IterableEventLooper<CacheEntryEvent<? extends K, ? extends V>>
                     updatesLooper = new IterableEventLooper<>(vertx, events);
 
-                updatesLooper.handler(new ConverterHandler<>(IgniteUtils::cacheEntryEventToStreamData,
+                updatesLooper.handler(new ConverterHandler<>(IgniteUtil::cacheEntryEventToStreamData,
                                                              observerDataHandler));
 
                 updatesLooper.exceptionHandler(this::invokeObserverExceptionHandler);
@@ -139,7 +139,7 @@ public class IgniteContinuousQueryObserver<K, V> implements Observer<StreamData<
                 // Loop through initial results from the query sending them to the client
                 looper = new IterableEventLooper<>(vertx, igniteCache.query(continuousQuery), false);
 
-                looper.handler(new ConverterHandler<>(IgniteUtils::cacheEntryToStreamData, observerDataHandler));
+                looper.handler(new ConverterHandler<>(IgniteUtil::cacheEntryToStreamData, observerDataHandler));
 
                 looper.exceptionHandler(this::invokeObserverExceptionHandler);
                 looper.start();

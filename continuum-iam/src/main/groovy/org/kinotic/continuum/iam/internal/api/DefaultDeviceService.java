@@ -25,7 +25,7 @@ import org.kinotic.continuum.iam.api.domain.*;
 import org.kinotic.continuum.iam.internal.repositories.IamParticipantRepository;
 import org.kinotic.continuum.iam.internal.repositories.RoleRepository;
 import org.kinotic.continuum.internal.utils.SecurityUtil;
-import org.kinotic.continuum.internal.utils.ReactorUtils;
+import org.kinotic.continuum.internal.utils.ReactorUtil;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
 import reactor.core.publisher.Mono;
@@ -92,7 +92,7 @@ public class DefaultDeviceService extends AbstractIamParticipantService implemen
                         ret.add(new RegistrationProperty(DeviceRegistrationConstants.SECRET_KEY, new String(authenticator.getSharedSecret())));
                         return ret;
 
-                    }).subscribe(ReactorUtils.monoSinkToSubscriber(sink));
+                    }).subscribe(ReactorUtil.monoSinkToSubscriber(sink));
 
                 }else{
                     sink.error(new IllegalStateException(DomainConstants.DEFAULT_DEVICE_ROLE_ID + " is not available. You must create this first."));

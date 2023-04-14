@@ -22,7 +22,7 @@ import org.kinotic.continuum.core.api.service.ServiceDescriptor;
 import org.kinotic.continuum.core.api.service.ServiceFunction;
 import org.kinotic.continuum.core.api.service.ServiceFunctionInstanceProvider;
 import org.kinotic.continuum.api.exceptions.RpcMissingMethodException;
-import org.kinotic.continuum.internal.utils.EventUtils;
+import org.kinotic.continuum.internal.utils.EventUtil;
 import io.vertx.core.Vertx;
 import org.apache.commons.lang3.Validate;
 import org.reactivestreams.Subscription;
@@ -181,7 +181,7 @@ public class ServiceInvocationSupervisor {
 
             } catch (Exception e) {
                 if(log.isDebugEnabled()){
-                    log.debug("Exception occurred processing service request\n" + EventUtils.toString(incomingEvent, true), e);
+                    log.debug("Exception occurred processing service request\n" + EventUtil.toString(incomingEvent, true), e);
                 }
                 handleException(incomingEvent.metadata(), e);
             }
@@ -258,7 +258,7 @@ public class ServiceInvocationSupervisor {
                 mono.doOnSuccess((Consumer<Object>) o -> convertAndSend(incomingMetadata, handlerMethod, o))
                     .subscribe(v -> {}, t -> {
                         if(log.isDebugEnabled()){
-                            log.debug("Exception occurred processing service request\n" + EventUtils.toString(incomingEvent, true), t);
+                            log.debug("Exception occurred processing service request\n" + EventUtil.toString(incomingEvent, true), t);
                         }
                         handleException(incomingMetadata, t);
                     }); // We use an empty consumer this is handled with doOnSuccess, this is done so we get a single "signal" instead of onNext, onComplete type logic..
@@ -295,9 +295,9 @@ public class ServiceInvocationSupervisor {
     }
 
     private void sendCompletionEvent(Metadata incomingMetadata){
-        Event<byte[]> completionEvent = EventUtils.createReplyEvent(incomingMetadata,
-                                                                    Map.of(EventConstants.CONTROL_HEADER, EventConstants.CONTROL_VALUE_COMPLETE),
-                                                                    null);
+        Event<byte[]> completionEvent = EventUtil.createReplyEvent(incomingMetadata,
+                                                                   Map.of(EventConstants.CONTROL_HEADER, EventConstants.CONTROL_VALUE_COMPLETE),
+                                                                   null);
         eventBusService.send(completionEvent);
     }
 

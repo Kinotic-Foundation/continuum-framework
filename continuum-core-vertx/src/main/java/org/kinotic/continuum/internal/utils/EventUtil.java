@@ -39,9 +39,9 @@ import java.util.function.Supplier;
  *
  * Created by navid on 2019-07-24.
  */
-public class EventUtils {
+public class EventUtil {
 
-    private static final Logger log = LoggerFactory.getLogger(EventUtils.class);
+    private static final Logger log = LoggerFactory.getLogger(EventUtil.class);
 
     /**
      * Creates a {@link Throwable} that is the same as the original exception thrown for the {@link Event}

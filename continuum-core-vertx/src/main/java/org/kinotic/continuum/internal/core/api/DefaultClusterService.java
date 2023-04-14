@@ -19,7 +19,7 @@ package org.kinotic.continuum.internal.core.api;
 
 import org.kinotic.continuum.core.api.ClusterService;
 import org.kinotic.continuum.internal.core.api.aignite.IgniteServiceAdapter;
-import org.kinotic.continuum.internal.utils.IgniteUtils;
+import org.kinotic.continuum.internal.utils.IgniteUtil;
 import org.apache.commons.lang3.Validate;
 import org.apache.ignite.Ignite;
 import org.apache.ignite.IgniteServices;
@@ -67,8 +67,8 @@ public class DefaultClusterService implements ClusterService {
 
     private Mono<Void> _deployClusterSingleton(IgniteServices igniteServices, String serviceIdentifier, Class<?> serviceClass, Object ... constructorArgs){
         validateClass(serviceClass);
-        return IgniteUtils.futureToMono(() -> igniteServices.deployClusterSingletonAsync(serviceIdentifier,
-                                                                                         createIgniteService(serviceIdentifier,
+        return IgniteUtil.futureToMono(() -> igniteServices.deployClusterSingletonAsync(serviceIdentifier,
+                                                                                        createIgniteService(serviceIdentifier,
                                                                                                              serviceClass,
                                                                                                              constructorArgs)));
     }
@@ -76,8 +76,8 @@ public class DefaultClusterService implements ClusterService {
 
     public Mono<Void> deployNodeSingleton(String serviceIdentifier, Class<?> serviceClass, Object ... constructorArgs){
         validateClass(serviceClass);
-        return IgniteUtils.futureToMono(() -> ignite.services()
-                                                    .deployNodeSingletonAsync(serviceIdentifier,
+        return IgniteUtil.futureToMono(() -> ignite.services()
+                                                   .deployNodeSingletonAsync(serviceIdentifier,
                                                       createIgniteService(serviceIdentifier,
                                                                           serviceClass,
                                                                           constructorArgs)));
@@ -86,7 +86,7 @@ public class DefaultClusterService implements ClusterService {
 
     @Override
     public Mono<Void> unDeployService(String serviceIdentifier) {
-        return IgniteUtils.futureToMono(() -> ignite.services().cancelAsync(serviceIdentifier));
+        return IgniteUtil.futureToMono(() -> ignite.services().cancelAsync(serviceIdentifier));
     }
 
     @Override

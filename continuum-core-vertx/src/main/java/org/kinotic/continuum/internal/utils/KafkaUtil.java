@@ -32,7 +32,7 @@ import java.util.Map;
 /**
  * Created by 🤓 on 6/17/21.
  */
-public class KafkaUtils {
+public class KafkaUtil {
 
     public static KafkaSender<String, byte[]> createKafkaSender(ContinuumProperties continuumProperties){
         return createKafkaSender(continuumProperties, null);

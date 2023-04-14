@@ -18,7 +18,7 @@
 package org.kinotic.continuum.core.api.crud;
 
 import org.kinotic.continuum.api.Identifiable;
-import org.kinotic.continuum.internal.utils.ReactorUtils;
+import org.kinotic.continuum.internal.utils.ReactorUtil;
 import org.apache.commons.lang3.Validate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -43,7 +43,7 @@ public interface CrudService<T extends Identifiable<String>> {
         return Mono.create(sink -> findById(entity.getId())
             .doOnSuccess(result -> {
                 if(result == null){
-                    save(entity).subscribe(ReactorUtils.monoSinkToSubscriber(sink));
+                    save(entity).subscribe(ReactorUtil.monoSinkToSubscriber(sink));
                 }else{
                     sink.error(new IllegalArgumentException(entity.getClass().getSimpleName() + " for the identity " + entity.getId() + " already exists"));
                 }

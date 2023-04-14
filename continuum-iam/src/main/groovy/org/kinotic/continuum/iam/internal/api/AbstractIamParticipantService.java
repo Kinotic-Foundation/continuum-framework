@@ -21,7 +21,7 @@ import org.kinotic.continuum.core.api.crud.CrudService;
 import org.kinotic.continuum.iam.api.domain.Authenticator;
 import org.kinotic.continuum.iam.api.domain.IamParticipant;
 import org.kinotic.continuum.iam.internal.repositories.IamParticipantRepository;
-import org.kinotic.continuum.internal.utils.ReactorUtils;
+import org.kinotic.continuum.internal.utils.ReactorUtil;
 import org.apache.commons.lang3.Validate;
 import org.hibernate.Hibernate;
 import org.springframework.data.domain.Page;
@@ -65,7 +65,7 @@ public abstract class AbstractIamParticipantService implements CrudService<IamPa
                 .doOnSuccess(result -> {
                     if(result == null){
                         entity.putMetadata(getTypeMetadata());
-                        save(entity).subscribe(ReactorUtils.monoSinkToSubscriber(sink));
+                        save(entity).subscribe(ReactorUtil.monoSinkToSubscriber(sink));
                     }else{
                         sink.error(new IllegalArgumentException(entity.getClass().getSimpleName() + " for the identity " + entity.getId() + " already exists"));
                     }

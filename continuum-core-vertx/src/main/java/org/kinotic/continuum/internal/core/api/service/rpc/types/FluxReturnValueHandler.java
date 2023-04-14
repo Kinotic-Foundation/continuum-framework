@@ -23,7 +23,7 @@ import org.kinotic.continuum.core.api.event.EventConstants;
 import org.kinotic.continuum.internal.core.api.service.rpc.RpcRequest;
 import org.kinotic.continuum.internal.core.api.service.rpc.RpcResponseConverter;
 import org.kinotic.continuum.internal.core.api.service.rpc.RpcReturnValueHandler;
-import org.kinotic.continuum.internal.utils.EventUtils;
+import org.kinotic.continuum.internal.utils.EventUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.MethodParameter;
@@ -70,7 +70,7 @@ public class FluxReturnValueHandler implements RpcReturnValueHandler {
                 try {
                     if (incomingEvent.metadata().contains(EventConstants.ERROR_HEADER)) {
                         finished = true;
-                        fluxSink.error(EventUtils.createThrowableForEventWithError(incomingEvent, objectMapper));
+                        fluxSink.error(EventUtil.createThrowableForEventWithError(incomingEvent, objectMapper));
 
                     } else if (incomingEvent.metadata().contains(EventConstants.CONTROL_HEADER)) {
 

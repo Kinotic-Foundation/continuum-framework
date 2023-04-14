@@ -84,7 +84,7 @@ public class DefaultServiceRegistry implements ServiceRegistry {
     @Autowired
     private ReactiveAdapterRegistry reactiveAdapterRegistry;
 
-    private ConcurrentHashMap<ServiceIdentifier, ServiceInvocationSupervisor> supervisors = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<ServiceIdentifier, ServiceInvocationSupervisor> supervisors = new ConcurrentHashMap<>();
 
 
     @Override

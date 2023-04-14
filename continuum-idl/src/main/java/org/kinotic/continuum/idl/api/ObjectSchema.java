@@ -41,6 +41,12 @@ import java.util.Map;
 public class ObjectSchema extends Schema {
 
     /**
+     * The parent schema of this object schema
+     * This is used to support inheritance
+     */
+    private ObjectSchema parent = null;
+
+    /**
      * The properties (key-value pairs) on an object are defined using the properties' keyword.
      * The value of properties is an object, where each key is the name of a property and each value is a Continuum schema used to validate that property.
      */

@@ -43,6 +43,7 @@ import java.util.Map;
         @JsonSubTypes.Type(value = CharSchema.class, name = "char"),
         @JsonSubTypes.Type(value = DateSchema.class, name = "date"),
         @JsonSubTypes.Type(value = DoubleSchema.class, name = "double"),
+        @JsonSubTypes.Type(value = EnumSchema.class, name = "enum"),
         @JsonSubTypes.Type(value = FloatSchema.class, name = "float"),
         @JsonSubTypes.Type(value = FunctionSchema.class, name = "function"),
         @JsonSubTypes.Type(value = IntSchema.class, name = "int"),
@@ -54,6 +55,7 @@ import java.util.Map;
         @JsonSubTypes.Type(value = ServiceSchema.class, name = "service"),
         @JsonSubTypes.Type(value = ShortSchema.class, name = "short"),
         @JsonSubTypes.Type(value = StringSchema.class, name = "string"),
+        @JsonSubTypes.Type(value = UnionSchema.class, name = "union"),
         @JsonSubTypes.Type(value = VoidSchema.class, name = "void")
 })
 @JsonInclude(JsonInclude.Include.NON_EMPTY) // do not include any empty or null fields

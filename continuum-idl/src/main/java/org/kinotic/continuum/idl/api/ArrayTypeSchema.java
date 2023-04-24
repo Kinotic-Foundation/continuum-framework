@@ -37,7 +37,6 @@ public class ArrayTypeSchema extends TypeSchema {
     /**
      * The type the defined array will contain
      * <p>
-     * TODO: add not null constraint
      */
     private TypeSchema contains = null;
 

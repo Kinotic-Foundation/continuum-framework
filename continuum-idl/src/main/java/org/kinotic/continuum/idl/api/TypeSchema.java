@@ -24,7 +24,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import org.kinotic.continuum.idl.api.decorators.DecoratorSchema;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -63,14 +65,14 @@ import java.util.Map;
 public abstract class TypeSchema {
 
     /**
-     * You can put nullable on any schema and that will make null be an acceptable value for the schema.
-     */
-    private Boolean nullable = null;
-
-    /**
-     * The metadata keyword is legal on any schema, The objects provided must be serializable to JSON with jackson.
+     * The metadata keyword is legal on any schema, The objects provided must be serializable to JSON.
      * Usually, metadata is for putting things like descriptions or hints for code generators, or other things tools can use.
      */
     private Map<String, ?> metadata;
+
+    /**
+     * The list of Decorators that should be applied to this type
+     */
+    private List<DecoratorSchema> decorators;
 
 }

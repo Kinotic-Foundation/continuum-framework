@@ -17,39 +17,39 @@
 
 package org.kinotic.continuum.idl.internal.api.converters;
 
-import org.kinotic.continuum.idl.api.TypeSchema;
-import org.kinotic.continuum.idl.api.ObjectTypeSchema;
-import org.kinotic.continuum.idl.api.ReferenceTypeSchema;
+import org.kinotic.continuum.idl.api.TypeDefinition;
+import org.kinotic.continuum.idl.api.ObjectTypeDefinition;
+import org.kinotic.continuum.idl.api.ReferenceTypeDefinition;
 import org.springframework.core.ResolvableType;
 
 import java.util.Map;
 
 /**
- * Represents the current state of the conversion as well as providing a means for converters to convert dependent {@link TypeSchema}'s
+ * Represents the current state of the conversion as well as providing a means for converters to convert dependent {@link TypeDefinition}'s
  * <p>
  * Created by navid on 2019-06-28.
  */
 public interface ConversionContext {
 
     /**
-     * Converts the given resolvable type into a fully qualified {@link TypeSchema}
-     * This will not return a {@link ReferenceTypeSchema} under any circumstance
+     * Converts the given resolvable type into a fully qualified {@link TypeDefinition}
+     * This will not return a {@link ReferenceTypeDefinition} under any circumstance
      * @param resolvableType to convert
-     * @return the {@link TypeSchema} representing the {@link ResolvableType}
+     * @return the {@link TypeDefinition} representing the {@link ResolvableType}
      */
-    TypeSchema convert(ResolvableType resolvableType);
+    TypeDefinition convert(ResolvableType resolvableType);
 
     /**
-     * Converts the given resolvable type into a {@link TypeSchema} that is depended on by another {@link TypeSchema}
-     * This will return a {@link ReferenceTypeSchema} when appropriate
+     * Converts the given resolvable type into a {@link TypeDefinition} that is depended on by another {@link TypeDefinition}
+     * This will return a {@link ReferenceTypeDefinition} when appropriate
      * @param resolvableType to convert
-     * @return the {@link TypeSchema} representing the {@link ResolvableType}
+     * @return the {@link TypeDefinition} representing the {@link ResolvableType}
      */
-    TypeSchema convertDependency(ResolvableType resolvableType);
+    TypeDefinition convertDependency(ResolvableType resolvableType);
 
     /**
-     * @return all of the {@link ObjectTypeSchema} known to this {@link ConversionContext}
+     * @return all of the {@link ObjectTypeDefinition} known to this {@link ConversionContext}
      */
-    Map<String, ObjectTypeSchema> getObjectSchemas();
+    Map<String, ObjectTypeDefinition> getObjectSchemas();
 
 }

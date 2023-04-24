@@ -21,7 +21,7 @@ import org.kinotic.continuum.api.annotations.Name;
 import org.kinotic.continuum.idl.api.*;
 import org.kinotic.continuum.idl.internal.api.converters.ConversionContext;
 import org.kinotic.continuum.idl.internal.api.converters.DefaultConversionContext;
-import org.kinotic.continuum.idl.internal.api.converters.GenericTypeSchemaConverter;
+import org.kinotic.continuum.idl.internal.api.converters.GenericTypeConverter;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.ResolvableType;
 import org.springframework.stereotype.Component;
@@ -29,7 +29,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
 
 /**
- * Provides the ability to create {@link TypeSchema}'s
+ * Provides the ability to create {@link TypeDefinition}'s
  *
  *
  * Created by navid on 2019-06-13.
@@ -37,27 +37,27 @@ import org.springframework.util.ReflectionUtils;
 @Component
 public class DefaultSchemaFactory implements SchemaFactory {
 
-    private final GenericTypeSchemaConverter schemaConverter;
+    private final GenericTypeConverter typeConverter;
 
-    public DefaultSchemaFactory(GenericTypeSchemaConverter schemaConverter) {
-        this.schemaConverter = schemaConverter;
+    public DefaultSchemaFactory(GenericTypeConverter typeConverter) {
+        this.typeConverter = typeConverter;
     }
 
     @Override
-    public TypeSchema createForClass(Class<?> clazz) {
-        DefaultConversionContext conversionContext = new DefaultConversionContext(schemaConverter);
+    public TypeDefinition createForClass(Class<?> clazz) {
+        DefaultConversionContext conversionContext = new DefaultConversionContext(typeConverter);
         return this.createForPojo(clazz, conversionContext);
     }
 
-    private TypeSchema createForPojo(Class<?> clazz, ConversionContext conversionContext) {
+    private TypeDefinition createForPojo(Class<?> clazz, ConversionContext conversionContext) {
         Assert.notNull(clazz, "Class cannot be null");
         Assert.notNull(conversionContext, "ConversionContext cannot be null");
 
-        TypeSchema ret;
+        TypeDefinition ret;
         ResolvableType resolvableType = ResolvableType.forClass(clazz);
-        if(schemaConverter.supports(resolvableType)){
+        if(typeConverter.supports(resolvableType)){
 
-            ret = schemaConverter.convert(resolvableType, conversionContext);
+            ret = typeConverter.convert(resolvableType, conversionContext);
 
         }else{
             throw new IllegalArgumentException("No schemaConverter can be found for "+ clazz.getName());
@@ -66,40 +66,40 @@ public class DefaultSchemaFactory implements SchemaFactory {
     }
 
     @Override
-    public NamespaceSchema createForService(Class<?> clazz) {
-        DefaultConversionContext conversionContext = new DefaultConversionContext(schemaConverter);
+    public NamespaceDefinition createForService(Class<?> clazz) {
+        DefaultConversionContext conversionContext = new DefaultConversionContext(typeConverter);
         return this.createForService(clazz, conversionContext);
     }
 
-    private NamespaceSchema createForService(Class<?> clazz, ConversionContext conversionContext) {
+    private NamespaceDefinition createForService(Class<?> clazz, ConversionContext conversionContext) {
         Assert.notNull(clazz, "Class cannot be null");
         Assert.notNull(conversionContext, "ConversionContext cannot be null");
 
 
-        ServiceSchema serviceSchema = new ServiceSchema();
+        ServiceDefinition serviceDefinition = new ServiceDefinition();
 
         ReflectionUtils.doWithMethods(clazz, method -> {
             // TODO: make this work properly when an interface defines generics that the implementor will define in implementation, This would require an interface class and a target class above to work correctly
 
-            FunctionSchema functionSchema = new FunctionSchema();
-            functionSchema.setReturnType(conversionContext.convertDependency(ResolvableType.forMethodReturnType(method)));
+            FunctionDefinition functionDefinition = new FunctionDefinition();
+            functionDefinition.setReturnType(conversionContext.convertDependency(ResolvableType.forMethodReturnType(method)));
 
             for (int i = 0; i < method.getParameterCount(); i++) {
 
                 MethodParameter methodParameter = new MethodParameter(method, i);
 
-                TypeSchema typeSchema = conversionContext.convertDependency(ResolvableType.forMethodParameter(methodParameter));
+                TypeDefinition typeDefinition = conversionContext.convertDependency(ResolvableType.forMethodParameter(methodParameter));
 
-                functionSchema.addArgument(getName(methodParameter), typeSchema);
+                functionDefinition.addArgument(getName(methodParameter), typeDefinition);
             }
 
-            serviceSchema.addFunction(method.getName(), functionSchema);
+            serviceDefinition.addFunction(method.getName(), functionDefinition);
 
         }, ReflectionUtils.USER_DECLARED_METHODS);
 
-        NamespaceSchema ret = new NamespaceSchema();
+        NamespaceDefinition ret = new NamespaceDefinition();
         ret.setObjectSchemas(conversionContext.getObjectSchemas());
-        ret.addServiceSchema(clazz.getName(), serviceSchema);
+        ret.addServiceSchema(clazz.getName(), serviceDefinition);
 
         return ret;
     }

@@ -17,15 +17,14 @@
 
 package org.kinotic.continuum.internal.core.api;
 
-import org.kinotic.continuum.api.exceptions.RpcMissingMethodException;
-import org.kinotic.continuum.api.exceptions.RpcInvocationException;
-import org.kinotic.continuum.api.exceptions.RpcMissingServiceException;
-import org.kinotic.continuum.internal.core.api.support.*;
 import io.vertx.core.Future;
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.kinotic.continuum.api.exceptions.RpcInvocationException;
+import org.kinotic.continuum.api.exceptions.RpcMissingMethodException;
+import org.kinotic.continuum.api.exceptions.RpcMissingServiceException;
 import org.kinotic.continuum.internal.core.api.support.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -35,9 +34,11 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
@@ -59,10 +60,10 @@ public class RpcTests {
     private NonExistentServiceProxy nonExistentServiceProxy;
 
     @Test
-    public void testRpcMonoString(){
-        Mono<String> mono = rpcTestServiceProxy.getString();
+    public void testRpcCompletableFutureString(){
+        CompletableFuture<String> mono = rpcTestServiceProxy.getString();
 
-        StepVerifier.create(mono).expectNext(RpcTestService.STRING_VALUE).expectComplete().verify();
+        StepVerifier.create(Mono.fromFuture(mono)).expectNext(RpcTestService.STRING_VALUE).expectComplete().verify();
     }
 
     @Test
@@ -201,15 +202,15 @@ public class RpcTests {
 
     @Test
     public void testMultipleRequests(){
-        Mono<String> mono = rpcTestServiceProxy.getString();
+        Mono<String> mono = Mono.fromFuture(rpcTestServiceProxy.getString());
 
         StepVerifier.create(mono).expectNext(RpcTestService.STRING_VALUE).expectComplete().verify();
 
-        Mono<String> mono2 = rpcTestServiceProxy.getString();
+        Mono<String> mono2 = Mono.fromFuture(rpcTestServiceProxy.getString());
 
         StepVerifier.create(mono2).expectNext(RpcTestService.STRING_VALUE).expectComplete().verify();
 
-        Mono<String> mono3 = rpcTestServiceProxy.getString();
+        Mono<String> mono3 = Mono.fromFuture(rpcTestServiceProxy.getString());
 
         StepVerifier.create(mono3).expectNext(RpcTestService.STRING_VALUE).expectComplete().verify();
     }

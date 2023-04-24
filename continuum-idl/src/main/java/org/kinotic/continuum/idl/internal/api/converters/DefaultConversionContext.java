@@ -17,9 +17,9 @@
 
 package org.kinotic.continuum.idl.internal.api.converters;
 
-import org.kinotic.continuum.idl.api.TypeSchema;
-import org.kinotic.continuum.idl.api.ObjectTypeSchema;
-import org.kinotic.continuum.idl.api.ReferenceTypeSchema;
+import org.kinotic.continuum.idl.api.TypeDefinition;
+import org.kinotic.continuum.idl.api.ObjectTypeDefinition;
+import org.kinotic.continuum.idl.api.ReferenceTypeDefinition;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,33 +36,33 @@ public class DefaultConversionContext implements ConversionContext {
 
     private static final Logger log = LoggerFactory.getLogger(DefaultConversionContext.class);
 
-    private final SchemaConverter schemaConverter;
+    private final TypeConverter typeConverter;
 
     private final Deque<ResolvableType> circularReferenceCheckStack = new ArrayDeque<>();
 
     private final Deque<ResolvableType> errorStack = new ArrayDeque<>();
 
-    private final Map<String, TypeSchema> schemaCache = new HashMap<>();
+    private final Map<String, TypeDefinition> schemaCache = new HashMap<>();
 
-    private final Map<String, ObjectTypeSchema> objectSchemaMap = new LinkedHashMap<>();
+    private final Map<String, ObjectTypeDefinition> objectSchemaMap = new LinkedHashMap<>();
 
     /**
      * Creates a new {@link ConversionContext}
-     * @param schemaConverter the converter to use to be used for conversion. Typically, this will be a {@link SchemaConverterComposite}
+     * @param typeConverter the converter to use to be used for conversion. Typically, this will be a {@link TypeConverterComposite}
      */
-    public DefaultConversionContext(SchemaConverter schemaConverter) {
-        this.schemaConverter = schemaConverter;
+    public DefaultConversionContext(TypeConverter typeConverter) {
+        this.typeConverter = typeConverter;
     }
 
     @Override
-    public TypeSchema convert(ResolvableType resolvableType) {
+    public TypeDefinition convert(ResolvableType resolvableType) {
 
         if(circularReferenceCheckStack.contains(resolvableType)){
             IllegalStateException ise = new IllegalStateException("Circular reference detected for "+resolvableType);
             logException(ise);
             throw ise;
         }
-        TypeSchema ret;
+        TypeDefinition ret;
         try {
 
             circularReferenceCheckStack.addFirst(resolvableType);
@@ -71,7 +71,7 @@ public class DefaultConversionContext implements ConversionContext {
             if (schemaCache.containsKey(key)) {
                 ret = schemaCache.get(key);
             } else {
-                ret = schemaConverter.convert(resolvableType, this);
+                ret = typeConverter.convert(resolvableType, this);
                 schemaCache.put(key, ret);
             }
 
@@ -85,19 +85,19 @@ public class DefaultConversionContext implements ConversionContext {
     }
 
     @Override
-    public TypeSchema convertDependency(ResolvableType resolvableType) {
-        TypeSchema typeSchema = convert(resolvableType);
-        if(typeSchema instanceof ObjectTypeSchema){
+    public TypeDefinition convertDependency(ResolvableType resolvableType) {
+        TypeDefinition typeDefinition = convert(resolvableType);
+        if(typeDefinition instanceof ObjectTypeDefinition){
             Class<?> rawClass = resolvableType.getRawClass();
             Assert.notNull(rawClass, "Cannot determine name for ObjectSchema");
             String name = rawClass.getName();
-            objectSchemaMap.put(name, (ObjectTypeSchema) typeSchema);
-            typeSchema = new ReferenceTypeSchema(name);
+            objectSchemaMap.put(name, (ObjectTypeDefinition) typeDefinition);
+            typeDefinition = new ReferenceTypeDefinition(name);
         }
-        return typeSchema;
+        return typeDefinition;
     }
 
-    public Map<String, ObjectTypeSchema> getObjectSchemas() {
+    public Map<String, ObjectTypeDefinition> getObjectSchemas() {
         return objectSchemaMap;
     }
 

@@ -75,6 +75,8 @@ dependencies {
 
         api "javax.cache:cache-api:${jCacheApiVersion}"
 
+        api "com.jayway.jsonpath:json-path:${jsonPathVersion}"
+
         // Aws
         api "com.amazonaws:aws-java-sdk-s3:${awsVersion}"
         api "com.amazonaws:aws-java-sdk-logs:${awsVersion}"

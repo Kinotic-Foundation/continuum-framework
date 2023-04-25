@@ -39,18 +39,7 @@ public class CompletableFutureValueHandler implements RpcReturnValueHandler {
         this.objectMapper = objectMapper;
         this.returnValue = new CompletableFuture<>();
     }
-
-    @Override
-    public Object getReturnValue(RpcRequest rpcRequest) {
-        rpcRequest.send();
-        return returnValue;
-    }
-
-    @Override
-    public boolean isMultiValue() {
-        return false;
-    }
-
+    
     @Override
     public boolean processResponse(Event<byte[]> incomingEvent) {
         try{
@@ -65,6 +54,17 @@ public class CompletableFutureValueHandler implements RpcReturnValueHandler {
             returnValue.completeExceptionally(e);
         }
         return true;
+    }
+
+    @Override
+    public Object getReturnValue(RpcRequest rpcRequest) {
+        rpcRequest.send();
+        return returnValue;
+    }
+
+    @Override
+    public boolean isMultiValue() {
+        return false;
     }
 
     @Override

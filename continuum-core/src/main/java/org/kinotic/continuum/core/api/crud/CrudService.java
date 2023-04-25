@@ -17,6 +17,7 @@
 
 package org.kinotic.continuum.core.api.crud;
 
+import org.apache.commons.lang3.Validate;
 import org.kinotic.continuum.api.Identifiable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -31,6 +32,25 @@ import java.util.concurrent.CompletableFuture;
  * Created by navid on 2/3/20
  */
 public interface CrudService<T extends Identifiable<ID>, ID> {
+
+    /**
+     * Creates a new entity if one does not already exist for the given id
+     * @param entity to create if one does not already exist
+     * @return a {@link Mono} containing the new entity or an error if an exception occurred
+     */
+    default CompletableFuture<T> create(T entity) {
+        Validate.notNull(entity);
+        return findById(entity.getId())
+                .thenCompose(result -> {
+                    if (result == null) {
+                        return save(entity);
+                    } else {
+                        CompletableFuture<T> exceptionFuture = new CompletableFuture<>();
+                        exceptionFuture.completeExceptionally(new IllegalArgumentException(entity.getClass().getSimpleName() + " for the identity " + entity.getId() + " already exists"));
+                        return exceptionFuture;
+                    }
+                });
+    }
 
     /**
      * Saves a given entity. Use the returned instance for further operations as the save operation might have changed the

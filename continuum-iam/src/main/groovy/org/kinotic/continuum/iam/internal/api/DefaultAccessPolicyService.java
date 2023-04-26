@@ -17,19 +17,19 @@
 
 package org.kinotic.continuum.iam.internal.api;
 
+import org.hibernate.Hibernate;
 import org.kinotic.continuum.iam.api.AccessPolicyService;
 import org.kinotic.continuum.iam.api.domain.AccessPolicy;
 import org.kinotic.continuum.iam.internal.repositories.AccessPolicyRepository;
-import org.hibernate.Hibernate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
-import reactor.core.publisher.Mono;
 
 import java.util.Collection;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 /**
  *
@@ -48,13 +48,13 @@ public class DefaultAccessPolicyService implements AccessPolicyService {
     }
 
     @Override
-    public Mono<AccessPolicy> save(AccessPolicy entity) {
-        return Mono.fromSupplier(() -> accessPolicyRepository.save(entity));
+    public CompletableFuture<AccessPolicy> save(AccessPolicy entity) {
+        return CompletableFuture.supplyAsync(() -> accessPolicyRepository.save(entity));
     }
 
     @Override
-    public Mono<AccessPolicy> findById(String identity) {
-        return Mono.fromSupplier(() -> transactionTemplate.execute(status -> {
+    public CompletableFuture<AccessPolicy> findById(String identity) {
+        return CompletableFuture.supplyAsync(() -> transactionTemplate.execute(status -> {
             Optional<AccessPolicy> value = accessPolicyRepository.findById(identity);
             value.ifPresent(policy -> {
                 Hibernate.initialize(policy.getAllowedSendPatterns());
@@ -65,33 +65,35 @@ public class DefaultAccessPolicyService implements AccessPolicyService {
     }
 
     @Override
-    public Mono<Long> count() {
-        return Mono.fromSupplier(accessPolicyRepository::count);
+    public CompletableFuture<Long> count() {
+        return CompletableFuture.supplyAsync(accessPolicyRepository::count);
     }
 
     @Override
-    public Mono<Void> deleteById(String identity) {
-        return Mono.fromRunnable(() -> accessPolicyRepository.deleteById(identity));
+    public CompletableFuture<Void> deleteById(String identity) {
+        return CompletableFuture.runAsync(() -> accessPolicyRepository.deleteById(identity));
     }
 
     @Override
-    public Page<AccessPolicy> findAll(Pageable page) {
-        return accessPolicyRepository.findAll(page);
+    public CompletableFuture<Page<AccessPolicy>> findAll(Pageable page) {
+        return CompletableFuture.supplyAsync(() -> accessPolicyRepository.findAll(page));
     }
 
     @Override
-    public Page<AccessPolicy> findByIdNotIn(Collection<String> collection, Pageable page) {
-        Page<AccessPolicy> ret;
-        if(collection != null && collection.size() > 0){
-            ret = accessPolicyRepository.findByIdNotIn(collection, page);
-        }else{
-            ret = findAll(page);
-        }
-        return ret;
+    public CompletableFuture<Page<AccessPolicy>> findByIdNotIn(Collection<String> collection, Pageable page) {
+        return CompletableFuture.supplyAsync(() -> {
+            Page<AccessPolicy> ret;
+            if (collection != null && collection.size() > 0) {
+                ret = accessPolicyRepository.findByIdNotIn(collection, page);
+            } else {
+                ret = accessPolicyRepository.findAll(page);
+            }
+            return ret;
+        });
     }
 
     @Override
-    public Page<AccessPolicy> search(String searchText, Pageable pageable) {
-        return accessPolicyRepository.findLikeId(searchText, pageable);
+    public CompletableFuture<Page<AccessPolicy>> search(String searchText, Pageable pageable) {
+        return CompletableFuture.supplyAsync(() -> accessPolicyRepository.findLikeId(searchText, pageable));
     }
 }

@@ -18,7 +18,6 @@
 package org.kinotic.continuum.iam.api;
 
 import org.kinotic.continuum.api.annotations.Publish;
-import org.kinotic.continuum.api.annotations.Version;
 import org.kinotic.continuum.core.api.crud.CrudService;
 import org.kinotic.continuum.iam.api.domain.Authenticator;
 import org.kinotic.continuum.iam.api.domain.IamParticipant;
@@ -28,14 +27,14 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 /**
  *
  * Created by navid on 2/3/20
  */
 @Publish
-@Version("0.1.0")
-public interface DeviceService extends CrudService<IamParticipant> {
+public interface DeviceService extends CrudService<IamParticipant, String> {
 
 
     /**
@@ -46,7 +45,7 @@ public interface DeviceService extends CrudService<IamParticipant> {
      *
      * @return a {@link Mono} containing the newly created and persisted {@link IamParticipant} or an error if a exception occurred
      */
-    Mono<IamParticipant> createNewDevice(String identity, List<Authenticator> authenticators, List<Role> roles);
+    CompletableFuture<IamParticipant> createNewDevice(String identity, List<Authenticator> authenticators, List<Role> roles);
 
 
     /**
@@ -54,7 +53,7 @@ public interface DeviceService extends CrudService<IamParticipant> {
      * @param identity the identity of the device to register
      * @return a {@link Mono} containing a {@link List<Map.Entry<String,String>>} containing the information needed for the device to authenticate
      */
-    Mono<List<RegistrationProperty>> registerDeviceWithSharedSecretAuth(String identity);
+    CompletableFuture<List<RegistrationProperty>> registerDeviceWithSharedSecretAuth(String identity);
 
 
 }

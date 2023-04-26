@@ -25,12 +25,11 @@ import org.kinotic.continuum.iam.api.domain.*;
 import org.kinotic.continuum.iam.internal.repositories.IamParticipantRepository;
 import org.kinotic.continuum.iam.internal.repositories.RoleRepository;
 import org.kinotic.continuum.internal.utils.SecurityUtil;
-import org.kinotic.continuum.internal.utils.ReactorUtil;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
-import reactor.core.publisher.Mono;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 /**
  *
@@ -58,7 +57,7 @@ public class DefaultDeviceService extends AbstractIamParticipantService implemen
     }
 
     @Override
-    public Mono<IamParticipant> createNewDevice(String identity, List<Authenticator> authenticators, List<Role> roles) {
+    public CompletableFuture<IamParticipant> createNewDevice(String identity, List<Authenticator> authenticators, List<Role> roles) {
         IamParticipant newParticipant = new IamParticipant(identity);
         newParticipant.setAuthenticators(authenticators);
         newParticipant.putMetadata(MetadataConstants.DEVICE_TYPE);
@@ -67,12 +66,12 @@ public class DefaultDeviceService extends AbstractIamParticipantService implemen
     }
 
     @Override
-    public Mono<List<RegistrationProperty>> registerDeviceWithSharedSecretAuth(String identity) {
-        return Mono.create(sink -> transactionTemplate.executeWithoutResult(status -> {
+    public CompletableFuture<List<RegistrationProperty>> registerDeviceWithSharedSecretAuth(String identity) {
+        return CompletableFuture.supplyAsync(() -> transactionTemplate.execute(status -> {
             try {
-                Optional<Role> defaultDeviceRole  = roleRepository.findById(DomainConstants.DEFAULT_DEVICE_ROLE_ID);
+                Optional<Role> defaultDeviceRole = roleRepository.findById(DomainConstants.DEFAULT_DEVICE_ROLE_ID);
 
-                if(defaultDeviceRole.isPresent()){
+                if (defaultDeviceRole.isPresent()) {
                     IamParticipant device = new IamParticipant(identity);
                     device.putMetadata(MetadataConstants.DEVICE_TYPE);
 
@@ -83,8 +82,7 @@ public class DefaultDeviceService extends AbstractIamParticipantService implemen
 
                     device.setRoles(Collections.singletonList(defaultDeviceRole.get()));
 
-                    create(device).map(iamParticipant -> {
-                        // We want to return the new access credentials to the caller
+                    return create(device).thenApply(iamParticipant -> {
                         LegacySharedSecretAuthenticator authenticator = (LegacySharedSecretAuthenticator) iamParticipant.getAuthenticators().get(0);
 
                         List<RegistrationProperty> ret = new ArrayList<>(2);
@@ -92,15 +90,14 @@ public class DefaultDeviceService extends AbstractIamParticipantService implemen
                         ret.add(new RegistrationProperty(DeviceRegistrationConstants.SECRET_KEY, new String(authenticator.getSharedSecret())));
                         return ret;
 
-                    }).subscribe(ReactorUtil.monoSinkToSubscriber(sink));
+                    }).get();
 
-                }else{
-                    sink.error(new IllegalStateException(DomainConstants.DEFAULT_DEVICE_ROLE_ID + " is not available. You must create this first."));
+                } else {
+                    throw new IllegalStateException(DomainConstants.DEFAULT_DEVICE_ROLE_ID + " is not available. You must create this first.");
                 }
             } catch (Exception e) {
-                sink.error(e);
+                throw new RuntimeException(e);
             }
         }));
     }
-
 }

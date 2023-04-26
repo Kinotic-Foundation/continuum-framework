@@ -18,7 +18,6 @@
 package org.kinotic.continuum.iam.api;
 
 import org.kinotic.continuum.api.annotations.Publish;
-import org.kinotic.continuum.api.annotations.Version;
 
 import java.util.Map;
 
@@ -26,7 +25,6 @@ import java.util.Map;
  * Created by 🤓 on 6/13/21.
  */
 @Publish
-@Version("0.1.0")
 public interface IamParticipantMetadataService {
 
     /**

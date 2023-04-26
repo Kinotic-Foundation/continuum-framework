@@ -17,28 +17,27 @@
 
 package org.kinotic.continuum.iam.internal.api;
 
+import org.apache.commons.lang3.Validate;
+import org.hibernate.Hibernate;
 import org.kinotic.continuum.core.api.crud.CrudService;
 import org.kinotic.continuum.iam.api.domain.Authenticator;
 import org.kinotic.continuum.iam.api.domain.IamParticipant;
 import org.kinotic.continuum.iam.internal.repositories.IamParticipantRepository;
-import org.kinotic.continuum.internal.utils.ReactorUtil;
-import org.apache.commons.lang3.Validate;
-import org.hibernate.Hibernate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
-import reactor.core.publisher.Mono;
 
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 /**
  *
  * Created by Navid Mitchell on 3/3/20
  */
-public abstract class AbstractIamParticipantService implements CrudService<IamParticipant> {
+public abstract class AbstractIamParticipantService implements CrudService<IamParticipant, String> {
 
     protected final IamParticipantRepository iamParticipantRepository;
 
@@ -51,40 +50,32 @@ public abstract class AbstractIamParticipantService implements CrudService<IamPa
         this.transactionTemplate = new TransactionTemplate(transactionManager);
     }
 
-
-    /**
-     * Abstract method to get type metadata applied to all {@link IamParticipant}'s created or fetched
-     * @return a {@link Map.Entry} containing the metadata that defines the "concrete" type of this {@link IamParticipant}
-     */
     protected abstract Map.Entry<String, String> getTypeMetadata();
 
     @Override
-    public Mono<IamParticipant> create(IamParticipant entity) {
+    public CompletableFuture<IamParticipant> create(IamParticipant entity) {
         Validate.notNull(entity);
-        return Mono.create(sink -> findById(entity.getId())
-                .doOnSuccess(result -> {
-                    if(result == null){
+        return findById(entity.getId())
+                .thenCompose(result -> {
+                    if (result == null) {
                         entity.putMetadata(getTypeMetadata());
-                        save(entity).subscribe(ReactorUtil.monoSinkToSubscriber(sink));
-                    }else{
-                        sink.error(new IllegalArgumentException(entity.getClass().getSimpleName() + " for the identity " + entity.getId() + " already exists"));
+                        return save(entity);
+                    } else {
+                        CompletableFuture<IamParticipant> exceptionFuture = new CompletableFuture<>();
+                        exceptionFuture.completeExceptionally(new IllegalArgumentException(entity.getClass().getSimpleName() + " for the identity " + entity.getId() + " already exists"));
+                        return exceptionFuture;
                     }
-                })
-                .subscribe(v -> {}, sink::error)); // We use an empty consumer this is handled with doOnSuccess, this is done so we get a single "signal" instead of onNext, onComplete type logic..
+                });
     }
 
     @Override
-    public Mono<IamParticipant> save(IamParticipant entity) {
+    public CompletableFuture<IamParticipant> save(IamParticipant entity) {
         Validate.notNull(entity);
-        return Mono.fromSupplier(() -> transactionTemplate.execute(status -> {
-            // If this is null it is because no changes were made on the client
-            // This was the best way I could figure out how NOT to return the Auth information to the client
-            // but also allow intuitive changes on the client side
+        return CompletableFuture.supplyAsync(() -> transactionTemplate.execute(status -> {
             if (entity.getAuthenticators() == null) {
                 Optional<IamParticipant> value = iamParticipantRepository.findById(entity.getId());
                 value.ifPresent(iamParticipant -> entity.setAuthenticators(iamParticipant.getAuthenticators()));
             } else {
-                // make sure all mapping is bi directional
                 for (Authenticator authProvider : entity.getAuthenticators()) {
                     authProvider.setIamParticipant(entity);
                 }
@@ -94,11 +85,10 @@ public abstract class AbstractIamParticipantService implements CrudService<IamPa
     }
 
     @Override
-    public Mono<IamParticipant> findById(String identity) {
+    public CompletableFuture<IamParticipant> findById(String identity) {
         Validate.notEmpty(identity);
-        return Mono.fromSupplier(() -> transactionTemplate.execute(status -> {
+        return CompletableFuture.supplyAsync(() -> transactionTemplate.execute(status -> {
             Optional<IamParticipant> value = iamParticipantRepository.findById(identity);
-            // force lazy loaded data so it will be available for the UI
             value.ifPresent(iamParticipant -> {
                 Hibernate.initialize(iamParticipant.getRoles());
                 Hibernate.initialize(iamParticipant.getAuthenticators());
@@ -108,29 +98,29 @@ public abstract class AbstractIamParticipantService implements CrudService<IamPa
     }
 
     @Override
-    public Mono<Long> count() {
-        return Mono.fromSupplier(iamParticipantRepository::count);
+    public CompletableFuture<Long> count() {
+        return CompletableFuture.supplyAsync(iamParticipantRepository::count);
     }
 
     @Override
-    public Mono<Void> deleteById(String identity) {
-        return Mono.fromRunnable(() -> iamParticipantRepository.deleteById(identity));
+    public CompletableFuture<Void> deleteById(String identity) {
+        return CompletableFuture.runAsync(() -> iamParticipantRepository.deleteById(identity));
     }
 
     @Override
-    public Page<IamParticipant> findAll(Pageable page) {
+    public CompletableFuture<Page<IamParticipant>> findAll(Pageable page) {
         Map.Entry<String, String> type = getTypeMetadata();
-        return iamParticipantRepository.findByMetadataAndValue(type.getKey(), type.getValue(), page);
+        return CompletableFuture.supplyAsync(() -> iamParticipantRepository.findByMetadataAndValue(type.getKey(), type.getValue(), page));
     }
 
     @Override
-    public Page<IamParticipant> findByIdNotIn(Collection<String> collection, Pageable page) {
-        return iamParticipantRepository.findByIdNotIn(collection, page);
+    public CompletableFuture<Page<IamParticipant>> findByIdNotIn(Collection<String> collection, Pageable page) {
+        return CompletableFuture.supplyAsync(() -> iamParticipantRepository.findByIdNotIn(collection, page));
     }
 
     @Override
-    public Page<IamParticipant> search(String searchText, Pageable pageable) {
+    public CompletableFuture<Page<IamParticipant>> search(String searchText, Pageable pageable) {
         Map.Entry<String, String> type = getTypeMetadata();
-        return iamParticipantRepository.findLikeIdByMetadataAndValue(searchText, type.getKey(), type.getValue(), pageable);
+        return CompletableFuture.supplyAsync(() -> iamParticipantRepository.findLikeIdByMetadataAndValue(searchText, type.getKey(), type.getValue(), pageable));
     }
 }

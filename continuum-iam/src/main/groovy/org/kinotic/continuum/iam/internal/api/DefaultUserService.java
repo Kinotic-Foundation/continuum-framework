@@ -27,10 +27,10 @@ import org.kinotic.continuum.iam.internal.repositories.IamParticipantRepository;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
-import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 /**
  *
@@ -50,7 +50,7 @@ public class DefaultUserService extends AbstractIamParticipantService implements
     }
 
     @Override
-    public Mono<IamParticipant> createNewUser(String identity, String password, List<Role> roles) {
+    public CompletableFuture<IamParticipant> createNewUser(String identity, String password, List<Role> roles) {
         IamParticipant newParticipant = new IamParticipant(identity);
         Authenticator authenticator = new PasswordAuthenticator(BCrypt.hashpw(password, BCrypt.gensalt()));
         authenticator.setAccessKey(identity); // for passwords this is the same so we can find Authenticator easily
@@ -61,5 +61,4 @@ public class DefaultUserService extends AbstractIamParticipantService implements
 
         return create(newParticipant);
     }
-
 }

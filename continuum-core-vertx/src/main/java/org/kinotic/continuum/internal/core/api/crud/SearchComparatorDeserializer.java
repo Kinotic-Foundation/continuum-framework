@@ -18,7 +18,6 @@
 package org.kinotic.continuum.internal.core.api.crud;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -35,7 +34,7 @@ public class SearchComparatorDeserializer extends JsonDeserializer<SearchCompara
 
     @Override
     public SearchComparator deserialize(JsonParser jsonParser,
-                                        DeserializationContext ctxt) throws IOException, JsonProcessingException {
+                                        DeserializationContext ctxt) throws IOException {
 
         JsonNode node = jsonParser.getCodec().readTree(jsonParser);
 

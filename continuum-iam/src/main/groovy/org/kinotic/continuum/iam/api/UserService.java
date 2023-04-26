@@ -18,29 +18,28 @@
 package org.kinotic.continuum.iam.api;
 
 import org.kinotic.continuum.api.annotations.Publish;
-import org.kinotic.continuum.api.annotations.Version;
 import org.kinotic.continuum.core.api.crud.CrudService;
 import org.kinotic.continuum.iam.api.domain.IamParticipant;
 import org.kinotic.continuum.iam.api.domain.Role;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 /**
  *
  * Created by navid on 2/3/20
  */
 @Publish
-@Version("0.1.0")
-public interface UserService extends CrudService<IamParticipant> {
+public interface UserService extends CrudService<IamParticipant, String> {
 
     /**
-     * Creates a new {@link IamParticipant} that is setup as a user with the given roles specified
+     * Creates a new {@link IamParticipant} that is set up as a user with the given roles specified
      * @param identity the identity for the user typically an email
      * @param password the password for the user
      * @param roles list of {@link Role}'s to associate
      * @return a {@link Mono} containing the newly created and persisted {@link IamParticipant} or an error if a exception occurred
      */
-    Mono<IamParticipant> createNewUser(String identity, String password, List<Role> roles);
+    CompletableFuture<IamParticipant> createNewUser(String identity, String password, List<Role> roles);
 
 }

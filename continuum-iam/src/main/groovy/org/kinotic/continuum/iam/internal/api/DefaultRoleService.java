@@ -17,20 +17,20 @@
 
 package org.kinotic.continuum.iam.internal.api;
 
+import org.hibernate.Hibernate;
 import org.kinotic.continuum.iam.api.RoleService;
 import org.kinotic.continuum.iam.api.domain.Role;
 import org.kinotic.continuum.iam.internal.repositories.RoleRepository;
-import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
-import reactor.core.publisher.Mono;
 
 import java.util.Collection;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 /**
  *
@@ -44,19 +44,18 @@ public class DefaultRoleService implements RoleService {
 
     private final TransactionTemplate transactionTemplate;
 
-
     public DefaultRoleService(PlatformTransactionManager transactionManager) {
         this.transactionTemplate = new TransactionTemplate(transactionManager);
     }
 
     @Override
-    public Mono<Role> save(Role entity) {
-        return Mono.fromSupplier(() -> roleRepository.save(entity));
+    public CompletableFuture<Role> save(Role entity) {
+        return CompletableFuture.supplyAsync(() -> roleRepository.save(entity));
     }
 
     @Override
-    public Mono<Role> findById(String identity) {
-        return Mono.fromSupplier(() -> transactionTemplate.execute(status -> {
+    public CompletableFuture<Role> findById(String identity) {
+        return CompletableFuture.supplyAsync(() -> transactionTemplate.execute(status -> {
             Optional<Role> value = roleRepository.findById(identity);
             // force lazy loaded data, so it will be available for the UI
             value.ifPresent(role -> Hibernate.initialize(role.getAccessPolicies()));
@@ -65,34 +64,35 @@ public class DefaultRoleService implements RoleService {
     }
 
     @Override
-    public Mono<Long> count() {
-        return Mono.fromSupplier(roleRepository::count);
+    public CompletableFuture<Long> count() {
+        return CompletableFuture.supplyAsync(roleRepository::count);
     }
 
     @Override
-    public Mono<Void> deleteById(String identity) {
-        return Mono.fromRunnable(() -> roleRepository.deleteById(identity));
+    public CompletableFuture<Void> deleteById(String identity) {
+        return CompletableFuture.runAsync(() -> roleRepository.deleteById(identity));
     }
 
     @Override
-    public Page<Role> findAll(Pageable page) {
-        return roleRepository.findAll(page);
+    public CompletableFuture<Page<Role>> findAll(Pageable page) {
+        return CompletableFuture.supplyAsync(() -> roleRepository.findAll(page));
     }
 
     @Override
-    public Page<Role> findByIdNotIn(Collection<String> collection, Pageable page) {
-        Page<Role> ret;
-        if(collection != null && collection.size() > 0){
-            ret = roleRepository.findByIdNotIn(collection, page);
-        }else{
-            ret = findAll(page);
-        }
-        return ret;
+    public CompletableFuture<Page<Role>> findByIdNotIn(Collection<String> collection, Pageable page) {
+        return CompletableFuture.supplyAsync(() -> {
+            Page<Role> ret;
+            if (collection != null && collection.size() > 0) {
+                ret = roleRepository.findByIdNotIn(collection, page);
+            } else {
+                ret = findAll(page).join();
+            }
+            return ret;
+        });
     }
 
     @Override
-    public Page<Role> search(String searchText, Pageable pageable) {
-        return roleRepository.findLikeId(searchText, pageable);
+    public CompletableFuture<Page<Role>> search(String searchText, Pageable pageable) {
+        return CompletableFuture.supplyAsync(() -> roleRepository.findLikeId(searchText, pageable));
     }
-
 }

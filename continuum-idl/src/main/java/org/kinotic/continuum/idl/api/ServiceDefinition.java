@@ -17,10 +17,7 @@
 
 package org.kinotic.continuum.idl.api;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.Accessors;
 import org.apache.commons.lang3.Validate;
 
@@ -37,6 +34,7 @@ import java.util.Map;
 @Accessors(chain = true)
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode
 public class ServiceDefinition {
 
     /**

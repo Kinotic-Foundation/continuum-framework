@@ -1,9 +1,6 @@
 package org.kinotic.continuum.idl.api;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.Accessors;
 
 import java.util.ArrayList;
@@ -17,11 +14,12 @@ import java.util.List;
 @Accessors(chain = true)
 @NoArgsConstructor
 @AllArgsConstructor
-public class EnumTypeDefinition extends TypeDefinition {
+@EqualsAndHashCode(callSuper = true)
+public class EnumC3Type extends C3Type {
 
     List<String> values = new ArrayList<>();
 
-    public EnumTypeDefinition addValue(String value){
+    public EnumC3Type addValue(String value){
         values.add(value);
         return this;
     }

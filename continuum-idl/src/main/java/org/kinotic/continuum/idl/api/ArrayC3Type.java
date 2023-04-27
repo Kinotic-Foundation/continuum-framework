@@ -17,12 +17,26 @@
 
 package org.kinotic.continuum.idl.api;
 
+import lombok.*;
+import lombok.experimental.Accessors;
+
 /**
- * The boolean type matches only two special values: true and false.
- * Note that values that evaluate to true or false, such as 1 and 0, are not accepted by the schema.
- * <p>
+ * Arrays are used for ordered elements.
  * Created by navid on 2023-4-13.
  */
-public class BooleanTypeDefinition extends TypeDefinition {
+@Getter
+@Setter
+@Accessors(chain = true)
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
+public class ArrayC3Type extends C3Type {
+
+    /**
+     * The type the defined array will contain
+     * <p>
+     */
+    private C3Type contains = null;
+
 
 }

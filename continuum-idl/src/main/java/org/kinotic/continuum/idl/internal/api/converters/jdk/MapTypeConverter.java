@@ -18,8 +18,8 @@
 package org.kinotic.continuum.idl.internal.api.converters.jdk;
 
 import org.apache.commons.lang3.Validate;
-import org.kinotic.continuum.idl.api.MapTypeDefinition;
-import org.kinotic.continuum.idl.api.TypeDefinition;
+import org.kinotic.continuum.idl.api.MapC3Type;
+import org.kinotic.continuum.idl.api.C3Type;
 import org.kinotic.continuum.idl.internal.api.converters.ConversionContext;
 import org.kinotic.continuum.idl.internal.api.converters.GenericTypeConverter;
 import org.springframework.core.ResolvableType;
@@ -46,13 +46,13 @@ public class MapTypeConverter implements GenericTypeConverter {
     }
 
     @Override
-    public TypeDefinition convert(ResolvableType resolvableType, ConversionContext conversionContext) {
+    public C3Type convert(ResolvableType resolvableType, ConversionContext conversionContext) {
 
         ResolvableType keyType = resolvableType.getGeneric(0);
         Validate.notNull(keyType, "Map Key type must not be null for "+ resolvableType);
         ResolvableType valueType = resolvableType.getGeneric(1);
         Validate.notNull(valueType, "Map Value type must not be null for "+ resolvableType);
 
-        return new MapTypeDefinition(conversionContext.convertDependency(keyType), conversionContext.convertDependency(valueType));
+        return new MapC3Type(conversionContext.convertDependency(keyType), conversionContext.convertDependency(valueType));
     }
 }

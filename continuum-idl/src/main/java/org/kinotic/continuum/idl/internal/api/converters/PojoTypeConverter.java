@@ -17,8 +17,8 @@
 
 package org.kinotic.continuum.idl.internal.api.converters;
 
-import org.kinotic.continuum.idl.api.TypeDefinition;
-import org.kinotic.continuum.idl.api.ObjectTypeDefinition;
+import org.kinotic.continuum.idl.api.C3Type;
+import org.kinotic.continuum.idl.api.ObjectC3Type;
 import groovy.lang.GroovyObject;
 import groovy.lang.MetaClass;
 import org.springframework.beans.BeanUtils;
@@ -49,10 +49,10 @@ public class PojoTypeConverter implements GenericTypeConverter {
     }
 
     @Override
-    public TypeDefinition convert(ResolvableType resolvableType,
-                                  ConversionContext conversionContext) {
+    public C3Type convert(ResolvableType resolvableType,
+                          ConversionContext conversionContext) {
 
-        ObjectTypeDefinition ret = new ObjectTypeDefinition();
+        ObjectC3Type ret = new ObjectC3Type();
 
         Class<?> rawClass = resolvableType.getRawClass();
         Assert.notNull(rawClass, "Raw class could not be found for ResolvableType");
@@ -65,9 +65,9 @@ public class PojoTypeConverter implements GenericTypeConverter {
 
                 ResolvableType returnTypeResolvableType = ResolvableType.forMethodReturnType(descriptor.getReadMethod());
 
-                TypeDefinition fieldTypeDefinition = conversionContext.convertDependency(returnTypeResolvableType);
+                C3Type fieldC3Type = conversionContext.convertDependency(returnTypeResolvableType);
 
-                ret.addProperty(descriptor.getName(), fieldTypeDefinition);
+                ret.addProperty(descriptor.getName(), fieldC3Type);
             }
         }
         return ret;

@@ -17,9 +17,9 @@
 
 package org.kinotic.continuum.idl.internal.api.converters;
 
-import org.kinotic.continuum.idl.api.TypeDefinition;
-import org.kinotic.continuum.idl.api.ObjectTypeDefinition;
-import org.kinotic.continuum.idl.api.ReferenceTypeDefinition;
+import org.kinotic.continuum.idl.api.C3Type;
+import org.kinotic.continuum.idl.api.ObjectC3Type;
+import org.kinotic.continuum.idl.api.ReferenceC3Type;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,9 +42,9 @@ public class DefaultConversionContext implements ConversionContext {
 
     private final Deque<ResolvableType> errorStack = new ArrayDeque<>();
 
-    private final Map<String, TypeDefinition> schemaCache = new HashMap<>();
+    private final Map<String, C3Type> schemaCache = new HashMap<>();
 
-    private final Map<String, ObjectTypeDefinition> objectSchemaMap = new LinkedHashMap<>();
+    private final Map<String, ObjectC3Type> objectSchemaMap = new LinkedHashMap<>();
 
     /**
      * Creates a new {@link ConversionContext}
@@ -55,14 +55,14 @@ public class DefaultConversionContext implements ConversionContext {
     }
 
     @Override
-    public TypeDefinition convert(ResolvableType resolvableType) {
+    public C3Type convert(ResolvableType resolvableType) {
 
         if(circularReferenceCheckStack.contains(resolvableType)){
             IllegalStateException ise = new IllegalStateException("Circular reference detected for "+resolvableType);
             logException(ise);
             throw ise;
         }
-        TypeDefinition ret;
+        C3Type ret;
         try {
 
             circularReferenceCheckStack.addFirst(resolvableType);
@@ -85,19 +85,19 @@ public class DefaultConversionContext implements ConversionContext {
     }
 
     @Override
-    public TypeDefinition convertDependency(ResolvableType resolvableType) {
-        TypeDefinition typeDefinition = convert(resolvableType);
-        if(typeDefinition instanceof ObjectTypeDefinition){
+    public C3Type convertDependency(ResolvableType resolvableType) {
+        C3Type c3Type = convert(resolvableType);
+        if(c3Type instanceof ObjectC3Type){
             Class<?> rawClass = resolvableType.getRawClass();
             Assert.notNull(rawClass, "Cannot determine name for ObjectSchema");
             String name = rawClass.getName();
-            objectSchemaMap.put(name, (ObjectTypeDefinition) typeDefinition);
-            typeDefinition = new ReferenceTypeDefinition(name);
+            objectSchemaMap.put(name, (ObjectC3Type) c3Type);
+            c3Type = new ReferenceC3Type(name);
         }
-        return typeDefinition;
+        return c3Type;
     }
 
-    public Map<String, ObjectTypeDefinition> getObjectSchemas() {
+    public Map<String, ObjectC3Type> getObjectSchemas() {
         return objectSchemaMap;
     }
 

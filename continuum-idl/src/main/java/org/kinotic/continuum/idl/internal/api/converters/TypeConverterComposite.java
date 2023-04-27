@@ -17,7 +17,7 @@
 
 package org.kinotic.continuum.idl.internal.api.converters;
 
-import org.kinotic.continuum.idl.api.TypeDefinition;
+import org.kinotic.continuum.idl.api.C3Type;
 import org.springframework.core.ResolvableType;
 import org.springframework.util.Assert;
 
@@ -80,8 +80,8 @@ public class TypeConverterComposite implements GenericTypeConverter {
     }
 
     @Override
-    public TypeDefinition convert(ResolvableType resolvableType,
-                                  ConversionContext conversionContext) {
+    public C3Type convert(ResolvableType resolvableType,
+                          ConversionContext conversionContext) {
         Assert.notNull(resolvableType, "ResolvableType cannot be null");
 
         TypeConverter converter = selectConverter(resolvableType);

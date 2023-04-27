@@ -46,7 +46,7 @@ public interface CrudService<T extends Identifiable<ID>, ID> {
                         return save(entity);
                     } else {
                         CompletableFuture<T> exceptionFuture = new CompletableFuture<>();
-                        exceptionFuture.completeExceptionally(new IllegalArgumentException(entity.getClass().getSimpleName() + " for the identity " + entity.getId() + " already exists"));
+                        exceptionFuture.completeExceptionally(new IllegalArgumentException(entity.getClass().getSimpleName() + " for the id " + entity.getId() + " already exists"));
                         return exceptionFuture;
                     }
                 });
@@ -63,11 +63,11 @@ public interface CrudService<T extends Identifiable<ID>, ID> {
     CompletableFuture<T> save(T entity);
 
     /**
-     * Retrieves an entity by its identity.
+     * Retrieves an entity by its id.
      *
      * @param id must not be {@literal null}.
      * @return {@link Mono} emitting the entity with the given id or {@link Mono#empty()} if none found.
-     * @throws IllegalArgumentException in case the given {@literal identity} is {@literal null}.
+     * @throws IllegalArgumentException in case the given {@literal id} is {@literal null}.
      */
     CompletableFuture<T> findById(ID id);
 
@@ -79,11 +79,11 @@ public interface CrudService<T extends Identifiable<ID>, ID> {
     CompletableFuture<Long> count();
 
     /**
-     * Deletes the entity with the given identity.
+     * Deletes the entity with the given id.
      *
      * @param id must not be {@literal null}.
      * @return {@link Mono} signaling when operation has completed.
-     * @throws IllegalArgumentException in case the given {@literal identity} is {@literal null}.
+     * @throws IllegalArgumentException in case the given {@literal id} is {@literal null}.
      */
     CompletableFuture<Void> deleteById(ID id);
 

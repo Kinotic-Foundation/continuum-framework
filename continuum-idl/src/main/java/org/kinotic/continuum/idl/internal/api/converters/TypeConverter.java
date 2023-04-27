@@ -17,11 +17,11 @@
 
 package org.kinotic.continuum.idl.internal.api.converters;
 
-import org.kinotic.continuum.idl.api.TypeDefinition;
+import org.kinotic.continuum.idl.api.C3Type;
 import org.springframework.core.ResolvableType;
 
 /**
- * Provides support for converting individual {@link ResolvableType}'s into the appropriate {@link TypeDefinition}
+ * Provides support for converting individual {@link ResolvableType}'s into the appropriate {@link C3Type}
  *
  *
  * Created by navid on 2019-06-13.
@@ -29,13 +29,13 @@ import org.springframework.core.ResolvableType;
 public interface TypeConverter {
 
     /**
-     * Converts the given {@link ResolvableType} to the correct {@link TypeDefinition}
+     * Converts the given {@link ResolvableType} to the correct {@link C3Type}
      *
      * @param resolvableType to convert
      * @param conversionContext for this conversion process
-     * @return the newly created {@link TypeDefinition} for the class
+     * @return the newly created {@link C3Type} for the class
      */
-    TypeDefinition convert(ResolvableType resolvableType,
-                           ConversionContext conversionContext);
+    C3Type convert(ResolvableType resolvableType,
+                   ConversionContext conversionContext);
 
 }

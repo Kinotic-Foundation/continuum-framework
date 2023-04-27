@@ -17,28 +17,13 @@
 
 package org.kinotic.continuum.idl.api;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.experimental.Accessors;
+import lombok.EqualsAndHashCode;
 
 /**
- * Arrays are used for ordered elements.
+ * The string type is used for strings of text. It may contain Unicode characters.
  * Created by navid on 2023-4-13.
  */
-@Getter
-@Setter
-@Accessors(chain = true)
-@NoArgsConstructor
-@AllArgsConstructor
-public class ArrayTypeDefinition extends TypeDefinition {
-
-    /**
-     * The type the defined array will contain
-     * <p>
-     */
-    private TypeDefinition contains = null;
-
+@EqualsAndHashCode(callSuper = true)
+public class StringC3Type extends C3Type {
 
 }

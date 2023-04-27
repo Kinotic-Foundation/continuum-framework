@@ -17,9 +17,12 @@
 
 package org.kinotic.continuum.idl.api.datestyles;
 
+import lombok.EqualsAndHashCode;
+
 /**
  *
  * Created by nic on 2019-12-10.
  */
+@EqualsAndHashCode(callSuper = true)
 public class UnixDateStyle extends DateStyle {
 }

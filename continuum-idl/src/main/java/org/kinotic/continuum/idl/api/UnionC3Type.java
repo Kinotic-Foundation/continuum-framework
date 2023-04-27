@@ -1,9 +1,6 @@
 package org.kinotic.continuum.idl.api;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.Accessors;
 
 import java.util.ArrayList;
@@ -19,7 +16,8 @@ import java.util.List;
 @Accessors(chain = true)
 @NoArgsConstructor
 @AllArgsConstructor
-public class UnionTypeDefinition extends TypeDefinition {
+@EqualsAndHashCode(callSuper = true)
+public class UnionC3Type extends C3Type {
 
     /**
      * This is the field that will be used to determine which type is being used.
@@ -31,6 +29,6 @@ public class UnionTypeDefinition extends TypeDefinition {
      * The types that are part of this union
      * All types must have a field with the name of the discriminator
      */
-    private List<ObjectTypeDefinition> types = new ArrayList<>();
+    private List<ObjectC3Type> types = new ArrayList<>();
 
 }

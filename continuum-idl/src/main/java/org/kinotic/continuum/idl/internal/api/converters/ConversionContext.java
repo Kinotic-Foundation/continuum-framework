@@ -17,39 +17,39 @@
 
 package org.kinotic.continuum.idl.internal.api.converters;
 
-import org.kinotic.continuum.idl.api.TypeDefinition;
-import org.kinotic.continuum.idl.api.ObjectTypeDefinition;
-import org.kinotic.continuum.idl.api.ReferenceTypeDefinition;
+import org.kinotic.continuum.idl.api.C3Type;
+import org.kinotic.continuum.idl.api.ObjectC3Type;
+import org.kinotic.continuum.idl.api.ReferenceC3Type;
 import org.springframework.core.ResolvableType;
 
 import java.util.Map;
 
 /**
- * Represents the current state of the conversion as well as providing a means for converters to convert dependent {@link TypeDefinition}'s
+ * Represents the current state of the conversion as well as providing a means for converters to convert dependent {@link C3Type}'s
  * <p>
  * Created by navid on 2019-06-28.
  */
 public interface ConversionContext {
 
     /**
-     * Converts the given resolvable type into a fully qualified {@link TypeDefinition}
-     * This will not return a {@link ReferenceTypeDefinition} under any circumstance
+     * Converts the given resolvable type into a fully qualified {@link C3Type}
+     * This will not return a {@link ReferenceC3Type} under any circumstance
      * @param resolvableType to convert
-     * @return the {@link TypeDefinition} representing the {@link ResolvableType}
+     * @return the {@link C3Type} representing the {@link ResolvableType}
      */
-    TypeDefinition convert(ResolvableType resolvableType);
+    C3Type convert(ResolvableType resolvableType);
 
     /**
-     * Converts the given resolvable type into a {@link TypeDefinition} that is depended on by another {@link TypeDefinition}
-     * This will return a {@link ReferenceTypeDefinition} when appropriate
+     * Converts the given resolvable type into a {@link C3Type} that is depended on by another {@link C3Type}
+     * This will return a {@link ReferenceC3Type} when appropriate
      * @param resolvableType to convert
-     * @return the {@link TypeDefinition} representing the {@link ResolvableType}
+     * @return the {@link C3Type} representing the {@link ResolvableType}
      */
-    TypeDefinition convertDependency(ResolvableType resolvableType);
+    C3Type convertDependency(ResolvableType resolvableType);
 
     /**
-     * @return all of the {@link ObjectTypeDefinition} known to this {@link ConversionContext}
+     * @return all of the {@link ObjectC3Type} known to this {@link ConversionContext}
      */
-    Map<String, ObjectTypeDefinition> getObjectSchemas();
+    Map<String, ObjectC3Type> getObjectSchemas();
 
 }

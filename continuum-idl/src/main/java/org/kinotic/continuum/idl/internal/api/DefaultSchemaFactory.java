@@ -29,7 +29,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
 
 /**
- * Provides the ability to create {@link TypeDefinition}'s
+ * Provides the ability to create {@link C3Type}'s
  *
  *
  * Created by navid on 2019-06-13.
@@ -44,16 +44,16 @@ public class DefaultSchemaFactory implements SchemaFactory {
     }
 
     @Override
-    public TypeDefinition createForClass(Class<?> clazz) {
+    public C3Type createForClass(Class<?> clazz) {
         DefaultConversionContext conversionContext = new DefaultConversionContext(typeConverter);
         return this.createForPojo(clazz, conversionContext);
     }
 
-    private TypeDefinition createForPojo(Class<?> clazz, ConversionContext conversionContext) {
+    private C3Type createForPojo(Class<?> clazz, ConversionContext conversionContext) {
         Assert.notNull(clazz, "Class cannot be null");
         Assert.notNull(conversionContext, "ConversionContext cannot be null");
 
-        TypeDefinition ret;
+        C3Type ret;
         ResolvableType resolvableType = ResolvableType.forClass(clazz);
         if(typeConverter.supports(resolvableType)){
 
@@ -88,9 +88,9 @@ public class DefaultSchemaFactory implements SchemaFactory {
 
                 MethodParameter methodParameter = new MethodParameter(method, i);
 
-                TypeDefinition typeDefinition = conversionContext.convertDependency(ResolvableType.forMethodParameter(methodParameter));
+                C3Type c3Type = conversionContext.convertDependency(ResolvableType.forMethodParameter(methodParameter));
 
-                functionDefinition.addArgument(getName(methodParameter), typeDefinition);
+                functionDefinition.addArgument(getName(methodParameter), c3Type);
             }
 
             serviceDefinition.addFunction(method.getName(), functionDefinition);

@@ -19,6 +19,7 @@ package org.kinotic.continuum.idl.api.datestyles;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import lombok.EqualsAndHashCode;
 
 /**
  * The date style to use when serializing and deserializing dates
@@ -32,6 +33,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
         @JsonSubTypes.Type(value = MillsDateStyle.class, name = "epoch"),
         @JsonSubTypes.Type(value = StringDateStyle.class, name = "string")
 })
+@EqualsAndHashCode
 public abstract class DateStyle {
 
 

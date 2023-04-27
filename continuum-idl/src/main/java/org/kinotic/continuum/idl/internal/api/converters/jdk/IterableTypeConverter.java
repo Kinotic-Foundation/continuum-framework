@@ -17,8 +17,8 @@
 
 package org.kinotic.continuum.idl.internal.api.converters.jdk;
 
-import org.kinotic.continuum.idl.api.ArrayTypeDefinition;
-import org.kinotic.continuum.idl.api.TypeDefinition;
+import org.kinotic.continuum.idl.api.ArrayC3Type;
+import org.kinotic.continuum.idl.api.C3Type;
 import org.kinotic.continuum.idl.internal.api.converters.ConversionContext;
 import org.kinotic.continuum.idl.internal.api.converters.GenericTypeConverter;
 import org.springframework.core.ResolvableType;
@@ -43,15 +43,15 @@ public class IterableTypeConverter implements GenericTypeConverter {
     }
 
     @Override
-    public TypeDefinition convert(ResolvableType resolvableType,
-                                  ConversionContext conversionContext) {
-        ArrayTypeDefinition ret = new ArrayTypeDefinition();
+    public C3Type convert(ResolvableType resolvableType,
+                          ConversionContext conversionContext) {
+        ArrayC3Type ret = new ArrayC3Type();
 
         ResolvableType genericType = resolvableType.getGeneric(0);
 
         if(!genericType.equals(ResolvableType.NONE)){
-            TypeDefinition containsTypeDefinition = conversionContext.convertDependency(genericType);
-            ret.setContains(containsTypeDefinition);
+            C3Type containsC3Type = conversionContext.convertDependency(genericType);
+            ret.setContains(containsC3Type);
         }
         return ret;
     }

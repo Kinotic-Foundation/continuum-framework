@@ -17,31 +17,14 @@
 
 package org.kinotic.continuum.idl.api;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.experimental.Accessors;
+import lombok.EqualsAndHashCode;
 
 /**
- * Defines a map of key value pairs
+ * This is a type to represent a void type.
+ * Void types support the values null or void.
+ *
  * Created by navid on 2023-4-13.
  */
-@Getter
-@Setter
-@Accessors(chain = true)
-@NoArgsConstructor
-@AllArgsConstructor
-public class MapTypeDefinition extends TypeDefinition {
-
-    /**
-     * The type of the defined maps keys
-     */
-    private TypeDefinition key;
-
-    /**
-     * The type of the defined maps values
-     */
-    private TypeDefinition value;
-
+@EqualsAndHashCode(callSuper = true)
+public class VoidC3Type extends C3Type {
 }

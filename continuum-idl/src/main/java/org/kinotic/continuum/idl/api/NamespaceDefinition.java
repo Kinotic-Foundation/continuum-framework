@@ -17,10 +17,7 @@
 
 package org.kinotic.continuum.idl.api;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.Accessors;
 import org.apache.commons.lang3.Validate;
 
@@ -29,7 +26,7 @@ import java.util.Map;
 
 /**
  * Provides functionality to define a namespace with a Continuum schema.
- * A {@link NamespaceDefinition} is a collection of {@link ServiceDefinition}'s and {@link ObjectTypeDefinition}'s defined within a particular namespace.
+ * A {@link NamespaceDefinition} is a collection of {@link ServiceDefinition}'s and {@link ObjectC3Type}'s defined within a particular namespace.
  * <p>
  * Created by navid on 2023-4-13.
  */
@@ -38,12 +35,13 @@ import java.util.Map;
 @Accessors(chain = true)
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode
 public class NamespaceDefinition {
 
     /**
      * This is all the objects defined for a given namespace
      */
-    private Map<String, ObjectTypeDefinition> objectSchemas = new LinkedHashMap<>();
+    private Map<String, ObjectC3Type> objectSchemas = new LinkedHashMap<>();
 
     /**
      * This is all the services defined for a given namespace
@@ -51,7 +49,7 @@ public class NamespaceDefinition {
     private Map<String, ServiceDefinition> serviceSchemas = new LinkedHashMap<>();
 
 
-    public NamespaceDefinition addObjectSchema(String name, ObjectTypeDefinition schema){
+    public NamespaceDefinition addObjectSchema(String name, ObjectC3Type schema){
         Validate.isTrue(!objectSchemas.containsKey(name), "This NamespaceSchema already contains an ObjectSchema for name "+name);
         objectSchemas.put(name, schema);
         return this;

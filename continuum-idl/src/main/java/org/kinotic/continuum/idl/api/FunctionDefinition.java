@@ -17,10 +17,7 @@
 
 package org.kinotic.continuum.idl.api;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.Accessors;
 import org.apache.commons.lang3.Validate;
 
@@ -36,24 +33,25 @@ import java.util.Map;
 @Accessors(chain = true)
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode
 public class FunctionDefinition {
 
     /**
-     * This is the {@link TypeDefinition} that defines the return type of this function.
+     * This is the {@link C3Type} that defines the return type of this function.
      */
-    private TypeDefinition returnType = new VoidTypeDefinition();
+    private C3Type returnType = new VoidC3Type();
 
     /**
-     * This map defines the {@link TypeDefinition}'s that define the arguments for this function.
+     * This map defines the {@link C3Type}'s that define the arguments for this function.
      * The Key is the argument name the value is the schema for the argument type.
      * Argument names must be unique.
      */
-    private Map<String, TypeDefinition> arguments = new LinkedHashMap<>();
+    private Map<String, C3Type> arguments = new LinkedHashMap<>();
 
 
-    public FunctionDefinition addArgument(String name, TypeDefinition typeDefinition){
+    public FunctionDefinition addArgument(String name, C3Type c3Type){
         Validate.isTrue(!arguments.containsKey(name), "An argument already exists with the name "+name);
-        arguments.put(name, typeDefinition);
+        arguments.put(name, c3Type);
         return this;
     }
 

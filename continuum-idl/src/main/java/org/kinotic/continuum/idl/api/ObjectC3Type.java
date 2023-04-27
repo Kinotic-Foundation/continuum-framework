@@ -17,10 +17,7 @@
 
 package org.kinotic.continuum.idl.api;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.Accessors;
 import org.apache.commons.lang3.Validate;
 
@@ -38,23 +35,25 @@ import java.util.Map;
 @Accessors(chain = true)
 @NoArgsConstructor
 @AllArgsConstructor
-public class ObjectTypeDefinition extends TypeDefinition {
+@EqualsAndHashCode(callSuper = true)
+public class ObjectC3Type extends C3Type {
 
     /**
-     * The parent schema of this object schema
+     * The parent schema of this object definition
      * This is used to support inheritance
      */
-    private ObjectTypeDefinition parent = null;
+    private ObjectC3Type parent = null;
 
     /**
      * The properties (key-value pairs) on an object are defined using the properties' keyword.
      * The value of properties is an object, where each key is the name of a property and each value is a Continuum schema used to validate that property.
      */
-    private Map<String, TypeDefinition> properties = new LinkedHashMap<>();
+    @Singular
+    private Map<String, C3Type> properties = new LinkedHashMap<>();
 
-    public ObjectTypeDefinition addProperty(String name, TypeDefinition typeDefinition){
-        Validate.isTrue(!properties.containsKey(name), "ObjectSchema already contains property for name "+name);
-        properties.put(name, typeDefinition);
+    public ObjectC3Type addProperty(String name, C3Type c3Type){
+        Validate.isTrue(!properties.containsKey(name), "ObjectTypeDefinition already contains property for name "+name);
+        properties.put(name, c3Type);
         return this;
     }
 

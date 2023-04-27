@@ -17,26 +17,28 @@
 
 package org.kinotic.continuum.idl.api;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.Accessors;
+import org.kinotic.continuum.idl.api.datestyles.DateStyle;
 
 /**
- * A simple schema to allow referencing other components in the specification, internally and externally.
- * Created by navid on 2023-4-13.
+ * Represents a date type
+ * Created by nic on 2019-12-10.
  */
 @Getter
 @Setter
 @Accessors(chain = true)
 @NoArgsConstructor
 @AllArgsConstructor
-public class ReferenceTypeDefinition extends TypeDefinition {
+@EqualsAndHashCode(callSuper = true)
+public class DateC3Type extends C3Type {
 
     /**
-     * The urn to the schema being referenced
+     * The date format to use when serializing and deserializing dates.
+     * It is of type {@link DateStyle} since in json this will be expressed as { "type": "date", "format": { "style": "unix" } }
+     * <p>
+     * TODO: add not null constraint
      */
-    private String urn = null;
+    private DateStyle format = null;
 
 }

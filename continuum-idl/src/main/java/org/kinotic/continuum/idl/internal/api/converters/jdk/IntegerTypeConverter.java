@@ -1,7 +1,7 @@
 package org.kinotic.continuum.idl.internal.api.converters.jdk;
 
-import org.kinotic.continuum.idl.api.IntTypeDefinition;
-import org.kinotic.continuum.idl.api.TypeDefinition;
+import org.kinotic.continuum.idl.api.IntC3Type;
+import org.kinotic.continuum.idl.api.C3Type;
 import org.kinotic.continuum.idl.internal.api.converters.ConversionContext;
 import org.kinotic.continuum.idl.internal.api.converters.SpecificTypeConverter;
 import org.springframework.core.ResolvableType;
@@ -21,9 +21,9 @@ public class IntegerTypeConverter implements SpecificTypeConverter {
     }
 
     @Override
-    public TypeDefinition convert(ResolvableType resolvableType,
-                                  ConversionContext conversionContext) {
-        return new IntTypeDefinition();
+    public C3Type convert(ResolvableType resolvableType,
+                          ConversionContext conversionContext) {
+        return new IntC3Type();
     }
 
 }

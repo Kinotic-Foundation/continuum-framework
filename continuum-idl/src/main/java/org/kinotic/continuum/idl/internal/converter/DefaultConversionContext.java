@@ -29,7 +29,6 @@ public class DefaultConversionContext<T> implements C3ConversionContext<T>{
                 specificConverters.put(type.getName(), converter);
             }
         }
-
     }
 
     @Override

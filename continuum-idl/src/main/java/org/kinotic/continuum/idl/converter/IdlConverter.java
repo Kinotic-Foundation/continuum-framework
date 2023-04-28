@@ -4,6 +4,8 @@ import org.kinotic.continuum.idl.api.C3Type;
 
 /**
  * {@link IdlConverter} allows for conversion of Continuum IDL types to a specific language type.
+ * The {@link IdlConverter} contains state and can be reused but will retain state between requests.
+ * If state needs to be reset a new {@link IdlConverter} should be created.
  * Created by Navíd Mitchell 🤪 on 4/26/23.
  */
 public interface IdlConverter<T> {

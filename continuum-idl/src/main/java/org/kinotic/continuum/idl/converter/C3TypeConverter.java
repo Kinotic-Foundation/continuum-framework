@@ -4,7 +4,7 @@ import org.kinotic.continuum.idl.api.C3Type;
 
 /**
  * {@link C3TypeConverter} are the base interface for converting {@link C3Type} to a specific type.
- * All {@link C3TypeConverter}'s should be stateless and thread safe.
+ * All {@link C3TypeConverter}'s should be stateless. Any state that needs to be retained should be stored in the {@link C3ConversionContext}.
  * Created by Navíd Mitchell 🤪 on 4/26/23.
  */
 public interface C3TypeConverter<T> {

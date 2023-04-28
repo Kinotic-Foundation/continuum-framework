@@ -107,6 +107,7 @@ public class DefaultConversionContext implements ConversionContext {
     private void logException(Exception e){
         if(log.isDebugEnabled() || log.isTraceEnabled()){
             // This indicates this is the first time logException has been called for this context.
+            // This would occur at the furthest call depth so at this point the circularReferenceCheckStack has the complete stack
             if(errorStack.isEmpty()){
                 // We loop vs add all to keep stack intact
                 for(ResolvableType resolvableType: circularReferenceCheckStack){

@@ -13,7 +13,7 @@ public class DefaultIdlConverter<T> implements IdlConverter<T> {
     private final C3ConversionContext<T> conversionContext;
 
     public DefaultIdlConverter(IdlConverterStrategy<T> strategy) {
-        this.conversionContext = new DefaultConversionContext<>(strategy);
+        this.conversionContext = new DefaultC3ConversionContext<>(strategy);
     }
 
     @Override

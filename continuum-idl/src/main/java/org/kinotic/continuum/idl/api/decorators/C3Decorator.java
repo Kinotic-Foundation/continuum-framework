@@ -30,6 +30,9 @@ import java.util.List;
 @EqualsAndHashCode
 public class C3Decorator {
 
+    /**
+     * Targets specify where the decorator can be applied
+     */
     private List<DecoratorTarget> targets;
 
 }

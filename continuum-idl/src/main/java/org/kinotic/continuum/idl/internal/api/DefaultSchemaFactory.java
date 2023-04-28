@@ -19,9 +19,6 @@ package org.kinotic.continuum.idl.internal.api;
 
 import org.kinotic.continuum.api.annotations.Name;
 import org.kinotic.continuum.idl.api.*;
-import org.kinotic.continuum.idl.internal.api.converters.ConversionContext;
-import org.kinotic.continuum.idl.internal.api.converters.DefaultConversionContext;
-import org.kinotic.continuum.idl.internal.api.converters.GenericTypeConverter;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.ResolvableType;
 import org.springframework.stereotype.Component;
@@ -82,13 +79,13 @@ public class DefaultSchemaFactory implements SchemaFactory {
             // TODO: make this work properly when an interface defines generics that the implementor will define in implementation, This would require an interface class and a target class above to work correctly
 
             FunctionDefinition functionDefinition = new FunctionDefinition();
-            functionDefinition.setReturnType(conversionContext.convertDependency(ResolvableType.forMethodReturnType(method)));
+            functionDefinition.setReturnType(conversionContext.convert(ResolvableType.forMethodReturnType(method)));
 
             for (int i = 0; i < method.getParameterCount(); i++) {
 
                 MethodParameter methodParameter = new MethodParameter(method, i);
 
-                C3Type c3Type = conversionContext.convertDependency(ResolvableType.forMethodParameter(methodParameter));
+                C3Type c3Type = conversionContext.convert(ResolvableType.forMethodParameter(methodParameter));
 
                 functionDefinition.addArgument(getName(methodParameter), c3Type);
             }

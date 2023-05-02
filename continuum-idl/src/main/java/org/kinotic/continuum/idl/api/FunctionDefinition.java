@@ -34,6 +34,7 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
+@ToString
 public class FunctionDefinition {
 
     /**

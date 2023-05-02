@@ -36,6 +36,7 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
 public class ObjectC3Type extends C3Type {
 
     /**
@@ -48,6 +49,7 @@ public class ObjectC3Type extends C3Type {
      * The properties (key-value pairs) on an object are defined using the properties' keyword.
      * The value of properties is an object, where each key is the name of a property and each value is a Continuum schema used to validate that property.
      */
+    @ToString.Exclude
     private Map<String, C3Type> properties = new LinkedHashMap<>();
 
     public ObjectC3Type addProperty(String name, C3Type c3Type){

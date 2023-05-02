@@ -20,10 +20,7 @@ package org.kinotic.continuum.idl.api;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.Accessors;
 import org.kinotic.continuum.idl.api.decorators.C3Decorator;
 
@@ -64,6 +61,7 @@ import java.util.Map;
 @Accessors(chain = true)
 @NoArgsConstructor
 @EqualsAndHashCode
+@ToString
 public abstract class C3Type {
 
     /**

@@ -31,6 +31,7 @@ import org.kinotic.continuum.idl.api.datestyles.DateStyle;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
 public class DateC3Type extends C3Type {
 
     /**

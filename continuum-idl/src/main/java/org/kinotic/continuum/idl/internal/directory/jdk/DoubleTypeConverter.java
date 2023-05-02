@@ -1,9 +1,9 @@
-package org.kinotic.continuum.idl.internal.api.jdk;
+package org.kinotic.continuum.idl.internal.directory.jdk;
 
-import org.kinotic.continuum.idl.api.LongC3Type;
+import org.kinotic.continuum.idl.api.DoubleC3Type;
 import org.kinotic.continuum.idl.api.C3Type;
-import org.kinotic.continuum.idl.internal.api.ConversionContext;
-import org.kinotic.continuum.idl.internal.api.SpecificTypeConverter;
+import org.kinotic.continuum.idl.internal.directory.ConversionContext;
+import org.kinotic.continuum.idl.internal.directory.SpecificTypeConverter;
 import org.springframework.core.ResolvableType;
 import org.springframework.stereotype.Component;
 
@@ -11,9 +11,9 @@ import org.springframework.stereotype.Component;
  * Created by Navíd Mitchell 🤪 on 4/13/23.
  */
 @Component
-public class LongTypeConverter implements SpecificTypeConverter {
+public class DoubleTypeConverter implements SpecificTypeConverter {
 
-    private static final Class<?>[] supports = {long.class, Long.class};
+    private static final Class<?>[] supports = {double.class, Double.class};
 
     @Override
     public Class<?>[] supports() {
@@ -23,8 +23,7 @@ public class LongTypeConverter implements SpecificTypeConverter {
     @Override
     public C3Type convert(ResolvableType resolvableType,
                           ConversionContext conversionContext) {
-        return new LongC3Type();
+        return new DoubleC3Type();
     }
 
 }
-

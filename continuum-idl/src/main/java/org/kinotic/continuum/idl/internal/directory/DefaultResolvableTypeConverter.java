@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.kinotic.continuum.idl.internal.api;
+package org.kinotic.continuum.idl.internal.directory;
 
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;

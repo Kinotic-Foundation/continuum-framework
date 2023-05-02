@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.kinotic.continuum.idl.internal.api;
+package org.kinotic.continuum.idl.internal.directory;
 
 import org.apache.commons.lang3.Validate;
 import org.kinotic.continuum.idl.api.C3Type;
@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Composes all the {@link ResolvableTypeConverter}'s into a single component for use by the {@link org.kinotic.continuum.idl.internal.api.DefaultSchemaFactory}
+ * Composes all the {@link ResolvableTypeConverter}'s into a single component for use by the {@link org.kinotic.continuum.idl.internal.directory.DefaultSchemaFactory}
  * Created by navid on 2019-06-13.
  */
 public class ResolvableTypeConverterComposite implements GenericTypeConverter {

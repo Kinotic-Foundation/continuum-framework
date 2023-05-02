@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.kinotic.continuum.idl.internal.api;
+package org.kinotic.continuum.idl.internal.directory;
 
 /**
  * Provides a {@link ResolvableTypeConverter} that supports specific {@link Class} types.

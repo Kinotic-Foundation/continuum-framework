@@ -15,31 +15,27 @@
  * limitations under the License.
  */
 
-package org.kinotic.continuum.idl.internal.api.jdk;
+package org.kinotic.continuum.idl.internal.directory;
 
 import org.kinotic.continuum.idl.api.C3Type;
-import org.kinotic.continuum.idl.api.VoidC3Type;
-import org.kinotic.continuum.idl.internal.api.ConversionContext;
-import org.kinotic.continuum.idl.internal.api.SpecificTypeConverter;
 import org.springframework.core.ResolvableType;
-import org.springframework.stereotype.Component;
 
 /**
+ * Provides support for converting individual {@link ResolvableType}'s into the appropriate {@link C3Type}
  *
- * Created by navid on 2019-07-25.
+ *
+ * Created by navid on 2019-06-13.
  */
-@Component
-public class VoidTypeConverter implements SpecificTypeConverter {
+public interface ResolvableTypeConverter {
 
-    private static final Class<?>[] supports = {void.class, Void.class};
+    /**
+     * Converts the given {@link ResolvableType} to the correct {@link C3Type}
+     *
+     * @param resolvableType to convert
+     * @param conversionContext for this conversion process
+     * @return the newly created {@link C3Type} for the class
+     */
+    C3Type convert(ResolvableType resolvableType,
+                   ConversionContext conversionContext);
 
-    @Override
-    public Class<?>[] supports() {
-        return supports;
-    }
-
-    @Override
-    public C3Type convert(ResolvableType resolvableType, ConversionContext conversionContext) {
-        return new VoidC3Type();
-    }
 }

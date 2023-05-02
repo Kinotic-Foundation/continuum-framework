@@ -15,44 +15,39 @@
  * limitations under the License.
  */
 
-package org.kinotic.continuum.idl.internal.api.jdk;
+package org.kinotic.continuum.idl.internal.directory.jdk;
 
-import org.kinotic.continuum.idl.api.ArrayC3Type;
 import org.kinotic.continuum.idl.api.C3Type;
-import org.kinotic.continuum.idl.internal.api.ConversionContext;
-import org.kinotic.continuum.idl.internal.api.GenericTypeConverter;
+import org.kinotic.continuum.idl.internal.directory.ConversionContext;
+import org.kinotic.continuum.idl.internal.directory.SpecificTypeConverter;
 import org.springframework.core.ResolvableType;
 import org.springframework.stereotype.Component;
+
+import java.util.Optional;
 
 /**
  *
  * Created by navid on 2019-06-14.
  */
 @Component
-public class IterableTypeConverter implements GenericTypeConverter {
+public class OptionalTypeConverter implements SpecificTypeConverter {
+
+    private static final Class<?>[] supports = {Optional.class};
 
     @Override
-    public boolean supports(ResolvableType resolvableType) {
-        boolean ret = false;
-
-        ResolvableType collectionResolvableType = resolvableType.as(Iterable.class);
-        if(!collectionResolvableType.equals(ResolvableType.NONE)){
-            ret = true;
-        }
-        return ret;
+    public Class<?>[] supports() {
+        return supports;
     }
 
     @Override
     public C3Type convert(ResolvableType resolvableType,
                           ConversionContext conversionContext) {
-        ArrayC3Type ret = new ArrayC3Type();
 
         ResolvableType genericType = resolvableType.getGeneric(0);
-
-        if(!genericType.equals(ResolvableType.NONE)){
-            C3Type containsC3Type = conversionContext.convert(genericType);
-            ret.setContains(containsC3Type);
+        if(genericType.equals(ResolvableType.NONE)){
+            throw new IllegalStateException("Optional found but no generic type defined");
         }
-        return ret;
+
+        return conversionContext.convert(genericType);
     }
 }

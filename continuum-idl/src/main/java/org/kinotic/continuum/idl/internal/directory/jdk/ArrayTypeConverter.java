@@ -15,33 +15,33 @@
  * limitations under the License.
  */
 
-package org.kinotic.continuum.idl.internal.api.jdk;
+package org.kinotic.continuum.idl.internal.directory.jdk;
 
+import org.kinotic.continuum.idl.api.ArrayC3Type;
 import org.kinotic.continuum.idl.api.C3Type;
-import org.kinotic.continuum.idl.api.StringC3Type;
-import org.kinotic.continuum.idl.internal.api.ConversionContext;
-import org.kinotic.continuum.idl.internal.api.SpecificTypeConverter;
+import org.kinotic.continuum.idl.internal.directory.ConversionContext;
+import org.kinotic.continuum.idl.internal.directory.GenericTypeConverter;
 import org.springframework.core.ResolvableType;
 import org.springframework.stereotype.Component;
 
 /**
- *
- * Created by navid on 2019-06-14.
+ * Converts an Array into the correct schema
+ * Created by navid on 2019-07-01.
  */
 @Component
-public class StringTypeConverter implements SpecificTypeConverter {
-
-    private static final Class<?>[] supports = {String.class};
+public class ArrayTypeConverter implements GenericTypeConverter {
 
     @Override
-    public Class<?>[] supports() {
-        return supports;
+    public boolean supports(ResolvableType resolvableType) {
+        return resolvableType.isArray();
     }
 
     @Override
     public C3Type convert(ResolvableType resolvableType,
                           ConversionContext conversionContext) {
-        return new StringC3Type();
-    }
 
+        ResolvableType componentType = resolvableType.getComponentType();
+
+        return new ArrayC3Type(conversionContext.convert(componentType));
+    }
 }

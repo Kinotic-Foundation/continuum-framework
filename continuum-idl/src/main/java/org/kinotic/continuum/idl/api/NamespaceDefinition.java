@@ -40,6 +40,11 @@ import java.util.Map;
 public class NamespaceDefinition {
 
     /**
+     * This is the name of this {@link NamespaceDefinition}
+     */
+    private String name;
+
+    /**
      * This is all the objects defined for a given namespace
      */
     private Map<String, ObjectC3Type> objectSchemas = new LinkedHashMap<>();

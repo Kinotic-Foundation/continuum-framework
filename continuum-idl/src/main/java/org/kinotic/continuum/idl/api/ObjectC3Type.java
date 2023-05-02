@@ -46,6 +46,11 @@ public class ObjectC3Type extends C3Type {
     private ObjectC3Type parent = null;
 
     /**
+     * This is the name of the {@link ObjectC3Type} such as "Person", "Animal"
+     */
+    private String name = null;
+
+    /**
      * The properties (key-value pairs) on an object are defined using the properties' keyword.
      * The value of properties is an object, where each key is the name of a property and each value is a Continuum schema used to validate that property.
      */

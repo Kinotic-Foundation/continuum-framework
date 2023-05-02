@@ -39,6 +39,11 @@ import java.util.Map;
 public class ServiceDefinition {
 
     /**
+     * The name of this {@link ServiceDefinition}
+     */
+    private String name;
+
+    /**
      * This defines {@link FunctionDefinition}'s for this {@link ServiceDefinition}
      * The key is the function name and the value is the schema that defines the function
      */

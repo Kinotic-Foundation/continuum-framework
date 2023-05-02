@@ -18,7 +18,7 @@
 package org.kinotic.continuum.iam.api;
 
 import org.kinotic.continuum.api.annotations.Publish;
-import org.kinotic.continuum.core.api.crud.CrudService;
+import org.kinotic.continuum.core.api.crud.IdentifiableCrudService;
 import org.kinotic.continuum.iam.api.domain.Role;
 
 /**
@@ -26,6 +26,6 @@ import org.kinotic.continuum.iam.api.domain.Role;
  * Created by navid on 2/3/20
  */
 @Publish
-public interface RoleService extends CrudService<Role, String> {
+public interface RoleService extends IdentifiableCrudService<Role, String> {
 
 }

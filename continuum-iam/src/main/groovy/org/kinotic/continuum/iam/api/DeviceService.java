@@ -18,7 +18,7 @@
 package org.kinotic.continuum.iam.api;
 
 import org.kinotic.continuum.api.annotations.Publish;
-import org.kinotic.continuum.core.api.crud.CrudService;
+import org.kinotic.continuum.core.api.crud.IdentifiableCrudService;
 import org.kinotic.continuum.iam.api.domain.Authenticator;
 import org.kinotic.continuum.iam.api.domain.IamParticipant;
 import org.kinotic.continuum.iam.api.domain.RegistrationProperty;
@@ -34,7 +34,7 @@ import java.util.concurrent.CompletableFuture;
  * Created by navid on 2/3/20
  */
 @Publish
-public interface DeviceService extends CrudService<IamParticipant, String> {
+public interface DeviceService extends IdentifiableCrudService<IamParticipant, String> {
 
 
     /**

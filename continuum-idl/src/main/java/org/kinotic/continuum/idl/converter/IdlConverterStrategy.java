@@ -12,12 +12,12 @@ public interface IdlConverterStrategy<T> {
     /**
      * @return the {@link SpecificC3TypeConverter}s that this strategy uses
      */
-    List<SpecificC3TypeConverter<T>> specificTypeConverters();
+    List<SpecificC3TypeConverter<T, ?>> specificTypeConverters();
 
     /**
      * @return the {@link GenericC3TypeConverter}s that this strategy uses
      */
-    List<GenericC3TypeConverter<T>> genericTypeConverters();
+    List<GenericC3TypeConverter<T, ?>> genericTypeConverters();
 
     /**
      * Determines if caching is turned on for this strategy.

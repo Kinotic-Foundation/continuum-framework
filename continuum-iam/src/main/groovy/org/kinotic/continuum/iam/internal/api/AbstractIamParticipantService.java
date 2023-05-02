@@ -19,7 +19,7 @@ package org.kinotic.continuum.iam.internal.api;
 
 import org.apache.commons.lang3.Validate;
 import org.hibernate.Hibernate;
-import org.kinotic.continuum.core.api.crud.CrudService;
+import org.kinotic.continuum.core.api.crud.IdentifiableCrudService;
 import org.kinotic.continuum.iam.api.domain.Authenticator;
 import org.kinotic.continuum.iam.api.domain.IamParticipant;
 import org.kinotic.continuum.iam.internal.repositories.IamParticipantRepository;
@@ -37,7 +37,7 @@ import java.util.concurrent.CompletableFuture;
  *
  * Created by Navid Mitchell on 3/3/20
  */
-public abstract class AbstractIamParticipantService implements CrudService<IamParticipant, String> {
+public abstract class AbstractIamParticipantService implements IdentifiableCrudService<IamParticipant, String> {
 
     protected final IamParticipantRepository iamParticipantRepository;
 
@@ -113,7 +113,6 @@ public abstract class AbstractIamParticipantService implements CrudService<IamPa
         return CompletableFuture.supplyAsync(() -> iamParticipantRepository.findByMetadataAndValue(type.getKey(), type.getValue(), page));
     }
 
-    @Override
     public CompletableFuture<Page<IamParticipant>> findByIdNotIn(Collection<String> collection, Pageable page) {
         return CompletableFuture.supplyAsync(() -> iamParticipantRepository.findByIdNotIn(collection, page));
     }

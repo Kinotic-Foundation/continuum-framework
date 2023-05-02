@@ -75,4 +75,31 @@ public abstract class C3Type {
      */
     private List<C3Decorator> decorators;
 
+    /**
+     * Checks if this type contains a {@link C3Decorator} of the given subclass
+     * @param clazz to see if this type has
+     * @return true if the {@link C3Decorator} is present false if not
+     */
+    public boolean containsDecorator(Class<? extends C3Decorator> clazz){
+        return findDecorator(clazz) != null;
+    }
+
+    /**
+     * Finds the first {@link C3Decorator} of the given subclass or null if none are found
+     * @param clazz to find the {@link C3Decorator} for
+     * @return the {@link C3Decorator} or null if none are found
+     */
+    public C3Decorator findDecorator(Class<? extends C3Decorator> clazz){
+        C3Decorator ret = null;
+        if(decorators != null){
+            for (C3Decorator decorator : decorators){
+                if(clazz.isAssignableFrom(decorator.getClass())){
+                    ret = decorator;
+                    break;
+                }
+            }
+        }
+        return ret;
+    }
+
 }

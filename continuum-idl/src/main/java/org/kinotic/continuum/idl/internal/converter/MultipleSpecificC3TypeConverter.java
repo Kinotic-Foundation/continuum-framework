@@ -13,7 +13,7 @@ import java.util.function.BiFunction;
  * Convenience class that allows for multiple specific types to be handled by a single class
  * Created by Navíd Mitchell 🤪 on 4/28/23.
  */
-public class MultipleSpecificC3TypeConverter<T> implements SpecificC3TypeConverter<T> {
+public class MultipleSpecificC3TypeConverter<T> implements SpecificC3TypeConverter<T, C3Type> {
 
     private final Map<Class<? extends C3Type>, BiFunction<C3Type, C3ConversionContext<T>, T>> converterMap = new HashMap<>();
 

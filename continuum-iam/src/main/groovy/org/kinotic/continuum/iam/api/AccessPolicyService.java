@@ -18,7 +18,7 @@
 package org.kinotic.continuum.iam.api;
 
 import org.kinotic.continuum.api.annotations.Publish;
-import org.kinotic.continuum.core.api.crud.CrudService;
+import org.kinotic.continuum.core.api.crud.IdentifiableCrudService;
 import org.kinotic.continuum.iam.api.domain.AccessPolicy;
 
 /**
@@ -26,7 +26,7 @@ import org.kinotic.continuum.iam.api.domain.AccessPolicy;
  * Created by navid on 2/3/20
  */
 @Publish
-public interface AccessPolicyService extends CrudService<AccessPolicy, String> {
+public interface AccessPolicyService extends IdentifiableCrudService<AccessPolicy, String> {
 
 
 }

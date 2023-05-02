@@ -78,7 +78,6 @@ public class DefaultRoleService implements RoleService {
         return CompletableFuture.supplyAsync(() -> roleRepository.findAll(page));
     }
 
-    @Override
     public CompletableFuture<Page<Role>> findByIdNotIn(Collection<String> collection, Pageable page) {
         return CompletableFuture.supplyAsync(() -> {
             Page<Role> ret;

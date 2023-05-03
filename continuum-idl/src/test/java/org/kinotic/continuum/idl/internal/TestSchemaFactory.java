@@ -15,7 +15,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -38,13 +37,13 @@ public class TestSchemaFactory {
     public void testSchemaFactory() throws Exception {
         NamespaceDefinition namespaceDefinition = schemaFactory.createForService(TestService.class);
 
-        Optional<Map.Entry<String, ServiceDefinition>> serviceSchemasOptional = namespaceDefinition.getServiceSchemas().entrySet().stream().findFirst();
+        Optional<ServiceDefinition> serviceOptional = namespaceDefinition.getServices().stream().findFirst();
 
-        Assertions.assertTrue(serviceSchemasOptional.isPresent());
+        Assertions.assertTrue(serviceOptional.isPresent());
 
-        Assertions.assertEquals(TestService.class.getName(), serviceSchemasOptional.get().getKey());
+        Assertions.assertEquals(TestService.class.getName(), serviceOptional.get().getUrn());
 
-        ServiceDefinition serviceDefinition = serviceSchemasOptional.get().getValue();
+        ServiceDefinition serviceDefinition = serviceOptional.get();
 
         Assertions.assertEquals(3, serviceDefinition.getFunctions().size());
 

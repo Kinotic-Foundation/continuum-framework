@@ -17,12 +17,13 @@
 
 package org.kinotic.continuum.idl.api;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import lombok.experimental.Accessors;
 import org.apache.commons.lang3.Validate;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 /**
  * Provides functionality to define an interface with a Continuum schema.
@@ -39,6 +40,11 @@ import java.util.Map;
 public class ServiceDefinition {
 
     /**
+     * The namespace this {@link ServiceDefinition} belongs to
+     */
+    private String namespace;
+
+    /**
      * The name of this {@link ServiceDefinition}
      */
     private String name;
@@ -47,18 +53,28 @@ public class ServiceDefinition {
      * This defines {@link FunctionDefinition}'s for this {@link ServiceDefinition}
      * The key is the function name and the value is the schema that defines the function
      */
-    private Map<String, FunctionDefinition> functions = new LinkedHashMap<>();
+    @EqualsAndHashCode.Exclude
+    private Set<FunctionDefinition> functions = new LinkedHashSet<>();
 
     /**
      * Stores the given value in the functions definitions for this schema
      * If a schema for the name already exists an error will be thrown
-     * @param name the name of the function
-     * @param schema {@link FunctionDefinition} defining the function
+     * @param function {@link FunctionDefinition} defining the function
      * @return this
      */
-    public ServiceDefinition addFunction(String name, FunctionDefinition schema){
-        Validate.isTrue(!functions.containsKey(name), "InterfaceJsonSchema already contains function for name "+name);
-        functions.put(name, schema);
+    public ServiceDefinition addFunction(FunctionDefinition function){
+        Validate.isTrue(!functions.contains(function), "ServiceDefinition already contains function "+function);
+        functions.add(function);
         return this;
     }
+
+    /**
+     * The URN is the namespace + "." + name
+     * @return the urn for this {@link ServiceDefinition}
+     */
+    @JsonIgnore
+    public String getUrn(){
+        return namespace + "." + name;
+    }
+
 }

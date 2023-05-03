@@ -22,7 +22,7 @@ import org.kinotic.continuum.idl.api.ObjectC3Type;
 import org.kinotic.continuum.idl.api.ReferenceC3Type;
 import org.springframework.core.ResolvableType;
 
-import java.util.Map;
+import java.util.Set;
 
 /**
  * Represents the current state of the conversion as well as providing a means for converters to convert dependent {@link C3Type}'s
@@ -42,6 +42,6 @@ public interface ConversionContext {
     /**
      * @return all of the {@link ObjectC3Type} known to this {@link ConversionContext}
      */
-    Map<String, ObjectC3Type> getObjectSchemas();
+    Set<ObjectC3Type> getObjects();
 
 }

@@ -74,6 +74,8 @@ public class DefaultSchemaFactory implements SchemaFactory {
 
 
         ServiceDefinition serviceDefinition = new ServiceDefinition();
+        serviceDefinition.setNamespace(clazz.getPackage().getName());
+        serviceDefinition.setName(clazz.getSimpleName());
 
         ReflectionUtils.doWithMethods(clazz, method -> {
             // TODO: make this work properly when an interface defines generics that the implementor will define in implementation, This would require an interface class and a target class above to work correctly
@@ -90,13 +92,14 @@ public class DefaultSchemaFactory implements SchemaFactory {
                 functionDefinition.addArgument(getName(methodParameter), c3Type);
             }
 
-            serviceDefinition.addFunction(method.getName(), functionDefinition);
+            functionDefinition.setName(method.getName());
+            serviceDefinition.addFunction(functionDefinition);
 
         }, ReflectionUtils.USER_DECLARED_METHODS);
 
         NamespaceDefinition ret = new NamespaceDefinition();
-        ret.setObjectSchemas(conversionContext.getObjectSchemas());
-        ret.addServiceSchema(clazz.getName(), serviceDefinition);
+        ret.setObjects(conversionContext.getObjects());
+        ret.addServiceDefinition(serviceDefinition);
 
         return ret;
     }

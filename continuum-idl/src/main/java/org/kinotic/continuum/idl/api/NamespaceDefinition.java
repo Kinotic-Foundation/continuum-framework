@@ -21,8 +21,8 @@ import lombok.*;
 import lombok.experimental.Accessors;
 import org.apache.commons.lang3.Validate;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Provides functionality to define a namespace with a Continuum schema.
@@ -47,23 +47,23 @@ public class NamespaceDefinition {
     /**
      * This is all the objects defined for a given namespace
      */
-    private Map<String, ObjectC3Type> objectSchemas = new LinkedHashMap<>();
+    private Set<ObjectC3Type> objects = new HashSet<>();
 
     /**
      * This is all the services defined for a given namespace
      */
-    private Map<String, ServiceDefinition> serviceSchemas = new LinkedHashMap<>();
+    private Set<ServiceDefinition> services = new HashSet<>();
 
 
-    public NamespaceDefinition addObjectSchema(String name, ObjectC3Type schema){
-        Validate.isTrue(!objectSchemas.containsKey(name), "This NamespaceSchema already contains an ObjectSchema for name "+name);
-        objectSchemas.put(name, schema);
+    public NamespaceDefinition addObject(ObjectC3Type type){
+        Validate.isTrue(!objects.contains(type), "This NamespaceDefinition already contains an ObjectC3Type" + type);
+        objects.add(type);
         return this;
     }
 
-    public NamespaceDefinition addServiceSchema(String name, ServiceDefinition schema){
-        Validate.isTrue(!serviceSchemas.containsKey(name), "This NamespaceSchema already contains an ServiceSchema for name "+name);
-        serviceSchemas.put(name, schema);
+    public NamespaceDefinition addServiceDefinition(ServiceDefinition service){
+        Validate.isTrue(!services.contains(service), "This NamespaceDefinition already contains a ServiceDefinition "+service);
+        services.add(service);
         return this;
     }
 

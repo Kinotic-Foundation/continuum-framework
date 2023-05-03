@@ -17,6 +17,7 @@
 
 package org.kinotic.continuum.idl.api;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import lombok.experimental.Accessors;
 import org.apache.commons.lang3.Validate;
@@ -35,15 +36,14 @@ import java.util.Map;
 @Accessors(chain = true)
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = false)
 @ToString(callSuper = true)
 public class ObjectC3Type extends C3Type {
 
     /**
-     * The parent schema of this object definition
-     * This is used to support inheritance
+     * The namespace that this {@link ObjectC3Type} belongs to
      */
-    private ObjectC3Type parent = null;
+    private String namespace = null;
 
     /**
      * This is the name of the {@link ObjectC3Type} such as "Person", "Animal"
@@ -51,16 +51,39 @@ public class ObjectC3Type extends C3Type {
     private String name = null;
 
     /**
+     * The parent schema of this object definition
+     * This is used to support inheritance
+     */
+    @EqualsAndHashCode.Exclude
+    private ObjectC3Type parent = null;
+
+    /**
      * The properties (key-value pairs) on an object are defined using the properties' keyword.
      * The value of properties is an object, where each key is the name of a property and each value is a Continuum schema used to validate that property.
      */
     @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private Map<String, C3Type> properties = new LinkedHashMap<>();
 
+    /**
+     * Adds a property to this {@link ObjectC3Type}
+     * @param name of the property
+     * @param c3Type the type of the property
+     * @return this {@link ObjectC3Type} for chaining
+     */
     public ObjectC3Type addProperty(String name, C3Type c3Type){
         Validate.isTrue(!properties.containsKey(name), "ObjectC3Type already contains property for name "+name);
         properties.put(name, c3Type);
         return this;
+    }
+
+    /**
+     * Gets the URN for this {@link ObjectC3Type} which is the namespace + "." + name
+     * @return the urn for this {@link ObjectC3Type}
+     */
+    @JsonIgnore
+    public String getUrn(){
+        return namespace + "." + name;
     }
 
 }

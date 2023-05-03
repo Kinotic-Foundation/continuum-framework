@@ -38,6 +38,11 @@ import java.util.Map;
 public class FunctionDefinition {
 
     /**
+     * The name of this {@link FunctionDefinition}
+     */
+    private String name;
+
+    /**
      * This is the {@link C3Type} that defines the return type of this function.
      */
     private C3Type returnType = new VoidC3Type();

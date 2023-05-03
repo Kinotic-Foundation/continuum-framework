@@ -17,14 +17,13 @@
 
 package org.kinotic.continuum.idl.internal.directory;
 
+import org.apache.commons.lang3.StringUtils;
 import org.kinotic.continuum.idl.api.C3Type;
 import org.kinotic.continuum.idl.api.ObjectC3Type;
 import org.kinotic.continuum.idl.api.ReferenceC3Type;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.ResolvableType;
-import org.springframework.util.Assert;
 
 import java.util.*;
 
@@ -44,7 +43,7 @@ public class DefaultConversionContext implements ConversionContext {
 
     private final Map<String, C3Type> schemaCache = new HashMap<>();
 
-    private final Map<String, ObjectC3Type> objectSchemaMap = new LinkedHashMap<>();
+    private final Set<ObjectC3Type> objects = new HashSet<>();
 
     /**
      * Creates a new {@link ConversionContext}
@@ -87,17 +86,16 @@ public class DefaultConversionContext implements ConversionContext {
     public C3Type convert(ResolvableType resolvableType) {
         C3Type c3Type = convertInternal(resolvableType);
         if(c3Type instanceof ObjectC3Type){
-            Class<?> rawClass = resolvableType.getRawClass();
-            Assert.notNull(rawClass, "Cannot determine name for ObjectSchema");
-            String name = rawClass.getName();
-            objectSchemaMap.put(name, (ObjectC3Type) c3Type);
-            c3Type = new ReferenceC3Type(name);
+            ObjectC3Type objectC3Type = (ObjectC3Type) c3Type;
+            objects.add(objectC3Type);
+            c3Type = new ReferenceC3Type(objectC3Type.getUrn());
         }
         return c3Type;
     }
 
-    public Map<String, ObjectC3Type> getObjectSchemas() {
-        return objectSchemaMap;
+    @Override
+    public Set<ObjectC3Type> getObjects() {
+        return objects;
     }
 
     /**

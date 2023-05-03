@@ -85,6 +85,14 @@ public abstract class C3Type {
     }
 
     /**
+     * Checks if this type has any {@link C3Decorator}
+     * @return true if any {@link C3Decorator}s are present false if not
+     */
+    public boolean hasDecorators(){
+        return decorators != null && !decorators.isEmpty();
+    }
+
+    /**
      * Finds the first {@link C3Decorator} of the given subclass or null if none are found
      * @param clazz to find the {@link C3Decorator} for
      * @return the {@link C3Decorator} or null if none are found

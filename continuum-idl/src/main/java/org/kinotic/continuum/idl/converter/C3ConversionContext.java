@@ -13,5 +13,5 @@ public interface C3ConversionContext<T> {
 
     T convert(C3Type c3Type);
 
-    Map<String, ?> state();
+    Map<String, Object> state();
 }

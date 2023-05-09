@@ -57,4 +57,6 @@ public interface ContinuumProperties {
     String getDiscovery();
 
     long getMaxOffHeapMemory();
+
+    int getMaxEventPayloadSize();
 }

@@ -24,6 +24,7 @@ import lombok.*;
 import lombok.experimental.Accessors;
 import org.kinotic.continuum.idl.api.decorators.C3Decorator;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -74,6 +75,19 @@ public abstract class C3Type {
      * The list of Decorators that should be applied to this type
      */
     private List<C3Decorator> decorators;
+
+    /**
+     * Adds a {@link C3Decorator} to this type
+     * @param decorator to add
+     * @return this {@link C3Type} for chaining
+     */
+    public C3Type addDecorator(C3Decorator decorator){
+        if(decorators == null){
+            decorators = new ArrayList<>();
+        }
+        decorators.add(decorator);
+        return this;
+    }
 
     /**
      * Checks if this type contains a {@link C3Decorator} of the given subclass

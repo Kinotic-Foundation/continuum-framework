@@ -46,6 +46,8 @@ public class DefaultC3ConversionContext<T> implements C3ConversionContext<T>{
         try {
             Validate.notNull(c3Type, "C3Type must not be null");
 
+            //FIXME: add JSR-380 validation
+
             conversionDepthStack.addFirst(c3Type);
 
             //noinspection unchecked
@@ -93,7 +95,7 @@ public class DefaultC3ConversionContext<T> implements C3ConversionContext<T>{
     }
 
     @Override
-    public Map<String, ?> state() {
+    public Map<String, Object> state() {
         return state;
     }
 

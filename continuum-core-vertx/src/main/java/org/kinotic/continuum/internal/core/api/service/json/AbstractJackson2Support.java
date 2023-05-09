@@ -24,6 +24,7 @@ import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
+import org.kinotic.continuum.api.config.ContinuumProperties;
 import org.kinotic.continuum.core.api.event.Event;
 import org.kinotic.continuum.core.api.event.EventConstants;
 import org.kinotic.continuum.core.api.event.Metadata;
@@ -53,18 +54,19 @@ public abstract class AbstractJackson2Support {
 
     private final ObjectMapper objectMapper;
     private final ReactiveAdapterRegistry reactiveAdapterRegistry;
+    private final ContinuumProperties continuumProperties;
 
     public AbstractJackson2Support(ObjectMapper objectMapper,
-                                   ReactiveAdapterRegistry reactiveAdapterRegistry) {
+                                   ReactiveAdapterRegistry reactiveAdapterRegistry,
+                                   ContinuumProperties continuumProperties) {
         this.objectMapper = objectMapper;
         this.reactiveAdapterRegistry = reactiveAdapterRegistry;
+        this.continuumProperties = continuumProperties;
     }
 
     public ObjectMapper getObjectMapper() {
         return objectMapper;
     }
-
-    private final int maxInMemorySize = 256 * 1024;
 
     /**
      * Tests if the content is considered json
@@ -92,6 +94,7 @@ public abstract class AbstractJackson2Support {
         Validate.notNull(event, "event cannot be null");
         Validate.notNull(parameters, "parameters must not be null");
 
+        // TODO: remove the use of the Spring Tokenizer since I have found out about the performance issues with reactor
         // Should we use the Jackson2Tokenizer borrowed from spring? We are not really taking advantage of the claimed non blocking or the Flux themselves
         // I really don't see a way to do that anyhow since all Arguments at least for the invoker must be available upfront.
         // A return value could be parsed and streamed but that would require more machinery.
@@ -100,7 +103,7 @@ public abstract class AbstractJackson2Support {
                                                               getObjectMapper().getFactory(),
                                                               getObjectMapper(),
                                                               dataInArray,
-                                                              maxInMemorySize)
+                                                              continuumProperties.getMaxEventPayloadSize())
                                                     .collectList()
                                                     .block();
         List<Object> ret = new LinkedList<>();

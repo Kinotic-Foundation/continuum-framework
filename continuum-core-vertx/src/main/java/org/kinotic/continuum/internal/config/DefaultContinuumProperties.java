@@ -45,6 +45,8 @@ public class DefaultContinuumProperties implements ContinuumProperties {
     private long sessionTimeout = DEFAULT_SESSION_TIMEOUT;
     private String discovery = DEFAULT_DISCOVERY;
     private long maxOffHeapMemory = DataStorageConfiguration.DFLT_DATA_REGION_MAX_SIZE;
+    // FIXME: Make sure this respected by the gateway. So far this has just been added to the Json decoding logic.
+    private int maxEventPayloadSize = 1024 * 1024 * 10; // 10MB
 
     @Override
     public String getKafkaBootstrapServers() {
@@ -130,6 +132,15 @@ public class DefaultContinuumProperties implements ContinuumProperties {
     public ContinuumProperties setMaxOffHeapMemory(long maxOffHeapMemory) {
         this.maxOffHeapMemory = maxOffHeapMemory;
         return this;
+    }
+
+    @Override
+    public int getMaxEventPayloadSize() {
+        return maxEventPayloadSize;
+    }
+
+    public void setMaxEventPayloadSize(int maxEventPayloadSize) {
+        this.maxEventPayloadSize = maxEventPayloadSize;
     }
 
     @Override

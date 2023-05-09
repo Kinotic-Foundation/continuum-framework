@@ -18,6 +18,7 @@
 package org.kinotic.continuum.internal.core.api.service.invoker.json;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.kinotic.continuum.api.config.ContinuumProperties;
 import org.kinotic.continuum.core.api.event.Event;
 import org.kinotic.continuum.core.api.event.EventConstants;
 import org.kinotic.continuum.core.api.event.Metadata;
@@ -37,8 +38,9 @@ import java.util.HashMap;
 public class Jackson2ReturnValueConverter extends AbstractJackson2Support implements ReturnValueConverter {
 
     public Jackson2ReturnValueConverter(ObjectMapper objectMapper,
-                                        ReactiveAdapterRegistry reactiveAdapterRegistry) {
-        super(objectMapper, reactiveAdapterRegistry);
+                                        ReactiveAdapterRegistry reactiveAdapterRegistry,
+                                        ContinuumProperties continuumProperties) {
+        super(objectMapper, reactiveAdapterRegistry, continuumProperties);
     }
 
     @Override

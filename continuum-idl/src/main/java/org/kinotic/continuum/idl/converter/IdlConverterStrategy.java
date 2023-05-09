@@ -7,17 +7,26 @@ import java.util.List;
  * to a specific language type.
  * Created by Navíd Mitchell 🤪 on 4/26/23.
  */
-public interface IdlConverterStrategy<T> {
+public interface IdlConverterStrategy<T, S> {
 
     /**
      * @return the {@link SpecificC3TypeConverter}s that this strategy uses
      */
-    List<SpecificC3TypeConverter<T, ?>> specificTypeConverters();
+    List<SpecificC3TypeConverter<T, ?, S>> specificTypeConverters();
 
     /**
      * @return the {@link GenericC3TypeConverter}s that this strategy uses
      */
-    List<GenericC3TypeConverter<T, ?>> genericTypeConverters();
+    List<GenericC3TypeConverter<T, ?, S>> genericTypeConverters();
+
+    /**
+     * The object that will be available via the {@link C3ConversionContext#state()}.
+     * This can be a simple {@link java.util.Map} or something with better type safety.
+     * This should return a new instance each time it is called.
+     * This will be called each time a new {@link C3ConversionContext} is created.
+     * @return the conversion context state.
+     */
+    S initialState();
 
     /**
      * Determines if caching is turned on for this strategy.
@@ -27,3 +36,4 @@ public interface IdlConverterStrategy<T> {
     boolean shouldCache();
 
 }
+

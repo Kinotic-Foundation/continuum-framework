@@ -7,7 +7,7 @@ import org.kinotic.continuum.idl.api.C3Type;
  * All {@link C3TypeConverter}'s should be stateless. Any state that needs to be retained should be stored in the {@link C3ConversionContext}.
  * Created by Navíd Mitchell 🤪 on 4/26/23.
  */
-public interface C3TypeConverter<T, C3 extends C3Type> {
+public interface C3TypeConverter<T, C3 extends C3Type, S> {
 
     /**
      * Converts the given {@link C3Type} to the specific type.
@@ -16,6 +16,6 @@ public interface C3TypeConverter<T, C3 extends C3Type> {
      * @return the converted type
      */
     T convert(C3 c3Type,
-              C3ConversionContext<T> conversionContext);
+              C3ConversionContext<T, S> conversionContext);
 
 }

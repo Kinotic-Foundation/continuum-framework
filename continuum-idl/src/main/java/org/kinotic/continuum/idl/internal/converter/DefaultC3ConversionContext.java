@@ -12,13 +12,13 @@ import java.util.*;
 /**
  * Created by Navíd Mitchell 🤪 on 4/26/23.
  */
-public class DefaultC3ConversionContext<T> implements C3ConversionContext<T>{
+public class DefaultC3ConversionContext<T, S> implements C3ConversionContext<T, S>{
 
     private static final Logger log = LoggerFactory.getLogger(DefaultC3ConversionContext.class);
 
-    private final IdlConverterStrategy<T> strategy;
+    private final IdlConverterStrategy<T, S> strategy;
 
-    private final Map<String, SpecificC3TypeConverter<T, ?>> specificConverters = new LinkedHashMap<>();
+    private final Map<String, SpecificC3TypeConverter<T, ?, S>> specificConverters = new LinkedHashMap<>();
 
     private final Deque<C3Type> conversionDepthStack = new ArrayDeque<>();
 
@@ -26,12 +26,11 @@ public class DefaultC3ConversionContext<T> implements C3ConversionContext<T>{
 
     private final Map<C3Type, T> cache = new HashMap<>();
 
-    private final Map<String, Object> state = new HashMap<>();
+    private S state;
 
-
-    public DefaultC3ConversionContext(IdlConverterStrategy<T> strategy) {
+    public DefaultC3ConversionContext(IdlConverterStrategy<T, S> strategy) {
         this.strategy = strategy;
-        for(SpecificC3TypeConverter<T, ?> converter : strategy.specificTypeConverters()){
+        for(SpecificC3TypeConverter<T, ?, S> converter : strategy.specificTypeConverters()){
             for(Class<? extends C3Type> type: converter.supports()){
                 Validate.notNull(type, "SpecificC3TypeConverter classes returned from supports must not be null");
                 Validate.isTrue(!specificConverters.containsKey(type.getName()),"SpecificC3TypeConverter already exists for "+type.getName());
@@ -39,6 +38,9 @@ public class DefaultC3ConversionContext<T> implements C3ConversionContext<T>{
                 specificConverters.put(type.getName(), converter);
             }
         }
+
+        this.state = strategy.initialState();
+
     }
 
     @Override
@@ -51,7 +53,7 @@ public class DefaultC3ConversionContext<T> implements C3ConversionContext<T>{
             conversionDepthStack.addFirst(c3Type);
 
             //noinspection unchecked
-            C3TypeConverter<T, C3Type> converter = (C3TypeConverter<T, C3Type>) selectConverter(c3Type);
+            C3TypeConverter<T, C3Type, S> converter = (C3TypeConverter<T, C3Type, S>) selectConverter(c3Type);
             Validate.isTrue(converter != null, "Unsupported Class no C3TypeConverter can be found for " + c3Type.getClass().getName());
 
             boolean cache = strategy.shouldCache() && converter instanceof Cacheable;
@@ -75,8 +77,8 @@ public class DefaultC3ConversionContext<T> implements C3ConversionContext<T>{
         }
     }
 
-    private C3TypeConverter<T,?> selectConverter(C3Type type){
-        C3TypeConverter<T,?> ret = null;
+    private C3TypeConverter<T, ?, S> selectConverter(C3Type type){
+        C3TypeConverter<T, ?, S> ret = null;
         // check specific type then generic converters
         Class<? extends C3Type> clazz = type.getClass();
         if (clazz != null) {
@@ -84,7 +86,7 @@ public class DefaultC3ConversionContext<T> implements C3ConversionContext<T>{
         }
 
         if (ret == null) {
-            for (GenericC3TypeConverter<T, ?> converter : strategy.genericTypeConverters()) {
+            for (GenericC3TypeConverter<T, ?, S> converter : strategy.genericTypeConverters()) {
                 if (converter.supports(type)) {
                     ret = converter;
                     break;
@@ -95,7 +97,7 @@ public class DefaultC3ConversionContext<T> implements C3ConversionContext<T>{
     }
 
     @Override
-    public Map<String, Object> state() {
+    public S state() {
         return state;
     }
 

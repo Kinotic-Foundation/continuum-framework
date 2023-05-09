@@ -8,7 +8,7 @@ import org.kinotic.continuum.idl.api.C3Type;
  * If state needs to be reset a new {@link IdlConverter} should be created.
  * Created by Navíd Mitchell 🤪 on 4/26/23.
  */
-public interface IdlConverter<T> {
+public interface IdlConverter<T, S> {
 
     /**
      * Converts the given {@link C3Type} to the specific language type.
@@ -22,6 +22,6 @@ public interface IdlConverter<T> {
      * Ths allows {@link C3TypeConverter} to store information needed after the conversion process.
      * @return the {@link C3ConversionContext} used during conversion
      */
-    C3ConversionContext<T> getConversionContext();
+    C3ConversionContext<T, S> getConversionContext();
 
 }

@@ -12,6 +12,6 @@ public interface IdlConverterFactory {
       * @return a new {@link IdlConverter} instance
       * @param <T> the type that the {@link IdlConverter} will convert to
       */
-     <T> IdlConverter<T> createConverter(IdlConverterStrategy<T> strategy);
+     <T, S> IdlConverter<T, S> createConverter(IdlConverterStrategy<T, S> strategy);
 
 }

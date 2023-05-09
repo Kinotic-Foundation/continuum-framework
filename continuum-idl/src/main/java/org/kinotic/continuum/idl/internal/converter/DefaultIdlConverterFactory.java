@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 public class DefaultIdlConverterFactory implements IdlConverterFactory {
 
     @Override
-    public <T> IdlConverter<T> createConverter(IdlConverterStrategy<T> strategy) {
+    public <T, S> IdlConverter<T, S> createConverter(IdlConverterStrategy<T, S> strategy) {
         return new DefaultIdlConverter<>(strategy);
     }
 

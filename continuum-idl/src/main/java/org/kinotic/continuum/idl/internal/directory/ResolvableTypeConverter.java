@@ -17,7 +17,7 @@
 
 package org.kinotic.continuum.idl.internal.directory;
 
-import org.kinotic.continuum.idl.api.C3Type;
+import org.kinotic.continuum.idl.api.schema.C3Type;
 import org.springframework.core.ResolvableType;
 
 /**

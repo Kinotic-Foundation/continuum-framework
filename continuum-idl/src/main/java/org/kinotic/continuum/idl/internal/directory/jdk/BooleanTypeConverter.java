@@ -17,8 +17,8 @@
 
 package org.kinotic.continuum.idl.internal.directory.jdk;
 
-import org.kinotic.continuum.idl.api.BooleanC3Type;
-import org.kinotic.continuum.idl.api.C3Type;
+import org.kinotic.continuum.idl.api.schema.BooleanC3Type;
+import org.kinotic.continuum.idl.api.schema.C3Type;
 import org.kinotic.continuum.idl.internal.directory.ConversionContext;
 import org.kinotic.continuum.idl.internal.directory.SpecificTypeConverter;
 import org.springframework.core.ResolvableType;

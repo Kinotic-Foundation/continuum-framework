@@ -18,7 +18,7 @@
 package org.kinotic.continuum.idl.internal.directory;
 
 import org.kinotic.continuum.api.annotations.Name;
-import org.kinotic.continuum.idl.api.*;
+import org.kinotic.continuum.idl.api.schema.*;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.ResolvableType;
 import org.springframework.stereotype.Component;

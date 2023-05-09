@@ -17,7 +17,7 @@
 
 package org.kinotic.continuum.idl.internal.support.jsonSchema;
 
-import org.kinotic.continuum.idl.api.datestyles.DateStyle;
+import org.kinotic.continuum.idl.api.schema.datestyles.DateStyle;
 
 /**
  *

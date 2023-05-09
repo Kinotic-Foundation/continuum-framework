@@ -18,7 +18,7 @@
 package org.kinotic.continuum.idl.internal.directory;
 
 import org.apache.commons.lang3.Validate;
-import org.kinotic.continuum.idl.api.C3Type;
+import org.kinotic.continuum.idl.api.schema.C3Type;
 import org.springframework.core.ResolvableType;
 import org.springframework.util.Assert;
 

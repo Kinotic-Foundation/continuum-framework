@@ -18,9 +18,9 @@
 package org.kinotic.continuum.idl.internal.directory;
 
 import org.apache.commons.lang3.StringUtils;
-import org.kinotic.continuum.idl.api.C3Type;
-import org.kinotic.continuum.idl.api.ObjectC3Type;
-import org.kinotic.continuum.idl.api.ReferenceC3Type;
+import org.kinotic.continuum.idl.api.schema.C3Type;
+import org.kinotic.continuum.idl.api.schema.ObjectC3Type;
+import org.kinotic.continuum.idl.api.schema.ReferenceC3Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.ResolvableType;

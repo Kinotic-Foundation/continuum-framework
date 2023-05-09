@@ -1,8 +1,8 @@
 package org.kinotic.continuum.idl.internal.directory.jdk;
 
 import org.apache.commons.lang3.Validate;
-import org.kinotic.continuum.idl.api.EnumC3Type;
-import org.kinotic.continuum.idl.api.C3Type;
+import org.kinotic.continuum.idl.api.schema.EnumC3Type;
+import org.kinotic.continuum.idl.api.schema.C3Type;
 import org.kinotic.continuum.idl.internal.directory.ConversionContext;
 import org.kinotic.continuum.idl.internal.directory.SpecificTypeConverter;
 import org.springframework.core.ResolvableType;

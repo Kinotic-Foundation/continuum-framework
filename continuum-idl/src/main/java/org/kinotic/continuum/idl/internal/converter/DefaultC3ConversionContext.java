@@ -26,7 +26,7 @@ public class DefaultC3ConversionContext<T, S> implements C3ConversionContext<T, 
 
     private final Map<C3Type, T> cache = new HashMap<>();
 
-    private S state;
+    private final S state;
 
     public DefaultC3ConversionContext(IdlConverterStrategy<T, S> strategy) {
         this.strategy = strategy;

@@ -17,13 +17,17 @@
 
 package org.kinotic.continuum.iam.api.domain;
 
-import org.kinotic.continuum.api.Identifiable;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NonNull;
+import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.apache.commons.lang3.Validate;
+import org.kinotic.continuum.api.Identifiable;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.ManyToMany;
+import javax.persistence.Version;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -32,7 +36,8 @@ import java.util.List;
  * Created by navid on 2/3/20
  */
 @Entity
-@Data
+@Getter
+@Setter
 @Accessors(chain = true)
 public class Role implements Identifiable<String> {
 

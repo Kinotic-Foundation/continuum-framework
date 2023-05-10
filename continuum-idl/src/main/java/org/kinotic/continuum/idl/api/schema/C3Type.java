@@ -69,12 +69,12 @@ public abstract class C3Type {
      * The metadata keyword is legal on any schema, The objects provided must be serializable to JSON.
      * Usually, metadata is for putting things like descriptions or hints for code generators, or other things tools can use.
      */
-    private Map<String, ?> metadata;
+    protected Map<String, ?> metadata;
 
     /**
      * The list of Decorators that should be applied to this type
      */
-    private List<C3Decorator> decorators;
+    protected List<C3Decorator> decorators;
 
     /**
      * Adds a {@link C3Decorator} to this type

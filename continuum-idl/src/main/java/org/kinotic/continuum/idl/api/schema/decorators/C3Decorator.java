@@ -28,11 +28,11 @@ import java.util.List;
 @Accessors(chain = true)
 @NoArgsConstructor
 @EqualsAndHashCode
-public class C3Decorator {
+public abstract class C3Decorator {
 
     /**
      * Targets specify where the decorator can be applied
      */
-    private List<DecoratorTarget> targets;
+    protected List<DecoratorTarget> targets;
 
 }

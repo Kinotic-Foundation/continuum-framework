@@ -3,8 +3,8 @@ package org.kinotic.continuum.idl.api.converter;
 import java.util.List;
 
 /**
- * The {@link IdlConverterStrategy} is used to determine how to convert a Continuum IDL
- * to a specific language type.
+ * The {@link IdlConverterStrategy} is used to determine how to convert a Continuum IDL to a specific language type.
+ * The {@link IdlConverterStrategy} should be reusable and thread safe.
  * Created by Navíd Mitchell 🤪 on 4/26/23.
  */
 public interface IdlConverterStrategy<T, S> {

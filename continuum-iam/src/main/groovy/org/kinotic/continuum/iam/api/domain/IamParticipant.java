@@ -17,11 +17,12 @@
 
 package org.kinotic.continuum.iam.api.domain;
 
-import org.kinotic.continuum.api.Identifiable;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NonNull;
+import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.apache.commons.lang3.Validate;
+import org.kinotic.continuum.api.Identifiable;
 
 import javax.persistence.*;
 import java.util.HashMap;
@@ -34,11 +35,13 @@ import java.util.Map;
  * Created by navid on 2/3/20
  */
 @Entity
-@Data
+@Getter
+@Setter
 @Accessors(chain = true)
 public class IamParticipant implements Identifiable<String> {
 
     @Id
+    @GeneratedValue
     @NonNull
     private String id;
 

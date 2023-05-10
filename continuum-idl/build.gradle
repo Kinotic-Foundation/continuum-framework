@@ -11,11 +11,10 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter'
 
 	implementation 'com.fasterxml.jackson.core:jackson-annotations'
+	implementation 'com.fasterxml.jackson.core:jackson-core'
+	implementation 'com.fasterxml.jackson.core:jackson-databind'
 
-	testImplementation 'com.fasterxml.jackson.core:jackson-core'
-	testImplementation 'com.fasterxml.jackson.core:jackson-databind'
 	testImplementation "com.jayway.jsonpath:json-path:${jsonPathVersion}"
-
 	testImplementation 'org.springframework.boot:spring-boot-starter-json'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }

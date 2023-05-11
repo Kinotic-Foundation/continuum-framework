@@ -8,21 +8,21 @@ import org.kinotic.continuum.idl.api.converter.IdlConverterStrategy;
 /**
  * Created by Navíd Mitchell 🤪 on 4/26/23.
  */
-public class DefaultIdlConverter<T, S> implements IdlConverter<T, S> {
+public class DefaultIdlConverter<R, S> implements IdlConverter<R, S> {
 
-    private final C3ConversionContext<T, S> conversionContext;
+    private final C3ConversionContext<R, S> conversionContext;
 
-    public DefaultIdlConverter(IdlConverterStrategy<T, S> strategy) {
+    public DefaultIdlConverter(IdlConverterStrategy<R, S> strategy) {
         this.conversionContext = new DefaultC3ConversionContext<>(strategy);
     }
 
     @Override
-    public T convert(C3Type type) {
+    public R convert(C3Type type) {
         return conversionContext.convert(type);
     }
 
     @Override
-    public C3ConversionContext<T, S> getConversionContext() {
+    public C3ConversionContext<R, S> getConversionContext() {
         return conversionContext;
     }
 }

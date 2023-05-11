@@ -10,8 +10,9 @@ public interface IdlConverterFactory {
       * Creates a new {@link IdlConverter} based on the given {@link IdlConverterStrategy}
       * @param strategy to use for conversion
       * @return a new {@link IdlConverter} instance
-      * @param <T> the type that the {@link IdlConverter} will convert to
+      * @param <R> the type that the {@link IdlConverter} will convert to
+      * @param <S> the state type
       */
-     <T, S> IdlConverter<T, S> createConverter(IdlConverterStrategy<T, S> strategy);
+     <R, S> IdlConverter<R, S> createConverter(IdlConverterStrategy<R, S> strategy);
 
 }

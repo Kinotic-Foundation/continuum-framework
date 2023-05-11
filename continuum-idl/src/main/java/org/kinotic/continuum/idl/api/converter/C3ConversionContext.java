@@ -5,15 +5,17 @@ import org.kinotic.continuum.idl.api.schema.C3Type;
 /**
  * A context that can be used to convert a {@link C3Type} to a specific type.
  * Also, can store custom state for use during or after the conversion process.
- * <p/>
- * Type parameters: <T> The type to convert to
- *                  <S> The state type
- * <p/>
+ *
+ * @param <R> The type to convert to
+ * @param <S> The state type
+ *
  * Created by Navíd Mitchell 🤪 on 4/26/23.
  */
-public interface C3ConversionContext<T, S> {
+public interface C3ConversionContext<R, S> {
 
-    T convert(C3Type c3Type);
+    R convert(C3Type c3Type);
 
     S state();
+
 }
+

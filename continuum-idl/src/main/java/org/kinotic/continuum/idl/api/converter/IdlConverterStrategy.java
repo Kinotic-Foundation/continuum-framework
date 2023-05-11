@@ -1,23 +1,24 @@
 package org.kinotic.continuum.idl.api.converter;
 
-import java.util.List;
+import org.kinotic.continuum.idl.api.schema.C3Type;
 
 /**
  * The {@link IdlConverterStrategy} is used to determine how to convert a Continuum IDL to a specific language type.
  * The {@link IdlConverterStrategy} should be reusable and thread safe.
+ *
+ * @param <R> The type to convert to
+ * @param <S> The state type
+ *
  * Created by Navíd Mitchell 🤪 on 4/26/23.
  */
-public interface IdlConverterStrategy<T, S> {
+public interface IdlConverterStrategy<R, S> {
 
     /**
-     * @return the {@link SpecificC3TypeConverter}s that this strategy uses
+     * Searches for a {@link C3TypeConverter} that can convert the given {@link C3Type}
+     * @param c3Type to find a converter for
+     * @return the {@link C3TypeConverter} that can convert the given {@link C3Type}
      */
-    List<SpecificC3TypeConverter<T, ?, S>> specificTypeConverters();
-
-    /**
-     * @return the {@link GenericC3TypeConverter}s that this strategy uses
-     */
-    List<GenericC3TypeConverter<T, ?, S>> genericTypeConverters();
+    C3TypeConverter<R, ?, S> converterFor(C3Type c3Type);
 
     /**
      * The object that will be available via the {@link C3ConversionContext#state()}.

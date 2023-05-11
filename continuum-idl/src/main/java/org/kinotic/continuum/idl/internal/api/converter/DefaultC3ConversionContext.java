@@ -42,7 +42,9 @@ public class DefaultC3ConversionContext<R, S> implements C3ConversionContext<R, 
 
             //noinspection unchecked
             C3TypeConverter<R, C3Type, S> converter = (C3TypeConverter<R, C3Type, S>) strategy.converterFor(c3Type);
-            Validate.isTrue(converter != null, "Unsupported Class no C3TypeConverter can be found for " + c3Type.getClass().getName());
+            Validate.isTrue(converter != null,
+                            "No C3TypeConverter can be found for " + c3Type.getClass().getName()
+                                    + " When using strategy " + strategy.getClass().getName());
 
             boolean cache = strategy.shouldCache() && converter instanceof Cacheable;
             R result = null;

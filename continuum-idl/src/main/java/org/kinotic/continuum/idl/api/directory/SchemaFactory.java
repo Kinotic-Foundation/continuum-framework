@@ -15,7 +15,10 @@
  * limitations under the License.
  */
 
-package org.kinotic.continuum.idl.api.schema;
+package org.kinotic.continuum.idl.api.directory;
+
+import org.kinotic.continuum.idl.api.schema.C3Type;
+import org.kinotic.continuum.idl.api.schema.NamespaceDefinition;
 
 /**
  * Provides the ability to create {@link C3Type}'s

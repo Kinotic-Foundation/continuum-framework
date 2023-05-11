@@ -18,6 +18,7 @@
 package org.kinotic.continuum.idl.internal.directory;
 
 import org.kinotic.continuum.api.annotations.Name;
+import org.kinotic.continuum.idl.api.directory.SchemaFactory;
 import org.kinotic.continuum.idl.api.schema.*;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.ResolvableType;
@@ -42,7 +43,7 @@ public class DefaultSchemaFactory implements SchemaFactory {
 
     @Override
     public C3Type createForClass(Class<?> clazz) {
-        DefaultConversionContext conversionContext = new DefaultConversionContext(typeConverter);
+        DefaultConversionContext conversionContext = new DefaultConversionContext(typeConverter, false);
         return this.createForPojo(clazz, conversionContext);
     }
 
@@ -64,7 +65,7 @@ public class DefaultSchemaFactory implements SchemaFactory {
 
     @Override
     public NamespaceDefinition createForService(Class<?> clazz) {
-        DefaultConversionContext conversionContext = new DefaultConversionContext(typeConverter);
+        DefaultConversionContext conversionContext = new DefaultConversionContext(typeConverter, true);
         return this.createForService(clazz, conversionContext);
     }
 
@@ -103,7 +104,6 @@ public class DefaultSchemaFactory implements SchemaFactory {
 
         return ret;
     }
-
 
     private String getName(MethodParameter methodParameter){
         String ret;

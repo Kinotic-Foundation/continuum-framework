@@ -45,12 +45,17 @@ public class DefaultConversionContext implements ConversionContext {
 
     private final Set<ObjectC3Type> objects = new HashSet<>();
 
+    private final boolean shouldCreateReferences;
+
     /**
      * Creates a new {@link ConversionContext}
      * @param resolvableTypeConverter the converter to use to be used for conversion. Typically, this will be a {@link ResolvableTypeConverterComposite}
+     * @param shouldCreateReferences if true, {@link ObjectC3Type}'s will be added to the {@link #getObjects()} set and {@link ReferenceC3Type}'s will be returned when appropriate
      */
-    public DefaultConversionContext(ResolvableTypeConverter resolvableTypeConverter) {
+    public DefaultConversionContext(ResolvableTypeConverter resolvableTypeConverter,
+                                    boolean shouldCreateReferences) {
         this.resolvableTypeConverter = resolvableTypeConverter;
+        this.shouldCreateReferences = shouldCreateReferences;
     }
 
     public C3Type convertInternal(ResolvableType resolvableType) {
@@ -65,12 +70,17 @@ public class DefaultConversionContext implements ConversionContext {
 
             circularReferenceCheckStack.addFirst(resolvableType);
 
+            // FIXME: verify this cache logic!
+            // Since decorators and metadata could differ on the final C3Type we need to make sure they don't share a java reference when they shouldn't
             String key = resolvableType.toString();
             if (schemaCache.containsKey(key)) {
                 ret = schemaCache.get(key);
             } else {
                 ret = resolvableTypeConverter.convert(resolvableType, this);
-                schemaCache.put(key, ret);
+                // We only cache object types
+                if(ret instanceof ObjectC3Type){
+                    schemaCache.put(key, ret);
+                }
             }
 
         } catch (Exception e){
@@ -85,7 +95,7 @@ public class DefaultConversionContext implements ConversionContext {
     @Override
     public C3Type convert(ResolvableType resolvableType) {
         C3Type c3Type = convertInternal(resolvableType);
-        if(c3Type instanceof ObjectC3Type){
+        if(c3Type instanceof ObjectC3Type && shouldCreateReferences){
             ObjectC3Type objectC3Type = (ObjectC3Type) c3Type;
             objects.add(objectC3Type);
             c3Type = new ReferenceC3Type(objectC3Type.getUrn());

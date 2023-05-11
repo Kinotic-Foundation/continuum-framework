@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.kinotic.continuum.idl.api.schema.NamespaceDefinition;
-import org.kinotic.continuum.idl.api.schema.SchemaFactory;
+import org.kinotic.continuum.idl.api.directory.SchemaFactory;
 import org.kinotic.continuum.idl.api.schema.ServiceDefinition;
 import org.kinotic.continuum.idl.internal.support.TestService;
 import org.slf4j.Logger;

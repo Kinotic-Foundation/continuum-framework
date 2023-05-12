@@ -44,24 +44,50 @@ public abstract class AbstractIdlConverterStrategy<R, S> implements IdlConverter
         }
     }
 
+    /**
+     * This overrides the default functionality of checking the {@link SpecificC3TypeConverter}s first.
+     * If this returns true then the {@link GenericC3TypeConverter}s will be checked first.
+     * @return true if the {@link GenericC3TypeConverter}s should be checked first
+     */
+    protected boolean shouldCheckGenericConvertersFirst(){
+        return false;
+    }
+
     @Override
     public C3TypeConverter<R, ?, S> converterFor(C3Type c3Type) {
-        C3TypeConverter<R, ?, S> ret = null;
-        // check specific type then generic converters
-        Class<? extends C3Type> clazz = c3Type.getClass();
-        if (clazz != null) {
-            ret = specificConverters.get(clazz.getName());
-        }
+        C3TypeConverter<R, ?, S> ret;
 
-        if (ret == null) {
-            for (GenericC3TypeConverter<R, ?, S> converter : genericTypeConverters) {
-                if (converter.supports(c3Type)) {
-                    ret = converter;
-                    break;
-                }
+        if(shouldCheckGenericConvertersFirst()){
+
+            ret = genericConverterFor(c3Type);
+            if(ret == null){
+                ret = specificConverterFor(c3Type);
             }
+
+        }else{
+
+            ret = specificConverterFor(c3Type);
+            if(ret == null){
+                ret = genericConverterFor(c3Type);
+            }
+
         }
         return ret;
     }
 
+    private C3TypeConverter<R, ?, S> specificConverterFor(C3Type c3Type){
+        Class<? extends C3Type> clazz = c3Type.getClass();
+        return specificConverters.get(clazz.getName());
+    }
+
+    private C3TypeConverter<R, ?, S> genericConverterFor(C3Type c3Type){
+        C3TypeConverter<R, ?, S> ret = null;
+        for (GenericC3TypeConverter<R, ?, S> converter : genericTypeConverters) {
+            if (converter.supports(c3Type)) {
+                ret = converter;
+                break;
+            }
+        }
+        return ret;
+    }
 }

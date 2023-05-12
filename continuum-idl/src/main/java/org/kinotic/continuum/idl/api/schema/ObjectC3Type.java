@@ -28,6 +28,8 @@ import java.util.Map;
 /**
  * Objects map property names to values. The property names are strings, and the values can be any Continuum Schema type.
  * Each of these pairs is conventionally referred to as a “property”.
+ * NOTE: To {@link ObjectC3Type} are considered equivalent if they have the same namespace and name.
+ *       Properties and decorators are not considered when determining equivalence.
  * <p>
  * Created by navid on 2019-06-11.
  */

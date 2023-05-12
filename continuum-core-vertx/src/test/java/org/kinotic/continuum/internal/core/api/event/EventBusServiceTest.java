@@ -45,7 +45,7 @@ public class EventBusServiceTest {
     @Autowired
     private EventBusService eventBusService;
 
-    private ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+    private final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
 
 
     public void testEventBusStringData(){
@@ -58,11 +58,8 @@ public class EventBusServiceTest {
 
         StepVerifier.create(flux)
                     .expectNextMatches(event -> { // equality comparison does not work so..
-                        boolean ret = false;
-                        if(event.cri().equals(eventConstant.cri())
-                           && Arrays.equals(event.data(), eventConstant.data())){
-                            ret = true;
-                        }
+                        boolean ret = event.cri().equals(eventConstant.cri())
+                                && Arrays.equals(event.data(), eventConstant.data());
                         return ret;
                     })
                     .thenCancel()
@@ -83,11 +80,8 @@ public class EventBusServiceTest {
         assert flux != null;
         StepVerifier.create(flux)
                     .expectNextMatches(event -> { // equality comparison does not work so..
-                        boolean ret = false;
-                        if(event.cri().equals(eventConstant.cri())
-                           && Arrays.equals(event.data(), eventConstant.data())){
-                            ret = true;
-                        }
+                        boolean ret = event.cri().equals(eventConstant.cri())
+                                && Arrays.equals(event.data(), eventConstant.data());
                         return ret;
                     })
                     .thenCancel()

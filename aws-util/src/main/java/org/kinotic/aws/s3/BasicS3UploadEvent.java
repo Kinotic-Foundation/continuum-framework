@@ -24,9 +24,9 @@ import java.nio.file.Path;
  * Created by navid on 9/17/19
  */
 public class BasicS3UploadEvent {
-    private String bucketName;
-    private String objectKey;
-    private Path path;
+    private final String bucketName;
+    private final String objectKey;
+    private final Path path;
 
     public BasicS3UploadEvent(String bucketName, String objectKey, Path path) {
         this.bucketName = bucketName;

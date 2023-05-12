@@ -64,7 +64,7 @@ public class ArrayJsonSchema extends JsonSchema {
      *
      * TODO: this is possibly more useful than the ObjectJsonSchema counterpart and should probably be implemented...
      */
-    private Boolean additionalItems = Boolean.FALSE;
+    private final Boolean additionalItems = Boolean.FALSE;
 
     /**
      * The length of the array can be specified using the minItems and maxItems keywords.

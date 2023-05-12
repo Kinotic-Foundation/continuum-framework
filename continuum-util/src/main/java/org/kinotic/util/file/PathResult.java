@@ -31,7 +31,7 @@ import java.nio.file.Path;
  */
 public class PathResult implements Comparable<PathResult> {
 
-    private Path path;
+    private final Path path;
     private ProcessingStatus status = ProcessingStatus.NOT_PROCESSED;
     private Exception failedReason = null;
 

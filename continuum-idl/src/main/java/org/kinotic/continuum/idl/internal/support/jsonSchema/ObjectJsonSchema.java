@@ -46,7 +46,7 @@ public class ObjectJsonSchema extends JsonSchema {
     /**
      * This is hard coded for now so it will always be false. The additional property validation is not very useful.
      */
-    private Boolean additionalProperties = Boolean.FALSE;
+    private final Boolean additionalProperties = Boolean.FALSE;
 
     /**
      * By default, the properties defined by the properties keyword are not required. However, one can provide a list of required properties using the required keyword.

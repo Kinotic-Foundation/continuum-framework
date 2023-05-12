@@ -36,8 +36,8 @@ import java.util.Map;
  */
 public class ScriptCacheEntryEventFilter<K, V> implements CacheEntryEventFilter<K, V>, Serializable{
     private static final Logger log = LoggerFactory.getLogger(ScriptCacheEntryEventFilter.class);
-    private String scriptSource;
-    private ScriptFilter filterScript;
+    private final String scriptSource;
+    private final ScriptFilter filterScript;
 
     public ScriptCacheEntryEventFilter(String scriptSource, ScriptFilter filterScript,Object[] args) {
         this.scriptSource = scriptSource;

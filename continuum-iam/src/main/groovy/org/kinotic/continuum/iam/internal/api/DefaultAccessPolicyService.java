@@ -38,7 +38,7 @@ import java.util.concurrent.CompletableFuture;
 @Service
 public class DefaultAccessPolicyService implements AccessPolicyService {
 
-    private AccessPolicyRepository accessPolicyRepository;
+    private final AccessPolicyRepository accessPolicyRepository;
     private final TransactionTemplate transactionTemplate;
 
     public DefaultAccessPolicyService(AccessPolicyRepository accessPolicyRepository,

@@ -40,7 +40,7 @@ import java.util.List;
 public class PageableDeserializer extends JsonDeserializer<Pageable> {
 
     @Override
-    public Pageable deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException {
+    public Pageable deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
         JsonNode node = jp.getCodec().readTree(jp);
         Validate.isTrue(node.has("pageNumber"), "pageNumber missing from Pageable");
         int pageNumber = node.get("pageNumber").intValue();

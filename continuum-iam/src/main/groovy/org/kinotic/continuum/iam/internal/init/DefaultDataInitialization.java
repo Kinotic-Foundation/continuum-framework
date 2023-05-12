@@ -55,7 +55,7 @@ public class DefaultDataInitialization {
 
 
     @PostConstruct
-    public void init() {
+    public void init() throws Exception{
         Optional<Role> iamAdminRole  = roleRepository.findById("iam-admin-role");
         if(iamAdminRole.isEmpty()){
             AccessPolicy accessPolicy = new AccessPolicy("iam-admin-policy");
@@ -67,7 +67,7 @@ public class DefaultDataInitialization {
             role.addAccessPolicy(accessPolicy);
             role = roleRepository.save(role);
 
-            userService.createNewUser("iam-admin","w3mak3th1sr0ck", List.of(role)).block();
+            userService.createNewUser("iam-admin","w3mak3th1sr0ck", List.of(role)).get();
             log.info("Added iam-admin user, roles, and policies");
         }else{
             log.info("iam-admin role exists");
@@ -88,7 +88,7 @@ public class DefaultDataInitialization {
             role.addAccessPolicy(accessPolicy);
             role = roleRepository.save(role);
 
-            userService.createNewUser("super","w3mak3th1sr0ck1nr0ll", List.of(role)).block();
+            userService.createNewUser("super","w3mak3th1sr0ck1nr0ll", List.of(role)).get();
             log.info("Added super user, roles, and policies");
         }else{
             log.info("super-role role exists");

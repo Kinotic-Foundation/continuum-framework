@@ -58,7 +58,7 @@ public class DefaultServiceDirectory implements ServiceDirectory {
     private Vertx vertx;
 
 
-    private ConcurrentLinkedQueue<DirectoryChangeRequest> directoryChangeRequests = new ConcurrentLinkedQueue<>();
+    private final ConcurrentLinkedQueue<DirectoryChangeRequest> directoryChangeRequests = new ConcurrentLinkedQueue<>();
     private String deploymentId = null;
 
     @Override
@@ -126,7 +126,7 @@ public class DefaultServiceDirectory implements ServiceDirectory {
 
     private class DirectoryChangeRequest {
         private boolean publish = true;
-        private String serviceIdentifier;
+        private final String serviceIdentifier;
         private Class<?> serviceInterface;
 
         public DirectoryChangeRequest(String serviceIdentifier, Class<?> serviceInterface) {

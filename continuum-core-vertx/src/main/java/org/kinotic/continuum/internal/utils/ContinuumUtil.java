@@ -52,7 +52,7 @@ public class ContinuumUtil {
 
     public static class LongLinearConverter implements LinearConverter<Long>{
 
-        private Function<Long, Long> conversionFunction;
+        private final Function<Long, Long> conversionFunction;
 
         public LongLinearConverter(long oldMin, long oldMax, long newMin, long newMax) {
 

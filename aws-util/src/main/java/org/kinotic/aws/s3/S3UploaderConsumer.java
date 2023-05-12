@@ -34,11 +34,11 @@ import java.util.function.Function;
 public class S3UploaderConsumer implements Function<Path, Boolean> {
     private static final Logger log = LoggerFactory.getLogger(S3UploaderConsumer.class);
 
-    private String sourceDirectory;
-    private String bucketName;
-    private String objectPrefix;
-    private S3Service s3Service;
-    private Consumer<BasicS3UploadEvent> uploadEventConsumer;
+    private final String sourceDirectory;
+    private final String bucketName;
+    private final String objectPrefix;
+    private final S3Service s3Service;
+    private final Consumer<BasicS3UploadEvent> uploadEventConsumer;
 
     public S3UploaderConsumer(String sourceDirectory,
                               String bucketName,
@@ -59,7 +59,7 @@ public class S3UploaderConsumer implements Function<Path, Boolean> {
     public Boolean apply(Path path) {
         String objectKey = getObjectKey(path);
         if(log.isTraceEnabled()){
-            log.trace("Uploading... \n\t"+path.toString()+"\n\tto\n\t"+bucketName+"/"+objectKey);
+            log.trace("Uploading... \n\t"+ path +"\n\tto\n\t"+bucketName+"/"+objectKey);
         }
 
         s3Service.putFile(bucketName, objectKey, path.toFile());

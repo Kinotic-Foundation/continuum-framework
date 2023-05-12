@@ -41,12 +41,12 @@ public class IgniteContinuousQueryObserver<K, V> implements Observer<StreamData<
 
     private static final Logger log = LoggerFactory.getLogger(IgniteContinuousQueryObserver.class);
 
-    private AtomicBoolean closed = new AtomicBoolean(false);
+    private final AtomicBoolean closed = new AtomicBoolean(false);
     private Handler<StreamData<K, V>> observerDataHandler =null;
     private Handler<Throwable> observerExceptionHandler = null;
     private final Context observerContext;
     private final Vertx vertx;
-    private IgniteCache<? extends K,? extends V> igniteCache;
+    private final IgniteCache<? extends K,? extends V> igniteCache;
     private Query<Cache.Entry<K, V>> query;
     private IterableEventLooper<Cache.Entry<K,V>> looper;
 

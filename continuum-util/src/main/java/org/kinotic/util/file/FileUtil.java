@@ -146,7 +146,7 @@ public class FileUtil {
 
         Path relativePath = sourceDirectory.relativize(sourceFile);
         Path targetPath = targetDirectory.resolve("failed").resolve(relativePath);
-        Path logPath =  Paths.get(targetPath.toString() + ".error.log");
+        Path logPath =  Paths.get(targetPath + ".error.log");
 
         // create any non existent parent directories
         // this is done here as well so the log can be written

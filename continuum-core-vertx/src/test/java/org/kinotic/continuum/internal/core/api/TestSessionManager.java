@@ -256,7 +256,7 @@ public class TestSessionManager {
 
         CRI invalidCRIWithParticipantUUID = CRI.create(EventConstants.SERVICE_DESTINATION_SCHEME + "://"
                 + "someguy_" + IDENTITY + ":"
-                + UUID.randomUUID().toString()
+                + UUID.randomUUID()
                 + "@org.kinotic.tests.ReplyHandler");
 
         Validate.isTrue(!session.subscribeAllowed(invalidCRIWithParticipantUUID), invalidCRIWithParticipantUUID + " Allowed");

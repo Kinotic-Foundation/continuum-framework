@@ -30,7 +30,7 @@ import java.util.Map;
  */
 public class MapMetadataAdapter implements Metadata {
 
-    private Map<String, String> mapDelegate;
+    private final Map<String, String> mapDelegate;
 
     public MapMetadataAdapter(Map<String, String> mapDelegate) {
         this.mapDelegate = mapDelegate;

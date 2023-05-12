@@ -76,11 +76,8 @@ public class PojoTypeConverter implements GenericTypeConverter {
     }
 
     private boolean ignorePropertyDescriptor(PropertyDescriptor descriptor){
-        boolean ret = false;
-        if(descriptor.getReadMethod() == null
-            || isInternalObjectMethod(descriptor.getReadMethod())){
-            ret = true;
-        }
+        boolean ret = descriptor.getReadMethod() == null
+                || isInternalObjectMethod(descriptor.getReadMethod());
         return ret;
     }
 

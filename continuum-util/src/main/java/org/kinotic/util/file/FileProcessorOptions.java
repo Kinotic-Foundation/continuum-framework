@@ -33,7 +33,7 @@ public class FileProcessorOptions {
     private final Path sourceDirectory;
     private final Function<Path, Boolean> fileConsumer;
 
-    private  Path targetDirectory;
+    private final Path targetDirectory;
 
     private Duration pollInterval = Duration.ofMinutes(5);
     private int numberOfWorkersToStart = Math.max(Runtime.getRuntime().availableProcessors(), 1);

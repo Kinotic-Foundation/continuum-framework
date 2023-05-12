@@ -49,12 +49,12 @@ import java.util.function.Function;
 public class S3TransferManagerUploaderConsumer implements Function<Path, Boolean> {
     private static final Logger log = LoggerFactory.getLogger(S3TransferManagerUploaderConsumer.class);
 
-    private String sourceDirectory;
-    private String bucketName;
-    private String objectPrefix;
-    private TransferManager transferManager;
-    private Consumer<BasicS3UploadEvent> uploadEventConsumer;
-    private PersistableTransferStorage persistableTransferStorage;
+    private final String sourceDirectory;
+    private final String bucketName;
+    private final String objectPrefix;
+    private final TransferManager transferManager;
+    private final Consumer<BasicS3UploadEvent> uploadEventConsumer;
+    private final PersistableTransferStorage persistableTransferStorage;
 
     public S3TransferManagerUploaderConsumer(String sourceDirectory,
                                              String bucketName,

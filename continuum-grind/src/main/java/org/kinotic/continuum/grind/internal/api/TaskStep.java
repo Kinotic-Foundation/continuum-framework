@@ -267,7 +267,7 @@ public class TaskStep extends AbstractStep {
                         }else{
                             for (Object val : ((Collection<?>) result)) {
 
-                                String beanName = val.getClass().getSimpleName() + "_" + UUID.randomUUID().toString();
+                                String beanName = val.getClass().getSimpleName() + "_" + UUID.randomUUID();
 
                                 notifyDiagnostic(DiagnosticLevel.TRACE,
                                                  () -> "Task: " + taskDisplayString + " Storing result as Singleton: \"" + beanName + "\" Value: " + result,

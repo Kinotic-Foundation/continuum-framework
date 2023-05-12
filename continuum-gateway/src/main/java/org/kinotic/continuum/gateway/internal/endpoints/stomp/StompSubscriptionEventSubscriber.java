@@ -52,7 +52,7 @@ public class StompSubscriptionEventSubscriber extends BaseSubscriber<Event<byte[
             frame.getHeaders().put(Frame.SUBSCRIPTION, subscriptionId);
 
             if(log.isTraceEnabled()) {
-                log.trace("Sending Frame\n" + frame.toString());
+                log.trace("Sending Frame\n" + frame);
             }
 
             connection.write(frame);

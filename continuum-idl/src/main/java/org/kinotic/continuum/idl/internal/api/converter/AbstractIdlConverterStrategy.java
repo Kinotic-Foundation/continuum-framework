@@ -45,13 +45,15 @@ public abstract class AbstractIdlConverterStrategy<R, S> implements IdlConverter
     }
 
     /**
-     * This overrides the default functionality of checking the {@link SpecificC3TypeConverter}s first.
+     * Sets which converters should check first either the {@link SpecificC3TypeConverter}s or the {@link GenericC3TypeConverter}s.
      * If this returns true then the {@link GenericC3TypeConverter}s will be checked first.
+     * If this returns false then the {@link SpecificC3TypeConverter}s will be checked first.
+     * NOTE: It is generally faster to check the {@link SpecificC3TypeConverter}s first.
+     *       Unless you have a small number of {@link GenericC3TypeConverter's}.
+     *
      * @return true if the {@link GenericC3TypeConverter}s should be checked first
      */
-    protected boolean shouldCheckGenericConvertersFirst(){
-        return false;
-    }
+    protected abstract boolean shouldCheckGenericConvertersFirst();
 
     @Override
     public C3TypeConverter<R, ?, S> converterFor(C3Type c3Type) {

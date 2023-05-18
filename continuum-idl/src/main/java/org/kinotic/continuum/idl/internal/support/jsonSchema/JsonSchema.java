@@ -40,12 +40,6 @@ import java.util.Optional;
  * <p>
  *  - Generic Keywords:
  *      Currently none of the generic keywords are supported https://json-schema.org/understanding-json-schema/reference/generic.html
- * <p>
- *  Extensions to the Spec:
- * <p>
- * - Date Type:
- *      This is a type to represent a date definition.
- *      {@link DateJsonSchema}
  *
  *
  * Created by navid on 2019-06-11.
@@ -60,8 +54,7 @@ import java.util.Optional;
         @JsonSubTypes.Type(value = ArrayJsonSchema.class, name = "array"),
         @JsonSubTypes.Type(value = MapJsonSchema.class, name = "map"),
         @JsonSubTypes.Type(value = BooleanJsonSchema.class, name = "boolean"),
-        @JsonSubTypes.Type(value = NullJsonSchema.class, name = "null"),
-        @JsonSubTypes.Type(value = DateJsonSchema.class, name = "date")
+        @JsonSubTypes.Type(value = NullJsonSchema.class, name = "null")
 })
 @JsonInclude(JsonInclude.Include.NON_EMPTY) // do not include any empty or null fields
 public abstract class JsonSchema {

@@ -39,6 +39,7 @@ public abstract class AbstractIdlConverterStrategy<R, S> implements IdlConverter
                 Validate.notNull(type, "SpecificC3TypeConverter classes returned from supports must not be null");
                 Validate.isTrue(!specificConverters.containsKey(type.getName()),"SpecificC3TypeConverter already exists for "+type.getName());
 
+                // We use the name in case for some reason the class loader is different
                 specificConverters.put(type.getName(), converter);
             }
         }
@@ -49,8 +50,7 @@ public abstract class AbstractIdlConverterStrategy<R, S> implements IdlConverter
      * If this returns true then the {@link GenericC3TypeConverter}s will be checked first.
      * If this returns false then the {@link SpecificC3TypeConverter}s will be checked first.
      * NOTE: It is generally faster to check the {@link SpecificC3TypeConverter}s first.
-     *       Unless you have a small number of {@link GenericC3TypeConverter's}.
-     *
+     *       Unless you have a small number of {@link GenericC3TypeConverter's} or they need circumvent the {@link SpecificC3TypeConverter}s
      * @return true if the {@link GenericC3TypeConverter}s should be checked first
      */
     protected abstract boolean shouldCheckGenericConvertersFirst();

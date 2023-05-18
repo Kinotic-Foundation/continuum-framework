@@ -17,9 +17,8 @@
 
 package org.kinotic.continuum.idl.internal.directory.jdk;
 
-import org.kinotic.continuum.idl.api.schema.DateC3Type;
 import org.kinotic.continuum.idl.api.schema.C3Type;
-import org.kinotic.continuum.idl.api.schema.datestyles.MillsDateStyle;
+import org.kinotic.continuum.idl.api.schema.DateC3Type;
 import org.kinotic.continuum.idl.internal.directory.ConversionContext;
 import org.kinotic.continuum.idl.internal.directory.SpecificTypeConverter;
 import org.springframework.core.ResolvableType;
@@ -44,6 +43,6 @@ public class DateTypeConverter implements SpecificTypeConverter {
     @Override
     public C3Type convert(ResolvableType resolvableType,
                           ConversionContext conversionContext) {
-        return new DateC3Type().setFormat(new MillsDateStyle());
+        return new DateC3Type();
     }
 }

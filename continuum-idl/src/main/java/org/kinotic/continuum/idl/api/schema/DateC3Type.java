@@ -19,7 +19,6 @@ package org.kinotic.continuum.idl.api.schema;
 
 import lombok.*;
 import lombok.experimental.Accessors;
-import org.kinotic.continuum.idl.api.schema.datestyles.DateStyle;
 
 /**
  * Represents a date type
@@ -29,17 +28,8 @@ import org.kinotic.continuum.idl.api.schema.datestyles.DateStyle;
 @Setter
 @Accessors(chain = true)
 @NoArgsConstructor
-@AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class DateC3Type extends C3Type {
-
-    /**
-     * The date format to use when serializing and deserializing dates.
-     * It is of type {@link DateStyle} since in json this will be expressed as { "type": "date", "format": { "style": "unix" } }
-     * <p>
-     * TODO: add not null constraint
-     */
-    private DateStyle format = null;
 
 }

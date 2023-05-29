@@ -26,6 +26,7 @@ import org.springframework.core.BridgeMethodResolver;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.type.classreading.MetadataReader;
+import org.springframework.core.type.filter.AbstractTypeHierarchyTraversingFilter;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.util.Assert;
 
@@ -49,7 +50,7 @@ public class MetaUtil {
      * @param applicationContext the current Spring {@link ApplicationContext}
      * @param packages to scan
      * @param annotationClass the Annotation class that should be searched for
-     * @return a List of {@link MetadataReader}'s for the classes that have the desired annotation
+     * @return a Set of {@link MetadataReader}'s for the classes that have the desired annotation
      */
     public static Set<MetadataReader> findClassesWithAnnotation(ApplicationContext applicationContext,
                                                                 List<String> packages,
@@ -67,6 +68,39 @@ public class MetaUtil {
 
         return readers;
     }
+
+    /**
+     * Scans the given packages for classes implementing the given superclass
+     * @param applicationContext the current Spring {@link ApplicationContext}
+     * @param packages to scan
+     * @param superClass that classes found must extend
+     * @return a Set of {@link MetadataReader}'s for the classes that have the desired annotation
+     */
+    public static Set<MetadataReader> findClassesWithSuperClass(ApplicationContext applicationContext,
+                                                                List<String> packages,
+                                                                String superClass){
+
+        Validate.notBlank(superClass, "superClass must not be blank");
+
+        ClassPathScanningMetadataReaderProvider scanner
+                = new ClassPathScanningMetadataReaderProvider(applicationContext.getEnvironment());
+        scanner.setResourceLoader(applicationContext);
+        scanner.addIncludeFilter(new AbstractTypeHierarchyTraversingFilter(true, false) {
+            @Override
+            protected Boolean matchSuperClass(String superClassName) {
+                return superClassName.equals(superClass);
+            }
+        });
+
+        Set<MetadataReader> readers = new HashSet<>();
+
+        for(String pack : packages){
+            readers.addAll(scanner.findCandidateComponents(pack));
+        }
+
+        return readers;
+    }
+
 
     /**
      * Tries to get a valid {@link Scope} from the instance provided

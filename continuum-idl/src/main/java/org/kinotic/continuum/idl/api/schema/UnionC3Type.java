@@ -23,6 +23,7 @@ public class UnionC3Type extends C3Type {
     /**
      * This is the field that will be used to determine which type is being used.
      * The field must exist on all types in this union.
+     * The value of the field must match the name of one of the {@link ObjectC3Type}'s in types
      */
     private String discriminator;
 

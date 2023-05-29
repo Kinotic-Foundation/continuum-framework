@@ -3,10 +3,7 @@ package org.kinotic.continuum.idl.api.schema.decorators;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.Accessors;
 
 import java.util.List;
@@ -20,7 +17,7 @@ import java.util.List;
         use = JsonTypeInfo.Id.NAME,
         property = "type")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = NotNullC3Decorator.class, name = "NotNull"),
+        @JsonSubTypes.Type(value = NotNullC3Decorator.class, name = NotNullC3Decorator.type),
 })
 @JsonInclude(JsonInclude.Include.NON_EMPTY) // do not include any empty or null fields
 @Getter
@@ -32,6 +29,7 @@ public abstract class C3Decorator {
 
     /**
      * Targets specify where the decorator can be applied
+     * NOTE: This must be set by implementations. It is not declared final for deserialization purposes.
      */
     protected List<DecoratorTarget> targets;
 

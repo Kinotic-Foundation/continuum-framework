@@ -1,4 +1,4 @@
-import { FunctionDefinition } from '@/api/FunctionDefinition';
+import { FunctionDefinition } from '@/api/FunctionDefinition'
 
 /**
  * Provides functionality to define an interface with a Continuum schema.
@@ -10,20 +10,18 @@ export class ServiceDefinition {
     /**
      * The namespace this {@link ServiceDefinition} belongs to
      */
-    // @ts-ignore
-    public namespace: string
+    public namespace: string = ''
 
     /**
      * The name of this {@link ServiceDefinition}
      */
-    // @ts-ignore
-    public name: string
+    public name: string = ''
 
     /**
      * This defines {@link FunctionDefinition}'s for this {@link ServiceDefinition}
      * The key is the function name and the value is the schema that defines the function
      */
-    private functions: Set<FunctionDefinition> = new Set<FunctionDefinition>()
+    public functions: Set<FunctionDefinition> = new Set<FunctionDefinition>()
 
     /**
      * Stores the given value in the functions definitions for this schema
@@ -45,6 +43,6 @@ export class ServiceDefinition {
      * @return the urn for this {@link ServiceDefinition}
      */
     public getUrn(): string {
-        return this.namespace + "." + this.name;
+        return this.namespace + "." + this.name
     }
 }

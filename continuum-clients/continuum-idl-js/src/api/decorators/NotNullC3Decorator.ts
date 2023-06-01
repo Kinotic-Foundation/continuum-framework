@@ -1,5 +1,5 @@
-import {C3Decorator} from "@/api/decorators/C3Decorator";
-import {DecoratorTarget} from "@/api/decorators/DecoratorTarget";
+import {C3Decorator} from "@/api/decorators/C3Decorator"
+import {DecoratorTarget} from "@/api/decorators/DecoratorTarget"
 
 /**
  * Represents a {@link C3Decorator} the signifies that the decorated value must not be null
@@ -8,7 +8,7 @@ import {DecoratorTarget} from "@/api/decorators/DecoratorTarget";
 export class NotNullC3Decorator extends C3Decorator {
 
     constructor() {
-        super();
+        super()
         this.targets = [DecoratorTarget.FIELD, DecoratorTarget.PARAMETER]
     }
 }

@@ -1,4 +1,4 @@
-import {C3Type} from "@/api/C3Type";
+import {C3Type} from "@/api/C3Type"
 
 /**
  * Arrays are used for ordered elements.
@@ -9,6 +9,5 @@ export class ArrayC3Type extends C3Type {
      * The type the defined array will contain
      * <p>
      */
-    // @ts-ignore
-    private contains: C3Type | null = null;
+    public contains: C3Type | null = null
 }

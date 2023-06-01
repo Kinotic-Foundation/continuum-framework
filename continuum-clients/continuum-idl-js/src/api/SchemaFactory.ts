@@ -1,6 +1,6 @@
-import { C3Type } from '@/api/C3Type';
-import { NamespaceDefinition } from '@/api/NamespaceDefinition';
-import {ClassDeclaration} from "ts-morph";
+import { C3Type } from '@/api/C3Type'
+import { NamespaceDefinition } from '@/api/NamespaceDefinition'
+import {ClassDeclaration} from "ts-morph"
 
 /**
  * Provides the ability to create {@link C3Type}'s
@@ -14,7 +14,7 @@ export interface SchemaFactory {
      * @param clazz the class to create the schema for.
      * @return the newly created {@link C3Type}.
      */
-    createForClass(clazz: ClassDeclaration): C3Type;
+    createForClass(clazz: ClassDeclaration): C3Type
 
     /**
      * Creates a {@link NamespaceDefinition} for the given {@link Class}.
@@ -22,5 +22,5 @@ export interface SchemaFactory {
      * @param clazz the class to create the schema for.
      * @return the newly created {@link NamespaceDefinition}.
      */
-    createForService(clazz: ClassDeclaration): NamespaceDefinition;
+    createForService(clazz: ClassDeclaration): NamespaceDefinition
 }

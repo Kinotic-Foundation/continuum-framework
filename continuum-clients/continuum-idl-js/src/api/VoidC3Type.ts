@@ -1,4 +1,4 @@
-import {C3Type} from "@/api/C3Type";
+import {C3Type} from "@/api/C3Type"
 
 /**
  * This is a type to represent a void type.

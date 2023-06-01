@@ -1,4 +1,4 @@
-import {C3Type} from "@/api/C3Type";
+import {C3Type} from "@/api/C3Type"
 
 /**
  * Represents a Continuum Schema for a double

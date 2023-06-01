@@ -1,5 +1,5 @@
-import {ObjectC3Type} from "@/api/ObjectC3Type";
-import {ServiceDefinition} from "@/api/ServiceDefinition";
+import {ObjectC3Type} from "@/api/ObjectC3Type"
+import {ServiceDefinition} from "@/api/ServiceDefinition"
 
 /**
  * Provides functionality to define a namespace with a Continuum schema.
@@ -12,20 +12,17 @@ export class NamespaceDefinition {
     /**
      * This is the name of this {@link NamespaceDefinition}
      */
-    // @ts-ignore
-    private name: string
+    public name: string = ''
 
     /**
      * This is all the objects defined for a given namespace
      */
-    // @ts-ignore
-    private objects: Set<ObjectC3Type> = new Set<ObjectC3Type>();
+    public objects: Set<ObjectC3Type> = new Set<ObjectC3Type>()
 
     /**
      * This is all the services defined for a given namespace
      */
-    // @ts-ignore
-    private services: Set<ServiceDefinition> = new Set<ServiceDefinition>()
+    public services: Set<ServiceDefinition> = new Set<ServiceDefinition>()
 
     public addObject(type: ObjectC3Type): NamespaceDefinition {
         if (this.objects.has(type)) {

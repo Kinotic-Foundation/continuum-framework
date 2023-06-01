@@ -19,22 +19,22 @@ export class Helper {
 
         clazz.forEachDescendant((node: Node) => {
             if (MethodDeclaration.isMethodDeclaration(node) && node.isAbstract()) {
-                const methodDeclaration = node;
-                console.log('Abstract Function:', methodDeclaration.getName());
-                const decorators = methodDeclaration.getDecorators();
+                const methodDeclaration = node
+                console.log('Abstract Function:', methodDeclaration.getName())
+                const decorators = methodDeclaration.getDecorators()
                 if (decorators.length > 0) {
                     decorators.forEach((decorator: Decorator) => {
-                        const decoratorName = decorator.getName();
-                        const decoratorArguments = decorator.getArguments();
+                        const decoratorName = decorator.getName()
+                        const decoratorArguments = decorator.getArguments()
 
-                        console.log('Decorator:', decoratorName);
+                        console.log('Decorator:', decoratorName)
                         if (decoratorArguments.length > 0) {
                             decoratorArguments.forEach((decoratorArgument) => {
-                                const decoratorArgumentValue = decoratorArgument.getText();
-                                console.log('Decorator Argument Value:', decoratorArgumentValue);
+                                const decoratorArgumentValue = decoratorArgument.getText()
+                                console.log('Decorator Argument Value:', decoratorArgumentValue)
                             })
                         }
-                    });
+                    })
                 }
             }
         })

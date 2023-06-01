@@ -32,7 +32,7 @@ import org.springframework.context.annotation.Import;
  * Created by navid on 2019-07-24.
  */
 @Configuration
-@Import(JacksonAutoConfiguration.class)
+//@Import(JacksonAutoConfiguration.class)
 public class ContinuumJacksonConfig {
 
     @Bean

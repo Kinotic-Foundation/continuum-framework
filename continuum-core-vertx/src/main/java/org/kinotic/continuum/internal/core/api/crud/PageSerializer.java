@@ -32,11 +32,6 @@ import java.io.IOException;
 public class PageSerializer extends JsonSerializer<Page> {
 
     @Override
-    public Class<Page> handledType() {
-        return Page.class;
-    }
-
-    @Override
     public void serialize(Page page, JsonGenerator jsonGenerator, SerializerProvider serializers) throws IOException {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeNumberField("size", page.getSize());

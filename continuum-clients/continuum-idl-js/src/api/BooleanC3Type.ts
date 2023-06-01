@@ -1,4 +1,4 @@
-import {C3Type} from "@/api/C3Type";
+import {C3Type} from "@/api/C3Type"
 
 /**
  * The boolean type matches only two special values: true and false.

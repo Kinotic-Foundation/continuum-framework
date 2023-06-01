@@ -1,4 +1,4 @@
-import { C3Type } from '@/api/C3Type';
+import { C3Type } from '@/api/C3Type'
 
 /**
  * A simple schema to allow referencing other components in the specification, internally and externally.
@@ -8,7 +8,6 @@ export class ReferenceC3Type extends C3Type {
     /**
      * The urn to the schema being referenced.
      */
-    // @ts-ignore
-    public urn: string | null = null;
+    public urn: string | null = null
 
 }

@@ -1,4 +1,4 @@
-import { C3Type } from '@/api/C3Type';
+import { C3Type } from '@/api/C3Type'
 
 /**
  * Defines a map of key value pairs
@@ -8,13 +8,11 @@ export class MapC3Type extends C3Type {
     /**
      * The type of the defined map's keys.
      */
-    // @ts-ignore
-    private key: C3Type;
+    public key: C3Type | null = null
 
     /**
      * The type of the defined map's values.
      */
-    // @ts-ignore
-    private value: C3Type;
+    public value: C3Type | null = null
 
 }

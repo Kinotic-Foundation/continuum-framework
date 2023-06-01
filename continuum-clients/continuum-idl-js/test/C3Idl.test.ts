@@ -1,8 +1,6 @@
-import {beforeAll, describe, it} from 'vitest'
-import * as fs from 'fs';
-import * as path from 'path';
-import {ClassDeclaration, Project, SourceFile, SyntaxKind, TypeAliasDeclaration} from 'ts-morph';
-import {Helper} from "../src/internal/util/Helper";
+import {describe, it} from 'vitest'
+import {ClassDeclaration, Project, SourceFile, SyntaxKind, TypeAliasDeclaration} from 'ts-morph'
+import {Helper} from '../src'
 
 describe('C3-IDL', () => {
 

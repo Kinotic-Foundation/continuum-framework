@@ -6,8 +6,6 @@ import {DecoratorTarget} from "@/api/decorators/DecoratorTarget"
  * Created by Navíd Mitchell 🤪 on 4/23/23.
  */
 export class C3Decorator {
-    // @ts-ignore
     protected targets: DecoratorTarget[] = []
-    // @ts-ignore
-    private type: string
+    public type: string = ''
 }

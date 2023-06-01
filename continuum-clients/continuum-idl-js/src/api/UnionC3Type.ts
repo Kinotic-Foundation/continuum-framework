@@ -1,5 +1,5 @@
-import {C3Type} from "@/api/C3Type";
-import {ObjectC3Type} from "@/api/ObjectC3Type";
+import {C3Type} from "@/api/C3Type"
+import {ObjectC3Type} from "@/api/ObjectC3Type"
 
 /**
  * Represents a union type in the IDL.
@@ -11,13 +11,11 @@ export class UnionC3Type extends C3Type {
      * This is the field that will be used to determine which type is being used.
      * The field must exist on all types in this union.
      */
-    // @ts-ignore
-    private discriminator: string;
+    public discriminator: string = ''
     /**
      * The types that are part of this union
      * All types must have a field with the name of the discriminator
      */
-    // @ts-ignore
-    private types: ObjectC3Type[] = [];
+    public types: ObjectC3Type[] = []
 
 }

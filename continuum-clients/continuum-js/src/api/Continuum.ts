@@ -2,6 +2,9 @@ import { EventBus } from '@/core/api/EventBus'
 import { IEventBus } from '@/core/api/IEventBus'
 import { ServiceRegistry } from '@/core/api/ServiceRegistry'
 import { IServiceProxy } from '@/core/api/IServiceRegistry'
+import {Identifiable} from "@/core/api/crud/Identifiable";
+import {ICrudServiceProxy} from "@/core/api/crud/ICrudServiceProxy";
+import {CrudServiceProxyFactory} from "@/core/api/crud/CrudServiceProxyFactory";
 
 /**
  * Provides a simplified way to connect to Continuum and access services
@@ -11,6 +14,8 @@ export namespace Continuum {
     export const eventBus: IEventBus = new EventBus()
 
     const serviceRegistry = new ServiceRegistry(eventBus)
+
+    const crudServiceProxyFactory = new CrudServiceProxyFactory(serviceRegistry)
 
     /**
      * Requests a connection to the given Stomp url
@@ -38,6 +43,10 @@ export namespace Continuum {
      */
     export function serviceProxy(serviceIdentifier: string): IServiceProxy {
         return serviceRegistry.serviceProxy(serviceIdentifier)
+    }
+
+    export function crudServiceProxy<T extends Identifiable<string>>(serviceIdentifier: string): ICrudServiceProxy<T> {
+        return crudServiceProxyFactory.crudServiceProxy<T>(serviceIdentifier)
     }
 
 }

@@ -21,14 +21,12 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import org.kinotic.continuum.core.api.crud.SearchComparator;
-import org.springframework.boot.jackson.JsonComponent;
 
 import java.io.IOException;
 
 /**
  * Created by Navíd Mitchell 🤪 on 7/30/21.
  */
-@JsonComponent
 public class SearchComparatorSerializer extends JsonSerializer<SearchComparator> {
 
     @Override

@@ -22,14 +22,12 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.kinotic.continuum.core.api.crud.SearchComparator;
-import org.springframework.boot.jackson.JsonComponent;
 
 import java.io.IOException;
 
 /**
  * Created by Navíd Mitchell 🤪 on 7/30/21.
  */
-@JsonComponent
 public class SearchComparatorDeserializer extends JsonDeserializer<SearchComparator> {
 
     @Override

@@ -18,12 +18,10 @@
 package org.kinotic.continuum.internal.core.api.crud;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.commons.lang3.Validate;
-import org.springframework.boot.jackson.JsonComponent;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -36,7 +34,6 @@ import java.util.List;
  *
  * Created by navid on 2/4/20
  */
-@JsonComponent
 public class PageableDeserializer extends JsonDeserializer<Pageable> {
 
     @Override

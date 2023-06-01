@@ -20,12 +20,19 @@ package org.kinotic.continuum.internal.config;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.module.SimpleAbstractTypeResolver;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import org.kinotic.continuum.core.api.crud.SearchComparator;
 import org.kinotic.continuum.core.api.security.Participant;
+import org.kinotic.continuum.internal.core.api.crud.PageSerializer;
+import org.kinotic.continuum.internal.core.api.crud.PageableDeserializer;
+import org.kinotic.continuum.internal.core.api.crud.SearchComparatorDeserializer;
+import org.kinotic.continuum.internal.core.api.crud.SearchComparatorSerializer;
 import org.kinotic.continuum.internal.core.api.security.DefaultParticipant;
 import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 /**
  *
@@ -41,8 +48,13 @@ public class ContinuumJacksonConfig {
 
         SimpleAbstractTypeResolver resolver = new SimpleAbstractTypeResolver();
         resolver.addMapping(Participant.class, DefaultParticipant.class);
-
         ret.setAbstractTypes(resolver);
+
+        ret.addDeserializer(Pageable.class, new PageableDeserializer());
+        ret.addSerializer(Page.class, new PageSerializer());
+
+        ret.addDeserializer(SearchComparator.class, new SearchComparatorDeserializer());
+        ret.addSerializer(SearchComparator.class, new SearchComparatorSerializer());
 
         return ret;
     }

@@ -20,7 +20,6 @@ package org.kinotic.continuum.internal.core.api.crud;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import org.springframework.boot.jackson.JsonComponent;
 import org.springframework.data.domain.Page;
 
 import java.io.IOException;
@@ -29,11 +28,16 @@ import java.io.IOException;
  *
  * Created by navid on 2/4/20
  */
-@JsonComponent
-public class PageSerializer extends JsonSerializer<Page<?>> {
+@SuppressWarnings("rawtypes")
+public class PageSerializer extends JsonSerializer<Page> {
 
     @Override
-    public void serialize(Page<?> page, JsonGenerator jsonGenerator, SerializerProvider serializers) throws IOException {
+    public Class<Page> handledType() {
+        return Page.class;
+    }
+
+    @Override
+    public void serialize(Page page, JsonGenerator jsonGenerator, SerializerProvider serializers) throws IOException {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeNumberField("size", page.getSize());
         jsonGenerator.writeNumberField("totalElements", page.getTotalElements());

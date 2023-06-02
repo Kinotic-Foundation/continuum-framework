@@ -31,7 +31,7 @@ import org.springframework.util.MimeTypeUtils;
 import java.util.HashMap;
 
 /**
- *
+ * Resolves return values to json data using jackson
  * Created by Navid Mitchell on 2019-04-08.
  */
 @Component

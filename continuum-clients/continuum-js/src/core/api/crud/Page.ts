@@ -41,4 +41,15 @@ export class Page<T> {
      */
     public readonly content: T[] = []
 
+    /**
+     * Returns the number of total pages.
+     */
+    public get totalPages(): number {
+        let ret: number = 0
+        if(this.size !== 0) {
+            ret = Math.ceil(this.totalElements / this.size)
+        }
+        return ret
+    }
+
 }

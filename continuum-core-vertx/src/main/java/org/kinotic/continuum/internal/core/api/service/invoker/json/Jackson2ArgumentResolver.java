@@ -28,8 +28,6 @@ import org.springframework.stereotype.Component;
 
 /**
  * Resolves arguments from json data using jackson
- *
- *
  * Created by Navid Mitchell on 2019-04-08.
  */
 @Component

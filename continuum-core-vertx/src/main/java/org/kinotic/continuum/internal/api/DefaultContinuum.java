@@ -18,19 +18,19 @@
 package org.kinotic.continuum.internal.api;
 
 import io.vertx.core.Future;
-import org.apache.commons.text.WordUtils;
-import org.kinotic.continuum.api.Continuum;
-import org.kinotic.continuum.api.annotations.ContinuumPackages;
-import org.kinotic.continuum.api.annotations.EnableContinuum;
-import org.kinotic.continuum.api.config.ContinuumProperties;
-import org.kinotic.continuum.internal.utils.MetaUtil;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
 import io.vertx.core.spi.cluster.ClusterManager;
 import org.apache.commons.lang3.ClassUtils;
-import org.apache.ignite.Ignite;
+import org.apache.commons.text.WordUtils;
 import org.apache.ignite.internal.util.typedef.internal.U;
 import org.awaitility.Awaitility;
+import org.kinotic.continuum.api.Continuum;
+import org.kinotic.continuum.api.annotations.ContinuumPackages;
+import org.kinotic.continuum.api.annotations.EnableContinuum;
+import org.kinotic.continuum.api.config.ContinuumProperties;
+import org.kinotic.continuum.internal.utils.ContinuumUtil;
+import org.kinotic.continuum.internal.utils.MetaUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,13 +84,13 @@ public class DefaultContinuum implements Continuum {
         String name;
 
         try (Stream<String> fileStream = new BufferedReader(new InputStreamReader(resourceLoader.getResource("classpath:adjectives.txt").getInputStream())).lines()) {
-            name = fileStream.skip(getRandomNumberInRange(ADJECTIVE_COUNT))
+            name = fileStream.skip(ContinuumUtil.getRandomNumberInRange(ADJECTIVE_COUNT))
                              .findFirst()
                              .orElse("");
         }
 
         try (Stream<String> fileStream = new BufferedReader(new InputStreamReader(resourceLoader.getResource("classpath:animals.txt").getInputStream())).lines()) {
-            String temp = fileStream.skip(getRandomNumberInRange(ANIMAL_COUNT))
+            String temp = fileStream.skip(ContinuumUtil.getRandomNumberInRange(ANIMAL_COUNT))
                                     .findFirst()
                                     .orElse("");
             name = name + " " + WordUtils.capitalize(temp);
@@ -200,12 +200,5 @@ public class DefaultContinuum implements Continuum {
         Promise<Void> promise = Promise.promise();
         vertx.close(promise);
         Awaitility.await().atMost(2, TimeUnit.MINUTES).until(() -> promise.future().isComplete());
-    }
-
-
-    @SuppressWarnings("OptionalGetWithoutIsPresent")
-    private static int getRandomNumberInRange(int max) {
-        Random r = new Random();
-        return r.ints(0, (max + 1)).findFirst().getAsInt();
     }
 }

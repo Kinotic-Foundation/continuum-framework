@@ -22,7 +22,7 @@ export class ObjectC3Type extends C3Type {
      * The parent schema of this object definition.
      * This is used to support inheritance.
      */
-    private parent: ObjectC3Type | null = null
+    public parent: ObjectC3Type | null = null
 
     /**
      * The properties (key-value pairs) on an object are defined using the properties' keyword.

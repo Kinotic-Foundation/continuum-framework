@@ -17,9 +17,9 @@
 
 package org.kinotic.continuum.internal.utils;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Random;
 import java.util.function.Function;
 
 /**
@@ -31,6 +31,11 @@ public class ContinuumUtil {
     public static String safeEncodeURI(String uri){
         String encoded = URLEncoder.encode(uri, StandardCharsets.UTF_8);
         return encoded.replaceAll("_", "-");
+    }
+
+    public static int getRandomNumberInRange(int max) {
+        Random r = new Random();
+        return r.ints(0, (max + 1)).findFirst().orElseThrow();
     }
 
     /**

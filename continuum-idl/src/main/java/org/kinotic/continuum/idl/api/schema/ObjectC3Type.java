@@ -80,11 +80,11 @@ public class ObjectC3Type extends C3Type {
     }
 
     /**
-     * Gets the URN for this {@link ObjectC3Type} which is the namespace + "." + name
-     * @return the urn for this {@link ObjectC3Type}
+     * Gets the fully qualified name for this {@link ObjectC3Type} which is the namespace + "." + name
+     * @return the fully qualified name for this {@link ObjectC3Type}
      */
     @JsonIgnore
-    public String getUrn(){
+    public String getQualifiedName(){
         return namespace + "." + name;
     }
 

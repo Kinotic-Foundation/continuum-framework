@@ -98,7 +98,7 @@ public class DefaultConversionContext implements ConversionContext {
         if(c3Type instanceof ObjectC3Type && shouldCreateReferences){
             ObjectC3Type objectC3Type = (ObjectC3Type) c3Type;
             objects.add(objectC3Type);
-            c3Type = new ReferenceC3Type(objectC3Type.getUrn());
+            c3Type = new ReferenceC3Type(objectC3Type.getQualifiedName());
         }
         return c3Type;
     }

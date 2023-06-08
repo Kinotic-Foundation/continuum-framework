@@ -18,7 +18,20 @@ import java.util.List;
 @ToString(callSuper = true)
 public class EnumC3Type extends C3Type {
 
-    List<String> values = new ArrayList<>();
+    /**
+     * The namespace that this {@link EnumC3Type} belongs to
+     */
+    private String namespace = null;
+
+    /**
+     * This is the name of the {@link EnumC3Type} such as "EventType"
+     */
+    private String name = null;
+
+    /**
+     * The values that are part of this enum
+     */
+    private List<String> values = new ArrayList<>();
 
     public EnumC3Type addValue(String value){
         values.add(value);

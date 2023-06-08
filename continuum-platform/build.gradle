@@ -47,6 +47,7 @@ dependencies {
         api "io.vertx:vertx-mqtt:${vertxVersion}"
         api "io.vertx:vertx-ignite:${vertxVersion}"
         api "io.vertx:vertx-reactive-streams:${vertxVersion}"
+        api "io.vertx:vertx-web-graphql:${vertxVersion}"
         api "com.github.rworsnop:vertx-beans:${vertxBeansVersion}"
 
         api "org.kinotic:vertx-stomp-lite:${vertxStompLiteVersion}"

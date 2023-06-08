@@ -2,7 +2,6 @@ package org.kinotic.continuum.core.api.crud;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import reactor.core.publisher.Mono;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -16,7 +15,7 @@ public interface CrudService<T, ID> {
      * entity instance completely.
      *
      * @param entity must not be {@literal null}
-     * @return {@link Mono} emitting the saved entity
+     * @return {@link CompletableFuture} emitting the saved entity
      * @throws IllegalArgumentException in case the given {@literal entity} is {@literal null}
      */
     CompletableFuture<T> save(T entity);
@@ -25,7 +24,7 @@ public interface CrudService<T, ID> {
      * Retrieves an entity by its id.
      *
      * @param id must not be {@literal null}
-     * @return {@link Mono} emitting the entity with the given id or {@link Mono#empty()} if none found
+     * @return {@link CompletableFuture} emitting the entity with the given id or {@link CompletableFuture} emitting null if none found
      * @throws IllegalArgumentException in case the given {@literal id} is {@literal null}
      */
     CompletableFuture<T> findById(ID id);
@@ -33,7 +32,7 @@ public interface CrudService<T, ID> {
     /**
      * Returns the number of entities available.
      *
-     * @return {@link Mono} emitting the number of entities
+     * @return {@link CompletableFuture} emitting the number of entities
      */
     CompletableFuture<Long> count();
 
@@ -41,13 +40,13 @@ public interface CrudService<T, ID> {
      * Deletes the entity with the given id.
      *
      * @param id must not be {@literal null}
-     * @return {@link Mono} signaling when operation has completed
+     * @return {@link CompletableFuture} signaling when operation has completed
      * @throws IllegalArgumentException in case the given {@literal id} is {@literal null}
      */
     CompletableFuture<Void> deleteById(ID id);
 
     /**
-     * Returns a {@link Page} of entities meeting the paging restriction provided in the {@code Pageable} object.
+     * Returns a {@link Page} of entities meeting the paging restriction provided in the {@link Pageable} object.
      *
      * @param pageable the page settings to be used
      * @return a page of entities
@@ -55,7 +54,7 @@ public interface CrudService<T, ID> {
     CompletableFuture<Page<T>> findAll(Pageable pageable);
 
     /**
-     * Returns a {@link Page} of entities matching the search text and paging restriction provided in the {@code Pageable} object.
+     * Returns a {@link Page} of entities matching the search text and paging restriction provided in the {@link Pageable} object.
      *
      * @param searchText the text to search for entities for
      * @param pageable the page settings to be used

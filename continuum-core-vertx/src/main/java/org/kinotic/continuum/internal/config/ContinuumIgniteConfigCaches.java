@@ -44,7 +44,6 @@ public class ContinuumIgniteConfigCaches {
 
     private final ContinuumProperties continuumProperties;
 
-    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     public ContinuumIgniteConfigCaches(ContinuumProperties continuumProperties) {
         this.continuumProperties = continuumProperties;
     }

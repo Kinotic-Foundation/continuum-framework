@@ -13,8 +13,17 @@ import org.kinotic.continuum.idl.api.schema.C3Type;
  */
 public interface C3ConversionContext<R, S> {
 
+    /**
+     * Converts the given {@link C3Type} to the type specified by the {@link C3ConversionContext}
+     *
+     * @param c3Type to convert
+     * @return the converted value
+     */
     R convert(C3Type c3Type);
 
+    /**
+     * @return the state of this {@link C3ConversionContext}
+     */
     S state();
 
 }

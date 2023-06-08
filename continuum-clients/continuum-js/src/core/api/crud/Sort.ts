@@ -44,12 +44,12 @@ export enum NullHandling {
     NATIVE = 'NATIVE',
 
     /**
-     * A hint to the used data store to order entries with null values before non null entries.
+     * A hint to the used data store to order entries with null values before non-null entries.
      */
     NULLS_FIRST = 'NULLS_FIRST',
 
     /**
-     * A hint to the used data store to order entries with null values after non null entries.
+     * A hint to the used data store to order entries with null values after non-null entries.
      */
     NULLS_LAST = 'NULLS_LAST'
 }

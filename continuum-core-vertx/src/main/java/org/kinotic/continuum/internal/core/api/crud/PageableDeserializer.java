@@ -66,13 +66,19 @@ public class PageableDeserializer extends JsonDeserializer<Pageable> {
     private List<Sort.Order> deserializeOrders(JsonNode ordersNode){
         List<Sort.Order> ret = new LinkedList<>();
         for(JsonNode node: ordersNode){
+
             Validate.isTrue(node.has("direction"), "direction missing from Order");
             Sort.Direction direction = Sort.Direction.fromString(node.get("direction").asText());
+
             Validate.isTrue(node.has("property"), "property missing from Order");
             String property = node.get("property").asText();
-            Validate.isTrue(node.has("nullHandling"), "nullHandling missing from Order");
-            Sort.NullHandling nullHandling = Sort.NullHandling.valueOf(node.get("nullHandling").asText());
-            ret.add(new Sort.Order(direction, property, nullHandling));
+
+            if(node.has("nullHandling")){
+                Sort.NullHandling nullHandling = Sort.NullHandling.valueOf(node.get("nullHandling").asText());
+                ret.add(new Sort.Order(direction, property, nullHandling));
+            }else {
+                ret.add(new Sort.Order(direction, property));
+            }
         }
         return ret;
     }

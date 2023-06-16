@@ -44,6 +44,7 @@ import javax.cache.configuration.FactoryBuilder;
 import javax.cache.event.CacheEntryEvent;
 import javax.cache.event.CacheEntryEventFilter;
 import javax.cache.event.EventType;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Supplier;
 
@@ -73,6 +74,18 @@ public class IgniteUtil {
                 sink.error(e);
             }
         });
+    }
+
+    public static <T> CompletableFuture<T> futureToCompletableFuture(IgniteFuture<T> igniteFuture){
+        CompletableFuture<T> ret = new CompletableFuture<>();
+        igniteFuture.listen((IgniteInClosure<IgniteFuture<T>>) f -> {
+            try{
+                ret.complete(f.get());
+            }catch (Exception ex){
+                ret.completeExceptionally(ex);
+            }
+        });
+        return ret;
     }
 
     public static <T> void futureToMonoSink(MonoSink<T> sink, IgniteFuture<T> igniteFuture){

@@ -112,7 +112,7 @@ public class DefaultEventBusService implements EventBusService {
                                            sink.error(reply.cause());
                                        }
                                      });
-        });
+        }).subscribeOn(scheduler).then();
     }
 
     private DeliveryOptions createDeliveryOptions(Event<?> event){

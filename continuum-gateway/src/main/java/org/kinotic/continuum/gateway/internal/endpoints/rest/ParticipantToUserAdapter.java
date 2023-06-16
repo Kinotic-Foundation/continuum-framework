@@ -29,12 +29,9 @@ import io.vertx.ext.auth.User;
  * Created by Navid Mitchell on 5/29/20
  */
 public class ParticipantToUserAdapter implements User {
-
-    private final Participant participant;
     private final JsonObject principal;
 
     public ParticipantToUserAdapter(Participant participant) {
-        this.participant = participant;
         principal = new JsonObject();
         principal.put("user", participant.getId());
     }

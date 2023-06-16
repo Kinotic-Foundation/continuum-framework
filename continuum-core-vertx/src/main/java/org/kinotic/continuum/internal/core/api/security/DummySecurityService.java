@@ -17,44 +17,26 @@
 
 package org.kinotic.continuum.internal.core.api.security;
 
-import org.kinotic.continuum.core.api.event.EventConstants;
 import org.kinotic.continuum.core.api.security.MetadataConstants;
 import org.kinotic.continuum.core.api.security.Participant;
-import org.kinotic.continuum.core.api.security.Permissions;
 import org.kinotic.continuum.core.api.security.SecurityService;
-import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Provided to make testing without a configured IAM easier
  * WARNING: should not be used in production for any reason
- *
- *
  * Created by Navid Mitchell on 3/11/20
  */
 public class DummySecurityService implements SecurityService {
 
     @Override
-    public Mono<Participant> authenticate(String accessKey, String secretToken) {
-        return Mono.just(new DefaultParticipant(accessKey,
-                                                Map.of(MetadataConstants.TYPE_KEY, "dummy"),
-                                                new Permissions(List.of(EventConstants.SERVICE_DESTINATION_SCHEME + "://*.**",
-                                                                        EventConstants.STREAM_DESTINATION_SCHEME + "://*.**"),
-                                                                List.of(EventConstants.SERVICE_DESTINATION_SCHEME + "://*.**",
-                                                                        EventConstants.STREAM_DESTINATION_SCHEME + "://*.**"))
-        ));
+    public CompletableFuture<Participant> authenticate(Map<String, String> authenticationInfo) {
+        return CompletableFuture.completedFuture(new Participant("dummy",
+                                                                Map.of(MetadataConstants.TYPE_KEY, "dummy"),
+                                                                List.of("ADMIN")));
     }
 
-    @Override
-    public Mono<Participant> findParticipant(String participantIdentity) {
-        return Mono.just(new DefaultParticipant(participantIdentity,
-                                                Map.of(MetadataConstants.TYPE_KEY, "dummy"),
-                                                new Permissions(List.of(EventConstants.SERVICE_DESTINATION_SCHEME + "://*.**",
-                                                                        EventConstants.STREAM_DESTINATION_SCHEME + "://*.**"),
-                                                                List.of(EventConstants.SERVICE_DESTINATION_SCHEME + "://*.**",
-                                                                        EventConstants.STREAM_DESTINATION_SCHEME + "://*.**"))
-        ));
-    }
 }

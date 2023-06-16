@@ -50,7 +50,6 @@ public class Services {
     @Autowired
     public EventBusService eventBusService;
 
-    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") // not detected because created by BeanFactory
     @Autowired
     public SecurityService securityService;
 

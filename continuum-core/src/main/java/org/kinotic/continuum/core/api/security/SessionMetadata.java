@@ -25,12 +25,10 @@ import java.util.Date;
  */
 public interface SessionMetadata {
 
-    String sessionId();
+    String getSessionId();
 
-    String participantIdentity();
+    Participant getParticipant();
 
-    String participantType();
-
-    Date lastUsedDate();
+    Date getLastUsedDate();
 
 }

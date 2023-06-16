@@ -17,36 +17,27 @@
 
 package org.kinotic.continuum.gateway.internal.endpoints;
 
+import io.vertx.core.Promise;
+import io.vertx.core.Vertx;
+import io.vertx.core.eventbus.ReplyException;
+import io.vertx.core.eventbus.ReplyFailure;
+import org.apache.commons.lang3.Validate;
 import org.kinotic.continuum.api.exceptions.RpcMissingServiceException;
 import org.kinotic.continuum.core.api.event.CRI;
 import org.kinotic.continuum.core.api.event.Event;
 import org.kinotic.continuum.core.api.event.EventConstants;
-import org.kinotic.continuum.core.api.security.Participant;
 import org.kinotic.continuum.core.api.security.Session;
-import org.kinotic.continuum.internal.utils.SecurityUtil;
 import org.kinotic.continuum.internal.utils.ContinuumUtil;
-import io.vertx.core.Promise;
-import io.vertx.core.eventbus.ReplyException;
-import io.vertx.core.eventbus.ReplyFailure;
-import io.vertx.ext.stomp.lite.frame.Frame;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.BaseSubscriber;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import javax.crypto.SecretKey;
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.PBEKeySpec;
-import javax.crypto.spec.SecretKeySpec;
-import java.security.spec.KeySpec;
-import java.util.Base64;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Function;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.BiFunction;
 
 /**
  * Generic class to perform {@link Event} handling coming from various endpoints
@@ -58,72 +49,45 @@ public class EndpointConnectionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(EndpointConnectionHandler.class);
 
+    private final Vertx vertx;
     private final Services services;
 
     private final Map<String, BaseSubscriber<Event<byte[]>>> subscriptions = new HashMap<>();
     private Session session;
     private long sessionTimer = -1;
 
-    public EndpointConnectionHandler(Services services) {
+    public EndpointConnectionHandler(Vertx vertx,
+                                     Services services) {
+        this.vertx = vertx;
         this.services = services;
     }
 
-    public Promise<Map<String, String>> authenticate(Map<String, String> connectHeaders) {
-
-        Promise<Map<String, String>> ret = Promise.promise();
-
+    /**
+     * Requests authentication for the given credentials
+     * @param connectHeaders all the headers provided with the CONNECT frame. This will include the login and passcode headers.
+     * @return a {@link Promise} completed normally to authenticate or failed to represent a failed authentication
+     *         The promise must contain a Map that will provide any additional headers to be returned to the client with the CONNECTED frame
+     */
+    public CompletableFuture<Map<String, String>> authenticate(Map<String, String> connectHeaders) {
         // Check if session is being used to authenticate
         if (connectHeaders.containsKey(EventConstants.SESSION_HEADER)) {
 
             String sessionId = connectHeaders.get(EventConstants.SESSION_HEADER);
-            services.sessionManager
+            return services.sessionManager
                     .findSession(sessionId)
-                    .subscribe(s -> {
-                        sessionActive(s);
-                        ret.complete(Collections.singletonMap(EventConstants.SESSION_HEADER, session.sessionId()));
-                    }, throwable -> {
-                        log.error("Session could not be found " + sessionId, throwable);
-                        ret.fail("Session is invalid");
+                    .thenApply(session -> {
+                        sessionActive(session);
+                        return Map.of(EventConstants.SESSION_HEADER, session.sessionId());
                     });
-
         } else {
-            String identity = connectHeaders.get(Frame.LOGIN);
-            String secret = connectHeaders.get(Frame.PASSCODE);
-            if (StringUtils.isNotBlank(identity) && StringUtils.isNotBlank(secret)) {
-                services.securityService
-                        .authenticate(identity, secret)
-                        .flatMap((Function<Participant, Mono<Session>>) participant -> {
 
-                            try {
-                                SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
-                                KeySpec spec = new PBEKeySpec(secret.toCharArray(),
-                                                              SecurityUtil.generateSecretKey(128),
-                                                              65536,
-                                                              256);
-                                SecretKey sessionSecretKey = new SecretKeySpec(factory.generateSecret(spec).getEncoded(), "AES");
-
-                                String sessionId = Base64.getUrlEncoder()
-                                                         .withoutPadding()
-                                                         .encodeToString(sessionSecretKey.getEncoded());
-
-                                return services.sessionManager.create(sessionId, participant);
-
-                            } catch (Exception e) {
-                                log.error("Session could not be created for identity: " + identity, e);
-                                return Mono.error(new IllegalStateException("Session could not be created", e));
-                            }
-                        })
-                        .subscribe(s -> {
-
-                            sessionActive(s);
-
-                            ret.complete(Collections.singletonMap(EventConstants.SESSION_HEADER, session.sessionId()));
-                        }, ret::fail);
-            } else {
-                ret.fail("The connection frame does not contain valid credentials");
-            }
+            return services.securityService.authenticate(connectHeaders)
+                                           .thenCompose(participant -> services.sessionManager.create(participant))
+                                           .thenApply(session -> {
+                                               sessionActive(session);
+                                               return Map.of(EventConstants.SESSION_HEADER, session.sessionId());
+                                           });
         }
-        return ret;
     }
 
     private void sessionActive(Session session) {
@@ -285,12 +249,12 @@ public class EndpointConnectionHandler {
         if (session != null) {
             services.sessionManager
                     .removeSession(session.sessionId())
-                    .subscribe(value -> {
-                                   if (!value) {
-                                       log.error("Could not remove sessionId: " + session.sessionId());
-                                   }
-                               },
-                               throwable -> log.error("Could not remove sessionId: " + session.sessionId(), throwable));
+                    .handle((BiFunction<Boolean, Throwable, Void>) (aBoolean, throwable) -> {
+                        if (throwable != null) {
+                            log.error("Could not remove sessionId: " + session.sessionId(), throwable);
+                        }
+                        return null;
+                    });
         } else {
             log.error("No session for connection was set");
         }

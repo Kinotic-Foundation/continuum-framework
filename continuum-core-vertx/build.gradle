@@ -17,6 +17,7 @@ dependencies {
 
     // vertx
     api 'io.vertx:vertx-core'
+    implementation 'io.vertx:vertx-auth-common'
     implementation 'com.github.rworsnop:vertx-beans'
 
     api 'org.apache.kafka:kafka-clients'

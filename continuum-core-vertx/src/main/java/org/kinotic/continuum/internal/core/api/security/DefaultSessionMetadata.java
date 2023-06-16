@@ -18,9 +18,9 @@
 package org.kinotic.continuum.internal.core.api.security;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.kinotic.continuum.core.api.security.SessionMetadata;
-import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.ignite.cache.query.annotations.QuerySqlField;
+import org.kinotic.continuum.core.api.security.Participant;
+import org.kinotic.continuum.core.api.security.SessionMetadata;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -36,12 +36,7 @@ public class DefaultSessionMetadata implements Serializable, SessionMetadata {
     private String sessionId;
 
     @JsonProperty
-    @QuerySqlField
-    private String participantIdentity;
-
-    @JsonProperty
-    @QuerySqlField
-    private String participantType;
+    private Participant participant;
 
     @JsonProperty
     @QuerySqlField
@@ -51,52 +46,32 @@ public class DefaultSessionMetadata implements Serializable, SessionMetadata {
     }
 
     @Override
-    public String sessionId() {
+    public String getSessionId() {
         return sessionId;
     }
 
-    public DefaultSessionMetadata sessionId(String sessionId) {
+    public DefaultSessionMetadata setSessionId(String sessionId) {
         this.sessionId = sessionId;
         return this;
     }
 
-    @Override
-    public String participantIdentity() {
-        return participantIdentity;
+    public Participant getParticipant() {
+        return participant;
     }
 
-    public DefaultSessionMetadata participantIdentity(String participantIdentity) {
-        this.participantIdentity = participantIdentity;
+    public DefaultSessionMetadata setParticipant(Participant participant) {
+        this.participant = participant;
         return this;
     }
 
     @Override
-    public String participantType() {
-        return participantType;
-    }
-
-    public DefaultSessionMetadata participantType(String participantType) {
-        this.participantType = participantType;
-        return this;
-    }
-
-    @Override
-    public Date lastUsedDate() {
+    public Date getLastUsedDate() {
         return lastUsedDate;
     }
 
-    public DefaultSessionMetadata lastUsedDate(Date lastUsedDate) {
+    public DefaultSessionMetadata setLastUsedDate(Date lastUsedDate) {
         this.lastUsedDate = lastUsedDate;
         return this;
     }
 
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this)
-                .append("sessionId", sessionId)
-                .append("participantIdentity", participantIdentity)
-                .append("participantType", participantType)
-                .append("lastUsedDate", lastUsedDate)
-                .toString();
-    }
 }

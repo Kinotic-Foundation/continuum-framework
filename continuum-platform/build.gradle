@@ -49,6 +49,7 @@ dependencies {
         api "io.vertx:vertx-reactive-streams:${vertxVersion}"
         api "io.vertx:vertx-web-graphql:${vertxVersion}"
         api "com.github.rworsnop:vertx-beans:${vertxBeansVersion}"
+        api "me.escoffier.vertx:vertx-completable-future:${vertxCompletableFutureVersion}"
 
         api "org.kinotic:vertx-stomp-lite:${vertxStompLiteVersion}"
 

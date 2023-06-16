@@ -17,15 +17,18 @@
 
 package org.kinotic.continuum.gateway.internal.endpoints.rest;
 
-import org.kinotic.continuum.core.api.security.SecurityService;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.auth.AuthProvider;
 import io.vertx.ext.auth.User;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.kinotic.continuum.core.api.security.Participant;
+import org.kinotic.continuum.core.api.security.SecurityService;
+import org.kinotic.continuum.internal.utils.VertxUtils;
 import org.springframework.stereotype.Component;
+
+import java.util.function.BiFunction;
 
 /**
  *
@@ -34,21 +37,23 @@ import org.springframework.stereotype.Component;
 @Component
 public class ContinuumGatewayRestAuthProvider implements AuthProvider {
 
-    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") // not detected because created by BeanFactory
-    @Autowired
-    private SecurityService securityService;
+    private final SecurityService securityService;
+
+    public ContinuumGatewayRestAuthProvider(SecurityService securityService) {
+        this.securityService = securityService;
+    }
 
     @Override
     public void authenticate(JsonObject authInfo, Handler<AsyncResult<User>> resultHandler) {
-        String accessKey = authInfo.getString("username");
-        String secretKey = authInfo.getString("password");
-
-        securityService.authenticate(accessKey, secretKey)
-                       .subscribe(participant -> {
-                           resultHandler.handle(Future.succeededFuture(new ParticipantToUserAdapter(participant)));
-                       }, throwable -> {
-                           resultHandler.handle(Future.failedFuture(throwable));
-                       });
+        securityService.authenticate(VertxUtils.jsonObjectToFlatMap(authInfo))
+                .handle((BiFunction<Participant, Throwable, Void>) (participant, throwable) -> {
+                    if(throwable == null) {
+                        resultHandler.handle(Future.succeededFuture(new ParticipantToUserAdapter(participant)));
+                    } else {
+                        resultHandler.handle(Future.failedFuture(throwable));
+                    }
+                    return null;
+                });
     }
 
 }

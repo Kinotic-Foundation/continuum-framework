@@ -17,19 +17,17 @@
 
 package org.kinotic.continuum.gateway.internal.endpoints.stomp;
 
-import io.vertx.ext.web.handler.StaticHandler;
-import org.kinotic.continuum.gateway.api.config.ContinuumGatewayProperties;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
-import io.vertx.core.http.HttpServerResponse;
 import io.vertx.ext.stomp.lite.StompServer;
 import io.vertx.ext.stomp.lite.StompServerHandlerFactory;
 import io.vertx.ext.stomp.lite.StompServerOptions;
 import io.vertx.ext.web.Router;
+import io.vertx.ext.web.handler.StaticHandler;
+import org.kinotic.continuum.gateway.api.config.ContinuumGatewayProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -43,13 +41,17 @@ public class StompServerVerticle extends AbstractVerticle {
 
     private static final Logger log = LoggerFactory.getLogger(StompServerVerticle.class);
 
-    @Autowired
-    private ContinuumGatewayProperties gatewayProperties;
+    private final ContinuumGatewayProperties gatewayProperties;
 
-    @Autowired
-    private StompServerHandlerFactory stompServerHandlerFactory;
+    private final StompServerHandlerFactory stompServerHandlerFactory;
 
     private HttpServer httpServer;
+
+    public StompServerVerticle(ContinuumGatewayProperties gatewayProperties,
+                               StompServerHandlerFactory stompServerHandlerFactory) {
+        this.gatewayProperties = gatewayProperties;
+        this.stompServerHandlerFactory = stompServerHandlerFactory;
+    }
 
     @Override
     public void start() {

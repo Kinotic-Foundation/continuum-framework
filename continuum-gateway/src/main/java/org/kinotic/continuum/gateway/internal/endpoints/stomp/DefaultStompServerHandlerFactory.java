@@ -17,11 +17,11 @@
 
 package org.kinotic.continuum.gateway.internal.endpoints.stomp;
 
-import org.kinotic.continuum.gateway.internal.endpoints.Services;
+import io.vertx.core.Vertx;
 import io.vertx.ext.stomp.lite.StompServerConnection;
 import io.vertx.ext.stomp.lite.StompServerHandler;
 import io.vertx.ext.stomp.lite.StompServerHandlerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.kinotic.continuum.gateway.internal.endpoints.Services;
 import org.springframework.stereotype.Component;
 
 /**
@@ -31,13 +31,18 @@ import org.springframework.stereotype.Component;
 @Component
 public class DefaultStompServerHandlerFactory implements StompServerHandlerFactory {
 
-    @Autowired
-    private Services services;
+    private final Vertx vertx;
+    private final Services services;
 
+    public DefaultStompServerHandlerFactory(Vertx vertx, Services services) {
+        this.vertx = vertx;
+        this.services = services;
+    }
 
     @Override
     public StompServerHandler create(StompServerConnection stompServerConnection) {
-        return new DefaultStompServerHandler(services,
+        return new DefaultStompServerHandler(vertx,
+                                             services,
                                              stompServerConnection);
     }
 

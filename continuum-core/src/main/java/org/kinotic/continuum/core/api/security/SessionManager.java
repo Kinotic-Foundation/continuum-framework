@@ -17,7 +17,7 @@
 
 package org.kinotic.continuum.core.api.security;
 
-import reactor.core.publisher.Mono;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Provides an abstraction for creating and accessing {@link Session}'s
@@ -28,25 +28,24 @@ public interface SessionManager {
 
     /**
      * Create a new {@link Session} for the given {@link Participant}
-     * @param sessionId to use when creating and storing the session
      * @param participant the {@link Participant} to create the {@link Session} for
-     * @return a {@link Mono} containing the new {@link Session} or an error if the {@link Session} cannot be created
+     * @return a {@link CompletableFuture} containing the new {@link Session} or an error if the {@link Session} cannot be created
      */
-    Mono<Session> create(String sessionId, Participant participant);
+    CompletableFuture<Session> create(Participant participant);
 
     /**
      * Removes the {@link Session} from the internal known sessions.
      * @param sessionId the id of the {@link Session} to remove
-     * @return a {@link Mono} containing the result of the removal operation.
-     *         True if there was a session for the given Id or false if there was no session fro the id.
+     * @return a {@link CompletableFuture} containing the result of the removal operation.
+     *         True if there was a session for the given sessionId or false if there was no session for the id.
      */
-    Mono<Boolean> removeSession(String sessionId);
+    CompletableFuture<Boolean> removeSession(String sessionId);
 
     /**
      * Finds a previously created {@link Session} by the sessionId
      * @param sessionId to find the {@link Session} for
-     * @return a {@link Mono} containing the existing {@link Session} or an error if the {@link Session} cannot be found
+     * @return a {@link CompletableFuture} containing the existing {@link Session} or an error if the {@link Session} cannot be found
      */
-    Mono<Session> findSession(String sessionId);
+    CompletableFuture<Session> findSession(String sessionId);
 
 }

@@ -31,8 +31,8 @@ import java.util.Map;
  */
 public class DefaultParticipant implements Participant {
 
-    private String id;
     private String tenantId;
+    private String id;
     private Map<String, String> metadata;
     private List<String> roles;
 
@@ -58,12 +58,12 @@ public class DefaultParticipant implements Participant {
         this.roles = roles;
     }
 
-    public DefaultParticipant(String id,
-                              String tenantId,
+    public DefaultParticipant(String tenantId,
+                              String id,
                               Map<String, String> metadata,
                               List<String> roles) {
-        this.id = id;
         this.tenantId = tenantId;
+        this.id = id;
         this.metadata = metadata;
         this.roles = roles;
     }

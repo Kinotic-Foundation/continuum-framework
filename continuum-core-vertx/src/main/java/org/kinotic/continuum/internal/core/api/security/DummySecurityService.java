@@ -35,8 +35,8 @@ public class DummySecurityService implements SecurityService {
 
     @Override
     public CompletableFuture<Participant> authenticate(Map<String, String> authenticationInfo) {
-        return CompletableFuture.completedFuture(new DefaultParticipant("dummy",
-                                                                        "coolTenant",
+        return CompletableFuture.completedFuture(new DefaultParticipant("coolTenant",
+                                                                        "dummy",
                                                                         Map.of(MetadataConstants.TYPE_KEY, "dummy"),
                                                                         List.of("ADMIN")));
     }

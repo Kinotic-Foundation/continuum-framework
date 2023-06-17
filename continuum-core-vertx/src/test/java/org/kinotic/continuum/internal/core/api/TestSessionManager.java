@@ -19,6 +19,7 @@ package org.kinotic.continuum.internal.core.api;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.kinotic.continuum.core.api.security.DefaultParticipant;
 import org.kinotic.continuum.core.api.security.Participant;
 import org.kinotic.continuum.core.api.security.Session;
 import org.kinotic.continuum.core.api.security.SessionManager;
@@ -51,7 +52,7 @@ public class TestSessionManager {
     @Test
     public void testCreateFindRemove(){
 
-        Participant participant = new Participant(IDENTITY, List.of("ADMIN"));
+        Participant participant = new DefaultParticipant(IDENTITY, List.of("ADMIN"));
 
         CompletableFuture<Session> sessionCompletableFuture = sessionManager.create(participant);
 

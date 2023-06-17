@@ -17,6 +17,7 @@
 
 package org.kinotic.continuum.internal.core.api.security;
 
+import org.kinotic.continuum.core.api.security.DefaultParticipant;
 import org.kinotic.continuum.core.api.security.MetadataConstants;
 import org.kinotic.continuum.core.api.security.Participant;
 import org.kinotic.continuum.core.api.security.SecurityService;
@@ -34,9 +35,10 @@ public class DummySecurityService implements SecurityService {
 
     @Override
     public CompletableFuture<Participant> authenticate(Map<String, String> authenticationInfo) {
-        return CompletableFuture.completedFuture(new Participant("dummy",
-                                                                Map.of(MetadataConstants.TYPE_KEY, "dummy"),
-                                                                List.of("ADMIN")));
+        return CompletableFuture.completedFuture(new DefaultParticipant("dummy",
+                                                                        "coolTenant",
+                                                                        Map.of(MetadataConstants.TYPE_KEY, "dummy"),
+                                                                        List.of("ADMIN")));
     }
 
 }

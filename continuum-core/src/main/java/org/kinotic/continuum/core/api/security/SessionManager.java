@@ -27,8 +27,8 @@ import java.util.concurrent.CompletableFuture;
 public interface SessionManager {
 
     /**
-     * Create a new {@link Session} for the given {@link Participant}
-     * @param participant the {@link Participant} to create the {@link Session} for
+     * Create a new {@link Session} for the given {@link DefaultParticipant}
+     * @param participant the {@link DefaultParticipant} to create the {@link Session} for
      * @return a {@link CompletableFuture} containing the new {@link Session} or an error if the {@link Session} cannot be created
      */
     CompletableFuture<Session> create(Participant participant);

@@ -41,7 +41,7 @@ public interface Session {
     /**
      * Adds a criPattern that will allow a send to the given {@link CRI} one time
      * This is determined by a call to {@link Session#sendAllowed(CRI)} after the first call returning true the criPattern will not be allowed again
-     * The pattern should be compatible with a pattern such as defined in {@link Participant#getPermissions()}
+     * The pattern should be compatible with a pattern such as defined in {@link DefaultParticipant#getPermissions()}
      * @param criPattern to add to the temporary allowed list
      */
     void addTemporarySendAllowed(String criPattern);

@@ -111,12 +111,13 @@ public abstract class C3Type {
      * @param clazz to find the {@link C3Decorator} for
      * @return the {@link C3Decorator} or null if none are found
      */
-    public C3Decorator findDecorator(Class<? extends C3Decorator> clazz){
-        C3Decorator ret = null;
+    public <T extends C3Decorator> T findDecorator(Class<T> clazz){
+        T ret = null;
         if(decorators != null){
             for (C3Decorator decorator : decorators){
                 if(clazz.isAssignableFrom(decorator.getClass())){
-                    ret = decorator;
+                    //noinspection unchecked
+                    ret = (T) decorator;
                     break;
                 }
             }

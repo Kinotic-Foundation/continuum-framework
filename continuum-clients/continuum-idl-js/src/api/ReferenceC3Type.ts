@@ -10,4 +10,8 @@ export class ReferenceC3Type extends C3Type {
      */
     public urn: string | null = null
 
+    constructor() {
+        super();
+        this.type = "ref"
+    }
 }

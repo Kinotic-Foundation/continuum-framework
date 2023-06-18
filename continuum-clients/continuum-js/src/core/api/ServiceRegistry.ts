@@ -129,7 +129,10 @@ class ServiceProxy implements IServiceProxy {
                            eventFactory?: IEventFactory | null | undefined): Observable<any> {
 
         const cri: string = EventConstants.SERVICE_DESTINATION_PREFIX + (scope != null ? scope + '@' : '') + this.serviceIdentifier + '/' + methodIdentifier
-        const eventFactoryToUse = (eventFactory != null ? eventFactory : defaultEventFactory)
+        let eventFactoryToUse = defaultEventFactory
+        if(eventFactory !== null && eventFactory !== undefined){
+            eventFactoryToUse = eventFactory
+        }
         let event: IEvent = eventFactoryToUse.create(cri, args)
 
         return this.eventBus.requestStream(event, sendControlEvents)

@@ -18,4 +18,8 @@ export class UnionC3Type extends C3Type {
      */
     public types: ObjectC3Type[] = []
 
+    constructor() {
+        super();
+        this.type = "union"
+    }
 }

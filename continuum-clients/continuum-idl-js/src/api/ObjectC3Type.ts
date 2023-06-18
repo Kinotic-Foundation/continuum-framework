@@ -30,6 +30,11 @@ export class ObjectC3Type extends C3Type {
      */
     public properties: Map<string, C3Type> = new Map<string, C3Type>()
 
+    constructor() {
+        super();
+        this.type = "object"
+    }
+
     public addProperty(name: string, c3Type: C3Type): ObjectC3Type {
         if (this.properties.has(name)) {
             throw new Error(`ObjectTypeDefinition already contains property for name ${name}`);

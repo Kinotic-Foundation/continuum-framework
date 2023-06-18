@@ -8,4 +8,8 @@ import {C3Type} from "@/api/C3Type"
  */
 export class VoidC3Type extends C3Type {
 
+    constructor() {
+        super();
+        this.type = "void"
+    }
 }

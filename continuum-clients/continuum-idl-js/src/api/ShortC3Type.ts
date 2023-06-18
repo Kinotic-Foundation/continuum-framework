@@ -5,5 +5,9 @@ import {C3Type} from "@/api/C3Type"
  * Created by Navíd Mitchell 🤪 on 4/13/23.
  */
 export class ShortC3Type extends C3Type {
-    
+
+    constructor() {
+        super();
+        this.type = "short"
+    }
 }

@@ -15,7 +15,7 @@ export abstract class C3Type {
     /**
      * The list of Decorators that should be applied to this type
      */
-    public decorators?: C3Decorator[]
+    public decorators: C3Decorator[] = []
 
     public type: string = ""
 
@@ -29,6 +29,14 @@ export abstract class C3Type {
      */
     public hasDecorators(): boolean {
         return this.decorators != null && this.decorators.length > 0
+    }
+
+    public addDecorator(decorator: C3Decorator) {
+        if (this.containsDecorator(Object.getPrototypeOf(decorator))) {
+            throw new Error(`C3Type already contains decorator for name ${decorator.type}`);
+        }
+
+        this.decorators.push(decorator)
     }
 
     public findDecorator(clazz: typeof C3Decorator): C3Decorator | null {

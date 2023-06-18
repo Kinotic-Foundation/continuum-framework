@@ -10,4 +10,10 @@ export class ArrayC3Type extends C3Type {
      * <p>
      */
     public contains: C3Type | null = null
+
+
+    constructor() {
+        super();
+        this.type = "array"
+    }
 }

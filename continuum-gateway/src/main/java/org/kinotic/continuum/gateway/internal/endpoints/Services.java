@@ -17,6 +17,7 @@
 
 package org.kinotic.continuum.gateway.internal.endpoints;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.kinotic.continuum.core.api.event.EventBusService;
 import org.kinotic.continuum.core.api.event.EventStreamService;
 import org.kinotic.continuum.core.api.security.SecurityService;
@@ -58,4 +59,7 @@ public class Services {
 
     @Autowired
     public HFTQueueManager hftQueueManager;
+
+    @Autowired
+    ObjectMapper objectMapper;
 }

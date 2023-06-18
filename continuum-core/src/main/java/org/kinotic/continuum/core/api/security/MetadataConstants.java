@@ -27,5 +27,6 @@ public class MetadataConstants {
     public static final String TYPE_KEY = "type";
     public static final Map.Entry<String, String> DEVICE_TYPE = Map.entry(TYPE_KEY, "device");
     public static final Map.Entry<String, String> USER_TYPE = Map.entry(TYPE_KEY, "user");
+    public static final Map.Entry<String, String> NODE_TYPE = Map.entry(TYPE_KEY, "node");
 
 }

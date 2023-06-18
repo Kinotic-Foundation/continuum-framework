@@ -25,7 +25,6 @@ import org.apache.ignite.Ignite;
 import org.apache.ignite.IgniteCache;
 import org.kinotic.continuum.core.api.event.EventConstants;
 import org.kinotic.continuum.core.api.security.Participant;
-import org.kinotic.continuum.core.api.security.SecurityService;
 import org.kinotic.continuum.core.api.security.Session;
 import org.kinotic.continuum.core.api.security.SessionManager;
 import org.kinotic.continuum.internal.config.IgniteCacheConstants;
@@ -53,17 +52,14 @@ public class DefaultSessionManager implements SessionManager {
     private static final char[] HEX = "0123456789abcdef".toCharArray();
 
     private final PRNG random;
-    private final SecurityService securityService;
     private final PathPatternParser parser;
     private final IgniteCache<String, DefaultSessionMetadata> sessionCache;
     private final LoadingCache<String, PathPattern> pathPatternCache;
 
     public DefaultSessionManager(Vertx vertx,
-                                 @Autowired(required = false) SecurityService securityService,
                                  @Autowired(required = false) Ignite ignite) {
 
         this.random = new PRNG(vertx);
-        this.securityService = securityService;
         this.parser = new PathPatternParser();
         this.parser.setPathOptions(PathContainer.Options.MESSAGE_ROUTE);
         this.parser.setMatchOptionalTrailingSeparator(false);

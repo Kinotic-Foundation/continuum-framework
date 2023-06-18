@@ -101,11 +101,12 @@ public class EndpointConnectionHandler {
         Mono<Void> ret;
         if (session.sendAllowed(event.cri())) {
 
-            event.metadata().put(EventConstants.SENDER_HEADER, session.participant().getId());
-
             if (event.cri().scheme().equals(EventConstants.SERVICE_DESTINATION_SCHEME)) {
 
                 try {
+
+                    event.metadata().put(EventConstants.SENDER_HEADER, services.objectMapper.writeValueAsString(session.participant()));
+
                     // make sure reply-to if present is scoped to sender
                     validateReplyTo(event);
 

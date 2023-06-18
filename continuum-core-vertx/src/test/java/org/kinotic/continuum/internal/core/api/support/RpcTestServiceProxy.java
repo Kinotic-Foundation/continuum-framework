@@ -17,8 +17,8 @@
 
 package org.kinotic.continuum.internal.core.api.support;
 
-import org.kinotic.continuum.api.annotations.Proxy;
 import io.vertx.core.Future;
+import org.kinotic.continuum.api.annotations.Proxy;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -79,5 +79,11 @@ public interface RpcTestServiceProxy {
     Mono<String> getMonoEmptyString();
 
     Mono<String> getMonoStringLiterallyNull();
+
+    Mono<String> firstArgParticipant(String suffix);
+
+    Mono<String> middleArgParticipant(String prefix, String suffix);
+
+    Mono<String> lastArgParticipant(String prefix);
 
 }

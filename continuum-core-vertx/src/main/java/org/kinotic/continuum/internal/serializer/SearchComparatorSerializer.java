@@ -15,33 +15,24 @@
  * limitations under the License.
  */
 
-package org.kinotic.continuum.internal.core.api.crud;
+package org.kinotic.continuum.internal.serializer;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import org.springframework.data.domain.Page;
+import org.kinotic.continuum.core.api.crud.SearchComparator;
 
 import java.io.IOException;
 
 /**
- *
- * Created by navid on 2/4/20
+ * Created by Navíd Mitchell 🤪 on 7/30/21.
  */
-@SuppressWarnings("rawtypes")
-public class PageSerializer extends JsonSerializer<Page> {
+public class SearchComparatorSerializer extends JsonSerializer<SearchComparator> {
 
     @Override
-    public void serialize(Page page, JsonGenerator jsonGenerator, SerializerProvider serializers) throws IOException {
-        jsonGenerator.writeStartObject();
-        jsonGenerator.writeNumberField("size", page.getSize());
-        jsonGenerator.writeNumberField("totalElements", page.getTotalElements());
-        jsonGenerator.writeArrayFieldStart("content");
-        for (Object value: page) {
-            jsonGenerator.writeObject(value);
-        }
-        jsonGenerator.writeEndArray();
-        jsonGenerator.writeEndObject();
+    public void serialize(SearchComparator value,
+                          JsonGenerator gen,
+                          SerializerProvider serializers) throws IOException {
+        gen.writeString(value.getStringValue());
     }
-
 }

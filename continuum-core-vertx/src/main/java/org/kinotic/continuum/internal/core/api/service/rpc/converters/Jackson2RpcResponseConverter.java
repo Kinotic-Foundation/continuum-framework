@@ -61,7 +61,7 @@ public class Jackson2RpcResponseConverter extends AbstractJackson2Support implem
 
                 ret = temp[0];
 
-            }else if(temp.length <= 0){
+            }else if(temp.length == 0){
                 throw new IllegalStateException("Event data was present but no values could be converted");
             }
         }

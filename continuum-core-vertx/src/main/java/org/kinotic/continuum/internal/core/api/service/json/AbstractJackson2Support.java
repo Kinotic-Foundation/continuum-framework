@@ -28,6 +28,7 @@ import org.kinotic.continuum.api.config.ContinuumProperties;
 import org.kinotic.continuum.core.api.event.Event;
 import org.kinotic.continuum.core.api.event.EventConstants;
 import org.kinotic.continuum.core.api.event.Metadata;
+import org.kinotic.continuum.core.api.security.Participant;
 import org.kinotic.continuum.internal.core.api.service.invoker.ServiceInvocationSupervisor;
 import org.kinotic.continuum.internal.utils.EventUtil;
 import org.apache.commons.lang3.Validate;
@@ -108,22 +109,47 @@ public abstract class AbstractJackson2Support {
                                                     .block();
         List<Object> ret = new LinkedList<>();
         if(tokens!= null && !tokens.isEmpty()){
-            for(int i = 0; i < tokens.size(); i++){
 
-                if(i + 1 > parameters.length){ // index is zero base..
-                    throw new IllegalArgumentException("Received too many json arguments, Expected: " + parameters.length + " Got: " +tokens.size());
+            if(tokens.size() > parameters.length){
+                throw new IllegalArgumentException("Received too many json arguments, Expected: " + parameters.length + " Got: " +tokens.size());
+            }
+
+            int tokenIdx = 0;
+            for(MethodParameter methodParameter: parameters){
+
+                methodParameter = methodParameter.nestedIfOptional();
+
+                // if the parameter is a participant we get this from the even metadata
+                if(Participant.class.isAssignableFrom(methodParameter.getParameterType())){
+
+                    String participantJson = event.metadata().get(EventConstants.SENDER_HEADER);
+
+                    if(participantJson != null){
+                        try {
+                            Participant participant = objectMapper.readValue(participantJson, Participant.class);
+                            ret.add(participant);
+                        } catch (JsonProcessingException e) {
+                            throw new DecodingException("JSON decoding error: " + e.getOriginalMessage(), e);
+                        }
+                    }else{
+                        throw new IllegalArgumentException("Participant parameter is required but no Participant is available");
+                    }
+
+                }else{
+                    if(tokenIdx + 1 > tokens.size()){ // index is zero base..
+                        throw new IllegalArgumentException("Received too few json arguments, Expected: " + parameters.length + " Got: " +tokens.size());
+                    }
+
+                    Object arg = decodeInternal(tokens.get(tokenIdx), methodParameter);
+                    ret.add(arg);
+                    tokenIdx++;
                 }
-
-                Object arg = decodeInternal(tokens.get(i), parameters[i]);
-                ret.add(arg);
             }
         }
         return ret.toArray();
     }
 
     private Object decodeInternal(TokenBuffer tokenBuffer, MethodParameter methodParameter){
-
-        methodParameter = methodParameter.nestedIfOptional();
 
         // Unwrap async classes, this is also used for method return values so this handles that..
         if(reactiveAdapterRegistry.getAdapter(methodParameter.getParameterType()) != null){

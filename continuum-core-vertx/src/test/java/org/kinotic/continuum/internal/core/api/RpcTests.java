@@ -63,6 +63,9 @@ public class RpcTests {
     @Autowired
     private Continuum continuum;
 
+    // TODO: test to few arguments, and too many arguments, also a variation with the participant. Participant variant error message may be misleading?
+    // See org.kinotic.continuum.internal.core.api.service.json.AbstractJackson2Support Line 114, Line 180. Should we keep the number of participant args in mind.
+
     @Test
     public void testRpcCompletableFutureString(){
         CompletableFuture<String> mono = rpcTestServiceProxy.getString();

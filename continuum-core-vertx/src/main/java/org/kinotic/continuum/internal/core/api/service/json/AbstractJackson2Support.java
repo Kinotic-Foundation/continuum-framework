@@ -92,7 +92,7 @@ public abstract class AbstractJackson2Support {
      * @return the deserialized Json as Java objects
      */
     protected Object[] createJavaObjectsFromJsonEvent(Event<byte[]> event, MethodParameter[] parameters, boolean dataInArray){
-        Validate.notNull(event, "event cannot be null");
+        Validate.notNull(event, "event must not be null");
         Validate.notNull(parameters, "parameters must not be null");
 
         // TODO: remove the use of the Spring Tokenizer since I have found out about the performance issues with reactor
@@ -111,6 +111,7 @@ public abstract class AbstractJackson2Support {
         if(tokens!= null && !tokens.isEmpty()){
 
             if(tokens.size() > parameters.length){
+                // Error could be misleading / inaccurate, Should we keep the number of participant args in mind?
                 throw new IllegalArgumentException("Received too many json arguments, Expected: " + parameters.length + " Got: " +tokens.size());
             }
 
@@ -137,6 +138,7 @@ public abstract class AbstractJackson2Support {
 
                 }else{
                     if(tokenIdx + 1 > tokens.size()){ // index is zero base..
+                        // Error could be misleading / inaccurate, Should we keep the number of participant args in mind?
                         throw new IllegalArgumentException("Received too few json arguments, Expected: " + parameters.length + " Got: " +tokens.size());
                     }
 

@@ -1,7 +1,9 @@
 export * from './api/decorators/C3Decorator'
 export * from './api/decorators/DecoratorTarget'
-export * from './api/decorators/NotNullC3Decorator'
+export * from './api/decorators/EntityDecorator'
 export * from './api/decorators/IdDecorator'
+export * from './api/decorators/MultiTenancyType'
+export * from './api/decorators/NotNullC3Decorator'
 
 export * from './api/ArrayC3Type'
 export * from './api/BooleanC3Type'

@@ -28,7 +28,7 @@ export class ObjectC3Type extends C3Type {
      * The properties (key-value pairs) on an object are defined using the properties' keyword.
      * The value of properties is an object, where each key is the name of a property and each value is a Continuum schema used to validate that property.
      */
-    public properties: Map<string, C3Type> = new Map<string, C3Type>()
+    public properties: {[key: string]: C3Type} = {}
 
     constructor() {
         super();
@@ -36,11 +36,11 @@ export class ObjectC3Type extends C3Type {
     }
 
     public addProperty(name: string, c3Type: C3Type): ObjectC3Type {
-        if (this.properties.has(name)) {
+        if (this.properties.hasOwnProperty(name)) {
             throw new Error(`ObjectTypeDefinition already contains property for name ${name}`);
         }
 
-        this.properties.set(name, c3Type)
+        this.properties[name] = c3Type
         return this
     }
 

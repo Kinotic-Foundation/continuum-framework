@@ -39,12 +39,6 @@ public class EventConstants {
     public static final String SESSION_HEADER = "session";
 
     /**
-     * Header provided by the sever on connection to represent the servers session key
-     */
-    public static final String SESSION_KEY_HEADER = "sessionKey";
-
-
-    /**
      * Correlates a response with a given request
      * Headers that start with __ will always be persisted between messages
      */

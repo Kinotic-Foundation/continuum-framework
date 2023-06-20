@@ -1,5 +1,6 @@
 package org.kinotic.continuum.idl.api.schema.decorators;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -31,6 +32,7 @@ public abstract class C3Decorator {
      * Targets specify where the decorator can be applied
      * NOTE: This must be set by implementations. It is not declared final for deserialization purposes.
      */
+    @JsonIgnore
     protected List<DecoratorTarget> targets;
 
 }

@@ -18,6 +18,7 @@
 package org.kinotic.continuum.gateway.internal;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Assertions;
 import org.kinotic.continuum.gateway.api.config.ContinuumGatewayProperties;
 import io.vertx.core.Promise;
 import io.vertx.core.buffer.Buffer;
@@ -102,9 +103,9 @@ public class TestRest {
 
         HttpResponse<Buffer> httpResponse = response.future().result();
 
-        if(httpResponse.statusCode() != 500){
-            throw new IllegalStateException("Exception was expected but got "+"\n HTTP Status: "+httpResponse.statusCode() + "\n HTTP Message: "+httpResponse.statusMessage());
-        }
+        Assertions.assertEquals(httpResponse.statusCode(),
+                                500,
+                                "Exception was expected but got "+"\n HTTP Status: "+httpResponse.statusCode() + "\n HTTP Message: "+httpResponse.statusMessage());
     }
 
     @Test
@@ -131,6 +132,23 @@ public class TestRest {
         verifyResult(response, String.class, s -> Objects.equals(s, "hello"), "TestService.testMonoNoArg method invocation failed");
     }
 
+    @Test
+    public void testUnauthorized(){
+        Promise<HttpResponse<Buffer>> response = Promise.promise();
+
+        client.post(properties.getRest().getPort(), "localhost", "/api/srv/org.kinotic.continuum.gateway.internal.support.TestService/testMonoNoArg")
+              .basicAuthentication("guest", "wat")
+              .putHeader("content-type", "application/json")
+              .send(response);
+
+        Awaitility.await().until(response.future()::isComplete);
+
+        HttpResponse<Buffer> httpResponse = response.future().result();
+
+        Assertions.assertEquals(httpResponse.statusCode(),
+                                401,
+                                "Unauthorized Exception was expected but got "+"\n HTTP Status: "+httpResponse.statusCode() + "\n HTTP Message: "+httpResponse.statusMessage());
+    }
 
     private <T> void verifyResult(Promise<HttpResponse<Buffer>> responsePromise, Class<T> clazz, Predicate<T> predicate, String message){
         Awaitility.await().until(responsePromise.future()::isComplete);

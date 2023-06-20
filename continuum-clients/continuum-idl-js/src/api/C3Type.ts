@@ -11,7 +11,7 @@ export abstract class C3Type {
      * The metadata keyword is legal on any schema, The objects provided must be serializable to JSON.
      * Usually, metadata is for putting things like descriptions or hints for code generators, or other things tools can use.
      */
-    public metadata: Map<string, any> = new Map<string, any>()
+    public metadata: {[key: string]: any} = {}
     /**
      * The list of Decorators that should be applied to this type
      */

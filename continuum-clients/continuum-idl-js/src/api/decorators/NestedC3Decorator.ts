@@ -1,5 +1,4 @@
 import {C3Decorator} from "@/api/decorators/C3Decorator"
-import {DecoratorTarget} from "@/api/decorators/DecoratorTarget"
 
 /**
  * Represents a {@link C3Decorator} the signifies that the decorated value must not be null
@@ -10,6 +9,5 @@ export class NestedC3Decorator extends C3Decorator {
     constructor() {
         super()
         this.type = "Nested"
-        this.targets = [DecoratorTarget.FIELD]
     }
 }

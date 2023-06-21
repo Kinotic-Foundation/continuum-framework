@@ -1,4 +1,3 @@
-import {DecoratorTarget} from "@/api/decorators/DecoratorTarget"
 
 /**
  * Decorators provide a way to add both annotations and a meta-programming syntax for class declarations and members.
@@ -6,6 +5,5 @@ import {DecoratorTarget} from "@/api/decorators/DecoratorTarget"
  * Created by Navíd Mitchell 🤪 on 4/23/23.
  */
 export class C3Decorator {
-    protected targets: DecoratorTarget[] = []
     public type: string = ''
 }

@@ -1,5 +1,4 @@
 export * from './api/decorators/C3Decorator'
-export * from './api/decorators/DecoratorTarget'
 export * from './api/decorators/EntityDecorator'
 export * from './api/decorators/FlattenedC3Decorator'
 export * from './api/decorators/IdDecorator'

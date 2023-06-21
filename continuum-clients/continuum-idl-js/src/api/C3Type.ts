@@ -31,12 +31,13 @@ export abstract class C3Type {
         return this.decorators != null && this.decorators.length > 0
     }
 
-    public addDecorator(decorator: C3Decorator) {
+    public addDecorator(decorator: C3Decorator): C3Type {
         if (this.containsDecorator(Object.getPrototypeOf(decorator))) {
             throw new Error(`C3Type already contains decorator for name ${decorator.type}`);
         }
 
         this.decorators.push(decorator)
+        return this
     }
 
     public findDecorator(clazz: typeof C3Decorator): C3Decorator | null {

@@ -5,11 +5,11 @@ import {DecoratorTarget} from "@/api/decorators/DecoratorTarget"
  * Represents a {@link C3Decorator} the signifies that the decorated value must not be null
  * Created by Navíd Mitchell 🤪 on 4/23/23.
  */
-export class NotNullC3Decorator extends C3Decorator {
+export class FlattenedC3Decorator extends C3Decorator {
 
     constructor() {
         super()
-        this.type = "NotNull"
-        this.targets = [DecoratorTarget.FIELD, DecoratorTarget.PARAMETER]
+        this.type = "Flattened"
+        this.targets = [DecoratorTarget.FIELD]
     }
 }

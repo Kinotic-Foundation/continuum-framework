@@ -10,4 +10,9 @@ export class EntityDecorator extends C3Decorator {
         this.type = "Entity"
         this.targets = [DecoratorTarget.TYPE]
     }
+
+    public withMultiTenancyType(type: MultiTenancyType): EntityDecorator {
+        this.multiTenancyType = type
+        return this
+    }
 }

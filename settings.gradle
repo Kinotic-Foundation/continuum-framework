@@ -13,6 +13,7 @@ include(
         'continuum-idl',
         'continuum-util',
         'continuum-clients:continuum-js',
+        'continuum-clients:continuum-idl-js',
         //'continuum-orbiter',
         //'continuum-substratum'
 )

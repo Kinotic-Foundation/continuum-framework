@@ -1,6 +1,5 @@
 {
   "name": "@kinotic/continuum-idl-js",
-  "private": false,
   "version": "0.1.0",
   "author": "Kinotic Foundation <develop@kinotic.org>",
   "license": "MIT",
@@ -20,9 +19,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "test": "vitest",
-    "webstorm-integration": "vitest --watch --reporter=dot --reporter=json --outputFile=.vitest-result.json",
-    "preview": "vite preview"
+    "test": "vitest run --coverage"
   },
   "devDependencies": {
     "ts-node": "^10.9.1",

@@ -34,14 +34,14 @@ devDependencies:
     specifier: ^4.9.3
     version: 4.9.5
   vite:
-    specifier: ^4.2.0
-    version: 4.2.1(@types/node@18.15.11)
+    specifier: ^4.3.2
+    version: 4.3.2(@types/node@18.15.11)
   vite-plugin-dts:
     specifier: ^2.2.0
-    version: 2.2.0(@types/node@18.15.11)(vite@4.2.1)
+    version: 2.2.0(@types/node@18.15.11)(vite@4.3.2)
   vite-plugin-externalize-deps:
     specifier: ^0.5.0
-    version: 0.5.0(vite@4.2.1)
+    version: 0.5.0(vite@4.3.2)
   vitest:
     specifier: ^0.29.8
     version: 0.29.8
@@ -1395,8 +1395,8 @@ packages:
     engines: {iojs: '>=1.0.0', node: '>=0.10.0'}
     dev: true
 
-  /rollup@3.20.2:
-    resolution: {integrity: sha512-3zwkBQl7Ai7MFYQE0y1MeQ15+9jsi7XxfrqwTb/9EK8D9C9+//EBR4M+CuA1KODRaNbFez/lWxA5vhEGZp4MUg==}
+  /rollup@3.25.1:
+    resolution: {integrity: sha512-tywOR+rwIt5m2ZAWSe5AIJcTat8vGlnPFAv15ycCrw33t6iFsXZ6mzHVFh2psSjxQPmI+xgzMZZizUAukBI4aQ==}
     engines: {node: '>=14.18.0', npm: '>=8.0.0'}
     hasBin: true
     optionalDependencies:
@@ -1703,7 +1703,7 @@ packages:
       mlly: 1.2.0
       pathe: 1.1.0
       picocolors: 1.0.0
-      vite: 4.2.1(@types/node@18.15.11)
+      vite: 4.3.2(@types/node@18.15.11)
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -1714,7 +1714,7 @@ packages:
       - terser
     dev: true
 
-  /vite-plugin-dts@2.2.0(@types/node@18.15.11)(vite@4.2.1):
+  /vite-plugin-dts@2.2.0(@types/node@18.15.11)(vite@4.3.2):
     resolution: {integrity: sha512-XmZtv02I7eGWm3DrZbLo1AdJK5gCisk9GqJBpY4N63pDYR6AVUnlyjFP5FCBvSBUfgE0Ppl90bKgtJU9k3AzFw==}
     engines: {node: ^14.18.0 || >=16.0.0}
     peerDependencies:
@@ -1730,23 +1730,23 @@ packages:
       kolorist: 1.7.0
       magic-string: 0.29.0
       ts-morph: 17.0.1
-      vite: 4.2.1(@types/node@18.15.11)
+      vite: 4.3.2(@types/node@18.15.11)
     transitivePeerDependencies:
       - '@types/node'
       - rollup
       - supports-color
     dev: true
 
-  /vite-plugin-externalize-deps@0.5.0(vite@4.2.1):
+  /vite-plugin-externalize-deps@0.5.0(vite@4.3.2):
     resolution: {integrity: sha512-9jpV6TwWwVYhpHy+oYmrtB2TINjgFmY+2Fc1cS77N9gU0594RXCj8VxIXjVnAwVNoWb0nMI/mxuEw68X9h55nA==}
     peerDependencies:
       vite: ^2.0.0 || ^3.0.0 || ^4.0.0
     dependencies:
-      vite: 4.2.1(@types/node@18.15.11)
+      vite: 4.3.2(@types/node@18.15.11)
     dev: true
 
-  /vite@4.2.1(@types/node@18.15.11):
-    resolution: {integrity: sha512-7MKhqdy0ISo4wnvwtqZkjke6XN4taqQ2TBaTccLIpOKv7Vp2h4Y+NpmWCnGDeSvvn45KxvWgGyb0MkHvY1vgbg==}
+  /vite@4.3.2(@types/node@18.15.11):
+    resolution: {integrity: sha512-9R53Mf+TBoXCYejcL+qFbZde+eZveQLDYd9XgULILLC1a5ZwPaqgmdVpL8/uvw2BM/1TzetWjglwm+3RO+xTyw==}
     engines: {node: ^14.18.0 || >=16.0.0}
     hasBin: true
     peerDependencies:
@@ -1773,8 +1773,7 @@ packages:
       '@types/node': 18.15.11
       esbuild: 0.17.15
       postcss: 8.4.21
-      resolve: 1.22.2
-      rollup: 3.20.2
+      rollup: 3.25.1
     optionalDependencies:
       fsevents: 2.3.2
     dev: true
@@ -1831,7 +1830,7 @@ packages:
       tinybench: 2.4.0
       tinypool: 0.4.0
       tinyspy: 1.1.1
-      vite: 4.2.1(@types/node@18.15.11)
+      vite: 4.3.2(@types/node@18.15.11)
       vite-node: 0.29.8(@types/node@18.15.11)
       why-is-node-running: 2.2.2
     transitivePeerDependencies:

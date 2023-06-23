@@ -9,7 +9,7 @@ include(
         'continuum-gateway',
         'continuum-gateway-server',
         'continuum-grind',
-        'continuum-iam',
+//        'continuum-iam',
         'continuum-idl',
         'continuum-util',
         'continuum-clients:continuum-js',

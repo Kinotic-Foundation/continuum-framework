@@ -37,7 +37,7 @@ public class AuthenticationHandler implements Handler<RoutingContext> {
 
         Map<String, String> authInfo = new HashMap<>(ctx.request().headers().size());
         for(Map.Entry<String, String> entry : ctx.request().headers()){
-            authInfo.put(entry.getKey(), entry.getValue());
+            authInfo.put(entry.getKey().toLowerCase(), entry.getValue());
         }
         VertxCompletableFuture.from(vertx, securityService.authenticate(authInfo))
                 .whenComplete((participant, throwable) -> {

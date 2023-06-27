@@ -36,16 +36,21 @@ public interface IdentifiableCrudService<T extends Identifiable<ID>, ID> extends
      */
     default CompletableFuture<T> create(T entity) {
         Validate.notNull(entity);
-        return findById(entity.getId())
-                .thenCompose(result -> {
-                    if (result == null) {
-                        return save(entity);
-                    } else {
-                        CompletableFuture<T> exceptionFuture = new CompletableFuture<>();
-                        exceptionFuture.completeExceptionally(new IllegalArgumentException(entity.getClass().getSimpleName() + " for the id " + entity.getId() + " already exists"));
-                        return exceptionFuture;
-                    }
-                });
+        ID id = entity.getId();
+        if(id != null){
+            return findById(entity.getId())
+                    .thenCompose(result -> {
+                        if (result == null) {
+                            return save(entity);
+                        } else {
+                            CompletableFuture<T> exceptionFuture = new CompletableFuture<>();
+                            exceptionFuture.completeExceptionally(new IllegalArgumentException(entity.getClass().getSimpleName() + " for the id " + entity.getId() + " already exists"));
+                            return exceptionFuture;
+                        }
+                    });
+        }else{
+            return save(entity);
+        }
     }
 
 

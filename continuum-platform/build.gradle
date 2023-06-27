@@ -48,6 +48,7 @@ dependencies {
         api "io.vertx:vertx-ignite:${vertxVersion}"
         api "io.vertx:vertx-reactive-streams:${vertxVersion}"
         api "io.vertx:vertx-web-graphql:${vertxVersion}"
+        api "io.vertx:vertx-health-check:${vertxVersion}"
         api "com.github.rworsnop:vertx-beans:${vertxBeansVersion}"
         api "me.escoffier.vertx:vertx-completable-future:${vertxCompletableFutureVersion}"
 

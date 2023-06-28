@@ -18,6 +18,7 @@ export class Helper {
         })
 
         clazz.forEachDescendant((node: Node) => {
+
             if (MethodDeclaration.isMethodDeclaration(node) && node.isAbstract()) {
                 const methodDeclaration = node
                 console.log('Abstract Function:', methodDeclaration.getName())

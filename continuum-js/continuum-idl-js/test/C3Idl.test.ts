@@ -1,6 +1,6 @@
 import {describe, it} from 'vitest'
 import {ClassDeclaration, Project, SourceFile, SyntaxKind, TypeAliasDeclaration} from 'ts-morph'
-import {Helper} from '../src'
+import {Helper} from './util/Helper'
 
 describe('C3-IDL', () => {
 

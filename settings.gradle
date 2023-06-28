@@ -12,8 +12,8 @@ include(
 //        'continuum-iam',
         'continuum-idl',
         'continuum-util',
-        'continuum-clients:continuum-js',
-        'continuum-clients:continuum-idl-js',
+        'continuum-js:continuum-client',
+        'continuum-js:continuum-idl-js',
         //'continuum-orbiter',
         //'continuum-substratum'
 )

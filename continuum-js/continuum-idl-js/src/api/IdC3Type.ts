@@ -1,5 +1,5 @@
 import {C3Type} from "@/api/C3Type"
-import {IdDecorator} from "@/api/decorators/IdDecorator";
+import {IdDecorator} from "@/api/decorators/IdDecorator"
 
 /**
  * The id type is used for ids.

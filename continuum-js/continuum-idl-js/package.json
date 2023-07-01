@@ -1,6 +1,6 @@
 {
   "name": "@kinotic/continuum-idl",
-  "version": "0.2.2",
+  "version": "0.6.0",
   "author": "Kinotic Foundation <develop@kinotic.org>",
   "license": "MIT",
   "type": "module",

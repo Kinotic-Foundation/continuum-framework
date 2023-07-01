@@ -19,8 +19,8 @@ export abstract class C3Type {
 
     public type: string = ""
 
-    public containsDecorator(clazz: typeof C3Decorator): boolean {
-        return this.findDecorator(clazz) !== null
+    public containsDecorator(value: C3Decorator): boolean {
+        return this.findDecorator(value) !== null
     }
 
     /**
@@ -32,7 +32,7 @@ export abstract class C3Type {
     }
 
     public addDecorator(decorator: C3Decorator): C3Type {
-        if (this.containsDecorator(Object.getPrototypeOf(decorator))) {
+        if (this.containsDecorator(decorator)) {
             throw new Error(`C3Type already contains decorator for name ${decorator.type}`);
         }
 
@@ -40,12 +40,11 @@ export abstract class C3Type {
         return this
     }
 
-    public findDecorator(clazz: typeof C3Decorator): C3Decorator | null {
+    public findDecorator(value: C3Decorator): C3Decorator | null {
         let ret: C3Decorator | null = null
         if (this.decorators) {
             for (const decorator of this.decorators) {
-                // FIXME: maybe this works? need to test it out.
-                if(Object.getPrototypeOf(clazz) === Object.getPrototypeOf(decorator)){
+                if(decorator.type === value.type) {
                     ret = decorator
                     break
                 }

@@ -7,11 +7,23 @@ import {ObjectC3Type} from "@/api/ObjectC3Type"
  * Created by Navíd Mitchell 🤪 on 4/13/23.
  */
 export class UnionC3Type extends C3Type {
+
+    /**
+     * The namespace that this {@link UnionC3Type} belongs to
+     */
+    public namespace!: string
+
+    /**
+     * This is the name of the {@link UnionC3Type} such as "Animal"
+     */
+    public name!: string
+
     /**
      * This is the field that will be used to determine which type is being used.
      * The field must exist on all types in this union.
      */
-    public discriminator: string = ''
+    public discriminator!: string
+
     /**
      * The types that are part of this union
      * All types must have a field with the name of the discriminator

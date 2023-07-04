@@ -34,11 +34,11 @@ export class Pageable {
     /**
      * Returns the number of items to be returned.
      */
-    public pageSize: number = 0
+    public pageSize: number = 10
 
     /**
      * Returns the sorting parameters.
      */
-    public sort: Sort | null = null
+    public sort?: Sort | null = null
 
 }

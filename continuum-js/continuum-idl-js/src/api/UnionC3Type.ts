@@ -19,12 +19,6 @@ export class UnionC3Type extends C3Type {
     public name!: string
 
     /**
-     * This is the field that will be used to determine which type is being used.
-     * The field must exist on all types in this union.
-     */
-    public discriminator!: string
-
-    /**
      * The types that are part of this union
      * All types must have a field with the name of the discriminator
      */

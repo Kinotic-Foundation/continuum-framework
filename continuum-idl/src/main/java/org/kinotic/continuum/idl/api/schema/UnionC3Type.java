@@ -31,15 +31,7 @@ public class UnionC3Type extends C3Type {
     private String name = null;
 
     /**
-     * This is the field that will be used to determine which type is being used.
-     * The discriminator value must be a property that must exist on all types in this union.
-     * The {@link ObjectC3Type} property with this name must be a {@link StringC3Type}
-     */
-    private String discriminator;
-
-    /**
      * The types that are part of this union
-     * All types must have a field with the name of the discriminator
      */
     private List<ObjectC3Type> types = new ArrayList<>();
 

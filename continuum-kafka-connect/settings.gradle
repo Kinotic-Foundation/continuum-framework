@@ -1,4 +1,0 @@
-rootProject.name = 'continuum-kafka-connect'
-
-includeBuild '../../continuum/continuum-core'
-includeBuild '../../continuum/continuum-core-vertx'

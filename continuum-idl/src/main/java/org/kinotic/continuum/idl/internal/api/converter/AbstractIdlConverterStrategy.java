@@ -50,7 +50,7 @@ public abstract class AbstractIdlConverterStrategy<R, S> implements IdlConverter
      * If this returns true then the {@link GenericC3TypeConverter}s will be checked first.
      * If this returns false then the {@link SpecificC3TypeConverter}s will be checked first.
      * NOTE: It is generally faster to check the {@link SpecificC3TypeConverter}s first.
-     *       Unless you have a small number of {@link GenericC3TypeConverter's} or they need circumvent the {@link SpecificC3TypeConverter}s
+     *       Unless you have a small number of {@link GenericC3TypeConverter}s or they need circumvent the {@link SpecificC3TypeConverter}s
      * @return true if the {@link GenericC3TypeConverter}s should be checked first
      */
     protected abstract boolean shouldCheckGenericConvertersFirst();

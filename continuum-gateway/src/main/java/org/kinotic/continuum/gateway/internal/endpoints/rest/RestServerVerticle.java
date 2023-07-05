@@ -95,7 +95,7 @@ public class RestServerVerticle extends AbstractVerticle {
         httpServer = vertx.createHttpServer();
 
         Router router = Router.router(vertx);
-        router.route("/*").handler(StaticHandler.create());
+        router.route("/*").handler(StaticHandler.create("continuum-gateway-static"));
 
         Route restRoute = router.route(HttpMethod.POST, restPath+"/*");
 

@@ -57,7 +57,7 @@ public class StompServerVerticle extends AbstractVerticle {
     public void start() {
 
         Router router = Router.router(vertx);
-        router.route().handler(StaticHandler.create());
+        router.route().handler(StaticHandler.create("continuum-gateway-static"));
 
         // FIXME: check CORS, see if it is protected or actually allowing any..?
         StompServerOptions properties = gatewayProperties.getStomp();

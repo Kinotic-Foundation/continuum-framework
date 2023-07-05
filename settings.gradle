@@ -6,7 +6,7 @@ include(
         'continuum-core-vertx',
         'continuum-gateway',
         'continuum-gateway-server',
-        'continuum-grind'
+        'continuum-grind',
         'continuum-idl',
         'continuum-util',
         'continuum-js:continuum-client',

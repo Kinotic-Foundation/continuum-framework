@@ -1,7 +1,8 @@
 import {C3Decorator} from '@/api/decorators/C3Decorator'
 
 /**
- * Represents a {@link C3Decorator} the signifies that the decorated value must not be null
+ * Signifies that an object should be stored as a flattened json.
+ * This will not be indexed, and thus not searchable.
  * Created by Navíd Mitchell 🤪 on 4/23/23.
  */
 export class FlattenedDecorator extends C3Decorator {

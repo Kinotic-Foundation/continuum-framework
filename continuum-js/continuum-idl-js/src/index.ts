@@ -31,5 +31,3 @@ export * from './api/ShortC3Type'
 export * from './api/StringC3Type'
 export * from './api/UnionC3Type'
 export * from './api/VoidC3Type'
-
-export * from './internal/api/DecoratedProperty'

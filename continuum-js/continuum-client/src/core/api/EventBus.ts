@@ -82,23 +82,24 @@ export class Event implements IEvent {
  */
 export class EventBus implements IEventBus {
 
-    private stompClient: RxStomp
-    private connected: boolean = false
+    private stompClient: RxStomp | null = null
     private encodedIdentity: string  | null = null
     private replyToCri: string  | null = null
     private requestRepliesObservable: ConnectableObservable<IEvent> | null = null
     private requestRepliesSubscription: Subscription | null = null
 
-    constructor() {
-        this.stompClient = new RxStomp()
+    private isActive(): boolean{
+        return this.stompClient != null && this.stompClient.active
     }
 
     public connect(url: string, identity: string, secret: string): Promise<void> {
         return new Promise((resolve, reject) => {
-            if (!this.connected) {
+            if (!this.isActive()) {
+
+                this.stompClient = new RxStomp()
+
                 this.encodedIdentity = encodeURIComponent(identity)
                 this.replyToCri = EventConstants.SERVICE_DESTINATION_PREFIX + this.encodedIdentity + ':' + uuidv4() + '@continuum.js.EventBus/replyHandler'
-                this.connected = true
 
                 let connectHeaders: StompHeaders = {
                     login: identity,
@@ -116,7 +117,8 @@ export class EventBus implements IEventBus {
                 const errorSubscription: Subscription = this.stompClient.stompErrors$.subscribe((value: IFrame)  => {
                     errorSubscription.unsubscribe()
                     const message = value.headers['message']
-                    this.connected = false
+                    this.stompClient?.deactivate()
+                    this.stompClient = null
                     reject(message)
                 })
 
@@ -142,10 +144,8 @@ export class EventBus implements IEventBus {
         })
     }
 
-    public disconnect(): Promise<void> {
-        if (this.connected) {
-            this.connected = false
-
+    public async disconnect(): Promise<void> {
+        if (this.isActive()) {
             if (this.requestRepliesObservable != null) {
                 if (this.requestRepliesSubscription != null) {
                     this.requestRepliesSubscription.unsubscribe()
@@ -154,25 +154,32 @@ export class EventBus implements IEventBus {
                 this.requestRepliesObservable = null
             }
 
-            return this.stompClient.deactivate()
+            await this.stompClient?.deactivate()
+
+            this.stompClient = null
         }else{
             return Promise.resolve()
         }
     }
 
     public send(event: IEvent): void {
-        const headers: any = {}
+        if(this.isActive()){
+            const headers: any = {}
 
-        for (const [key, value] of event.headers.entries()) {
-            headers[key] = value
+            for (const [key, value] of event.headers.entries()) {
+                headers[key] = value
+            }
+
+            // send data over stomp
+            // @ts-ignore
+            this.stompClient.publish({
+                destination: event.cri,
+                headers,
+                binaryBody: event.data.orUndefined()
+            })
+        }else{
+            throw new Error('You must call connect on the event bus before sending any event')
         }
-
-        // send data over stomp
-        this.stompClient.publish({
-            destination: event.cri,
-            headers,
-            binaryBody: event.data.orUndefined()
-        })
     }
 
     public request(event: IEvent): Promise<IEvent> {
@@ -180,9 +187,7 @@ export class EventBus implements IEventBus {
     }
 
     public requestStream(event: IEvent, sendControlEvents: boolean = true): Observable<IEvent> {
-        if(!this.connected){
-            return throwError(() => new Error('You must call connect on the event bus before sending any request'))
-        }else {
+        if(this.isActive()){
             return new Observable<IEvent>((subscriber) => {
 
                 if (this.requestRepliesObservable == null) {
@@ -244,6 +249,8 @@ export class EventBus implements IEventBus {
                     }
                 }
             })
+        }else{
+            return throwError(() => new Error('You must call connect on the event bus before sending any request'))
         }
 
     }
@@ -259,19 +266,24 @@ export class EventBus implements IEventBus {
      * @return the cold {@link Observable<IEvent>} for the given destination
      */
     private _observe(cri: string): Observable<IEvent> {
-        return this.stompClient
-            .watch(cri)
-            .pipe(map<IMessage, IEvent>((message: IMessage): IEvent => {
+        if(this.isActive()) {
+            // @ts-ignore
+            return this.stompClient
+                       .watch(cri)
+                       .pipe(map<IMessage, IEvent>((message: IMessage): IEvent => {
 
-                // We translate all IMessage objects to IEvent objects
-                const headers: Map<string, string> = new Map<string, string>()
+                           // We translate all IMessage objects to IEvent objects
+                           const headers: Map<string, string> = new Map<string, string>()
 
-                for (const prop of Object.keys(message.headers)) {
-                    headers.set(prop, message.headers[prop])
-                }
+                           for (const prop of Object.keys(message.headers)) {
+                               headers.set(prop, message.headers[prop])
+                           }
 
-                return new Event(cri, headers, message.binaryBody)
-            }))
+                           return new Event(cri, headers, message.binaryBody)
+                       }))
+        }else{
+            return throwError(() => new Error('You must call connect on the event bus before sending any request'))
+        }
     }
 
 }

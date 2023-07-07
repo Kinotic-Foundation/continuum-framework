@@ -6,10 +6,10 @@ import {GenericContainer} from 'testcontainers'
 import { WebSocket } from 'ws'
 Object.assign(global, { WebSocket})
 
-describe('Continuum', () => {
+describe('Continuum Client Tests', () => {
 
-    let host!: string
-    let port!: number
+    let host: string = '127.0.0.1'
+    let port: number = 58503
 
     beforeAll(async () => {
         console.log('Starting Continuum Gateway')
@@ -29,15 +29,15 @@ describe('Continuum', () => {
 
     it('should connect and disconnect multiple times', async () => {
         console.log(`Connecting to Continuum Gateway running at ${host}:${port} the first time`)
-        await expect(Continuum.connect(`ws://${host}:${port}/v1`, 'admin', 'structures')).resolves.toBeUndefined()
+        await expect(Continuum.connect(`ws://${host}:${port}/v1`, 'test', 'test')).resolves.toBeUndefined()
         await expect(Continuum.disconnect()).resolves.toBeUndefined()
 
         console.log(`Connecting to Continuum Gateway running at ${host}:${port} the second time`)
-        await expect(Continuum.connect(`ws://${host}:${port}/v1`, 'admin', 'structures')).resolves.toBeUndefined()
+        await expect(Continuum.connect(`ws://${host}:${port}/v1`, 'test', 'test')).resolves.toBeUndefined()
         await expect(Continuum.disconnect()).resolves.toBeUndefined()
 
         console.log(`Connecting to Continuum Gateway running at ${host}:${port} the third time`)
-        await expect(Continuum.connect(`ws://${host}:${port}/v1`, 'admin', 'structures')).resolves.toBeUndefined()
+        await expect(Continuum.connect(`ws://${host}:${port}/v1`, 'test', 'test')).resolves.toBeUndefined()
         await expect(Continuum.disconnect()).resolves.toBeUndefined()
     })
 })

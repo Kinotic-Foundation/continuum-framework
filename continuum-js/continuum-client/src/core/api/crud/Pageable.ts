@@ -41,4 +41,15 @@ export class Pageable {
      */
     public sort?: Sort | null = null
 
+
+    constructor(pageNumber: number, pageSize: number, sort?: Sort | null) {
+        this.pageNumber = pageNumber
+        this.pageSize = pageSize
+        this.sort = sort
+    }
+
+    public static create(pageNumber: number, pageSize: number, sort?: Sort): Pageable {
+        return new Pageable(pageNumber, pageSize, sort)
+    }
+
 }

@@ -20,7 +20,7 @@ describe('Continuum Client Tests', () => {
         host = container.getHost()
         port = container.getMappedPort(58503)
         console.log(`Continuum Gateway running at ${host}:${port}`)
-    }, 1000 * 60 * 30) // 30 minutes
+    }, 1000 * 60 * 10) // 10 minutes
 
     it('should connect and disconnect', async () => {
         await expect(Continuum.connect(`ws://${host}:${port}/v1`, 'test', 'test')).resolves.toBeUndefined()

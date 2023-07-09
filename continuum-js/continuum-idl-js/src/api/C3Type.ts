@@ -11,11 +11,11 @@ export abstract class C3Type {
      * The metadata keyword is legal on any schema, The objects provided must be serializable to JSON.
      * Usually, metadata is for putting things like descriptions or hints for code generators, or other things tools can use.
      */
-    public metadata: {[key: string]: any} = {}
+    public metadata?: {[key: string]: any} = {}
     /**
      * The list of Decorators that should be applied to this type
      */
-    public decorators: C3Decorator[] = []
+    public decorators?: C3Decorator[] = []
 
     public type: string = ""
 
@@ -34,6 +34,10 @@ export abstract class C3Type {
     public addDecorator(decorator: C3Decorator): C3Type {
         if (this.containsDecorator(decorator)) {
             throw new Error(`C3Type already contains decorator for name ${decorator.type}`);
+        }
+
+        if(!this.decorators){
+            this.decorators = []
         }
 
         this.decorators.push(decorator)

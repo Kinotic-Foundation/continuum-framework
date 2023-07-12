@@ -16,7 +16,7 @@
  */
 
 import { ICrudServiceProxy } from './ICrudServiceProxy'
-import { Identifiable } from './Identifiable'
+import { Identifiable } from '@/index'
 
 /**
  * Produces {@link ICrudServiceProxy} Proxies for a known remote CRUD service

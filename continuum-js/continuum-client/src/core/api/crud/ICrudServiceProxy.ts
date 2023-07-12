@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import {Identifiable} from './Identifiable'
+import { Identifiable } from '@/index'
 import {Page} from './Page'
 import {Pageable} from './Pageable'
 import {IEditableDataSource} from "./IDataSource";

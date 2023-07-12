@@ -18,7 +18,7 @@
 import { ICrudServiceProxyFactory } from './ICrudServiceProxyFactory'
 import { ICrudServiceProxy } from './ICrudServiceProxy'
 import { CrudServiceProxy } from './CrudServiceProxy'
-import { Identifiable } from './Identifiable'
+import { Identifiable } from '@/index'
 import { IServiceRegistry } from '@/core/api/IServiceRegistry'
 
 

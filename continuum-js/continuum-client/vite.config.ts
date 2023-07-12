@@ -10,7 +10,7 @@ export default defineConfig({
             entry: resolve(__dirname, 'src/index.ts'),
             name: 'continuum',
             fileName: 'continuum',
-            formats: ["es", "cjs"],
+            formats: ["es", "umd"],
         },
         sourcemap: true,
     },

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { Identifiable } from './crud/Identifiable'
+import { Identifiable } from '@/index'
 
 export enum StreamOperation {
     EXISTING = 'EXISTING',

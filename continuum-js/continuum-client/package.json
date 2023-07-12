@@ -4,13 +4,13 @@
   "author": "Kinotic Foundation <develop@kinotic.org>",
   "license": "MIT",
   "type": "module",
-  "main": "./dist/continuum.cjs",
+  "main": "./dist/continuum.umd.cjs",
   "module": "./dist/continuum.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "import": "./dist/continuum.js",
-      "require": "./dist/continuum.cjs"
+      "require": "./dist/continuum.umd.cjs"
     }
   },
   "files": [

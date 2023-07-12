@@ -17,7 +17,7 @@
 
 import { ICrudServiceProxy } from './ICrudServiceProxy'
 import { IServiceProxy } from '../IServiceRegistry'
-import { Identifiable } from './Identifiable'
+import { Identifiable } from '@/index'
 import { Page } from './Page'
 import { Pageable } from './Pageable'
 

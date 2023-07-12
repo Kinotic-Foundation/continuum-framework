@@ -17,6 +17,9 @@
 
 package org.kinotic.continuum.core.api.security;
 
+import org.kinotic.continuum.api.security.DefaultParticipant;
+import org.kinotic.continuum.api.security.Participant;
+
 import java.util.concurrent.CompletableFuture;
 
 /**

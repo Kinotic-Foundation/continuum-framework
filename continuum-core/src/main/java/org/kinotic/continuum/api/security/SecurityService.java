@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.kinotic.continuum.core.api.security;
+package org.kinotic.continuum.api.security;
 
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;

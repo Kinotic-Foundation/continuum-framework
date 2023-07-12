@@ -15,18 +15,25 @@
  * limitations under the License.
  */
 
-package org.kinotic.continuum.core.api.security;
-
-import java.util.Map;
+package org.kinotic.continuum.api.security;
 
 /**
- *
+ * Some common constants used for the {@link Participant} and {@link Participant#getMetadata()}
  * Created by navid on 2/3/20
  */
-public class MetadataConstants {
-    public static final String TYPE_KEY = "type";
-    public static final Map.Entry<String, String> DEVICE_TYPE = Map.entry(TYPE_KEY, "device");
-    public static final Map.Entry<String, String> USER_TYPE = Map.entry(TYPE_KEY, "user");
-    public static final Map.Entry<String, String> NODE_TYPE = Map.entry(TYPE_KEY, "node");
+public class ParticipantConstants {
+
+    public static final String PARTICIPANT_TYPE_METADATA_KEY = "type";
+
+    public static final String PARTICIPANT_TYPE_DEVICE = "device";
+
+    public static final String PARTICIPANT_TYPE_CLI = "cli";
+
+    public static final String PARTICIPANT_TYPE_USER = "user";
+
+    public static final String PARTICIPANT_TYPE_NODE = "node";
+
+    public static final String CLI_PARTICIPANT_ID = "-42-Continuum-CLI-42-";
 
 }
+

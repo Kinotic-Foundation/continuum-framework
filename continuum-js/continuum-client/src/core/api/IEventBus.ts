@@ -17,6 +17,8 @@
 
 import { Optional } from 'typescript-optional'
 import { Observable } from 'rxjs'
+import {ConnectedInfo} from '@/api/security/ConnectedInfo'
+import {ContinuumError} from '@/api/errors/ContinuumError';
 
 /**
  * Part of the low level portion of continuum representing data to be processed
@@ -79,7 +81,7 @@ export interface IEvent {
     setDataString(data: string): void
 
     /**
-     * @return the data property as an UTF-8 encoded string
+     * @return the data property as a UTF-8 encoded string
      */
     getDataString(): string
 
@@ -94,19 +96,33 @@ export interface IEvent {
 export interface IEventBus {
 
     /**
+     * Any errors emitted by this observable will be fatal and the connection will be closed.
+     * You will need to resolve the problem and reconnect.
+     * This most commonly happens due to authentication or authorization failures.
+     */
+    fatalErrors: Observable<ContinuumError>
+
+    /**
      * Requests a connection to the given Stomp url
      * @param url to connect to
      * @param accessKey to use during connection
      * @param secretToken to use during connection
      * @return Promise containing the result of the initial connection attempt
      */
-    connect(url: string, accessKey: string, secretToken: string): Promise<void>
+    connect(url: string, accessKey: string, secretToken: string): Promise<ConnectedInfo>
 
     /**
      * Disconnects the client from the server
      * This will clear any subscriptions and close the connection
      */
     disconnect(): Promise<void>
+
+    /**
+     * Determines if the connection is active.
+     * This means connect was called and was successful.
+     * @return true if the connection is active false if not
+     */
+    isConnectionActive(): boolean
 
     /**
      * Send a single {@link IEvent} to the connected server
@@ -137,6 +153,7 @@ export interface IEventBus {
      */
     observe(cri: string): Observable<IEvent>
 
+
 }
 
 /**
@@ -153,9 +170,9 @@ export enum EventConstants {
     SESSION_HEADER = 'session',
 
     /**
-     * Header provided by the sever on connection to represent the servers session key
+     * Header provided by the server on connection to represent the users participant and session id as a json string
      */
-    SESSION_KEY_HEADER = 'sessionKey',
+    CONNECTED_INFO_HEADER = 'connected-info',
 
     /**
      * Correlates a response with a given request

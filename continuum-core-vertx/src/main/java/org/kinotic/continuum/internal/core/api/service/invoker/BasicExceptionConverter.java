@@ -62,7 +62,10 @@ public class BasicExceptionConverter implements ExceptionConverter {
         headers.put(EventConstants.CONTENT_TYPE_HEADER, MimeTypeUtils.APPLICATION_JSON_VALUE);
 
         return EventUtil.createReplyEvent(incomingMetadata, headers, () -> {
-            ServiceExceptionWrapper wrapper = new ServiceExceptionWrapper(throwable.getMessage(), throwable.getClass().getName());
+            Class<? extends Throwable> clazz = throwable.getClass();
+            ServiceExceptionWrapper wrapper = new ServiceExceptionWrapper(clazz.getSimpleName(),
+                                                                          clazz.getName(),
+                                                                          throwable.getMessage());
 
             if(properties.isDebug()) {
                 wrapper.setStackTrace(throwable.getStackTrace());

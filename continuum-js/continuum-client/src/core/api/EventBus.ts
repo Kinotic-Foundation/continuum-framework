@@ -19,10 +19,11 @@ import { IEvent, IEventBus, EventConstants } from './IEventBus'
 import { ConnectableObservable, Observable, Subject, Unsubscribable, Subscription, throwError } from 'rxjs'
 import { filter, map, multicast } from 'rxjs/operators'
 import { firstValueFrom } from 'rxjs'
-import { IMessage, StompHeaders, IFrame } from '@stomp/rx-stomp'
-import { RxStomp } from '@stomp/rx-stomp'
+import { RxStomp, IMessage, StompHeaders, IFrame } from '@stomp/rx-stomp'
 import { Optional } from 'typescript-optional'
 import { v4 as uuidv4 } from 'uuid'
+import {ConnectedInfo} from '@/api/security/ConnectedInfo'
+import {ContinuumError} from '@/api/errors/ContinuumError';
 
 /**
  * Default IEvent implementation
@@ -87,14 +88,32 @@ export class EventBus implements IEventBus {
     private replyToCri: string  | null = null
     private requestRepliesObservable: ConnectableObservable<IEvent> | null = null
     private requestRepliesSubscription: Subscription | null = null
+    private errorSubject: Subject<IFrame> = new Subject<IFrame>()
+    private errorSubjectSubscription: Subscription | null | undefined = null
 
-    private isActive(): boolean{
+    public fatalErrors: Observable<Error>
+
+
+    constructor() {
+        this.fatalErrors = this.errorSubject.pipe(map<IFrame, Error>((frame: IFrame): Error => {
+            this.disconnect()
+                .catch((error: string) => {
+                    if(console){
+                        console.error('Error disconnecting from Stomp: ' + error)
+                    }
+                })
+            // TODO: map to continuum error
+            return new ContinuumError(frame.headers['message'])
+        }))
+    }
+
+    public isConnectionActive(): boolean{
         return this.stompClient != null && this.stompClient.active
     }
 
-    public connect(url: string, identity: string, secret: string): Promise<void> {
-        return new Promise((resolve, reject) => {
-            if (!this.isActive()) {
+    public connect(url: string, identity: string, secret: string): Promise<ConnectedInfo> {
+        return new Promise((resolve, reject): void => {
+            if (!this.isConnectionActive()) {
 
                 this.stompClient = new RxStomp()
 
@@ -114,6 +133,7 @@ export class EventBus implements IEventBus {
                     reconnectDelay: 30000
                 })
 
+                // This subscription is to handle any errors that occur during connection
                 const errorSubscription: Subscription = this.stompClient.stompErrors$.subscribe((value: IFrame)  => {
                     errorSubscription.unsubscribe()
                     const message = value.headers['message']
@@ -122,18 +142,21 @@ export class EventBus implements IEventBus {
                     reject(message)
                 })
 
-                const connectedSubscription: Subscription = this.stompClient.connected$.subscribe(() => {
+                const connectedSubscription: Subscription = this.stompClient.serverHeaders$.subscribe((value: StompHeaders) => {
                     connectedSubscription.unsubscribe()
-                    resolve()
-                })
-
-                this.stompClient.serverHeaders$.subscribe((value: StompHeaders) => {
-                    let session: string | undefined = value[EventConstants.SESSION_HEADER]
-                    if (session != null) {
+                    let connectedInfoJson: string | undefined = value[EventConstants.CONNECTED_INFO_HEADER]
+                    if (connectedInfoJson != null) {
                         delete connectHeaders.login
                         delete connectHeaders.passcode
-                        connectHeaders.session = session
+                        const connectedInfo: ConnectedInfo = JSON.parse(connectedInfoJson)
+                        connectHeaders.session = connectedInfo.sessionId
+                        resolve(connectedInfo)
+                    }else {
+                        reject('Server did not return proper data for successful login')
                     }
+                    // Connect the error subject for users to use
+                    this.errorSubjectSubscription = this.stompClient?.stompErrors$.subscribe(this.errorSubject)
+
                 })
 
                 this.stompClient.activate()
@@ -145,7 +168,7 @@ export class EventBus implements IEventBus {
     }
 
     public async disconnect(): Promise<void> {
-        if (this.isActive()) {
+        if (this.isConnectionActive()) {
             if (this.requestRepliesObservable != null) {
                 if (this.requestRepliesSubscription != null) {
                     this.requestRepliesSubscription.unsubscribe()
@@ -154,16 +177,20 @@ export class EventBus implements IEventBus {
                 this.requestRepliesObservable = null
             }
 
+            if (this.errorSubjectSubscription) {
+                this.errorSubjectSubscription.unsubscribe()
+                this.errorSubjectSubscription = null
+            }
+
             await this.stompClient?.deactivate()
 
             this.stompClient = null
-        }else{
-            return Promise.resolve()
         }
+        return
     }
 
     public send(event: IEvent): void {
-        if(this.isActive()){
+        if(this.isConnectionActive()){
             const headers: any = {}
 
             for (const [key, value] of event.headers.entries()) {
@@ -187,7 +214,7 @@ export class EventBus implements IEventBus {
     }
 
     public requestStream(event: IEvent, sendControlEvents: boolean = true): Observable<IEvent> {
-        if(this.isActive()){
+        if(this.isConnectionActive()){
             return new Observable<IEvent>((subscriber) => {
 
                 if (this.requestRepliesObservable == null) {
@@ -266,7 +293,7 @@ export class EventBus implements IEventBus {
      * @return the cold {@link Observable<IEvent>} for the given destination
      */
     private _observe(cri: string): Observable<IEvent> {
-        if(this.isActive()) {
+        if(this.isConnectionActive()) {
             // @ts-ignore
             return this.stompClient
                        .watch(cri)

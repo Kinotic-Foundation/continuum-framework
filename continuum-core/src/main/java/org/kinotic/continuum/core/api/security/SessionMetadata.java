@@ -17,6 +17,8 @@
 
 package org.kinotic.continuum.core.api.security;
 
+import org.kinotic.continuum.api.security.Participant;
+
 import java.util.Date;
 
 /**

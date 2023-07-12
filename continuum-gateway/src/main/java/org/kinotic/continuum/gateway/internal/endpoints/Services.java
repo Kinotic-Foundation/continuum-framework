@@ -18,14 +18,15 @@
 package org.kinotic.continuum.gateway.internal.endpoints;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.vertx.core.Vertx;
+import org.kinotic.continuum.api.config.ContinuumProperties;
 import org.kinotic.continuum.core.api.event.EventBusService;
 import org.kinotic.continuum.core.api.event.EventStreamService;
-import org.kinotic.continuum.core.api.security.SecurityService;
+import org.kinotic.continuum.api.security.SecurityService;
 import org.kinotic.continuum.core.api.security.SessionManager;
-import org.kinotic.continuum.api.config.ContinuumProperties;
+import org.kinotic.continuum.gateway.api.config.ContinuumGatewayProperties;
 import org.kinotic.continuum.gateway.internal.endpoints.stomp.DefaultStompServerHandler;
 import org.kinotic.continuum.gateway.internal.hft.HFTQueueManager;
-import io.vertx.core.Vertx;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -43,6 +44,12 @@ public class Services {
     public ContinuumProperties continuumProperties;
 
     @Autowired
+    public ContinuumGatewayProperties continuumGatewayProperties;
+
+    @Autowired
+    public SecurityService securityService;
+
+    @Autowired
     public Vertx vertx;
 
     @Autowired
@@ -50,9 +57,6 @@ public class Services {
 
     @Autowired
     public EventBusService eventBusService;
-
-    @Autowired
-    public SecurityService securityService;
 
     @Autowired
     public SessionManager sessionManager;

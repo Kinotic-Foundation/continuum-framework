@@ -28,7 +28,7 @@ import org.kinotic.continuum.api.config.ContinuumProperties;
 import org.kinotic.continuum.core.api.event.Event;
 import org.kinotic.continuum.core.api.event.EventConstants;
 import org.kinotic.continuum.core.api.event.Metadata;
-import org.kinotic.continuum.core.api.security.Participant;
+import org.kinotic.continuum.api.security.Participant;
 import org.kinotic.continuum.internal.core.api.service.invoker.ServiceInvocationSupervisor;
 import org.kinotic.continuum.internal.utils.EventUtil;
 import org.apache.commons.lang3.Validate;

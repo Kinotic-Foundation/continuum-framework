@@ -1,7 +1,7 @@
 import {Args, Command} from '@oclif/core'
-import {createFrontEnd} from "../../internal/CommandHelper.js"
+import {createFrontEnd} from '../../internal/CommandHelper.js'
 
-export default class Library extends Command {
+export class Frontend extends Command {
   static description = 'Creates a Continuum Frontend Project'
 
   static examples = [
@@ -14,7 +14,7 @@ export default class Library extends Command {
 
 
   async run(): Promise<void> {
-    const {args} = await this.parse(Library)
+    const {args} = await this.parse(Frontend)
 
     await createFrontEnd(args.name)
   }

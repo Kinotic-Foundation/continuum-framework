@@ -17,16 +17,22 @@
 
 package org.kinotic.continuum.gateway.internal.endpoints;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.ReplyException;
 import io.vertx.core.eventbus.ReplyFailure;
 import org.apache.commons.lang3.Validate;
 import org.kinotic.continuum.api.exceptions.RpcMissingServiceException;
+import org.kinotic.continuum.api.exceptions.AuthenticationException;
+import org.kinotic.continuum.api.exceptions.AuthorizationException;
+import org.kinotic.continuum.api.security.ConnectedInfo;
+import org.kinotic.continuum.api.security.SecurityService;
 import org.kinotic.continuum.core.api.event.CRI;
 import org.kinotic.continuum.core.api.event.Event;
 import org.kinotic.continuum.core.api.event.EventConstants;
 import org.kinotic.continuum.core.api.security.Session;
+import org.kinotic.continuum.gateway.internal.api.security.CliSecurityService;
 import org.kinotic.continuum.internal.utils.ContinuumUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,6 +57,7 @@ public class EndpointConnectionHandler {
 
     private final Vertx vertx;
     private final Services services;
+    private final SecurityService securityService;
 
     private final Map<String, BaseSubscriber<Event<byte[]>>> subscriptions = new HashMap<>();
     private Session session;
@@ -60,6 +67,12 @@ public class EndpointConnectionHandler {
                                      Services services) {
         this.vertx = vertx;
         this.services = services;
+
+        if(services.continuumGatewayProperties.isEnableCLIConnections()){
+            this.securityService = new CliSecurityService(services.securityService);
+        }else{
+            this.securityService = services.securityService;
+        }
     }
 
     /**
@@ -75,18 +88,42 @@ public class EndpointConnectionHandler {
             String sessionId = connectHeaders.get(EventConstants.SESSION_HEADER);
             return services.sessionManager
                     .findSession(sessionId)
-                    .thenApply(session -> {
-                        sessionActive(session);
-                        return Map.of(EventConstants.SESSION_HEADER, session.sessionId());
+                    .handle((session, throwable) -> {
+                        if(throwable != null){
+                            throw new AuthenticationException("Could not authenticate with the given Session id", throwable);
+                        }else{
+                            sessionActive(session);
+                            return Map.of(EventConstants.CONNECTED_INFO_HEADER, createConnectedInfoJson(session));
+                        }
                     });
         } else {
 
-            return services.securityService.authenticate(connectHeaders)
-                                           .thenCompose(participant -> services.sessionManager.create(participant))
-                                           .thenApply(session -> {
-                                               sessionActive(session);
-                                               return Map.of(EventConstants.SESSION_HEADER, session.sessionId());
-                                           });
+            return securityService.authenticate(connectHeaders)
+                                  .handle((participant, throwable) -> {
+                                      if(throwable != null){
+                                          if(!(throwable instanceof AuthenticationException)) {
+                                              throw new AuthenticationException("Could not authenticate with the given credentials", throwable);
+                                          }else{
+                                              throw (AuthenticationException) throwable;
+                                          }
+                                      }else {
+                                          return participant;
+                                      }
+                                  })
+                                  .thenCompose(participant -> services.sessionManager.create(participant))
+                                  .thenApply(session -> {
+                                      sessionActive(session);
+                                      return Map.of(EventConstants.CONNECTED_INFO_HEADER, createConnectedInfoJson(session));
+                                  });
+        }
+    }
+
+    private String createConnectedInfoJson(Session session){
+        try {
+            ConnectedInfo connectedInfo = new ConnectedInfo(session.sessionId(), session.participant());
+            return services.objectMapper.writeValueAsString(connectedInfo);
+        } catch (JsonProcessingException e) {
+            throw new IllegalStateException(e);
         }
     }
 
@@ -144,7 +181,7 @@ public class EndpointConnectionHandler {
                 ret = Mono.error(new IllegalArgumentException("CRI scheme not supported"));
             }
         } else {
-            ret = Mono.error(new IllegalArgumentException("Not Authorized to send to " + event.cri()));
+            ret = Mono.error(new AuthorizationException("Not Authorized to send to " + event.cri()));
         }
         return ret;
     }
@@ -185,7 +222,7 @@ public class EndpointConnectionHandler {
         Validate.notNull(subscriber, "Subscriber must not be null");
 
         if (!session.subscribeAllowed(cri)) {
-            throw new IllegalArgumentException("Not Authorized to subscribe to " + cri);
+            throw new AuthorizationException("Not Authorized to subscribe to " + cri);
         }
 
         if (cri.scheme().equals(EventConstants.SERVICE_DESTINATION_SCHEME)) {
@@ -234,7 +271,6 @@ public class EndpointConnectionHandler {
         }
     }
 
-
     public void unsubscribe(String subscriptionIdentifier) {
         Validate.notEmpty(subscriptionIdentifier, "subscriptionIdentifier must not be empty");
 
@@ -269,6 +305,5 @@ public class EndpointConnectionHandler {
         subscriptions.forEach((s, messageConsumer) -> messageConsumer.cancel());
         subscriptions.clear();
     }
-
 
 }

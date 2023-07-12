@@ -19,8 +19,8 @@ package org.kinotic.continuum.internal.core.api;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.kinotic.continuum.core.api.security.DefaultParticipant;
-import org.kinotic.continuum.core.api.security.Participant;
+import org.kinotic.continuum.api.security.DefaultParticipant;
+import org.kinotic.continuum.api.security.Participant;
 import org.kinotic.continuum.core.api.security.Session;
 import org.kinotic.continuum.core.api.security.SessionManager;
 import org.springframework.beans.factory.annotation.Autowired;

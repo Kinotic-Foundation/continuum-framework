@@ -17,10 +17,10 @@
 
 package org.kinotic.continuum.gateway.internal.config;
 
-import org.kinotic.continuum.core.api.security.SecurityService;
+import org.kinotic.continuum.api.security.SecurityService;
 import org.kinotic.continuum.core.api.service.ServiceIdentifier;
 import org.kinotic.continuum.internal.RpcServiceProxyBeanFactory;
-import org.kinotic.continuum.internal.core.api.security.DummySecurityService;
+import org.kinotic.continuum.gateway.internal.api.security.DummySecurityService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;

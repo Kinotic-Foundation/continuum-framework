@@ -1,7 +1,5 @@
   # YAML Reference http://www.yaml.org/refcard.html
   continuum:
-    #discovery: zookeeper
-    disableClustering: false
     debug: true
 
   continuum-gateway:

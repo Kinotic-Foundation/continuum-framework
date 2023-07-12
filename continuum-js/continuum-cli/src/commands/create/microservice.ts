@@ -2,7 +2,7 @@ import {Args, Command} from '@oclif/core'
 import path from 'node:path'
 import {spawnEngine} from '../../internal/SpawnEngine.js'
 
-export default class Microservice extends Command {
+export class Microservice extends Command {
   static description = 'Creates a Continuum Microservice'
 
   static examples = [

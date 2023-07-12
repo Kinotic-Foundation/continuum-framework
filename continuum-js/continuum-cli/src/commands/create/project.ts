@@ -6,9 +6,9 @@ import {spawnEngine} from '../../internal/SpawnEngine.js'
 import {spawnResolver} from '../../internal/SpawnResolver.js'
 import {templateRepositoryManager} from '../../internal/TemplateRepositoryManager.js'
 import upperFirst from 'lodash-es/upperFirst.js'
-import {createFrontEnd} from "../../internal/CommandHelper.js"
+import {createFrontEnd} from '../../internal/CommandHelper.js'
 
-export default class Project extends Command {
+export class Project extends Command {
   static description = 'Creates a Continuum Project'
 
   static examples = [
@@ -26,14 +26,14 @@ export default class Project extends Command {
 
     let context: any = { projectName: args.name}
 
-    ux.action.start("Syncing project templates")
+    ux.action.start('Syncing project templates')
     await templateRepositoryManager.updateRepositoryIfNecessary()
     ux.action.stop()
 
-    this.log("Creating Continuum Project")
+    this.log('Creating Continuum Project')
     context = await spawnEngine.renderSpawn('project', projectDir, context)
 
-    this.log("Creating Continuum Gateway")
+    this.log('Creating Continuum Gateway')
     process.chdir(projectDir)
     // now create Continuum Gateway project
     await spawnEngine.renderSpawn('project-gateway',
@@ -45,7 +45,7 @@ export default class Project extends Command {
                                   }
     )
 
-    ux.action.start("Storing Templates")
+    ux.action.start('Storing Templates')
     await spawnResolver.copySpawnsFromRepositoryToDirectory('microservice-common', 'project-microservice', 'project-library')
     ux.action.stop()
 

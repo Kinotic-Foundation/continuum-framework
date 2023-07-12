@@ -2,9 +2,10 @@ import { EventBus } from '@/core/api/EventBus'
 import { IEventBus } from '@/core/api/IEventBus'
 import { ServiceRegistry } from '@/core/api/ServiceRegistry'
 import { IServiceProxy } from '@/core/api/IServiceRegistry'
-import {Identifiable} from "@/core/api/crud/Identifiable";
-import {ICrudServiceProxy} from "@/core/api/crud/ICrudServiceProxy";
-import {CrudServiceProxyFactory} from "@/core/api/crud/CrudServiceProxyFactory";
+import {Identifiable} from '@/api/Identifiable'
+import {ICrudServiceProxy} from '@/core/api/crud/ICrudServiceProxy'
+import {CrudServiceProxyFactory} from '@/core/api/crud/CrudServiceProxyFactory'
+import {ConnectedInfo} from '@/api/security/ConnectedInfo'
 
 /**
  * Provides a simplified way to connect to Continuum and access services
@@ -24,7 +25,7 @@ export namespace Continuum {
      * @param secretToken to use during connection
      * @return Promise containing the result of the initial connection attempt
      */
-    export function connect(url: string, accessKey: string, secretToken: string): Promise<void> {
+    export function connect(url: string, accessKey: string, secretToken: string): Promise<ConnectedInfo> {
         return eventBus.connect(url, accessKey, secretToken)
     }
 

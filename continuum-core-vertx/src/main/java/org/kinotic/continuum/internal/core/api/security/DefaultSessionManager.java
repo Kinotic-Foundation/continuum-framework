@@ -24,7 +24,8 @@ import io.vertx.ext.auth.PRNG;
 import org.apache.ignite.Ignite;
 import org.apache.ignite.IgniteCache;
 import org.kinotic.continuum.core.api.event.EventConstants;
-import org.kinotic.continuum.core.api.security.Participant;
+import org.kinotic.continuum.api.security.ParticipantConstants;
+import org.kinotic.continuum.api.security.Participant;
 import org.kinotic.continuum.core.api.security.Session;
 import org.kinotic.continuum.core.api.security.SessionManager;
 import org.kinotic.continuum.internal.config.IgniteCacheConstants;
@@ -154,36 +155,48 @@ public class DefaultSessionManager implements SessionManager {
         public ParticipantPathPatterns(Participant participant) {
             String encodedIdentity = ContinuumUtil.safeEncodeURI(participant.getId());
 
-            // FIXME: this is a hack for now
-            List<String> allowedSendPatterns = List.of(EventConstants.SERVICE_DESTINATION_SCHEME + "://*.**",
-                                                       EventConstants.STREAM_DESTINATION_SCHEME + "://*.**");
+            // The CLI is allowed to log in anonymously and receive events scoped to its identity but cannot send events or service requests
+            if(!participant.getId().equals(ParticipantConstants.CLI_PARTICIPANT_ID)) {
 
-            // Add send patterns
-            for(String path: allowedSendPatterns){
-                sendPatterns.add(getPathPattern(path));
+                // FIXME: this is a hack for now, we should be using the participants roles
+                List<String> allowedSendPatterns = List.of(EventConstants.SERVICE_DESTINATION_SCHEME + "://*.**",
+                                                           EventConstants.STREAM_DESTINATION_SCHEME + "://*.**");
+
+                // Add send patterns
+                for (String path : allowedSendPatterns) {
+                    sendPatterns.add(getPathPattern(path));
+                }
+
+                List<String> allowedSubscriptionPatterns = List.of(EventConstants.SERVICE_DESTINATION_SCHEME + "://*.**",
+                                                                   EventConstants.STREAM_DESTINATION_SCHEME + "://*.**");
+
+                for(String path: allowedSubscriptionPatterns){
+                    subscriptionPatterns.add(getPathPattern(path));
+                }
+
             }
 
-            List<String> allowedSubscriptionPatterns = List.of(EventConstants.SERVICE_DESTINATION_SCHEME + "://*.**",
-                                                               EventConstants.STREAM_DESTINATION_SCHEME + "://*.**");
+            // TODO: make the reply to for clients an opaque id that is not the identity
+            // There are various problems with this.
+            // Such as if an identity begins with the same characters as another identity
+            // The shorter of the two could potentially subscribe to the identity of the longer one
+            // We could potentially use the HMAC of the session id this would be easy to calculate and would not need a secondary id
 
             // clients can subscribe to any service that is scoped to their identity
             subscriptionPatterns.add(parser.parse(EventConstants.SERVICE_DESTINATION_SCHEME + "://"
                                                           + encodedIdentity
                                                           + "*@*.**"));
-
-            for(String path: allowedSubscriptionPatterns){
-                subscriptionPatterns.add(getPathPattern(path));
-            }
         }
     }
 
     private String generateId() {
         // Default length for a session id is 16 bytes, More info: https://www.owasp.org/index.php/Session_Management_Cheat_Sheet
-        final byte[] bytes = new byte[16];
+        // We use 32 bytes to make it more secure
+        final byte[] bytes = new byte[32];
         random.nextBytes(bytes);
 
-        final char[] hex = new char[16 * 2];
-        for (int j = 0; j < 16; j++) {
+        final char[] hex = new char[32 * 2];
+        for (int j = 0; j < 32; j++) {
             int v = bytes[j] & 0xFF;
             hex[j * 2] = HEX[v >>> 4];
             hex[j * 2 + 1] = HEX[v & 0x0F];

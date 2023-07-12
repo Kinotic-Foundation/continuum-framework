@@ -18,7 +18,7 @@
 package org.kinotic.continuum.internal.core.api.security;
 
 import org.kinotic.continuum.core.api.event.CRI;
-import org.kinotic.continuum.core.api.security.Participant;
+import org.kinotic.continuum.api.security.Participant;
 import org.kinotic.continuum.core.api.security.Session;
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.builder.EqualsBuilder;

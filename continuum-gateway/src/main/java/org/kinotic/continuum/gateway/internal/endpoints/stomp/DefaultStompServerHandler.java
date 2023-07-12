@@ -98,7 +98,7 @@ public class DefaultStompServerHandler implements StompServerHandler {
 
         } catch (Exception e) {
             log.error("Exception occurred handling subscribe", e);
-            connection.sendError(e); // we don't disconnect since not fatal
+            connection.sendErrorAndDisconnect(e);
         }
     }
 
@@ -115,7 +115,7 @@ public class DefaultStompServerHandler implements StompServerHandler {
 
         } catch (Exception e) {
             log.error("Exception occurred handling unsubscribe", e);
-            connection.sendError(e); // we don't disconnect since not fatal
+            connection.sendErrorAndDisconnect(e);
         }
     }
 

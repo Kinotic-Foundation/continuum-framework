@@ -1,4 +1,4 @@
-package org.kinotic.continuum.core.api.security;
+package org.kinotic.continuum.api.security;
 
 import org.kinotic.continuum.api.Identifiable;
 

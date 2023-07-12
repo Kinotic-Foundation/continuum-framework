@@ -20,7 +20,7 @@ package org.kinotic.continuum.gateway.api.config;
 import org.kinotic.continuum.api.config.ContinuumProperties;
 import io.vertx.ext.stomp.lite.StompServerOptions;
 import io.vertx.mqtt.MqttServerOptions;
-import org.kinotic.continuum.core.api.security.SecurityService;
+import org.kinotic.continuum.api.security.SecurityService;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
@@ -49,6 +49,8 @@ public class ContinuumGatewayProperties {
     private final ContinuumRestServerProperties rest = new ContinuumRestServerProperties();
 
     private boolean disableIam;
+
+    private boolean enableCLIConnections = true;
 
     public ContinuumGatewayProperties(ContinuumProperties continuumProperties) {
         stomp = new StompServerOptions()
@@ -95,5 +97,21 @@ public class ContinuumGatewayProperties {
      */
     public void setDisableIam(boolean disableIam) {
         this.disableIam = disableIam;
+    }
+
+    /**
+     * Determines if the CLI connections should be enabled or not
+     * @return true if CLI connections should be enabled false if not
+     */
+    public boolean isEnableCLIConnections() {
+        return enableCLIConnections;
+    }
+
+    /**
+     * Set if the CLI connections should be enabled or not
+     * @param enableCLIConnections true if CLI connections should be enabled false if not
+     */
+    public void setEnableCLIConnections(boolean enableCLIConnections) {
+        this.enableCLIConnections = enableCLIConnections;
     }
 }

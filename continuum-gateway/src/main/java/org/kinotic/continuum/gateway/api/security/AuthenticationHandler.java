@@ -8,12 +8,13 @@ import io.vertx.core.http.HttpServerRequest;
 import io.vertx.ext.web.RoutingContext;
 import me.escoffier.vertx.completablefuture.VertxCompletableFuture;
 import org.kinotic.continuum.core.api.event.EventConstants;
-import org.kinotic.continuum.core.api.security.SecurityService;
+import org.kinotic.continuum.api.security.SecurityService;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * Vertx Authentication handler that uses the {@link SecurityService} to authenticate requests.
  * Created by Navíd Mitchell 🤪on 6/19/23.
  */
 public class AuthenticationHandler implements Handler<RoutingContext> {

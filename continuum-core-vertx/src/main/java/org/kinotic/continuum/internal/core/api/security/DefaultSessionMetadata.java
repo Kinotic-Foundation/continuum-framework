@@ -19,7 +19,7 @@ package org.kinotic.continuum.internal.core.api.security;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.ignite.cache.query.annotations.QuerySqlField;
-import org.kinotic.continuum.core.api.security.Participant;
+import org.kinotic.continuum.api.security.Participant;
 import org.kinotic.continuum.core.api.security.SessionMetadata;
 
 import java.io.Serializable;

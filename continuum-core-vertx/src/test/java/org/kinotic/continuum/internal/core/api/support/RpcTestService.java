@@ -18,7 +18,7 @@
 package org.kinotic.continuum.internal.core.api.support;
 
 import org.kinotic.continuum.api.annotations.Publish;
-import org.kinotic.continuum.core.api.security.Participant;
+import org.kinotic.continuum.api.security.Participant;
 import org.kinotic.continuum.internal.core.api.RpcTests;
 import io.vertx.core.Future;
 import reactor.core.publisher.Flux;

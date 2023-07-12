@@ -13,16 +13,16 @@ describe('Continuum Client Tests', () => {
     let host: string = '127.0.0.1'
     let port: number = 58503
 
-    beforeAll(async () => {
-        console.log('Starting Continuum Gateway')
-        const container = await new GenericContainer('kinotic/continuum-gateway-server:latest')
-            .withExposedPorts(58503)
-            .withEnvironment({ SPRING_PROFILES_ACTIVE: "development" })
-            .start()
-        host = container.getHost()
-        port = container.getMappedPort(58503)
-        console.log(`Continuum Gateway running at ${host}:${port}`)
-    }, 1000 * 60 * 10) // 10 minutes
+    // beforeAll(async () => {
+    //     console.log('Starting Continuum Gateway')
+    //     const container = await new GenericContainer('kinotic/continuum-gateway-server:latest')
+    //         .withExposedPorts(58503)
+    //         .withEnvironment({ SPRING_PROFILES_ACTIVE: "development" })
+    //         .start()
+    //     host = container.getHost()
+    //     port = container.getMappedPort(58503)
+    //     console.log(`Continuum Gateway running at ${host}:${port}`)
+    // }, 1000 * 60 * 10) // 10 minutes
 
     it('should connect and disconnect', async () => {
         const connectedInfo: ConnectedInfo = await logFailure(Continuum.connect(`ws://${host}:${port}/v1`,

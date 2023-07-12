@@ -148,17 +148,23 @@ export class EventBus implements IEventBus {
                     let connectedInfoJson: string | undefined = value[EventConstants.CONNECTED_INFO_HEADER]
                     if (connectedInfoJson != null) {
 
-                        // Remove all information originally sent from the connect headers
-                        for(let key in connectHeaders){
-                            delete connectHeadersInternal[key]
-                        }
-
                         const connectedInfo: ConnectedInfo = JSON.parse(connectedInfoJson)
-                        connectHeadersInternal.session = connectedInfo.sessionId
 
-                        this.replyToCri = EventConstants.SERVICE_DESTINATION_PREFIX + connectedInfo.replyToId + ':' + uuidv4() + '@continuum.js.EventBus/replyHandler'
+                        if(connectedInfo.sessionId != null && connectedInfo.replyToId != null) {
 
-                        resolve(connectedInfo)
+                            // Remove all information originally sent from the connect headers
+                            for (let key in connectHeaders) {
+                                delete connectHeadersInternal[key]
+                            }
+
+                            connectHeadersInternal.session = connectedInfo.sessionId
+
+                            this.replyToCri = EventConstants.SERVICE_DESTINATION_PREFIX + connectedInfo.replyToId + ':' + uuidv4() + '@continuum.js.EventBus/replyHandler'
+
+                            resolve(connectedInfo)
+                        }else {
+                            reject('Server did not return proper data for successful login')
+                        }
                     }else {
                         reject('Server did not return proper data for successful login')
                     }

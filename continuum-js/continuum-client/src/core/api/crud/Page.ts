@@ -29,27 +29,17 @@ export class Page<T> {
     /**
      * Returns the size of the {@link Page}.
      */
-    public readonly size: number = 0
+    readonly size: number = 0
 
     /**
      * Returns the total amount of elements.
      */
-    public readonly totalElements: number = 0
+    readonly totalElements: number = 0
 
     /**
      * Returns the page content as {@link Array}.
      */
-    public readonly content: T[] = []
+    readonly content: T[] = []
 
-    /**
-     * Returns the number of total pages.
-     */
-    public get totalPages(): number {
-        let ret: number = 0
-        if(this.size !== 0) {
-            ret = Math.ceil(this.totalElements / this.size)
-        }
-        return ret
-    }
 
 }

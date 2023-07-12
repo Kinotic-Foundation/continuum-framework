@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import {IEvent, IEventBus, EventConstants, ConnectHeaders} from './IEventBus'
+import {IEvent, IEventBus, EventConstants} from './IEventBus'
 import { ConnectableObservable, Observable, Subject, Unsubscribable, Subscription, throwError } from 'rxjs'
 import { filter, map, multicast } from 'rxjs/operators'
 import { firstValueFrom } from 'rxjs'
@@ -23,7 +23,8 @@ import { RxStomp, IMessage, StompHeaders, IFrame } from '@stomp/rx-stomp'
 import { Optional } from 'typescript-optional'
 import { v4 as uuidv4 } from 'uuid'
 import {ConnectedInfo} from '@/api/security/ConnectedInfo'
-import {ContinuumError} from '@/api/errors/ContinuumError';
+import {ContinuumError} from '@/api/errors/ContinuumError'
+import {ConnectionInfo} from '@/api/Connection'
 
 /**
  * Default IEvent implementation
@@ -110,21 +111,22 @@ export class EventBus implements IEventBus {
         return this.stompClient != null && this.stompClient.active
     }
 
-    public connect(url: string, identity: string, secret: string): Promise<ConnectedInfo> {
-        // TODO: change names to use identity and secret, it is more clear
-        return this.connectAdvanced(url, {
-            login: identity,
-            passcode: secret
-        })
-    }
-
-    connectAdvanced(url: string, connectHeaders: ConnectHeaders): Promise<ConnectedInfo> {
+    connect(connectionInfo: ConnectionInfo): Promise<ConnectedInfo> {
         return new Promise((resolve, reject): void => {
             if (!this.isConnectionActive()) {
 
+                if(!(connectionInfo?.host)){
+                    reject('No host provided')
+                    return
+                }
+
+                const url = 'ws' + (connectionInfo.useSSL ? 's' : '')
+                    + '://' + connectionInfo.host
+                    + (connectionInfo.port ? ':' + connectionInfo.port : '') + '/v1'
+
                 this.stompClient = new RxStomp()
 
-                let connectHeadersInternal: StompHeaders = connectHeaders
+                let connectHeadersInternal: StompHeaders = (connectionInfo.connectHeaders ? connectionInfo.connectHeaders : {})
 
                 this.stompClient.configure({
                     brokerURL: url,
@@ -153,8 +155,10 @@ export class EventBus implements IEventBus {
                         if(connectedInfo.sessionId != null && connectedInfo.replyToId != null) {
 
                             // Remove all information originally sent from the connect headers
-                            for (let key in connectHeaders) {
-                                delete connectHeadersInternal[key]
+                            if(connectionInfo.connectHeaders != null) {
+                                for (let key in connectionInfo.connectHeaders) {
+                                    delete connectHeadersInternal[key]
+                                }
                             }
 
                             connectHeadersInternal.session = connectedInfo.sessionId

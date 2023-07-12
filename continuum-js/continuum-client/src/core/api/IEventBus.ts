@@ -18,7 +18,8 @@
 import { Optional } from 'typescript-optional'
 import { Observable } from 'rxjs'
 import {ConnectedInfo} from '@/api/security/ConnectedInfo'
-import {ContinuumError} from '@/api/errors/ContinuumError';
+import {ContinuumError} from '@/api/errors/ContinuumError'
+import {ConnectionInfo} from '@/api/Connection'
 
 /**
  * Part of the low level portion of continuum representing data to be processed
@@ -87,10 +88,6 @@ export interface IEvent {
 
 }
 
-export class ConnectHeaders {
-    [key: string]: string;
-}
-
 /**
  * Part of the low level portion of continuum representing a connection to a continuum server
  * This is similar to a Stomp Client but with more required information and no control plane semantics.
@@ -108,22 +105,10 @@ export interface IEventBus {
 
     /**
      * Requests a connection to the given Stomp url
-     * @param url to connect to
-     * @param identity to use during connection
-     * @param secret to use during connection
+     * @param connectionInfo provides the information needed to connect to the continuum server
      * @return Promise containing the result of the initial connection attempt
      */
-    connect(url: string, identity: string, secret: string): Promise<ConnectedInfo>
-
-    /**
-     * Requests a connection to the given Stomp url.
-     * This method allows for more advanced connection options.
-     * All headers will be sent as part of the STOMP CONNECT frame.
-     * @param url to connect to
-     * @param connectHeaders to use during connection
-     * @return Promise containing the result of the initial connection attempt
-     */
-    connectAdvanced(url: string, connectHeaders: ConnectHeaders): Promise<ConnectedInfo>
+    connect(connectionInfo: ConnectionInfo): Promise<ConnectedInfo>
 
     /**
      * Disconnects the client from the server

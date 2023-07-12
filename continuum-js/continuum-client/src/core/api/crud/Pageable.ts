@@ -29,17 +29,17 @@ export class Pageable {
     /**
      * Returns the page to be returned.
      */
-    public pageNumber: number = 0
+    pageNumber: number = 0
 
     /**
      * Returns the number of items to be returned.
      */
-    public pageSize: number = 10
+    pageSize: number = 10
 
     /**
      * Returns the sorting parameters.
      */
-    public sort?: Sort | null = null
+    sort?: Sort | null = null
 
 
     constructor(pageNumber: number, pageSize: number, sort?: Sort | null) {

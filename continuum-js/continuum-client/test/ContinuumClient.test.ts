@@ -1,6 +1,6 @@
 import {beforeAll, describe, it, expect} from 'vitest'
 import {Continuum, EventConstants} from '../src'
-import {GenericContainer} from 'testcontainers'
+import {AlwaysPullPolicy, GenericContainer} from 'testcontainers'
 import { WebSocket } from 'ws'
 import { ConnectedInfo, ParticipantConstants, Event } from '../src'
 import {logFailure} from './TestHelper'
@@ -13,21 +13,24 @@ describe('Continuum Client Tests', () => {
     let host: string = '127.0.0.1'
     let port: number = 58503
 
-    // beforeAll(async () => {
-    //     console.log('Starting Continuum Gateway')
-    //     const container = await new GenericContainer('kinotic/continuum-gateway-server:latest')
-    //         .withExposedPorts(58503)
-    //         .withEnvironment({ SPRING_PROFILES_ACTIVE: "development" })
-    //         .start()
-    //     host = container.getHost()
-    //     port = container.getMappedPort(58503)
-    //     console.log(`Continuum Gateway running at ${host}:${port}`)
-    // }, 1000 * 60 * 10) // 10 minutes
+    beforeAll(async () => {
+        console.log('Starting Continuum Gateway')
+        const container = await new GenericContainer('kinotic/continuum-gateway-server:latest')
+            .withExposedPorts(58503)
+            .withEnvironment({ SPRING_PROFILES_ACTIVE: "development" })
+            .withPullPolicy(new AlwaysPullPolicy())
+            .start()
+        host = container.getHost()
+        port = container.getMappedPort(58503)
+        console.log(`Continuum Gateway running at ${host}:${port}`)
+    }, 1000 * 60 * 10) // 10 minutes
 
     it('should connect and disconnect', async () => {
-        const connectedInfo: ConnectedInfo = await logFailure(Continuum.connect(`ws://${host}:${port}/v1`,
-                'guest',
-                'guest'),
+        const connectedInfo: ConnectedInfo = await logFailure(Continuum.connect({
+                host:host,
+                port:port,
+                connectHeaders:{login: 'guest', passcode: 'guest'}
+        }),
             'Failed to connect to Continuum Gateway')
         validateConnectedInfo(connectedInfo)
 
@@ -36,25 +39,31 @@ describe('Continuum Client Tests', () => {
 
     it('should connect and disconnect multiple times', async () => {
         console.log(`Connecting to Continuum Gateway running at ${host}:${port} the first time`)
-        let connectedInfo: ConnectedInfo = await logFailure(Continuum.connect(`ws://${host}:${port}/v1`,
-                'guest',
-                'guest'),
+        let connectedInfo: ConnectedInfo = await logFailure(Continuum.connect({
+                host:host,
+                port:port,
+                connectHeaders:{login: 'guest', passcode: 'guest'}
+        }),
             'Failed to connect to Continuum Gateway')
         validateConnectedInfo(connectedInfo)
         await expect(Continuum.disconnect()).resolves.toBeUndefined()
 
         console.log(`Connecting to Continuum Gateway running at ${host}:${port} the second time`)
-        connectedInfo = await logFailure(Continuum.connect(`ws://${host}:${port}/v1`,
-                'guest',
-                'guest'),
+        connectedInfo = await logFailure(Continuum.connect({
+                host:host,
+                port:port,
+                connectHeaders:{login: 'guest', passcode: 'guest'}
+        }),
             'Failed to connect to Continuum Gateway')
         validateConnectedInfo(connectedInfo)
         await expect(Continuum.disconnect()).resolves.toBeUndefined()
 
         console.log(`Connecting to Continuum Gateway running at ${host}:${port} the third time`)
-        connectedInfo = await logFailure(Continuum.connect(`ws://${host}:${port}/v1`,
-                'guest',
-                'guest'),
+        connectedInfo = await logFailure(Continuum.connect({
+                host:host,
+                port:port,
+                connectHeaders:{login: 'guest', passcode: 'guest'}
+        }),
             'Failed to connect to Continuum Gateway')
         validateConnectedInfo(connectedInfo)
         await expect(Continuum.disconnect()).resolves.toBeUndefined()
@@ -63,9 +72,12 @@ describe('Continuum Client Tests', () => {
     it('should allow continuum CLI to connect but not send any data', async () => {
         console.log(`Connecting to Continuum Gateway running at ${host}:${port}`)
 
-        let connectedInfo: ConnectedInfo = await Continuum.connect(`ws://${host}:${port}/v1`,
-            ParticipantConstants.CLI_PARTICIPANT_ID,
-            '')
+        let connectedInfo: ConnectedInfo = await Continuum.connect(
+            {
+                host:host,
+                port:port,
+                connectHeaders:{login: ParticipantConstants.CLI_PARTICIPANT_ID}
+            })
 
         validateConnectedInfo(connectedInfo, ['ANONYMOUS'])
 
@@ -91,25 +103,33 @@ describe('Continuum Client Tests', () => {
     })
 
     it('should allow connection with session id', async () => {
-        let connectedInfo: ConnectedInfo = await logFailure(Continuum.connect(`ws://${host}:${port}/v1`,
-                'guest',
-                'guest'),
+        let connectedInfo: ConnectedInfo = await logFailure(Continuum.connect(
+                {
+                    host:host,
+                    port:port,
+                    connectHeaders:{login: ParticipantConstants.CLI_PARTICIPANT_ID}
+                }),
             'Failed to connect to Continuum Gateway')
-        validateConnectedInfo(connectedInfo)
+        validateConnectedInfo(connectedInfo, ['ANONYMOUS'])
 
+        // We use force here true. Otherwise, the server will clean up the session
         await expect(Continuum.disconnect(true)).resolves.toBeUndefined()
 
-        connectedInfo = await logFailure(Continuum.connectAdvanced(`ws://${host}:${port}/v1`,{session: connectedInfo.sessionId}),
+        connectedInfo = await logFailure(Continuum.connect({
+                host:host,
+                port:port,
+                connectHeaders:{session: connectedInfo.sessionId}
+            }),
             'Failed to connect to Continuum Gateway with session id')
 
-        validateConnectedInfo(connectedInfo)
+        validateConnectedInfo(connectedInfo, ['ANONYMOUS'])
 
         await expect(Continuum.disconnect()).resolves.toBeUndefined()
 
     })
 
     // it('should allow continuum CLI to connect and use the LogManager', async () => {
-    //     const connectedInfo: ConnectedInfo = await logFailure(Continuum.connect(`ws://${host}:${port}/v1`,
+    //     const connectedInfo: ConnectedInfo = await logFailure(Continuum.connect({host:host, port:port},
     //             'guest',
     //             'guest'),
     //         'Failed to connect to Continuum Gateway')

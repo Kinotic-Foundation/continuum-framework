@@ -19,8 +19,9 @@
  * Export all the things
  */
 
-export * from './api/Identifiable'
+export * from './api/Connection'
 export * from './api/Continuum'
+export * from './api/Identifiable'
 export * from './api/ILogManager'
 export * from './api/LogManager'
 

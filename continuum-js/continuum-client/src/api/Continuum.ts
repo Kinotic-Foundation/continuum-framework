@@ -1,11 +1,12 @@
 import { EventBus } from '@/core/api/EventBus'
-import {ConnectHeaders, IEventBus} from '@/core/api/IEventBus'
+import {IEventBus} from '@/core/api/IEventBus'
 import { ServiceRegistry } from '@/core/api/ServiceRegistry'
 import { IServiceProxy } from '@/core/api/IServiceRegistry'
 import {Identifiable} from '@/api/Identifiable'
 import {ICrudServiceProxy} from '@/core/api/crud/ICrudServiceProxy'
 import {CrudServiceProxyFactory} from '@/core/api/crud/CrudServiceProxyFactory'
 import {ConnectedInfo} from '@/api/security/ConnectedInfo'
+import {ConnectionInfo} from '@/api/Connection'
 
 /**
  * Provides a simplified way to connect to Continuum and access services
@@ -20,24 +21,11 @@ export namespace Continuum {
 
     /**
      * Requests a connection to the given Stomp url
-     * @param url to connect to
-     * @param identity to use during connection
-     * @param secret to use during connection
+     * @param connectionInfo provides the information needed to connect to the continuum server
      * @return Promise containing the result of the initial connection attempt
      */
-    export function connect(url: string, identity: string, secret: string): Promise<ConnectedInfo> {
-        return eventBus.connect(url, identity, secret)
-    }
-
-    /**
-     * Requests a connection to the given Stomp url.
-     * This method allows for more advanced connection options.
-     * All headers will be sent as part of the STOMP CONNECT frame.
-     * @param url to connect to
-     * @param connectHeaders to use during connection
-     */
-    export function connectAdvanced(url: string, connectHeaders: ConnectHeaders): Promise<ConnectedInfo>{
-        return eventBus.connectAdvanced(url, connectHeaders)
+    export function connect(connectionInfo: ConnectionInfo): Promise<ConnectedInfo> {
+        return eventBus.connect(connectionInfo)
     }
 
     /**

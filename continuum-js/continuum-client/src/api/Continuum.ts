@@ -1,5 +1,5 @@
 import { EventBus } from '@/core/api/EventBus'
-import { IEventBus } from '@/core/api/IEventBus'
+import {ConnectHeaders, IEventBus} from '@/core/api/IEventBus'
 import { ServiceRegistry } from '@/core/api/ServiceRegistry'
 import { IServiceProxy } from '@/core/api/IServiceRegistry'
 import {Identifiable} from '@/api/Identifiable'
@@ -21,20 +21,31 @@ export namespace Continuum {
     /**
      * Requests a connection to the given Stomp url
      * @param url to connect to
-     * @param accessKey to use during connection
-     * @param secretToken to use during connection
+     * @param identity to use during connection
+     * @param secret to use during connection
      * @return Promise containing the result of the initial connection attempt
      */
-    export function connect(url: string, accessKey: string, secretToken: string): Promise<ConnectedInfo> {
-        return eventBus.connect(url, accessKey, secretToken)
+    export function connect(url: string, identity: string, secret: string): Promise<ConnectedInfo> {
+        return eventBus.connect(url, identity, secret)
+    }
+
+    /**
+     * Requests a connection to the given Stomp url.
+     * This method allows for more advanced connection options.
+     * All headers will be sent as part of the STOMP CONNECT frame.
+     * @param url to connect to
+     * @param connectHeaders to use during connection
+     */
+    export function connectAdvanced(url: string, connectHeaders: ConnectHeaders): Promise<ConnectedInfo>{
+        return eventBus.connectAdvanced(url, connectHeaders)
     }
 
     /**
      * Disconnects the client from the server
      * This will clear any subscriptions and close the connection
      */
-    export function disconnect(): Promise<void> {
-        return eventBus.disconnect()
+    export function disconnect(force?: boolean): Promise<void> {
+        return eventBus.disconnect(force)
     }
 
     /**

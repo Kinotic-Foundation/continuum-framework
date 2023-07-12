@@ -34,10 +34,11 @@ public class DefaultSession extends AbstractSession {
     public DefaultSession(DefaultSessionManager sessionManager,
                           Participant participant,
                           String sessionId,
+                          String replyToId,
                           PathContainer.Options parseOptions,
                           List<PathPattern> sendPathPatterns,
                           List<PathPattern> subscribePathPatterns) {
-        super(sessionManager, participant, sessionId, parseOptions, sendPathPatterns, subscribePathPatterns);
+        super(sessionManager, participant, sessionId, replyToId, parseOptions, sendPathPatterns, subscribePathPatterns);
     }
 
     @Override

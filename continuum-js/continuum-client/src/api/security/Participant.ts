@@ -1,4 +1,4 @@
-import { IParticipant } from "./IParticipant";
+import { IParticipant } from './IParticipant'
 
 /**
  * Created by Navid Mitchell on 6/2/20

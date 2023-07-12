@@ -41,6 +41,7 @@ import java.time.Duration;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -81,13 +82,15 @@ public class DefaultSessionManager implements SessionManager {
     public CompletableFuture<Session> create(Participant participant) {
 
         String sessionId = generateId();
+        String replyToId = UUID.randomUUID().toString();
 
-        ParticipantPathPatterns participantPathPatterns = new ParticipantPathPatterns(participant);
+        ParticipantPathPatterns participantPathPatterns = new ParticipantPathPatterns(participant, replyToId);
 
         if(sessionCache != null){
             IgniteSession igniteSession = new IgniteSession(this,
                                                             participant,
                                                             sessionId,
+                                                            replyToId,
                                                             parser.getPathOptions(),
                                                             participantPathPatterns.sendPatterns,
                                                             participantPathPatterns.subscriptionPatterns,
@@ -95,6 +98,7 @@ public class DefaultSessionManager implements SessionManager {
 
             DefaultSessionMetadata sessionMetadata = new DefaultSessionMetadata()
                     .setSessionId(sessionId)
+                    .setReplyToId(replyToId)
                     .setParticipant(participant)
                     .setLastUsedDate(new Date());
 
@@ -106,6 +110,7 @@ public class DefaultSessionManager implements SessionManager {
             return CompletableFuture.completedFuture(new DefaultSession(this,
                                                                         participant,
                                                                         sessionId,
+                                                                        replyToId,
                                                                         parser.getPathOptions(),
                                                                         participantPathPatterns.sendPatterns,
                                                                         participantPathPatterns.subscriptionPatterns));
@@ -125,10 +130,12 @@ public class DefaultSessionManager implements SessionManager {
                             .thenCompose(defaultSessionMetadata -> {
                                 if (defaultSessionMetadata != null) {
                                     Participant participant = defaultSessionMetadata.getParticipant();
-                                    ParticipantPathPatterns participantPathPatterns = new ParticipantPathPatterns(participant);
+                                    ParticipantPathPatterns participantPathPatterns = new ParticipantPathPatterns(participant,
+                                                                                                                  defaultSessionMetadata.getReplyToId());
                                     Session session = new IgniteSession(this,
                                                                         participant,
                                                                         defaultSessionMetadata.getSessionId(),
+                                                                        defaultSessionMetadata.getReplyToId(),
                                                                         parser.getPathOptions(),
                                                                         participantPathPatterns.sendPatterns,
                                                                         participantPathPatterns.subscriptionPatterns,
@@ -152,9 +159,7 @@ public class DefaultSessionManager implements SessionManager {
         List<PathPattern> sendPatterns = new LinkedList<>();
         List<PathPattern> subscriptionPatterns = new LinkedList<>();
 
-        public ParticipantPathPatterns(Participant participant) {
-            String encodedIdentity = ContinuumUtil.safeEncodeURI(participant.getId());
-
+        public ParticipantPathPatterns(Participant participant, String replyToId) {
             // The CLI is allowed to log in anonymously and receive events scoped to its identity but cannot send events or service requests
             if(!participant.getId().equals(ParticipantConstants.CLI_PARTICIPANT_ID)) {
 
@@ -176,27 +181,20 @@ public class DefaultSessionManager implements SessionManager {
 
             }
 
-            // TODO: make the reply to for clients an opaque id that is not the identity
-            // There are various problems with this.
-            // Such as if an identity begins with the same characters as another identity
-            // The shorter of the two could potentially subscribe to the identity of the longer one
-            // We could potentially use the HMAC of the session id this would be easy to calculate and would not need a secondary id
-
             // clients can subscribe to any service that is scoped to their identity
             subscriptionPatterns.add(parser.parse(EventConstants.SERVICE_DESTINATION_SCHEME + "://"
-                                                          + encodedIdentity
-                                                          + "*@*.**"));
+                                                          + replyToId
+                                                          + ":*@*.**"));
         }
     }
 
     private String generateId() {
         // Default length for a session id is 16 bytes, More info: https://www.owasp.org/index.php/Session_Management_Cheat_Sheet
-        // We use 32 bytes to make it more secure
-        final byte[] bytes = new byte[32];
+        final byte[] bytes = new byte[16];
         random.nextBytes(bytes);
 
-        final char[] hex = new char[32 * 2];
-        for (int j = 0; j < 32; j++) {
+        final char[] hex = new char[16 * 2];
+        for (int j = 0; j < 16; j++) {
             int v = bytes[j] & 0xFF;
             hex[j * 2] = HEX[v >>> 4];
             hex[j * 2 + 1] = HEX[v & 0x0F];

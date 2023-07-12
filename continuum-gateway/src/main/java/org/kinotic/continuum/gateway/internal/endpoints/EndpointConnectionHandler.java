@@ -120,7 +120,7 @@ public class EndpointConnectionHandler {
 
     private String createConnectedInfoJson(Session session){
         try {
-            ConnectedInfo connectedInfo = new ConnectedInfo(session.sessionId(), session.participant());
+            ConnectedInfo connectedInfo = new ConnectedInfo(session.sessionId(), session.replyToId(), session.participant());
             return services.objectMapper.writeValueAsString(connectedInfo);
         } catch (JsonProcessingException e) {
             throw new IllegalStateException(e);
@@ -189,7 +189,7 @@ public class EndpointConnectionHandler {
     private void validateReplyTo(Event<byte[]> event) {
         String replyTo = event.metadata().get(EventConstants.REPLY_TO_HEADER);
         if (replyTo != null) {
-            // reply-to must not use any * characters and must be "scoped" to the participant identity
+            // reply-to must not use any * characters and must be "scoped" to the participant replyToId
             if (replyTo.contains("*")) {
                 throw new IllegalArgumentException("reply-to header invalid * are not allowed");
             }
@@ -203,13 +203,13 @@ public class EndpointConnectionHandler {
 
             String scope = replyCRI.scope();
             if (scope != null) {
-                // valid scopes are PARTICIPANT_IDENTITY:UUID or PARTICIPANT_IDENTITY
+                // valid scopes are PARTICIPANT-REPLY_TO_ID:UUID or PARTICIPANT-REPLY_TO_ID
                 int idx = scope.indexOf(":");
                 if (idx != -1) {
                     scope = scope.substring(0, idx);
                 }
-                String encodedSender = ContinuumUtil.safeEncodeURI(session.participant().getId());
-                if (!scope.equals(encodedSender)) {
+
+                if (!scope.equals(session.replyToId())) {
                     throw new IllegalArgumentException("reply-to header invalid, scope: " + scope + " is not valid for authenticated participant");
                 }
             }
@@ -233,9 +233,9 @@ public class EndpointConnectionHandler {
                                         // Reply-To is known to be scoped to the sender because there is a check when the system receives the event above
                                         // Ex:
                                         // Device -> subscribes to srv://MAC@device.rpc.channel
-                                        // JS Client sends message to Device with a reply to of srv://CLIENT_ID@continuum.js.EventBus/replyHandler
+                                        // JS Client sends message to Device with a reply to of srv://REPLY_TO_ID@continuum.js.EventBus/replyHandler
                                         //
-                                        // When the system receives the message in the send() handler above it verifies the reply-to matches the sender
+                                        // When the system receives the message in the send() handler above it verifies the reply-to matches the sender reply to id
                                         // Then we temporarily allow the device to send to the clients reply-to.
                                         // Which will allow the message to be routed back to the client.
                                         String replyTo = event.metadata().get(EventConstants.REPLY_TO_HEADER);
@@ -279,7 +279,6 @@ public class EndpointConnectionHandler {
         } else {
             log.debug("No subscription exists for subscriptionIdentifier: " + subscriptionIdentifier);
         }
-
     }
 
     public void removeSession() {

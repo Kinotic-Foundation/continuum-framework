@@ -87,6 +87,10 @@ export interface IEvent {
 
 }
 
+export class ConnectHeaders {
+    [key: string]: string;
+}
+
 /**
  * Part of the low level portion of continuum representing a connection to a continuum server
  * This is similar to a Stomp Client but with more required information and no control plane semantics.
@@ -105,17 +109,32 @@ export interface IEventBus {
     /**
      * Requests a connection to the given Stomp url
      * @param url to connect to
-     * @param accessKey to use during connection
-     * @param secretToken to use during connection
+     * @param identity to use during connection
+     * @param secret to use during connection
      * @return Promise containing the result of the initial connection attempt
      */
-    connect(url: string, accessKey: string, secretToken: string): Promise<ConnectedInfo>
+    connect(url: string, identity: string, secret: string): Promise<ConnectedInfo>
+
+    /**
+     * Requests a connection to the given Stomp url.
+     * This method allows for more advanced connection options.
+     * All headers will be sent as part of the STOMP CONNECT frame.
+     * @param url to connect to
+     * @param connectHeaders to use during connection
+     * @return Promise containing the result of the initial connection attempt
+     */
+    connectAdvanced(url: string, connectHeaders: ConnectHeaders): Promise<ConnectedInfo>
 
     /**
      * Disconnects the client from the server
      * This will clear any subscriptions and close the connection
+     * @param force if true then the connection will be closed immediately without sending a disconnect frame
+     *        When this mode is used, the actual Websocket may linger for a while
+     *        and the broker may not realize that the connection is no longer in use.
+     *
+     * @return Promise containing the result of the disconnect attempt
      */
-    disconnect(): Promise<void>
+    disconnect(force?: boolean): Promise<void>
 
     /**
      * Determines if the connection is active.

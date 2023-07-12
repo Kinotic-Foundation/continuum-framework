@@ -36,6 +36,9 @@ public class DefaultSessionMetadata implements Serializable, SessionMetadata {
     private String sessionId;
 
     @JsonProperty
+    private String replyToId;
+
+    @JsonProperty
     private Participant participant;
 
     @JsonProperty
@@ -55,6 +58,17 @@ public class DefaultSessionMetadata implements Serializable, SessionMetadata {
         return this;
     }
 
+    @Override
+    public String getReplyToId() {
+        return replyToId;
+    }
+
+    public DefaultSessionMetadata setReplyToId(String replyToId) {
+        this.replyToId = replyToId;
+        return this;
+    }
+
+    @Override
     public Participant getParticipant() {
         return participant;
     }

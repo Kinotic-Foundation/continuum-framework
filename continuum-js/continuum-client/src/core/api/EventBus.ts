@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { IEvent, IEventBus, EventConstants } from './IEventBus'
+import {IEvent, IEventBus, EventConstants, ConnectHeaders} from './IEventBus'
 import { ConnectableObservable, Observable, Subject, Unsubscribable, Subscription, throwError } from 'rxjs'
 import { filter, map, multicast } from 'rxjs/operators'
 import { firstValueFrom } from 'rxjs'
@@ -84,7 +84,6 @@ export class Event implements IEvent {
 export class EventBus implements IEventBus {
 
     private stompClient: RxStomp | null = null
-    private encodedIdentity: string  | null = null
     private replyToCri: string  | null = null
     private requestRepliesObservable: ConnectableObservable<IEvent> | null = null
     private requestRepliesSubscription: Subscription | null = null
@@ -112,22 +111,24 @@ export class EventBus implements IEventBus {
     }
 
     public connect(url: string, identity: string, secret: string): Promise<ConnectedInfo> {
+        // TODO: change names to use identity and secret, it is more clear
+        return this.connectAdvanced(url, {
+            login: identity,
+            passcode: secret
+        })
+    }
+
+    connectAdvanced(url: string, connectHeaders: ConnectHeaders): Promise<ConnectedInfo> {
         return new Promise((resolve, reject): void => {
             if (!this.isConnectionActive()) {
 
                 this.stompClient = new RxStomp()
 
-                this.encodedIdentity = encodeURIComponent(identity)
-                this.replyToCri = EventConstants.SERVICE_DESTINATION_PREFIX + this.encodedIdentity + ':' + uuidv4() + '@continuum.js.EventBus/replyHandler'
-
-                let connectHeaders: StompHeaders = {
-                    login: identity,
-                    passcode: secret
-                }
+                let connectHeadersInternal: StompHeaders = connectHeaders
 
                 this.stompClient.configure({
                     brokerURL: url,
-                    connectHeaders: connectHeaders,
+                    connectHeaders: connectHeadersInternal,
                     heartbeatIncoming: 120000,
                     heartbeatOutgoing: 30000,
                     reconnectDelay: 30000
@@ -146,14 +147,22 @@ export class EventBus implements IEventBus {
                     connectedSubscription.unsubscribe()
                     let connectedInfoJson: string | undefined = value[EventConstants.CONNECTED_INFO_HEADER]
                     if (connectedInfoJson != null) {
-                        delete connectHeaders.login
-                        delete connectHeaders.passcode
+
+                        // Remove all information originally sent from the connect headers
+                        for(let key in connectHeaders){
+                            delete connectHeadersInternal[key]
+                        }
+
                         const connectedInfo: ConnectedInfo = JSON.parse(connectedInfoJson)
-                        connectHeaders.session = connectedInfo.sessionId
+                        connectHeadersInternal.session = connectedInfo.sessionId
+
+                        this.replyToCri = EventConstants.SERVICE_DESTINATION_PREFIX + connectedInfo.replyToId + ':' + uuidv4() + '@continuum.js.EventBus/replyHandler'
+
                         resolve(connectedInfo)
                     }else {
                         reject('Server did not return proper data for successful login')
                     }
+
                     // Connect the error subject for users to use
                     this.errorSubjectSubscription = this.stompClient?.stompErrors$.subscribe(this.errorSubject)
 
@@ -167,7 +176,7 @@ export class EventBus implements IEventBus {
         })
     }
 
-    public async disconnect(): Promise<void> {
+    public async disconnect(force?: boolean): Promise<void> {
         if (this.isConnectionActive()) {
             if (this.requestRepliesObservable != null) {
                 if (this.requestRepliesSubscription != null) {
@@ -182,7 +191,7 @@ export class EventBus implements IEventBus {
                 this.errorSubjectSubscription = null
             }
 
-            await this.stompClient?.deactivate()
+            await this.stompClient?.deactivate({force: force})
 
             this.stompClient = null
         }

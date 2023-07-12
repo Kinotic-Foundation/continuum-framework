@@ -7,13 +7,18 @@ public class ConnectedInfo {
 
     private String sessionId;
 
+    private String replyToId;
+
     private Participant participant;
 
     public ConnectedInfo() {
     }
 
-    public ConnectedInfo(String sessionId, Participant participant) {
+    public ConnectedInfo(String sessionId,
+                         String replyToId,
+                         Participant participant) {
         this.sessionId = sessionId;
+        this.replyToId = replyToId;
         this.participant = participant;
     }
 
@@ -24,6 +29,18 @@ public class ConnectedInfo {
     public ConnectedInfo setSessionId(String sessionId) {
         this.sessionId = sessionId;
         return this;
+    }
+
+    /**
+     * This id is the only valid "reply-to" scope that can be used by the client.
+     * @return the reply to id
+     */
+    public String getReplyToId() {
+        return replyToId;
+    }
+
+    public void setReplyToId(String replyToId) {
+        this.replyToId = replyToId;
     }
 
     public Participant getParticipant() {

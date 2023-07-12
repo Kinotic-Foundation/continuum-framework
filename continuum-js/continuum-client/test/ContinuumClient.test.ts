@@ -1,12 +1,11 @@
 import {beforeAll, describe, it, expect} from 'vitest'
-import {Continuum, EventConstants, logManager} from '../src'
+import {Continuum, EventConstants} from '../src'
 import {GenericContainer} from 'testcontainers'
-
-// This is required when running Continuum from node
 import { WebSocket } from 'ws'
 import { ConnectedInfo, ParticipantConstants, Event } from '../src'
 import {logFailure} from './TestHelper'
 
+// This is required when running Continuum from node
 Object.assign(global, { WebSocket})
 
 describe('Continuum Client Tests', () => {
@@ -86,6 +85,24 @@ describe('Continuum Client Tests', () => {
         // make sure client was automatically disconnected
         expect(Continuum.eventBus.isConnectionActive(),
             'Client to be disconnected').toBe(false)
+
+        await expect(Continuum.disconnect()).resolves.toBeUndefined()
+
+    })
+
+    it('should allow connection with session id', async () => {
+        let connectedInfo: ConnectedInfo = await logFailure(Continuum.connect(`ws://${host}:${port}/v1`,
+                'guest',
+                'guest'),
+            'Failed to connect to Continuum Gateway')
+        validateConnectedInfo(connectedInfo)
+
+        await expect(Continuum.disconnect(true)).resolves.toBeUndefined()
+
+        connectedInfo = await logFailure(Continuum.connectAdvanced(`ws://${host}:${port}/v1`,{session: connectedInfo.sessionId}),
+            'Failed to connect to Continuum Gateway with session id')
+
+        validateConnectedInfo(connectedInfo)
 
         await expect(Continuum.disconnect()).resolves.toBeUndefined()
 

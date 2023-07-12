@@ -32,6 +32,8 @@ public interface Session {
 
     String sessionId();
 
+    String replyToId();
+
     Date lastUsedDate();
 
     /**

@@ -29,6 +29,8 @@ public interface SessionMetadata {
 
     String getSessionId();
 
+    String getReplyToId();
+
     Participant getParticipant();
 
     Date getLastUsedDate();

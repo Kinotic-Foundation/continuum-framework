@@ -46,6 +46,7 @@ public abstract class AbstractSession implements Session {
     private final DefaultSessionManager sessionManager;
     private final Participant participant;
     private final String sessionId;
+    private final String replyToId;
     private final PathContainer.Options parseOptions;
     private final List<PathPattern> sendPathPatterns;
     private final List<PathPattern> subscribePathPatterns;
@@ -56,12 +57,14 @@ public abstract class AbstractSession implements Session {
     public AbstractSession(DefaultSessionManager sessionManager,
                            Participant participant,
                            String sessionId,
+                           String replyToId,
                            PathContainer.Options parseOptions,
                            List<PathPattern> sendPathPatterns,
                            List<PathPattern> subscribePathPatterns) {
         this.sessionManager = sessionManager;
         this.participant = participant;
         this.sessionId = sessionId;
+        this.replyToId = replyToId;
         this.parseOptions = parseOptions;
         this.sendPathPatterns = sendPathPatterns;
         this.subscribePathPatterns = subscribePathPatterns;
@@ -76,6 +79,11 @@ public abstract class AbstractSession implements Session {
     @Override
     public String sessionId(){
         return sessionId;
+    }
+
+    @Override
+    public String replyToId() {
+        return replyToId;
     }
 
     @Override

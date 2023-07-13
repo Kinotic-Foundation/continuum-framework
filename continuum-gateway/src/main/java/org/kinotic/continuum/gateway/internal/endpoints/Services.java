@@ -27,6 +27,7 @@ import org.kinotic.continuum.core.api.security.SessionManager;
 import org.kinotic.continuum.gateway.api.config.ContinuumGatewayProperties;
 import org.kinotic.continuum.gateway.internal.endpoints.stomp.DefaultStompServerHandler;
 import org.kinotic.continuum.gateway.internal.hft.HFTQueueManager;
+import org.kinotic.continuum.internal.core.api.service.invoker.ExceptionConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -65,5 +66,9 @@ public class Services {
     public HFTQueueManager hftQueueManager;
 
     @Autowired
-    ObjectMapper objectMapper;
+    public ObjectMapper objectMapper;
+
+    @Autowired
+    public ExceptionConverter exceptionConverter;
+
 }

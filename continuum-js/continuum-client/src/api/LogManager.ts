@@ -32,8 +32,8 @@ export class LogManager implements ILogManager {
         return ret
     }
 
-    async configureLogLevel(nodeId: string, name: string, level: LogLevel): Promise<void> {
-        await this.serviceProxy.invoke('configureLogLevel', [name, level], nodeId)
+    configureLogLevel(nodeId: string, name: string, level: LogLevel): Promise<void> {
+        return this.serviceProxy.invoke('configureLogLevel', [name, level], nodeId)
     }
 }
 

@@ -41,5 +41,4 @@ export class Page<T> {
      */
     readonly content: T[] = []
 
-
 }

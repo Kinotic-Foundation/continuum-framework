@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * Stores identifying information about a logged in participant
+ * WARNING: do not store sensitive information in {@link Participant} as it will be sent to receivers of requests sent by the {@link Participant}
  * Created by Navíd Mitchell 🤪on 6/16/23.
  */
 public interface Participant extends Identifiable<String> {

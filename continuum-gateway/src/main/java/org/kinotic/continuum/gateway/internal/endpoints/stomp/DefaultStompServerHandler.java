@@ -90,6 +90,8 @@ public class DefaultStompServerHandler implements StompServerHandler {
                                if(throwable instanceof AuthorizationException){
                                    connection.sendErrorAndDisconnect(throwable);
                                }else{
+                                   // TODO: move this logic up into endpointConnectionHandler
+                                   // This could be reusable and is not stomp specific
                                    try {
                                        if(log.isDebugEnabled()){
                                            log.debug("Exception occurred processing service request\n" + EventUtil.toString(incomingEvent, true), throwable);

@@ -50,7 +50,6 @@ export class Event implements IEvent {
         this.data = Optional.ofNullable(data)
     }
 
-
     public getHeader(key: string): string | undefined {
         return this.headers.get(key)
     }
@@ -201,7 +200,13 @@ export class EventBus implements IEventBus {
                 this.errorSubjectSubscription = null
             }
 
-            await this.stompClient?.deactivate({force: force})
+            try {
+                await this.stompClient?.deactivate({force: force})
+            } catch (e) {
+                if(console){
+                    console.error('Error deactivating StompClient ' + e)
+                }
+            }
 
             this.stompClient = null
         }

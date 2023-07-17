@@ -1,6 +1,6 @@
 {
   "name": "@kinotic/continuum-idl",
-  "version": "0.10.0",
+  "version": "1.0.0",
   "author": "Kinotic Foundation <develop@kinotic.org>",
   "license": "MIT",
   "type": "module",
@@ -23,7 +23,6 @@
   },
   "devDependencies": {
     "reflect-metadata": "^0.1.13",
-    "ts-morph": "^18.0.0",
     "ts-node": "^10.9.1",
     "typescript": "^5.0.2",
     "vite": "^4.3.9",

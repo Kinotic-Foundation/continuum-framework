@@ -175,7 +175,13 @@ public class ServiceInvocationSupervisor {
                 if(isControl){
                     processControlPlaneRequest(incomingEvent);
                 }else{
-                    processInvocationRequest(incomingEvent);
+                    if(validateReplyTo(incomingEvent)){
+                        processInvocationRequest(incomingEvent);
+                    }else{
+                        log.error("ReplyTo header is missing or invalid incoming message will be ignored\n" + EventUtil.toString(
+                                incomingEvent,
+                                true));
+                    }
                 }
 
 
@@ -191,7 +197,6 @@ public class ServiceInvocationSupervisor {
     }
 
     private void processInvocationRequest(Event<byte[]> incomingEvent) {
-        Assert.hasText(incomingEvent.metadata().get(EventConstants.REPLY_TO_HEADER), "A reply-to header must be provided");
         // Ensure there is an argument resolver that can handle the incoming data
         if (argumentResolver.supports(incomingEvent)) {
 
@@ -226,6 +231,31 @@ public class ServiceInvocationSupervisor {
         } else {
             throw new IllegalStateException("No compatible ArgumentResolver found");
         }
+    }
+
+    private boolean validateReplyTo(Event<byte[]> incomingEvent){
+        boolean ret = false;
+        String replyTo = incomingEvent.metadata().get(EventConstants.REPLY_TO_HEADER);
+        if(replyTo != null){
+            if(!replyTo.isBlank()) {
+                if (replyTo.startsWith(EventConstants.SERVICE_DESTINATION_SCHEME + ":")) {
+                    ret = true;
+                } else {
+                    if(log.isDebugEnabled()) {
+                        log.debug("Reply-to header must be a valid service destination");
+                    }
+                }
+            }else {
+                if(log.isDebugEnabled()) {
+                    log.debug("Reply-to header must not be blank");
+                }
+            }
+        }else {
+            if(log.isDebugEnabled()) {
+                log.debug("No reply-to header found in event");
+            }
+        }
+        return ret;
     }
 
     private void processControlPlaneRequest(Event<byte[]> incomingEvent){
@@ -287,11 +317,18 @@ public class ServiceInvocationSupervisor {
     }
 
     private void convertAndSend(Metadata incomingMetadata, HandlerMethod handlerMethod, Object result) {
-        Event<byte[]> resultEvent = returnValueConverter.convert(incomingMetadata,
-                                                                 handlerMethod.getReturnType()
-                                                                              .getParameterType(),
-                                                                 result);
-        eventBusService.send(resultEvent);
+        try {
+            Event<byte[]> resultEvent = returnValueConverter.convert(incomingMetadata,
+                                                                     handlerMethod.getReturnType()
+                                                                                  .getParameterType(),
+                                                                     result);
+            eventBusService.send(resultEvent);
+        } catch (Exception e) {
+            if(log.isDebugEnabled()){
+                log.debug("Exception occurred sending response", e);
+            }
+            throw e;
+        }
     }
 
     private void sendCompletionEvent(Metadata incomingMetadata){

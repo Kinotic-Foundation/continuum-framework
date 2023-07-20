@@ -86,27 +86,7 @@ public class DefaultStompServerHandler implements StompServerHandler {
         endpointConnectionHandler
                 .send(incomingEvent)
                 .subscribe(null,
-                           throwable -> {
-                               if(throwable instanceof AuthorizationException){
-                                   connection.sendErrorAndDisconnect(throwable);
-                               }else{
-                                   // TODO: move this logic up into endpointConnectionHandler
-                                   // This could be reusable and is not stomp specific
-                                   try {
-                                       if(log.isDebugEnabled()){
-                                           log.debug("Exception occurred processing service request\n" + EventUtil.toString(incomingEvent, true), throwable);
-                                       }
-
-                                       Event<byte[]> convertedEvent = exceptionConverter.convert(incomingEvent.metadata(), throwable);
-                                       // since we don't know the subscription id used by the stomp client for this request we send through the eventbus
-                                       eventBusService.send(convertedEvent);
-                                       connection.resume();
-                                   } catch (Exception ex) {
-                                       log.error("Error occurred when calling exception converter", throwable);
-                                       connection.sendErrorAndDisconnect(throwable);
-                                   }
-                               }
-                           },
+                           connection::sendErrorAndDisconnect,
                            () -> {
                                connection.sendReceiptIfNeeded(frame);
                                connection.resume();

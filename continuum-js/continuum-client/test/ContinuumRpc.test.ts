@@ -11,11 +11,10 @@ Object.assign(global, { WebSocket})
 
 describe('Continuum RPC Tests', () => {
 
-    let connectionInfo: ConnectionInfo
+    let connectionInfo: ConnectionInfo = new ConnectionInfo()
     let container: StartedTestContainer
 
     beforeAll(async () => {
-        connectionInfo = new ConnectionInfo()
         container = await initContinuumGateway()
         connectionInfo.host = container.getHost()
         connectionInfo.port = container.getMappedPort(58503)

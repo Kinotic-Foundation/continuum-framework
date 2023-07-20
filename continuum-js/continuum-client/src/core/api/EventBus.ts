@@ -84,6 +84,7 @@ export class Event implements IEvent {
 export class EventBus implements IEventBus {
 
     private stompClient: RxStomp | null = null
+    private clientReady: boolean = false
     private replyToCri: string  | null = null
     private requestRepliesObservable: ConnectableObservable<IEvent> | null = null
     private requestRepliesSubscription: Subscription | null = null
@@ -107,7 +108,7 @@ export class EventBus implements IEventBus {
     }
 
     public isConnectionActive(): boolean{
-        return this.stompClient != null && this.stompClient.active
+        return this.stompClient != null && this.stompClient.active && this.clientReady
     }
 
     connect(connectionInfo: ConnectionInfo): Promise<ConnectedInfo> {
@@ -164,6 +165,8 @@ export class EventBus implements IEventBus {
 
                             this.replyToCri = EventConstants.SERVICE_DESTINATION_PREFIX + connectedInfo.replyToId + ':' + uuidv4() + '@continuum.js.EventBus/replyHandler'
 
+                            this.clientReady = true
+
                             resolve(connectedInfo)
                         }else {
                             reject('Server did not return proper data for successful login')
@@ -174,7 +177,6 @@ export class EventBus implements IEventBus {
 
                     // Connect the error subject for users to use
                     this.errorSubjectSubscription = this.stompClient?.stompErrors$.subscribe(this.errorSubject)
-
                 })
 
                 this.stompClient.activate()
@@ -209,8 +211,12 @@ export class EventBus implements IEventBus {
             }
 
             this.stompClient = null
+            this.clientReady = false
+            this.replyToCri = null
+            return
+        }else{
+            return
         }
-        return
     }
 
     public send(event: IEvent): void {

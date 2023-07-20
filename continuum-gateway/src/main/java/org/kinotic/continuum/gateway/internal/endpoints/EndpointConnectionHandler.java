@@ -34,6 +34,7 @@ import org.kinotic.continuum.core.api.event.EventConstants;
 import org.kinotic.continuum.core.api.security.Session;
 import org.kinotic.continuum.gateway.internal.api.security.CliSecurityService;
 import org.kinotic.continuum.internal.utils.ContinuumUtil;
+import org.kinotic.continuum.internal.utils.EventUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.BaseSubscriber;
@@ -44,6 +45,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * Generic class to perform {@link Event} handling coming from various endpoints
@@ -134,21 +137,21 @@ public class EndpointConnectionHandler {
         sessionTimer = services.vertx.setPeriodic(sessionUpdateInterval, event -> this.session.touch());
     }
 
-    public Mono<Void> send(Event<byte[]> event) {
+    public Mono<Void> send(Event<byte[]> incomingEvent) {
         Mono<Void> ret;
-        if (session.sendAllowed(event.cri())) {
+        if (session.sendAllowed(incomingEvent.cri())) {
 
-            if (event.cri().scheme().equals(EventConstants.SERVICE_DESTINATION_SCHEME)) {
+            if (incomingEvent.cri().scheme().equals(EventConstants.SERVICE_DESTINATION_SCHEME)) {
 
                 try {
 
-                    event.metadata().put(EventConstants.SENDER_HEADER, services.objectMapper.writeValueAsString(session.participant()));
+                    incomingEvent.metadata().put(EventConstants.SENDER_HEADER, services.objectMapper.writeValueAsString(session.participant()));
 
                     // make sure reply-to if present is scoped to sender
-                    validateReplyTo(event);
+                    validateReplyTo(incomingEvent);
 
                     ret = services.eventBusService
-                            .sendWithAck(event)
+                            .sendWithAck(incomingEvent)
                             .onErrorMap(throwable -> { // map errors that occurred because no Service invoker was listening
                                 boolean predicateRet = false;
                                 if (throwable instanceof ReplyException) {
@@ -158,21 +161,34 @@ public class EndpointConnectionHandler {
                                     }
                                 }
                                 return predicateRet;
-                            }, RpcMissingServiceException::new);
+                            }, RpcMissingServiceException::new)
+                            .onErrorResume(throwable -> {
+                                try {
+                                    Event<byte[]> convertedEvent = services.exceptionConverter.convert(incomingEvent.metadata(), throwable);
+                                    // since we don't know the subscription id used by the stomp client for this request we send through the eventbus
+                                    services.eventBusService.send(convertedEvent);
+                                    return Mono.empty();
+                                } catch (Exception ex) {
+                                    if(log.isDebugEnabled()){
+                                        log.debug("Exception occurred converting exception\n" + EventUtil.toString(incomingEvent, true), throwable);
+                                    }
+                                    return Mono.error(ex);
+                                }
+                            });
 
                 } catch (Exception e) {
                     ret = Mono.error(e);
                 }
 
-            } else if (event.cri().scheme().equals(EventConstants.STREAM_DESTINATION_SCHEME)) {
+            } else if (incomingEvent.cri().scheme().equals(EventConstants.STREAM_DESTINATION_SCHEME)) {
 
-                Mono<Void> hftMono = services.hftQueueManager.write(event)
+                Mono<Void> hftMono = services.hftQueueManager.write(incomingEvent)
                                                              .onErrorMap(t -> {
                                                                  log.error("Error occurred writing to HFT Queue", t);
                                                                  return new IllegalStateException("Could not store");
                                                              });
 
-                Mono<Void> streamMono = services.eventStreamService.send(event);
+                Mono<Void> streamMono = services.eventStreamService.send(incomingEvent);
 
                 ret = Flux.concat(hftMono, streamMono)
                           .then();
@@ -181,7 +197,7 @@ public class EndpointConnectionHandler {
                 ret = Mono.error(new IllegalArgumentException("CRI scheme not supported"));
             }
         } else {
-            ret = Mono.error(new AuthorizationException("Not Authorized to send to " + event.cri()));
+            ret = Mono.error(new AuthorizationException("Not Authorized to send to " + incomingEvent.cri()));
         }
         return ret;
     }
@@ -201,6 +217,11 @@ public class EndpointConnectionHandler {
                 throw new IllegalArgumentException("reply-to header invalid " + e.getMessage());
             }
 
+            String scheme = replyCRI.scheme();
+            if(scheme == null || !scheme.equals(EventConstants.SERVICE_DESTINATION_SCHEME)){
+                throw new IllegalArgumentException("reply-to header invalid, scheme: " + scheme + " is not valid for authenticated participant");
+            }
+
             String scope = replyCRI.scope();
             if (scope != null) {
                 // valid scopes are PARTICIPANT-REPLY_TO_ID:UUID or PARTICIPANT-REPLY_TO_ID
@@ -212,6 +233,8 @@ public class EndpointConnectionHandler {
                 if (!scope.equals(session.replyToId())) {
                     throw new IllegalArgumentException("reply-to header invalid, scope: " + scope + " is not valid for authenticated participant");
                 }
+            }else{
+                throw new IllegalArgumentException("reply-to header invalid, scope: null is not valid for authenticated participant");
             }
         }
     }

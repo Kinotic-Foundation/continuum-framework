@@ -12,6 +12,7 @@ export abstract class C3Type {
      * Usually, metadata is for putting things like descriptions or hints for code generators, or other things tools can use.
      */
     public metadata?: {[key: string]: any} = {}
+
     /**
      * The list of Decorators that should be applied to this type
      */

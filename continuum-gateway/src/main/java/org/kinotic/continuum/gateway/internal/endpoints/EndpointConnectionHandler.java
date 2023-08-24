@@ -306,6 +306,12 @@ public class EndpointConnectionHandler {
 
     public void removeSession() {
         if (session != null) {
+            // We remove the session timer here so the timer does not fire after the session is removed
+            if (sessionTimer != -1) {
+                services.vertx.cancelTimer(sessionTimer);
+                sessionTimer = -1;
+            }
+
             services.sessionManager
                     .removeSession(session.sessionId())
                     .handle((BiFunction<Boolean, Throwable, Void>) (aBoolean, throwable) -> {
@@ -314,6 +320,8 @@ public class EndpointConnectionHandler {
                         }
                         return null;
                     });
+
+            session = null;
         } else {
             log.error("No session for connection was set");
         }
@@ -322,8 +330,8 @@ public class EndpointConnectionHandler {
     public void shutdown() {
         if (sessionTimer != -1) {
             services.vertx.cancelTimer(sessionTimer);
+            sessionTimer = -1;
         }
-
         subscriptions.forEach((s, messageConsumer) -> messageConsumer.cancel());
         subscriptions.clear();
     }

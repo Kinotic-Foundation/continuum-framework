@@ -169,11 +169,13 @@ public class DefaultStompServerHandler implements StompServerHandler {
 
     @Override
     public void disconnected() {
+        // we remove the session since the client disconnected on purpose
         endpointConnectionHandler.removeSession();
     }
 
     @Override
     public void closed() {
+        // We don't remove the session if disconnect was not called because this could be a network issue
         endpointConnectionHandler.shutdown();
     }
 

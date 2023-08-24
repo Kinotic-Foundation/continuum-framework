@@ -9,8 +9,7 @@ export class ArrayC3Type extends C3Type {
      * The type the defined array will contain
      * <p>
      */
-    public contains: C3Type | null = null
-
+    public contains!: C3Type
 
     constructor() {
         super();

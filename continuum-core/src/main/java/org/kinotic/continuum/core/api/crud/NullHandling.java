@@ -15,10 +15,8 @@
  */
 package org.kinotic.continuum.core.api.crud;
 
-import org.springframework.data.domain.Sort;
-
 /**
- * Enumeration for null handling hints that can be used in {@link Sort.Order} expressions.
+ * Enumeration for null handling hints that can be used in {@link Order} expressions.
  *
  * @author Thomas Darimont
  * @since 1.8

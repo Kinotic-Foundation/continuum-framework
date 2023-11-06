@@ -27,27 +27,33 @@ import {Sort} from './Sort'
 export abstract class Pageable {
 
     /**
-     * Returns the sorting parameters.
+     * Returns the sorting parameters (optional).
      */
-    sort?: Sort | null = null
+    sort?: Sort | null | undefined = null
+
+    /**
+     * Returns the number of items to be returned.
+     */
+    pageSize: number = 10
 
     /**
      * Creates a {@link Pageable} that uses Offset based pagination.
      * @param pageNumber zero based page index.
      * @param pageSize the size of the page to be returned.
-     * @param sort the sorting parameters.
+     * @param sort the sorting parameters (optional).
      */
-    public static create(pageNumber: number, pageSize: number, sort?: Sort): Pageable {
+    public static create(pageNumber: number, pageSize: number, sort?: Sort | null): Pageable {
         return new OffsetPageable(pageNumber, pageSize, sort)
     }
 
     /**
      * Creates a {@link Pageable} that uses Cursor based pagination.
-     * @param cursor the cursor to be used for subsequent retrieval of data, or undefined if this is the first page.
-     * @param sort the sorting parameters.
+     * @param cursor the cursor to be used for subsequent retrieval of data, or null if this is the first page.
+     * @param pageSize the size of the page to be returned.
+     * @param sort the sorting parameters (optional).
      */
-    public static createWithCursor(cursor: string | undefined, sort?: Sort): Pageable {
-        return new CursorPageable(cursor, sort)
+    public static createWithCursor(cursor: string | null, pageSize: number, sort?: Sort | null): Pageable {
+        return new CursorPageable(cursor, pageSize, sort)
     }
 }
 
@@ -61,15 +67,10 @@ class OffsetPageable extends Pageable {
     pageNumber: number = 0
 
     /**
-     * Returns the number of items to be returned.
-     */
-    pageSize: number = 10
-
-    /**
      * Creates a {@link Pageable} that uses Offset based pagination.
      * @param pageNumber zero based page index.
      * @param pageSize the size of the page to be returned.
-     * @param sort the sorting parameters.
+     * @param sort the sorting parameters (optional).
      */
     constructor(pageNumber: number, pageSize: number, sort?: Sort | null) {
         super()
@@ -77,7 +78,6 @@ class OffsetPageable extends Pageable {
         this.pageSize = pageSize
         this.sort = sort
     }
-
 }
 
 /**
@@ -85,18 +85,20 @@ class OffsetPageable extends Pageable {
  */
 class CursorPageable extends Pageable {
     /**
-     * The cursor to be used for subsequent retrieval of data, or undefined if this is the first page.
+     * The cursor to be used for subsequent retrieval of data, or null if this is the first page.
      */
-    cursor: string | undefined = undefined
+    cursor: string | null
 
     /**
      * Creates a {@link Pageable} that uses Cursor based pagination.
-     * @param cursor
-     * @param sort
+     * @param cursor the cursor to be used for subsequent retrieval of data, or null if this is the first page.
+     * @param pageSize the size of the page to be returned.
+     * @param sort the sorting parameters (optional).
      */
-    constructor(cursor: string | undefined, sort?: Sort | null) {
+    constructor(cursor: string | null, pageSize: number, sort?: Sort | null) {
         super()
         this.cursor = cursor
+        this.pageSize = pageSize
         this.sort = sort
     }
 }

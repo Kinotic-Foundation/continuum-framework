@@ -20,7 +20,8 @@ package org.kinotic.continuum.internal.serializer;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import org.springframework.data.domain.Page;
+import org.kinotic.continuum.core.api.crud.CursorPage;
+import org.kinotic.continuum.core.api.crud.Page;
 
 import java.io.IOException;
 
@@ -37,10 +38,13 @@ public class PageSerializer extends JsonSerializer<Page> {
         jsonGenerator.writeNumberField("size", page.getSize());
         jsonGenerator.writeNumberField("totalElements", page.getTotalElements());
         jsonGenerator.writeArrayFieldStart("content");
-        for (Object value: page) {
+        for (Object value: page.getContent()) {
             jsonGenerator.writeObject(value);
         }
         jsonGenerator.writeEndArray();
+        if(page instanceof CursorPage) {
+            jsonGenerator.writeStringField("cursor", ((CursorPage) page).getCursor());
+        }
         jsonGenerator.writeEndObject();
     }
 

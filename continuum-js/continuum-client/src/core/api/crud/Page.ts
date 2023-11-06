@@ -37,9 +37,9 @@ export class Page<T> {
     readonly totalElements: number = 0
 
     /**
-     * The cursor to be used for subsequent retrieval of data, or undefined if this is the last page or cursor paging is not being used.
+     * The cursor to be used for subsequent retrieval of data, or null if this is the last page, or undefined if cursor paging is not being used.
      */
-    readonly cursor: string | undefined = undefined
+    readonly cursor: string | null | undefined = undefined
 
     /**
      * Returns the page content as {@link Array}.

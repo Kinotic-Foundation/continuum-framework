@@ -20,9 +20,11 @@ package org.kinotic.continuum.internal.config;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.module.SimpleAbstractTypeResolver;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import org.kinotic.continuum.core.api.crud.SearchComparator;
 import org.kinotic.continuum.api.security.DefaultParticipant;
 import org.kinotic.continuum.api.security.Participant;
+import org.kinotic.continuum.core.api.crud.Page;
+import org.kinotic.continuum.core.api.crud.Pageable;
+import org.kinotic.continuum.core.api.crud.SearchComparator;
 import org.kinotic.continuum.internal.serializer.PageSerializer;
 import org.kinotic.continuum.internal.serializer.PageableDeserializer;
 import org.kinotic.continuum.internal.serializer.SearchComparatorDeserializer;
@@ -31,8 +33,6 @@ import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 
 /**
  *

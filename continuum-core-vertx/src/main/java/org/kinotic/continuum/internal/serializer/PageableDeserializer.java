@@ -54,7 +54,7 @@ public class PageableDeserializer extends JsonDeserializer<Pageable> {
 
         String cursor = null;
         if(node.has("cursor")){
-            cursor = node.get("cursor").asText();
+            cursor = node.get("cursor").textValue();
         }
 
         if(cursor == null && pageNumber == null){

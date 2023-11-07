@@ -10,8 +10,10 @@ public class CursorPage<T> extends Page<T> {
 
     private final String cursor;
 
-    public CursorPage(int size, long totalElements, List<T> content, String cursor) {
-        super(size, totalElements, content);
+    public CursorPage(List<T> content,
+                      String cursor,
+                      long totalElements) {
+        super(content, totalElements);
         this.cursor = cursor;
     }
 

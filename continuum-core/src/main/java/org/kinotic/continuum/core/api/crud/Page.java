@@ -8,25 +8,16 @@ import java.util.List;
  */
 public class Page<T> {
 
-    private final int size;
-    private final long totalElements;
     private final List<T> content;
+    private final long totalElements;
 
-    public Page(int size, long totalElements, List<T> content) {
-        this.size = size;
-        this.totalElements = totalElements;
+    public Page(List<T> content, long totalElements) {
         this.content = content;
+        this.totalElements = totalElements;
     }
 
     /**
-     * @return the number of elements currently on this page
-     */
-    public int getSize(){
-        return size;
-    }
-
-    /**
-     * @return the total number of elements available from the data source
+     * @return the total number of elements available from the data source if known.
      */
     public long getTotalElements(){
         return totalElements;
@@ -39,10 +30,4 @@ public class Page<T> {
         return content;
     }
 
-    /**
-     * @return the total number of pages available
-     */
-    public long getTotalPages() {
-        return (long) Math.ceil((double) totalElements / (double) size);
-    }
 }

@@ -12,7 +12,7 @@ public class CursorPage<T> extends Page<T> {
 
     public CursorPage(List<T> content,
                       String cursor,
-                      long totalElements) {
+                      Long totalElements) {
         super(content, totalElements);
         this.cursor = cursor;
     }

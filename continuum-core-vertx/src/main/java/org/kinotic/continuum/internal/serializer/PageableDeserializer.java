@@ -52,13 +52,18 @@ public class PageableDeserializer extends JsonDeserializer<Pageable> {
             pageNumber = node.get("pageNumber").intValue();
         }
 
+        // We do this check with a boolean, because a null cursor indicates the first page
         String cursor = null;
+        boolean cursorPresent = false;
         if(node.has("cursor")){
+            cursorPresent = true;
             cursor = node.get("cursor").textValue();
         }
 
-        if(cursor == null && pageNumber == null){
+        if(!cursorPresent && pageNumber == null){
             throw new IllegalArgumentException("Pageable must have either a cursor or pageNumber");
+        } else if (cursorPresent && pageNumber != null) {
+            throw new IllegalArgumentException("Pageable cannot have both a cursor and a pageNumber");
         }
 
         Pageable ret;

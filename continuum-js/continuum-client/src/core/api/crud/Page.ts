@@ -21,9 +21,9 @@
 export class Page<T> {
 
     /**
-     * Returns the total amount of elements if known.
+     * Returns the total amount of elements or null or undefined if not known.
      */
-    readonly totalElements: number = 0
+    readonly totalElements: number | null | undefined = undefined
 
     /**
      * The cursor to be used for subsequent retrieval of data, or null if this is the last page, or undefined if cursor paging is not being used.

@@ -9,17 +9,17 @@ import java.util.List;
 public class Page<T> {
 
     private final List<T> content;
-    private final long totalElements;
+    private final Long totalElements;
 
-    public Page(List<T> content, long totalElements) {
+    public Page(List<T> content, Long totalElements) {
         this.content = content;
         this.totalElements = totalElements;
     }
 
     /**
-     * @return the total number of elements available from the data source if known.
+     * @return the total number of elements available from the data source, or null if not known.
      */
-    public long getTotalElements(){
+    public Long getTotalElements(){
         return totalElements;
     }
 

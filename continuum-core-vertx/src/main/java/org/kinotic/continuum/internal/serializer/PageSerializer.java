@@ -35,15 +35,23 @@ public class PageSerializer extends JsonSerializer<Page> {
     @Override
     public void serialize(Page page, JsonGenerator jsonGenerator, SerializerProvider serializers) throws IOException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeNumberField("totalElements", page.getTotalElements());
+
+        if(page.getTotalElements() != null){
+            jsonGenerator.writeNumberField("totalElements", page.getTotalElements());
+        }else{
+            jsonGenerator.writeNullField("totalElements");
+        }
+
         jsonGenerator.writeArrayFieldStart("content");
         for (Object value: page.getContent()) {
             jsonGenerator.writeObject(value);
         }
         jsonGenerator.writeEndArray();
+
         if(page instanceof CursorPage) {
             jsonGenerator.writeStringField("cursor", ((CursorPage) page).getCursor());
         }
+
         jsonGenerator.writeEndObject();
     }
 

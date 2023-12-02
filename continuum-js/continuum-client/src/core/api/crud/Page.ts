@@ -18,21 +18,22 @@
  * A page is a sublist of a list of objects.
  * @author Navid Mitchell
  */
-export class Page<T> {
+export interface Page<T> {
 
     /**
-     * Returns the total amount of elements or null or undefined if not known.
+     * @return the total amount of elements or null or undefined if not known.
      */
-    readonly totalElements: number | null | undefined = undefined
+    readonly totalElements: number | null | undefined
 
     /**
      * The cursor to be used for subsequent retrieval of data, or null if this is the last page, or undefined if cursor paging is not being used.
+     * @return an opaque string representation of the cursor or null or undefined if cursor paging is not being used.
      */
-    readonly cursor: string | null | undefined = undefined
+    readonly cursor: string | null | undefined
 
     /**
-     * Returns the page content as {@link Array}.
+     * @return the page content as {@link Array} or null or undefined if no data is available.
      */
-    readonly content: T[] = []
+    readonly content: T[] | null | undefined
 
 }

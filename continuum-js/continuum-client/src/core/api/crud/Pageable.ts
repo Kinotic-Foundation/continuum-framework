@@ -42,7 +42,7 @@ export abstract class Pageable {
      * @param pageSize the size of the page to be returned.
      * @param sort the sorting parameters (optional).
      */
-    public static create(pageNumber: number, pageSize: number, sort?: Sort | null): Pageable {
+    public static create(pageNumber: number, pageSize: number, sort?: Sort | null): OffsetPageable {
         return new OffsetPageable(pageNumber, pageSize, sort)
     }
 
@@ -52,7 +52,7 @@ export abstract class Pageable {
      * @param pageSize the size of the page to be returned.
      * @param sort the sorting parameters (optional).
      */
-    public static createWithCursor(cursor: string | null, pageSize: number, sort?: Sort | null): Pageable {
+    public static createWithCursor(cursor: string | null, pageSize: number, sort?: Sort | null): CursorPageable {
         return new CursorPageable(cursor, pageSize, sort)
     }
 }
@@ -60,7 +60,7 @@ export abstract class Pageable {
 /**
  * Implementation of {@link Pageable} that uses Offset based pagination.
  */
-class OffsetPageable extends Pageable {
+export class OffsetPageable extends Pageable {
     /**
      * Returns the page to be returned.
      */
@@ -83,7 +83,7 @@ class OffsetPageable extends Pageable {
 /**
  * Implementation of {@link Pageable} that uses Cursor based pagination.
  */
-class CursorPageable extends Pageable {
+export class CursorPageable extends Pageable {
     /**
      * The cursor to be used for subsequent retrieval of data, or null if this is the first page.
      */

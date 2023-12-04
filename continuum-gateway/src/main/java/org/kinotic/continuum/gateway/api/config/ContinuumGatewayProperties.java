@@ -17,10 +17,9 @@
 
 package org.kinotic.continuum.gateway.api.config;
 
-import org.kinotic.continuum.api.config.ContinuumProperties;
 import io.vertx.ext.stomp.lite.StompServerOptions;
 import io.vertx.mqtt.MqttServerOptions;
-import org.kinotic.continuum.api.security.SecurityService;
+import org.kinotic.continuum.api.config.ContinuumProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
@@ -47,8 +46,6 @@ public class ContinuumGatewayProperties {
     private final MqttServerOptions mqtt;
 
     private final ContinuumRestServerProperties rest = new ContinuumRestServerProperties();
-
-    private boolean disableIam;
 
     private boolean enableCLIConnections = true;
 
@@ -79,24 +76,6 @@ public class ContinuumGatewayProperties {
 
     public MqttServerOptions getMqtt() {
         return mqtt;
-    }
-
-    /**
-     * Determines if the Iam is disabled or not
-     * If it is disabled no {@link SecurityService} will be required by the continuum cluster
-     * @return true if the Iam is disabled false if not
-     */
-    public boolean isDisableIam() {
-        return disableIam;
-    }
-
-    /**
-     * Set if the IAM should be disabled or not
-     * If it is disabled no {@link SecurityService} will be required by the continuum cluster
-     * @param disableIam true if the IAM should be disabled false if not
-     */
-    public void setDisableIam(boolean disableIam) {
-        this.disableIam = disableIam;
     }
 
     /**

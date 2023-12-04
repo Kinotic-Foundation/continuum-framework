@@ -48,7 +48,6 @@ public class GatewayUtils {
                        .write(event.data()); // rest of the data
     }
 
-
     public static HftRawEvent readHftRawEvent(DocumentContext documentContext){
         Bytes<?> hftBytes = documentContext.wire().bytes();
         String cri = hftBytes.readUtf8();

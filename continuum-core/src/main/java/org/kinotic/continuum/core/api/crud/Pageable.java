@@ -38,7 +38,7 @@ public interface Pageable {
 
     /**
      * Creates a new {@link Pageable} with the given cursor
-     * @param cursor the cursor to start at
+     * @param cursor the cursor to start at or null if this is the first page
      * @param pageSize the number of elements to return in the page
      * @param sort the {@link Sort} to use when sorting the results
      * @return a new {@link Pageable}

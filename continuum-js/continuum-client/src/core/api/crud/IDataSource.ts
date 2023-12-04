@@ -17,7 +17,7 @@
 
 import {Pageable} from './Pageable'
 import {Page} from './Page'
-import { Identifiable } from '@/index'
+import {Identifiable, IterablePage} from '@/index'
 
 /**
  * {@link IDataSource} provides an abstract way to retrieve data from various sources
@@ -30,7 +30,7 @@ export interface IDataSource<T> {
      * @param pageable the page settings to be used
      * @return a {@link Promise} emitting the page of entities
      */
-    findAll(pageable: Pageable): Promise<Page<T>>
+    findAll(pageable: Pageable): Promise<IterablePage<T>>
 
     /**
      * Returns a {@link Page} of entities matching the search text and paging restriction provided in the {@code Pageable} object.
@@ -39,7 +39,7 @@ export interface IDataSource<T> {
      * @param pageable the page settings to be used
      * @return a {@link Promise} emitting the page of entities
      */
-    search(searchText: string, pageable: Pageable): Promise<Page<T>>
+    search(searchText: string, pageable: Pageable): Promise<IterablePage<T>>
 
 }
 

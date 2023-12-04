@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { Identifiable } from '@/index'
+import {Identifiable, IterablePage} from '@/index'
 import {Page} from './Page'
 import {Pageable} from './Pageable'
 import {IEditableDataSource} from "./IDataSource";
@@ -73,7 +73,7 @@ export interface ICrudServiceProxy<T extends Identifiable<string>> extends IEdit
      * @param pageable the page settings to be used
      * @return a {@link Promise} emitting the page of entities
      */
-    findAll(pageable: Pageable): Promise<Page<T>>
+    findAll(pageable: Pageable): Promise<IterablePage<T>>
 
     /**
      * Returns a {@link Page} of entities not in the ids list and meeting the paging restriction provided in the {@code Pageable} object.
@@ -84,7 +84,6 @@ export interface ICrudServiceProxy<T extends Identifiable<string>> extends IEdit
      */
     findByIdNotIn(ids: string[], pageable: Pageable): Promise<Page<Identifiable<string>>>
 
-
     /**
      * Returns a {@link Page} of entities matching the search text and paging restriction provided in the {@code Pageable} object.
      *
@@ -92,6 +91,6 @@ export interface ICrudServiceProxy<T extends Identifiable<string>> extends IEdit
      * @param pageable the page settings to be used
      * @return a {@link Promise} emitting the page of entities
      */
-    search(searchText: string, pageable: Pageable): Promise<Page<T>>
+    search(searchText: string, pageable: Pageable): Promise<IterablePage<T>>
 
 }

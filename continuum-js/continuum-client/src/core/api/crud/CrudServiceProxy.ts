@@ -15,9 +15,11 @@
  * limitations under the License.
  */
 
+import {FindAllIterablePage} from '@/internal/core/api/crud/FindAllIterablePage'
+import {SearchIterablePage} from '@/internal/core/api/crud/SearchIterablePage'
 import { ICrudServiceProxy } from './ICrudServiceProxy'
 import { IServiceProxy } from '../IServiceRegistry'
-import { Identifiable } from '@/index'
+import {Identifiable, IterablePage} from '@/index'
 import { Page } from './Page'
 import { Pageable } from './Pageable'
 
@@ -41,7 +43,12 @@ export class CrudServiceProxy<T extends Identifiable<string>> implements ICrudSe
         return this.serviceProxy.invoke('deleteById', [id])
     }
 
-    public findAll(pageable: Pageable): Promise<Page<T>> {
+    public async findAll(pageable: Pageable): Promise<IterablePage<T>> {
+        const page = await this.findAllSinglePage(pageable)
+        return new FindAllIterablePage(pageable, page, this)
+    }
+
+    public findAllSinglePage(pageable: Pageable): Promise<Page<T>> {
         return this.serviceProxy.invoke('findAll', [pageable])
     }
 
@@ -57,8 +64,12 @@ export class CrudServiceProxy<T extends Identifiable<string>> implements ICrudSe
         return (this.serviceProxy as IServiceProxy).invoke('findByIdNotIn', [ids, page])
     }
 
-    public search(searchText: string, pageable: Pageable): Promise<Page<T>> {
-        return this.serviceProxy.invoke('search', [searchText, pageable])
+    public async search(searchText: string, pageable: Pageable): Promise<IterablePage<T>> {
+        const page = await this.searchSinglePage(searchText, pageable)
+        return new SearchIterablePage(pageable, page, searchText, this)
     }
 
+    public searchSinglePage(searchText: string, pageable: Pageable): Promise<Page<T>> {
+        return this.serviceProxy.invoke('search', [searchText, pageable])
+    }
 }

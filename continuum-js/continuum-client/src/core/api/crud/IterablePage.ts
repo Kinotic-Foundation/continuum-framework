@@ -15,12 +15,22 @@
  * limitations under the License.
  */
 
-import { ContinuumError } from './ContinuumError'
+import {Page} from '@/core/api/crud/Page'
 
-export class AuthorizationError extends ContinuumError {
+/**
+ * Defines a page that is also an async iterator.
+ * This allows for easy iteration over all pages of a result set.
+ */
+export interface IterablePage<T> extends Page<T>, AsyncIterableIterator<IterablePage<T>> {
 
-    constructor(message: string) {
-        super(message);
-        Object.setPrototypeOf(this, AuthorizationError.prototype);
-    }
+    /**
+     * @return true if this is the last page, false otherwise.
+     */
+    isLastPage(): boolean
+
+    /**
+     * @return true if this page has content, false otherwise.
+     */
+    hasContent(): boolean
+
 }

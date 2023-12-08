@@ -32,8 +32,7 @@ import java.util.function.BiFunction;
  * Created by Navid Mitchell on 3/11/20
  */
 public class SecurityUtil {
-
-    private static final String SHA1_SIGNATURE_METHOD = "HmacSHA1";
+    
     private static final String SHA256_SIGNATURE_METHOD = "HmacSHA256";
 
     private static final String CHAR_LOWERCASE = "abcdefghijklmnopqrstuvwxyz";
@@ -46,20 +45,6 @@ public class SecurityUtil {
 
     private static final SecureRandom random = new SecureRandom();
 
-
-    /**
-     * Verifies a OTP that is created using a shared secret
-     * The otp must be in the format HMAC_seconds
-     *      Where the HMAC is generated with the (seconds + stringToSign) and the sharedSecret
-     *      Seconds it the time that the OTP was generated in seconds since the epoch
-     *
-     * @param stringToSign the string that was used when generating the HMAC
-     * @param sharedSecret the secret known to both parties
-     * @param otp the one time pass provided to be verified
-     */
-    public static boolean canOtpSha1Authenticate(String stringToSign, byte[] sharedSecret, String otp){
-        return SecurityUtil.canOtpAuthenticate(stringToSign, sharedSecret, otp, SecurityUtil::hmacSHA1);
-    }
 
     /**
      * Verifies a OTP that is created using a shared secret
@@ -104,23 +89,6 @@ public class SecurityUtil {
             ret = signed.equals(hmacFunction.apply(toSignFull.getBytes(StandardCharsets.UTF_8), sharedSecret));
         }
         return ret;
-    }
-
-    /**
-     * Generates a HmacSHA1 for the given data.
-     *
-     * @param data to sign
-     * @param key to be used during the signing process
-     * @return the signature in Base64 encoding
-     */
-    public static String hmacSHA1(byte[] data, byte[] key ) {
-        try {
-            Mac mac = Mac.getInstance(SHA1_SIGNATURE_METHOD);
-            mac.init( new SecretKeySpec(key, SHA1_SIGNATURE_METHOD) );
-            return Base64.getEncoder().encodeToString(mac.doFinal(data));
-        }catch ( Exception e ) {
-            throw new IllegalStateException(e);
-        }
     }
 
     /**
@@ -241,7 +209,7 @@ public class SecurityUtil {
 
     private static String generateRandomString(String input, int size) {
 
-        if (input == null || input.length() <= 0)
+        if (input == null || input.isEmpty())
             throw new IllegalArgumentException("Invalid input.");
         if (size < 1) throw new IllegalArgumentException("Invalid size.");
 

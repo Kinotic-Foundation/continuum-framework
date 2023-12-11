@@ -2,9 +2,6 @@
   continuum:
     debug: true
 
-  continuum-gateway:
-    disableIam: true
-
   logging:
     level:
       com:

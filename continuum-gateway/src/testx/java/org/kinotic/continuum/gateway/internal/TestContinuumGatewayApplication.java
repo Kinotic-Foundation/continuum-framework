@@ -20,26 +20,13 @@ package org.kinotic.continuum.gateway.internal;
 import org.kinotic.continuum.api.annotations.EnableContinuum;
 import org.kinotic.continuum.gateway.api.annotations.EnableContinuumGateway;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.data.jpa.JpaRepositoriesAutoConfiguration;
-import org.springframework.boot.autoconfigure.http.HttpMessageConvertersAutoConfiguration;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
-import org.springframework.boot.autoconfigure.jmx.JmxAutoConfiguration;
-import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
-import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
 /**
  *
  * Created by navid on 10/17/19
  */
-@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class,
-        DataSourceTransactionManagerAutoConfiguration.class,
-        HibernateJpaAutoConfiguration.class,
-        JpaRepositoriesAutoConfiguration.class,
-        WebMvcAutoConfiguration.class,
-        HttpMessageConvertersAutoConfiguration.class,
-        JmxAutoConfiguration.class})
+@SpringBootApplication
 @EnableConfigurationProperties
 @EnableContinuum
 @EnableContinuumGateway

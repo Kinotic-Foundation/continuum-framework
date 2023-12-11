@@ -14,7 +14,7 @@ dependencies {
 	implementation 'com.fasterxml.jackson.core:jackson-core'
 	implementation 'com.fasterxml.jackson.core:jackson-databind'
 
-	testImplementation "com.jayway.jsonpath:json-path:${jsonPathVersion}"
+	testImplementation "com.jayway.jsonpath:json-path"
 	testImplementation 'org.springframework.boot:spring-boot-starter-json'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }

@@ -13,6 +13,26 @@ javaPlatform {
     allowDependencies()
 }
 
+ext {
+    apacheCommonsLangVersion='3.14.0'
+    apacheCommonsTextVersion='1.11.0'
+    chronicleQueueVersion='5.24ea27'
+    commonsIoVersion='2.15.1'
+    failsafeVersion='3.3.2'
+    groovyVersion='3.0.10'
+    igniteVersion='2.15.0'
+    jacksonVersion='2.16.0'
+    jCacheApiVersion='1.0.0'
+    jsonPathVersion='2.8.0'
+    nettyVersion='4.1.101.Final'
+    springBootVersion='2.7.18'
+    vertxVersion='3.9.16'
+    vertxCompletableFutureVersion='0.1.2'
+    vertxStompLiteVersion='3.9.18'
+    vertxBeansVersion='1.6.2'
+    zookeeperVersion='3.7.2'
+}
+
 /**
  * Spring Boot Managed Dependency Coordinates
  * https://docs.spring.io/spring-boot/docs/2.6.7/reference/html/dependency-versions.html
@@ -34,11 +54,27 @@ dependencies {
 
     constraints {
 
-        api "org.codehaus.groovy:groovy:${groovyVersion}"
+        api "commons-io:commons-io:${commonsIoVersion}"
 
-        api "org.springframework.boot:spring-boot-configuration-processor:${springBootVersion}"
+        api "com.fasterxml.jackson.core:jackson-core:${jacksonVersion}"
+        api "com.fasterxml.jackson.core:jackson-annotations:${jacksonVersion}"
+        api "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
+        api "com.fasterxml.jackson.datatype:jackson-datatype-jdk8:${jacksonVersion}"
+        api "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jacksonVersion}"
 
-        api "org.springframework.boot:org.springframework.boot.gradle.plugin:${springBootVersion}"
+        api "com.jayway.jsonpath:json-path:${jsonPathVersion}"
+
+        // Override netty versions so we can patch security issues
+        // This needs to be the complete list used by vertx
+        api "io.netty:netty-buffer:${nettyVersion}"
+        api "io.netty:netty-codec-http2:${nettyVersion}"
+        api "io.netty:netty-codec-http:${nettyVersion}"
+        api "io.netty:netty-common:${nettyVersion}"
+        api "io.netty:netty-handler-proxy:${nettyVersion}"
+        api "io.netty:netty-handler:${nettyVersion}"
+        api "io.netty:netty-resolver-dns:${nettyVersion}"
+        api "io.netty:netty-resolver:${nettyVersion}"
+        api "io.netty:netty-transport:${nettyVersion}"
 
         api "io.vertx:vertx-core:${vertxVersion}"
         api "io.vertx:vertx-web:${vertxVersion}"
@@ -52,10 +88,14 @@ dependencies {
         api "com.github.rworsnop:vertx-beans:${vertxBeansVersion}"
         api "me.escoffier.vertx:vertx-completable-future:${vertxCompletableFutureVersion}"
 
-        api "org.kinotic:vertx-stomp-lite:${vertxStompLiteVersion}"
+        api "javax.cache:cache-api:${jCacheApiVersion}"
+
+        api "org.apache.commons:commons-lang3:${apacheCommonsLangVersion}"
+        api "org.apache.commons:commons-text:${apacheCommonsTextVersion}"
 
         api "org.apache.ignite:ignite-core:${igniteVersion}"
         api "org.apache.ignite:ignite-indexing:${igniteVersion}"
+        api "org.apache.ignite:ignite-calcite:${igniteVersion}"
         api "org.apache.ignite:ignite-spring:${igniteVersion}"
         api "org.apache.ignite:ignite-slf4j:${igniteVersion}"
         api "org.apache.ignite:ignite-zookeeper:${igniteVersion}"
@@ -67,39 +107,19 @@ dependencies {
             }
         }
 
-        api "org.apache.zookeeper:zookeeper:${zookeeperVersion}"
-
-        // curator
-        api "org.apache.curator:curator-client:${apacheCuratorVersion}"
-        api "org.apache.curator:curator-framework:${apacheCuratorVersion}"
-        api "org.apache.curator:curator-recipes:${apacheCuratorVersion}"
-        api "org.apache.curator:curator-x-discovery:${apacheCuratorVersion}"
-
-
-        api "javax.cache:cache-api:${jCacheApiVersion}"
-
-        api "com.jayway.jsonpath:json-path:${jsonPathVersion}"
-
-        // Aws
-        api "com.amazonaws:aws-java-sdk-s3:${awsVersion}"
-        api "com.amazonaws:aws-java-sdk-logs:${awsVersion}"
-
-        // AWS 2
-        api "software.amazon.awssdk:ec2:${aws2Version}"
-        api "software.amazon.awssdk:ecs:${aws2Version}"
-        api "software.amazon.awssdk:kafka:${aws2Version}"
-        api "software.amazon.awssdk:rds:${aws2Version}"
-        api "software.amazon.awssdk:route53:${aws2Version}"
-        api "software.amazon.awssdk:acm:${aws2Version}"
-        api "software.amazon.awssdk:elasticloadbalancingv2:${aws2Version}"
-        api "software.amazon.awssdk:secretsmanager:${aws2Version}"
-
         api "net.jodah:failsafe:${failsafeVersion}"
 
         api "net.openhft:chronicle-queue:${chronicleQueueVersion}"
 
-        api "commons-io:commons-io:${commonsIoVersion}"
-        api "org.apache.commons:commons-text:${apacheCommonsTextVersion}"
+        api "org.apache.zookeeper:zookeeper:${zookeeperVersion}"
+
+        api "org.codehaus.groovy:groovy:${groovyVersion}"
+
+        api "org.kinotic:vertx-stomp-lite:${vertxStompLiteVersion}"
+
+        api "org.springframework.boot:spring-boot-configuration-processor:${springBootVersion}"
+        api "org.springframework.boot:org.springframework.boot.gradle.plugin:${springBootVersion}"
+
     }
 
 }

@@ -32,7 +32,7 @@ import java.util.function.BiFunction;
  * Created by Navid Mitchell on 3/11/20
  */
 public class SecurityUtil {
-    
+
     private static final String SHA256_SIGNATURE_METHOD = "HmacSHA256";
 
     private static final String CHAR_LOWERCASE = "abcdefghijklmnopqrstuvwxyz";

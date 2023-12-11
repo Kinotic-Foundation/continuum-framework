@@ -22,7 +22,7 @@ properties.each { key, val -> project.ext."$key" = val }
 
 
 dependencies {
-    implementation "org.springframework.boot:org.springframework.boot.gradle.plugin:${springBootVersion}"
+    implementation "org.springframework.boot:org.springframework.boot.gradle.plugin:${springBootPluginVersion}"
 
     // lombok
     implementation("io.freefair.gradle:lombok-plugin:${lombokPluginVersion}")

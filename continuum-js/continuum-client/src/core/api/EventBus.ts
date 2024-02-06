@@ -83,7 +83,7 @@ export class Event implements IEvent {
  */
 export class EventBus implements IEventBus {
 
-    private stompClient: RxStomp | null = null
+    private rxStomp: RxStomp | null = null
     private clientReady: boolean = false
     private replyToCri: string  | null = null
     private requestRepliesObservable: ConnectableObservable<IEvent> | null = null
@@ -95,7 +95,8 @@ export class EventBus implements IEventBus {
 
 
     constructor() {
-        this.fatalErrors = this.errorSubject.pipe(map<IFrame, Error>((frame: IFrame): Error => {
+        this.fatalErrors = this.errorSubject
+                               .pipe(map<IFrame, Error>((frame: IFrame): Error => {
             this.disconnect()
                 .catch((error: string) => {
                     if(console){
@@ -108,7 +109,7 @@ export class EventBus implements IEventBus {
     }
 
     public isConnectionActive(): boolean{
-        return this.stompClient != null && this.stompClient.active && this.clientReady
+        return this.rxStomp != null && this.rxStomp.active && this.clientReady
     }
 
     connect(connectionInfo: ConnectionInfo): Promise<ConnectedInfo> {
@@ -124,11 +125,11 @@ export class EventBus implements IEventBus {
                     + '://' + connectionInfo.host
                     + (connectionInfo.port ? ':' + connectionInfo.port : '') + '/v1'
 
-                this.stompClient = new RxStomp()
+                this.rxStomp = new RxStomp()
 
                 let connectHeadersInternal: StompHeaders = (connectionInfo.connectHeaders ? connectionInfo.connectHeaders : {})
 
-                this.stompClient.configure({
+                this.rxStomp.configure({
                     brokerURL: url,
                     connectHeaders: connectHeadersInternal,
                     heartbeatIncoming: 120000,
@@ -137,15 +138,15 @@ export class EventBus implements IEventBus {
                 })
 
                 // This subscription is to handle any errors that occur during connection
-                const errorSubscription: Subscription = this.stompClient.stompErrors$.subscribe((value: IFrame)  => {
+                const errorSubscription: Subscription = this.rxStomp.stompErrors$.subscribe((value: IFrame)  => {
                     errorSubscription.unsubscribe()
                     const message = value.headers['message']
-                    this.stompClient?.deactivate()
-                    this.stompClient = null
+                    this.rxStomp?.deactivate()
+                    this.rxStomp = null
                     reject(message)
                 })
 
-                const connectedSubscription: Subscription = this.stompClient.serverHeaders$.subscribe((value: StompHeaders) => {
+                const connectedSubscription: Subscription = this.rxStomp.serverHeaders$.subscribe((value: StompHeaders) => {
                     connectedSubscription.unsubscribe()
                     let connectedInfoJson: string | undefined = value[EventConstants.CONNECTED_INFO_HEADER]
                     if (connectedInfoJson != null) {
@@ -176,10 +177,10 @@ export class EventBus implements IEventBus {
                     }
 
                     // Connect the error subject for users to use
-                    this.errorSubjectSubscription = this.stompClient?.stompErrors$.subscribe(this.errorSubject)
+                    this.errorSubjectSubscription = this.rxStomp?.stompErrors$.subscribe(this.errorSubject)
                 })
 
-                this.stompClient.activate()
+                this.rxStomp.activate()
 
             } else {
                 reject('Stomp connection already active')
@@ -203,14 +204,17 @@ export class EventBus implements IEventBus {
             }
 
             try {
-                await this.stompClient?.deactivate({force: force})
+                if(this.rxStomp?.stompClient){
+                    this.rxStomp.stompClient.reconnectDelay = 0
+                }
+                await this.rxStomp?.deactivate({force: force})
             } catch (e) {
                 if(console){
                     console.error('Error deactivating StompClient ' + e)
                 }
             }
 
-            this.stompClient = null
+            this.rxStomp = null
             this.clientReady = false
             this.replyToCri = null
             return
@@ -229,7 +233,7 @@ export class EventBus implements IEventBus {
 
             // send data over stomp
             // @ts-ignore
-            this.stompClient.publish({
+            this.rxStomp.publish({
                 destination: event.cri,
                 headers,
                 binaryBody: event.data.orUndefined()
@@ -325,7 +329,7 @@ export class EventBus implements IEventBus {
     private _observe(cri: string): Observable<IEvent> {
         if(this.isConnectionActive()) {
             // @ts-ignore
-            return this.stompClient
+            return this.rxStomp
                        .watch(cri)
                        .pipe(map<IMessage, IEvent>((message: IMessage): IEvent => {
 

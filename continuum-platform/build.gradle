@@ -125,8 +125,6 @@ dependencies {
         api "org.springframework.boot:spring-boot-configuration-processor:${springBootVersion}"
         api "org.springframework.boot:org.springframework.boot.gradle.plugin:${springBootVersion}"
         api "org.springframework.kafka:spring-kafka:${springKafkaVersion}"
-
-
     }
 
 }

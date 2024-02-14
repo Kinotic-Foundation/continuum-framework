@@ -17,20 +17,19 @@
 
 package org.kinotic.continuum.internal.core.api.service.rpc;
 
-import org.kinotic.continuum.api.exceptions.RpcMissingServiceException;
-import org.kinotic.continuum.core.api.RpcServiceProxy;
-import org.kinotic.continuum.core.api.RpcServiceProxyHandle;
-import org.kinotic.continuum.core.api.event.*;
-import org.kinotic.continuum.core.api.event.*;
-import org.kinotic.continuum.core.api.service.ServiceIdentifier;
-import org.kinotic.continuum.internal.utils.ContinuumUtil;
-import org.kinotic.continuum.internal.utils.MetaUtil;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.ReplyException;
 import io.vertx.core.eventbus.ReplyFailure;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.kinotic.continuum.api.exceptions.RpcMissingServiceException;
+import org.kinotic.continuum.core.api.RpcServiceProxy;
+import org.kinotic.continuum.core.api.RpcServiceProxyHandle;
+import org.kinotic.continuum.core.api.event.*;
+import org.kinotic.continuum.core.api.service.ServiceIdentifier;
+import org.kinotic.continuum.internal.utils.ContinuumUtil;
+import org.kinotic.continuum.internal.utils.MetaUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
@@ -199,7 +198,9 @@ public class DefaultRpcServiceProxyHandle<T> implements RpcServiceProxyHandle<T>
 
                 // Create Event to be sent to remote end to cause service invocation
                 Metadata metadata = Metadata.create();
-                metadata.put(EventConstants.SENDER_HEADER, nodeName);
+                // For right now we just supply a fairly generic participant
+                // It is probably not really useful in production
+                metadata.put(EventConstants.SENDER_HEADER, "{\"tenantId\":\"continuum\",\"id\":\""+nodeName+"\",\"metadata\":{\"type\":\"node\"},\"roles\":[\"NODE\"]}");
                 metadata.put(EventConstants.REPLY_TO_HEADER, handlerCRI.raw());
                 metadata.put(EventConstants.CORRELATION_ID_HEADER, correlationId);
                 metadata.put(EventConstants.CONTENT_TYPE_HEADER, rpcArgumentConverter.producesContentType());

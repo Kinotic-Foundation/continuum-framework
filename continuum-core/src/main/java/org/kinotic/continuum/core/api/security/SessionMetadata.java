@@ -17,6 +17,8 @@
 
 package org.kinotic.continuum.core.api.security;
 
+import org.kinotic.continuum.api.security.Participant;
+
 import java.util.Date;
 
 /**
@@ -25,12 +27,12 @@ import java.util.Date;
  */
 public interface SessionMetadata {
 
-    String sessionId();
+    String getSessionId();
 
-    String participantIdentity();
+    String getReplyToId();
 
-    String participantType();
+    Participant getParticipant();
 
-    Date lastUsedDate();
+    Date getLastUsedDate();
 
 }

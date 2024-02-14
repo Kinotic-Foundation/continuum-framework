@@ -19,6 +19,7 @@ package org.kinotic.continuum.internal.core.api.support;
 
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
+import org.kinotic.continuum.api.security.Participant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
@@ -157,7 +158,6 @@ public class DefaultRpcTestService implements RpcTestService{
         return Mono.error(new IllegalStateException("Something went terribly wrong"));
     }
 
-
     @Override
     public Mono<String> getMonoEmptyString() {
         return Mono.just("");
@@ -168,6 +168,20 @@ public class DefaultRpcTestService implements RpcTestService{
         return Mono.just("null");
     }
 
+    @Override
+    public Mono<String> firstArgParticipant(Participant participant, String suffix){
+        return Mono.just(participant.getId() + suffix);
+    }
+
+    @Override
+    public Mono<String> middleArgParticipant(String prefix, Participant participant, String suffix){
+        return Mono.just(prefix + participant.getId() + suffix);
+    }
+
+    @Override
+    public Mono<String> lastArgParticipant(String prefix, Participant participant){
+        return Mono.just(prefix + participant.getId());
+    }
 
     private static class UnknownThrowable extends RuntimeException{
         public UnknownThrowable(String message) {

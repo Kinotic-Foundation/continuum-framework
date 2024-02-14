@@ -17,25 +17,20 @@
 
 package org.kinotic.continuum.gatewayserver
 
-
 import org.kinotic.continuum.api.annotations.EnableContinuum
 import org.kinotic.continuum.gateway.api.annotations.EnableContinuumGateway
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.SpringBootConfiguration
 import org.springframework.boot.autoconfigure.AutoConfigurationExcludeFilter
 import org.springframework.boot.context.TypeExcludeFilter
-import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.FilterType
-
 
 @SpringBootConfiguration
 @ComponentScan(excludeFilters = [ @ComponentScan.Filter(type = FilterType.CUSTOM, classes = TypeExcludeFilter.class),
 			   @ComponentScan.Filter(type = FilterType.CUSTOM, classes = AutoConfigurationExcludeFilter.class) ])
-@EnableConfigurationProperties
 @EnableContinuum
 @EnableContinuumGateway
-@SuppressWarnings('SpringFacetCodeInspection')
 class ContinuumGatewayServerApplication {
 
 	static void main(String[] args) {

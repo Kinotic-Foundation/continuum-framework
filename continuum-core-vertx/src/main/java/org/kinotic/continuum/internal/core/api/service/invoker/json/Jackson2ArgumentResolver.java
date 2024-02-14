@@ -18,6 +18,7 @@
 package org.kinotic.continuum.internal.core.api.service.invoker.json;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.kinotic.continuum.api.config.ContinuumProperties;
 import org.kinotic.continuum.core.api.event.Event;
 import org.kinotic.continuum.internal.core.api.service.invoker.ArgumentResolver;
 import org.kinotic.continuum.internal.core.api.service.invoker.HandlerMethod;
@@ -27,16 +28,15 @@ import org.springframework.stereotype.Component;
 
 /**
  * Resolves arguments from json data using jackson
- *
- *
  * Created by Navid Mitchell on 2019-04-08.
  */
 @Component
 public class Jackson2ArgumentResolver extends AbstractJackson2Support implements ArgumentResolver {
 
     public Jackson2ArgumentResolver(ObjectMapper objectMapper,
-                                    ReactiveAdapterRegistry reactiveAdapterRegistry) {
-        super(objectMapper, reactiveAdapterRegistry);
+                                    ReactiveAdapterRegistry reactiveAdapterRegistry,
+                                    ContinuumProperties continuumProperties) {
+        super(objectMapper, reactiveAdapterRegistry, continuumProperties);
     }
 
     @Override

@@ -136,7 +136,7 @@ class FileProcessorMaster extends AbstractWorker {
                         Files.delete(dir);
 
                         if(log.isTraceEnabled()){
-                            log.trace("Directory Deleted"+dir.toString());
+                            log.trace("Directory Deleted"+ dir);
                         }
                     }
                 } catch (DirectoryNotEmptyException dne){

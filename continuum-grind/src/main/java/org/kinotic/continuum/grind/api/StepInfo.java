@@ -24,7 +24,7 @@ package org.kinotic.continuum.grind.api;
  */
 public class StepInfo {
 
-    private int sequence;
+    private final int sequence;
 
     private StepInfo ancestor = null;
 

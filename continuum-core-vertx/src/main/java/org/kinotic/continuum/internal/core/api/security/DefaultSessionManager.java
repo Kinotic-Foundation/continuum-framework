@@ -19,28 +19,30 @@ package org.kinotic.continuum.internal.core.api.security;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
-import org.kinotic.continuum.core.api.event.EventConstants;
-import org.kinotic.continuum.core.api.security.*;
-import org.kinotic.continuum.core.api.security.*;
-import org.kinotic.continuum.internal.config.IgniteCacheConstants;
-import org.kinotic.continuum.internal.util.IgniteUtils;
-import org.kinotic.continuum.internal.utils.ContinuumUtil;
 import io.vertx.core.Vertx;
+import io.vertx.ext.auth.PRNG;
 import org.apache.ignite.Ignite;
 import org.apache.ignite.IgniteCache;
+import org.kinotic.continuum.core.api.event.EventConstants;
+import org.kinotic.continuum.api.security.ParticipantConstants;
+import org.kinotic.continuum.api.security.Participant;
+import org.kinotic.continuum.core.api.security.Session;
+import org.kinotic.continuum.core.api.security.SessionManager;
+import org.kinotic.continuum.internal.config.IgniteCacheConstants;
+import org.kinotic.continuum.internal.utils.ContinuumUtil;
+import org.kinotic.continuum.internal.utils.IgniteUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.server.PathContainer;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.pattern.PathPattern;
 import org.springframework.web.util.pattern.PathPatternParser;
-import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
-import reactor.core.scheduler.Schedulers;
 
 import java.time.Duration;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 /**
  *
@@ -49,17 +51,17 @@ import java.util.List;
 @Component
 public class DefaultSessionManager implements SessionManager {
 
-    private final SecurityService securityService;
+    private static final char[] HEX = "0123456789abcdef".toCharArray();
+
+    private final PRNG random;
     private final PathPatternParser parser;
     private final IgniteCache<String, DefaultSessionMetadata> sessionCache;
-    private final Scheduler scheduler;
     private final LoadingCache<String, PathPattern> pathPatternCache;
 
     public DefaultSessionManager(Vertx vertx,
-                                 @Autowired(required = false) SecurityService securityService,
                                  @Autowired(required = false) Ignite ignite) {
 
-        this.securityService = securityService;
+        this.random = new PRNG(vertx);
         this.parser = new PathPatternParser();
         this.parser.setPathOptions(PathContainer.Options.MESSAGE_ROUTE);
         this.parser.setMatchOptionalTrailingSeparator(false);
@@ -71,79 +73,80 @@ public class DefaultSessionManager implements SessionManager {
             sessionCache = null;
         }
 
-        scheduler = Schedulers.fromExecutor(command -> vertx.executeBlocking(v -> command.run(), null));
-
         pathPatternCache = Caffeine.newBuilder()
                                    .expireAfterAccess(Duration.ofHours(12))
                                    .build(parser::parse);
     }
 
     @Override
-    public Mono<Session> create(String sessionId, Participant participant) {
-        Mono<Session> ret = Mono.create(sink -> {
+    public CompletableFuture<Session> create(Participant participant) {
 
-            ParticipantPathPatterns participantPathPatterns = new ParticipantPathPatterns(participant);
+        String sessionId = generateId();
+        String replyToId = UUID.randomUUID().toString();
 
-            if(sessionCache != null){
-                IgniteSession igniteSession = new IgniteSession(this,
-                                                                participant,
-                                                                sessionId,
-                                                                parser.getPathOptions(),
-                                                                participantPathPatterns.sendPatterns,
-                                                                participantPathPatterns.subscriptionPatterns,
-                                                                sessionCache);
+        ParticipantPathPatterns participantPathPatterns = new ParticipantPathPatterns(participant, replyToId);
 
-                DefaultSessionMetadata sessionMetadata = new DefaultSessionMetadata()
-                        .sessionId(sessionId)
-                        .participantIdentity(participant.getIdentity())
-                        .participantType(participant.getMetadata().get(MetadataConstants.TYPE_KEY))
-                        .lastUsedDate(new Date());
+        if(sessionCache != null){
+            IgniteSession igniteSession = new IgniteSession(this,
+                                                            participant,
+                                                            sessionId,
+                                                            replyToId,
+                                                            parser.getPathOptions(),
+                                                            participantPathPatterns.sendPatterns,
+                                                            participantPathPatterns.subscriptionPatterns,
+                                                            sessionCache);
+
+            DefaultSessionMetadata sessionMetadata = new DefaultSessionMetadata()
+                    .setSessionId(sessionId)
+                    .setReplyToId(replyToId)
+                    .setParticipant(participant)
+                    .setLastUsedDate(new Date());
 
 
-                IgniteUtils.futureToMono(sessionCache.putAsync(sessionId, sessionMetadata))
-                           .subscribe(v -> {},
-                                      t -> sink.error(new IllegalStateException("Could not create session", t)),
-                                      () -> sink.success(igniteSession));
+            return IgniteUtil.futureToCompletableFuture(sessionCache.putAsync(sessionId, sessionMetadata))
+                             .thenApply(put -> igniteSession);
 
-            }else{
-                sink.success(new DefaultSession(this,
-                                                participant,
-                                                sessionId,
-                                                parser.getPathOptions(),
-                                                participantPathPatterns.sendPatterns,
-                                                participantPathPatterns.subscriptionPatterns));
-            }
-        });
-
-        return ret.subscribeOn(scheduler);
-    }
-
-    @Override
-    public Mono<Boolean> removeSession(String sessionId) {
-        return IgniteUtils.futureToMono(() -> sessionCache.removeAsync(sessionId)).subscribeOn(scheduler);
-    }
-
-    @Override
-    public Mono<Session> findSession(String sessionId) {
-        Mono<Session> ret;
-        if(sessionCache != null && securityService != null){
-            ret = IgniteUtils.futureToMono(() -> sessionCache.getAsync(sessionId))
-                             .switchIfEmpty(Mono.error(new IllegalArgumentException("No session can be found for the given id")))
-                             .zipWhen(sessionMetadata -> securityService.findParticipant(sessionMetadata.participantIdentity()))
-                             .map(objects -> {
-                                    Participant participant = objects.getT2();
-                                    ParticipantPathPatterns participantPathPatterns = new ParticipantPathPatterns(participant);
-                                    return new IgniteSession(this,
-                                                             participant,
-                                                             objects.getT1().sessionId(),
-                                                             parser.getPathOptions(),
-                                                             participantPathPatterns.sendPatterns,
-                                                             participantPathPatterns.subscriptionPatterns,
-                                                             sessionCache);
-                            });
-            ret = ret.subscribeOn(scheduler);
         }else{
-            ret = Mono.error(new IllegalStateException("Find Session can only be used when Ignite is enabled and a SecurityService is configured"));
+            return CompletableFuture.completedFuture(new DefaultSession(this,
+                                                                        participant,
+                                                                        sessionId,
+                                                                        replyToId,
+                                                                        parser.getPathOptions(),
+                                                                        participantPathPatterns.sendPatterns,
+                                                                        participantPathPatterns.subscriptionPatterns));
+        }
+    }
+
+    @Override
+    public CompletableFuture<Boolean> removeSession(String sessionId) {
+        return IgniteUtil.futureToCompletableFuture(sessionCache.removeAsync(sessionId));
+    }
+
+    @Override
+    public CompletableFuture<Session> findSession(String sessionId) {
+        CompletableFuture<Session> ret;
+        if(sessionCache != null){
+            ret = IgniteUtil.futureToCompletableFuture(sessionCache.getAsync(sessionId))
+                            .thenCompose(defaultSessionMetadata -> {
+                                if (defaultSessionMetadata != null) {
+                                    Participant participant = defaultSessionMetadata.getParticipant();
+                                    ParticipantPathPatterns participantPathPatterns = new ParticipantPathPatterns(participant,
+                                                                                                                  defaultSessionMetadata.getReplyToId());
+                                    Session session = new IgniteSession(this,
+                                                                        participant,
+                                                                        defaultSessionMetadata.getSessionId(),
+                                                                        defaultSessionMetadata.getReplyToId(),
+                                                                        parser.getPathOptions(),
+                                                                        participantPathPatterns.sendPatterns,
+                                                                        participantPathPatterns.subscriptionPatterns,
+                                                                        sessionCache);
+                                    return CompletableFuture.completedFuture(session);
+                                } else {
+                                    return CompletableFuture.failedFuture(new IllegalArgumentException("No session can be found for the given id: " + sessionId));
+                                }
+                            });
+        }else{
+            ret = CompletableFuture.failedFuture(new IllegalStateException("Find Session can only be used when Ignite is enabled"));
         }
         return ret;
     }
@@ -156,24 +159,48 @@ public class DefaultSessionManager implements SessionManager {
         List<PathPattern> sendPatterns = new LinkedList<>();
         List<PathPattern> subscriptionPatterns = new LinkedList<>();
 
-        public ParticipantPathPatterns(Participant participant) {
-            String encodedIdentity = ContinuumUtil.safeEncodeURI(participant.getIdentity());
+        public ParticipantPathPatterns(Participant participant, String replyToId) {
+            // The CLI is allowed to log in anonymously and receive events scoped to its identity but cannot send events or service requests
+            if(!participant.getId().equals(ParticipantConstants.CLI_PARTICIPANT_ID)) {
 
-            // Add send patterns
-            for(String path: participant.getPermissions().getAllowedSendPatterns()){
-                sendPatterns.add(getPathPattern(path));
+                // FIXME: this is a hack for now, we should be using the participants roles
+                List<String> allowedSendPatterns = List.of(EventConstants.SERVICE_DESTINATION_SCHEME + "://*.**",
+                                                           EventConstants.STREAM_DESTINATION_SCHEME + "://*.**");
+
+                // Add send patterns
+                for (String path : allowedSendPatterns) {
+                    sendPatterns.add(getPathPattern(path));
+                }
+
+                List<String> allowedSubscriptionPatterns = List.of(EventConstants.SERVICE_DESTINATION_SCHEME + "://*.**",
+                                                                   EventConstants.STREAM_DESTINATION_SCHEME + "://*.**");
+
+                for(String path: allowedSubscriptionPatterns){
+                    subscriptionPatterns.add(getPathPattern(path));
+                }
+
             }
-
 
             // clients can subscribe to any service that is scoped to their identity
             subscriptionPatterns.add(parser.parse(EventConstants.SERVICE_DESTINATION_SCHEME + "://"
-                                                          + encodedIdentity
-                                                          + "*@*.**"));
-
-            for(String path: participant.getPermissions().getAllowedSubscriptionPatterns()){
-                subscriptionPatterns.add(getPathPattern(path));
-            }
+                                                          + replyToId
+                                                          + ":*@*.**"));
         }
+    }
+
+    private String generateId() {
+        // Default length for a session id is 16 bytes, More info: https://www.owasp.org/index.php/Session_Management_Cheat_Sheet
+        final byte[] bytes = new byte[16];
+        random.nextBytes(bytes);
+
+        final char[] hex = new char[16 * 2];
+        for (int j = 0; j < 16; j++) {
+            int v = bytes[j] & 0xFF;
+            hex[j * 2] = HEX[v >>> 4];
+            hex[j * 2 + 1] = HEX[v & 0x0F];
+        }
+
+        return new String(hex);
     }
 
 }

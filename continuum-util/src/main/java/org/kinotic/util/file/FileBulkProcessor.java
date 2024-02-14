@@ -35,8 +35,8 @@ public class FileBulkProcessor {
 
     private final FileBulkProcessorOptions options;
     protected final AtomicBoolean stopped = new AtomicBoolean(true);
-    private BlockingQueue<FileBulkProcessEvent> workQueue;
-    private ArrayDeque<Worker> workers;
+    private final BlockingQueue<FileBulkProcessEvent> workQueue;
+    private final ArrayDeque<Worker> workers;
 
     public FileBulkProcessor(FileBulkProcessorOptions options) {
         this.options = options;

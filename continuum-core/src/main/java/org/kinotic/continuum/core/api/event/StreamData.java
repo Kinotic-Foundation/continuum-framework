@@ -48,7 +48,7 @@ public class StreamData<I,T> implements Identifiable<I> {
         return streamOperation;
     }
 
-    public I getIdentity() {
+    public I getId() {
         return identity;
     }
 

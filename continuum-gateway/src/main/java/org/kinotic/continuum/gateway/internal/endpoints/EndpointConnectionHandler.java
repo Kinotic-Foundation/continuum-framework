@@ -17,35 +17,35 @@
 
 package org.kinotic.continuum.gateway.internal.endpoints;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import io.vertx.core.Promise;
+import io.vertx.core.Vertx;
+import io.vertx.core.eventbus.ReplyException;
+import io.vertx.core.eventbus.ReplyFailure;
+import org.apache.commons.lang3.Validate;
 import org.kinotic.continuum.api.exceptions.RpcMissingServiceException;
+import org.kinotic.continuum.api.exceptions.AuthenticationException;
+import org.kinotic.continuum.api.exceptions.AuthorizationException;
+import org.kinotic.continuum.api.security.ConnectedInfo;
+import org.kinotic.continuum.api.security.SecurityService;
 import org.kinotic.continuum.core.api.event.CRI;
 import org.kinotic.continuum.core.api.event.Event;
 import org.kinotic.continuum.core.api.event.EventConstants;
-import org.kinotic.continuum.core.api.security.Participant;
 import org.kinotic.continuum.core.api.security.Session;
-import org.kinotic.continuum.internal.util.SecurityUtil;
+import org.kinotic.continuum.gateway.internal.api.security.CliSecurityService;
 import org.kinotic.continuum.internal.utils.ContinuumUtil;
-import io.vertx.core.Promise;
-import io.vertx.core.eventbus.ReplyException;
-import io.vertx.core.eventbus.ReplyFailure;
-import io.vertx.ext.stomp.lite.frame.Frame;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.Validate;
+import org.kinotic.continuum.internal.utils.EventUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.BaseSubscriber;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import javax.crypto.SecretKey;
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.PBEKeySpec;
-import javax.crypto.spec.SecretKeySpec;
-import java.security.spec.KeySpec;
-import java.util.Base64;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
@@ -58,72 +58,76 @@ public class EndpointConnectionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(EndpointConnectionHandler.class);
 
+    private final Vertx vertx;
     private final Services services;
+    private final SecurityService securityService;
 
     private final Map<String, BaseSubscriber<Event<byte[]>>> subscriptions = new HashMap<>();
     private Session session;
     private long sessionTimer = -1;
 
-    public EndpointConnectionHandler(Services services) {
+    public EndpointConnectionHandler(Vertx vertx,
+                                     Services services) {
+        this.vertx = vertx;
         this.services = services;
+
+        if(services.continuumGatewayProperties.isEnableCLIConnections()){
+            this.securityService = new CliSecurityService(services.securityService);
+        }else{
+            this.securityService = services.securityService;
+        }
     }
 
-    public Promise<Map<String, String>> authenticate(Map<String, String> connectHeaders) {
-
-        Promise<Map<String, String>> ret = Promise.promise();
-
+    /**
+     * Requests authentication for the given credentials
+     * @param connectHeaders all the headers provided with the CONNECT frame. This will include the login and passcode headers.
+     * @return a {@link Promise} completed normally to authenticate or failed to represent a failed authentication
+     *         The promise must contain a Map that will provide any additional headers to be returned to the client with the CONNECTED frame
+     */
+    public CompletableFuture<Map<String, String>> authenticate(Map<String, String> connectHeaders) {
         // Check if session is being used to authenticate
         if (connectHeaders.containsKey(EventConstants.SESSION_HEADER)) {
 
             String sessionId = connectHeaders.get(EventConstants.SESSION_HEADER);
-            services.sessionManager
+            return services.sessionManager
                     .findSession(sessionId)
-                    .subscribe(s -> {
-                        sessionActive(s);
-                        ret.complete(Collections.singletonMap(EventConstants.SESSION_HEADER, session.sessionId()));
-                    }, throwable -> {
-                        log.error("Session could not be found " + sessionId, throwable);
-                        ret.fail("Session is invalid");
+                    .handle((session, throwable) -> {
+                        if(throwable != null){
+                            throw new AuthenticationException("Could not authenticate with the given Session id", throwable);
+                        }else{
+                            sessionActive(session);
+                            return Map.of(EventConstants.CONNECTED_INFO_HEADER, createConnectedInfoJson(session));
+                        }
                     });
-
         } else {
-            String identity = connectHeaders.get(Frame.LOGIN);
-            String secret = connectHeaders.get(Frame.PASSCODE);
-            if (StringUtils.isNotBlank(identity) && StringUtils.isNotBlank(secret)) {
-                services.securityService
-                        .authenticate(identity, secret)
-                        .flatMap((Function<Participant, Mono<Session>>) participant -> {
 
-                            try {
-                                SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
-                                KeySpec spec = new PBEKeySpec(secret.toCharArray(),
-                                                              SecurityUtil.generateSecretKey(128),
-                                                              65536,
-                                                              256);
-                                SecretKey sessionSecretKey = new SecretKeySpec(factory.generateSecret(spec).getEncoded(), "AES");
-
-                                String sessionId = Base64.getUrlEncoder()
-                                                         .withoutPadding()
-                                                         .encodeToString(sessionSecretKey.getEncoded());
-
-                                return services.sessionManager.create(sessionId, participant);
-
-                            } catch (Exception e) {
-                                log.error("Session could not be created for identity: " + identity, e);
-                                return Mono.error(new IllegalStateException("Session could not be created", e));
-                            }
-                        })
-                        .subscribe(s -> {
-
-                            sessionActive(s);
-
-                            ret.complete(Collections.singletonMap(EventConstants.SESSION_HEADER, session.sessionId()));
-                        }, ret::fail);
-            } else {
-                ret.fail("The connection frame does not contain valid credentials");
-            }
+            return securityService.authenticate(connectHeaders)
+                                  .handle((participant, throwable) -> {
+                                      if(throwable != null){
+                                          if(!(throwable instanceof AuthenticationException)) {
+                                              throw new AuthenticationException("Could not authenticate with the given credentials", throwable);
+                                          }else{
+                                              throw (AuthenticationException) throwable;
+                                          }
+                                      }else {
+                                          return participant;
+                                      }
+                                  })
+                                  .thenCompose(participant -> services.sessionManager.create(participant))
+                                  .thenApply(session -> {
+                                      sessionActive(session);
+                                      return Map.of(EventConstants.CONNECTED_INFO_HEADER, createConnectedInfoJson(session));
+                                  });
         }
-        return ret;
+    }
+
+    private String createConnectedInfoJson(Session session){
+        try {
+            ConnectedInfo connectedInfo = new ConnectedInfo(session.sessionId(), session.replyToId(), session.participant());
+            return services.objectMapper.writeValueAsString(connectedInfo);
+        } catch (JsonProcessingException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     private void sessionActive(Session session) {
@@ -133,20 +137,21 @@ public class EndpointConnectionHandler {
         sessionTimer = services.vertx.setPeriodic(sessionUpdateInterval, event -> this.session.touch());
     }
 
-    public Mono<Void> send(Event<byte[]> event) {
+    public Mono<Void> send(Event<byte[]> incomingEvent) {
         Mono<Void> ret;
-        if (session.sendAllowed(event.cri())) {
+        if (session.sendAllowed(incomingEvent.cri())) {
 
-            event.metadata().put(EventConstants.SENDER_HEADER, session.participant().getIdentity());
-
-            if (event.cri().scheme().equals(EventConstants.SERVICE_DESTINATION_SCHEME)) {
+            if (incomingEvent.cri().scheme().equals(EventConstants.SERVICE_DESTINATION_SCHEME)) {
 
                 try {
+
+                    incomingEvent.metadata().put(EventConstants.SENDER_HEADER, services.objectMapper.writeValueAsString(session.participant()));
+
                     // make sure reply-to if present is scoped to sender
-                    validateReplyTo(event);
+                    validateReplyTo(incomingEvent);
 
                     ret = services.eventBusService
-                            .sendWithAck(event)
+                            .sendWithAck(incomingEvent)
                             .onErrorMap(throwable -> { // map errors that occurred because no Service invoker was listening
                                 boolean predicateRet = false;
                                 if (throwable instanceof ReplyException) {
@@ -156,21 +161,34 @@ public class EndpointConnectionHandler {
                                     }
                                 }
                                 return predicateRet;
-                            }, RpcMissingServiceException::new);
+                            }, RpcMissingServiceException::new)
+                            .onErrorResume(throwable -> {
+                                try {
+                                    Event<byte[]> convertedEvent = services.exceptionConverter.convert(incomingEvent.metadata(), throwable);
+                                    // since we don't know the subscription id used by the stomp client for this request we send through the eventbus
+                                    services.eventBusService.send(convertedEvent);
+                                    return Mono.empty();
+                                } catch (Exception ex) {
+                                    if(log.isDebugEnabled()){
+                                        log.debug("Exception occurred converting exception\n" + EventUtil.toString(incomingEvent, true), throwable);
+                                    }
+                                    return Mono.error(ex);
+                                }
+                            });
 
                 } catch (Exception e) {
                     ret = Mono.error(e);
                 }
 
-            } else if (event.cri().scheme().equals(EventConstants.STREAM_DESTINATION_SCHEME)) {
+            } else if (incomingEvent.cri().scheme().equals(EventConstants.STREAM_DESTINATION_SCHEME)) {
 
-                Mono<Void> hftMono = services.hftQueueManager.write(event)
+                Mono<Void> hftMono = services.hftQueueManager.write(incomingEvent)
                                                              .onErrorMap(t -> {
                                                                  log.error("Error occurred writing to HFT Queue", t);
                                                                  return new IllegalStateException("Could not store");
                                                              });
 
-                Mono<Void> streamMono = services.eventStreamService.send(event);
+                Mono<Void> streamMono = services.eventStreamService.send(incomingEvent);
 
                 ret = Flux.concat(hftMono, streamMono)
                           .then();
@@ -179,7 +197,7 @@ public class EndpointConnectionHandler {
                 ret = Mono.error(new IllegalArgumentException("CRI scheme not supported"));
             }
         } else {
-            ret = Mono.error(new IllegalArgumentException("Not Authorized to send to " + event.cri()));
+            ret = Mono.error(new AuthorizationException("Not Authorized to send to " + incomingEvent.cri()));
         }
         return ret;
     }
@@ -187,7 +205,7 @@ public class EndpointConnectionHandler {
     private void validateReplyTo(Event<byte[]> event) {
         String replyTo = event.metadata().get(EventConstants.REPLY_TO_HEADER);
         if (replyTo != null) {
-            // reply-to must not use any * characters and must be "scoped" to the participant identity
+            // reply-to must not use any * characters and must be "scoped" to the participant replyToId
             if (replyTo.contains("*")) {
                 throw new IllegalArgumentException("reply-to header invalid * are not allowed");
             }
@@ -199,17 +217,24 @@ public class EndpointConnectionHandler {
                 throw new IllegalArgumentException("reply-to header invalid " + e.getMessage());
             }
 
+            String scheme = replyCRI.scheme();
+            if(scheme == null || !scheme.equals(EventConstants.SERVICE_DESTINATION_SCHEME)){
+                throw new IllegalArgumentException("reply-to header invalid, scheme: " + scheme + " is not valid for authenticated participant");
+            }
+
             String scope = replyCRI.scope();
             if (scope != null) {
-                // valid scopes are PARTICIPANT_IDENTITY:UUID or PARTICIPANT_IDENTITY
+                // valid scopes are PARTICIPANT-REPLY_TO_ID:UUID or PARTICIPANT-REPLY_TO_ID
                 int idx = scope.indexOf(":");
                 if (idx != -1) {
                     scope = scope.substring(0, idx);
                 }
-                String encodedSender = ContinuumUtil.safeEncodeURI(session.participant().getIdentity());
-                if (!scope.equals(encodedSender)) {
+
+                if (!scope.equals(session.replyToId())) {
                     throw new IllegalArgumentException("reply-to header invalid, scope: " + scope + " is not valid for authenticated participant");
                 }
+            }else{
+                throw new IllegalArgumentException("reply-to header invalid, scope: null is not valid for authenticated participant");
             }
         }
     }
@@ -220,7 +245,7 @@ public class EndpointConnectionHandler {
         Validate.notNull(subscriber, "Subscriber must not be null");
 
         if (!session.subscribeAllowed(cri)) {
-            throw new IllegalArgumentException("Not Authorized to subscribe to " + cri);
+            throw new AuthorizationException("Not Authorized to subscribe to " + cri);
         }
 
         if (cri.scheme().equals(EventConstants.SERVICE_DESTINATION_SCHEME)) {
@@ -231,9 +256,9 @@ public class EndpointConnectionHandler {
                                         // Reply-To is known to be scoped to the sender because there is a check when the system receives the event above
                                         // Ex:
                                         // Device -> subscribes to srv://MAC@device.rpc.channel
-                                        // JS Client sends message to Device with a reply to of srv://CLIENT_ID@continuum.js.EventBus/replyHandler
+                                        // JS Client sends message to Device with a reply to of srv://REPLY_TO_ID@continuum.js.EventBus/replyHandler
                                         //
-                                        // When the system receives the message in the send() handler above it verifies the reply-to matches the sender
+                                        // When the system receives the message in the send() handler above it verifies the reply-to matches the sender reply to id
                                         // Then we temporarily allow the device to send to the clients reply-to.
                                         // Which will allow the message to be routed back to the client.
                                         String replyTo = event.metadata().get(EventConstants.REPLY_TO_HEADER);
@@ -269,7 +294,6 @@ public class EndpointConnectionHandler {
         }
     }
 
-
     public void unsubscribe(String subscriptionIdentifier) {
         Validate.notEmpty(subscriptionIdentifier, "subscriptionIdentifier must not be empty");
 
@@ -278,19 +302,26 @@ public class EndpointConnectionHandler {
         } else {
             log.debug("No subscription exists for subscriptionIdentifier: " + subscriptionIdentifier);
         }
-
     }
 
     public void removeSession() {
         if (session != null) {
+            // We remove the session timer here so the timer does not fire after the session is removed
+            if (sessionTimer != -1) {
+                services.vertx.cancelTimer(sessionTimer);
+                sessionTimer = -1;
+            }
+
             services.sessionManager
                     .removeSession(session.sessionId())
-                    .subscribe(value -> {
-                                   if (!value) {
-                                       log.error("Could not remove sessionId: " + session.sessionId());
-                                   }
-                               },
-                               throwable -> log.error("Could not remove sessionId: " + session.sessionId(), throwable));
+                    .handle((BiFunction<Boolean, Throwable, Void>) (aBoolean, throwable) -> {
+                        if (throwable != null) {
+                            log.error("Could not remove sessionId: " + session.sessionId(), throwable);
+                        }
+                        return null;
+                    });
+
+            session = null;
         } else {
             log.error("No session for connection was set");
         }
@@ -299,11 +330,10 @@ public class EndpointConnectionHandler {
     public void shutdown() {
         if (sessionTimer != -1) {
             services.vertx.cancelTimer(sessionTimer);
+            sessionTimer = -1;
         }
-
         subscriptions.forEach((s, messageConsumer) -> messageConsumer.cancel());
         subscriptions.clear();
     }
-
 
 }

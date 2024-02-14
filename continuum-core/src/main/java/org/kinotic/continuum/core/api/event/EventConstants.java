@@ -39,10 +39,9 @@ public class EventConstants {
     public static final String SESSION_HEADER = "session";
 
     /**
-     * Header provided by the sever on connection to represent the servers session key
+     * Header provided by the server on connection to represent the users participant and session id as a json string
      */
-    public static final String SESSION_KEY_HEADER = "sessionKey";
-
+    public static final String CONNECTED_INFO_HEADER = "connected-info";
 
     /**
      * Correlates a response with a given request

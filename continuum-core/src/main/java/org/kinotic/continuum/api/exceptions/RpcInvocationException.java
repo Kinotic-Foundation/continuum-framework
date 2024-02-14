@@ -22,7 +22,7 @@ package org.kinotic.continuum.api.exceptions;
  *
  * Created by navid on 11/7/19
  */
-public class RpcInvocationException extends RuntimeException {
+public class RpcInvocationException extends ContinuumException {
 
     private String originalClassName;
 

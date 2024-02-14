@@ -1,6 +1,9 @@
   # General properties shared by all profiles
+spring:
+  main:
+    web-application-type: none
 
-  logging:
-    level:
-      com:
-        kinotic: INFO
+logging:
+  level:
+    org:
+      kinotic: INFO

@@ -17,12 +17,13 @@
 
 package org.kinotic.continuum.internal.core.api.support;
 
-import org.kinotic.continuum.api.annotations.Proxy;
 import io.vertx.core.Future;
+import org.kinotic.continuum.api.annotations.Proxy;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 /**
  *
@@ -32,7 +33,7 @@ import java.util.List;
        name = "RpcTestService")
 public interface RpcTestServiceProxy {
 
-    Mono<String> getString();
+    CompletableFuture<String> getString();
 
     Mono<SimpleObject> getSimpleObject();
 
@@ -78,5 +79,11 @@ public interface RpcTestServiceProxy {
     Mono<String> getMonoEmptyString();
 
     Mono<String> getMonoStringLiterallyNull();
+
+    Mono<String> firstArgParticipant(String suffix);
+
+    Mono<String> middleArgParticipant(String prefix, String suffix);
+
+    Mono<String> lastArgParticipant(String prefix);
 
 }

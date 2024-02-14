@@ -34,6 +34,7 @@ public class ContextUtils {
      * @param <T> type of the property expected
      * @return the property or null if not value is found for the given name
      */
+    @SuppressWarnings("unchecked")
     public static <T> T getProperty(String propertyName, GenericApplicationContext applicationContext){
         Validate.notBlank(propertyName, "propertyName must not be blank");
         Validate.notNull(applicationContext,"applicationContext must not be null");
@@ -43,7 +44,6 @@ public class ContextUtils {
                                                                                  .get(GrindConstants.GRIND_MAP_PROPERTY_SOURCE);
         Validate.notNull(propertySource, "Could not find Grind property source");
 
-        //noinspection unchecked
         return (T) propertySource.getProperty(propertyName);
     }
 

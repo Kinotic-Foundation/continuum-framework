@@ -11,15 +11,19 @@ repositories {
 /**
  * Resolve properties in root/gradle.properties
  */
-def props = new Properties()
-rootDir.toPath().resolveSibling(GRADLE_PROPERTIES).toFile().withInputStream {
-    props.load(it)
-}
-props.each { key, val -> project.ext."$key" = val }
-
-
+def properties = new Properties()
+rootDir.toPath()
+        .resolveSibling(GRADLE_PROPERTIES)
+        .toFile()
+        .withInputStream {
+            properties.load(it)
+        }
+properties.each { key, val -> project.ext."$key" = val }
 
 
 dependencies {
-    implementation "org.springframework.boot:org.springframework.boot.gradle.plugin:${springBootVersion}"
+    implementation "org.springframework.boot:org.springframework.boot.gradle.plugin:${springBootPluginVersion}"
+
+    // lombok
+    implementation("io.freefair.gradle:lombok-plugin:${lombokPluginVersion}")
 }

@@ -1,5 +1,5 @@
 plugins {
-    id 'org.kinotic.continuum.java-library-conventions'
+    id 'org.kinotic.java-library-conventions'
 }
 
 dependencies {
@@ -12,7 +12,6 @@ dependencies {
     implementation 'org.springframework:spring-core'
     implementation 'org.springframework:spring-aop'
     implementation 'org.springframework:spring-context'
-    api 'org.springframework.data:spring-data-commons' // used for core.api.crud.CrudService definition classes will need to be in apps class path so we set to compile
 
     // To include When.MAYBE to get rid of message
     implementation 'com.google.code.findbugs:jsr305:3.0.2'

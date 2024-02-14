@@ -17,12 +17,9 @@
 
 package org.kinotic.continuum.gateway.internal.config;
 
-import org.kinotic.continuum.core.api.security.SecurityService;
-import org.kinotic.continuum.core.api.service.ServiceIdentifier;
-import org.kinotic.continuum.internal.RpcServiceProxyBeanFactory;
-import org.kinotic.continuum.internal.core.api.security.DummySecurityService;
+import org.kinotic.continuum.api.security.SecurityService;
+import org.kinotic.continuum.gateway.internal.api.security.DummySecurityService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -36,23 +33,6 @@ import org.springframework.context.annotation.Configuration;
 public class ContinuumGatewaySecurityConfig {
 
     @Bean
-    @ConditionalOnProperty(
-            value="continuum-gateway.disableIam",
-            havingValue = "false",
-            matchIfMissing = true)
-    @ConditionalOnMissingBean(SecurityService.class)
-    RpcServiceProxyBeanFactory securityServiceFactory(){
-        return new RpcServiceProxyBeanFactory(SecurityService.class,
-                                              new ServiceIdentifier("org.kinotic.continuum.core.api.security",
-                                                                    "SecurityService",
-                                                                    null,
-                                                                    "0.1.0"));
-    }
-
-    @Bean
-    @ConditionalOnProperty(
-            value="continuum-gateway.disableIam",
-            havingValue = "true")
     @ConditionalOnMissingBean
     SecurityService dummySecurityService(){
         return new DummySecurityService();

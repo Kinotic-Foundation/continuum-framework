@@ -40,12 +40,12 @@ public class EventStreamServiceTest {
     private static final Logger log = LoggerFactory.getLogger(EventStreamServiceTest.class);
 
     private static final String DESTINATION_NO_KEY = "evt://org.kinotic.continuum.tests.TestEvent";
-    private static final String DESTINATION_WITH_KEY = "evt://"+UUID.randomUUID().toString()+"@org.kinotic.continuum.tests.TestEvent";
+    private static final String DESTINATION_WITH_KEY = "evt://"+ UUID.randomUUID() +"@org.kinotic.continuum.tests.TestEvent";
 
     @Autowired
     private EventStreamService eventStreamService;
 
-    private ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+    private final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
 
     @Test
     public void testEventStreamWriteWithoutKey() throws Exception{

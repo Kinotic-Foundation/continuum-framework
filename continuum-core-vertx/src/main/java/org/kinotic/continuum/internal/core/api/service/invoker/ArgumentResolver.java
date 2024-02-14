@@ -20,10 +20,9 @@ package org.kinotic.continuum.internal.core.api.service.invoker;
 import org.kinotic.continuum.core.api.event.Event;
 
 /**
- * Supports resolving arguments from an incoming {@link Event <byte[]>}
+ * Supports resolving arguments from an incoming {@link Event (byte[])}
  *
  * NOTE: All implementations should be thread safe.
- *
  *
  * Created by Navid Mitchell on 2019-03-29.
  */

@@ -48,7 +48,6 @@ public class GatewayUtils {
                        .write(event.data()); // rest of the data
     }
 
-
     public static HftRawEvent readHftRawEvent(DocumentContext documentContext){
         Bytes<?> hftBytes = documentContext.wire().bytes();
         String cri = hftBytes.readUtf8();
@@ -75,13 +74,16 @@ public class GatewayUtils {
     }
 
     public static Frame eventToStompFrame(Event<byte[]> event){
-        Map<String, String> headers = new LinkedHashMap<>();
-        // Stomp spec says that if their are duplicate headers that the later headers overwrite the previous ones
-        // We do this to enforce that spec in the case that the metadata is backed by a multi map
+        Map<String, String> headers;
+        // Stomp spec says that if there are duplicate headers that the later headers overwrite the previous ones
+        // We do this to enforce that spec in the case that the metadata is backed by a multimap
         if(event.metadata() != null){
+            headers = new LinkedHashMap<>(event.metadata().size() + 4);
             for (Map.Entry<String,String> entry: event.metadata()) {
                 headers.put(entry.getKey(), entry.getValue());
             }
+        }else{
+            headers = new LinkedHashMap<>( 4);
         }
 
         // supply message id if none provided

@@ -17,15 +17,14 @@
 
 package org.kinotic.continuum.gateway.internal.endpoints.rest;
 
-import org.kinotic.continuum.core.api.event.CRI;
-import org.kinotic.continuum.core.api.event.Event;
-import org.kinotic.continuum.core.api.event.EventConstants;
-import org.kinotic.continuum.core.api.event.Metadata;
-import org.kinotic.continuum.internal.core.api.event.MultiMapMetadataAdapter;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.ext.web.RoutingContext;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
+import org.kinotic.continuum.core.api.event.CRI;
+import org.kinotic.continuum.core.api.event.Event;
+import org.kinotic.continuum.core.api.event.Metadata;
+import org.kinotic.continuum.internal.core.api.event.MultiMapMetadataAdapter;
 
 /**
  *
@@ -46,10 +45,6 @@ class RoutingContextEventAdapter implements Event<byte[]> {
         // remove headers we do not want sent around..
         routingContext.request().headers().remove(HttpHeaders.AUTHORIZATION);
         this.metadataAdapter = new MultiMapMetadataAdapter(routingContext.request().headers());
-
-        // add sender, this is set in org.kinotic.continuum.gateway.internal.endpoints.rest.ParticipantToUserAdapter
-        String identity = routingContext.user().principal().getString("user");
-        this.metadataAdapter.put(EventConstants.SENDER_HEADER, identity);
 
         // We adapt the CRI information to the expectations of the current Service Invoker
         // Path provided will be like ex:

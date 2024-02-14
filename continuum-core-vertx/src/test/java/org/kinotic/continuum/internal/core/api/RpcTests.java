@@ -17,15 +17,15 @@
 
 package org.kinotic.continuum.internal.core.api;
 
-import org.kinotic.continuum.api.exceptions.RpcMissingMethodException;
-import org.kinotic.continuum.api.exceptions.RpcInvocationException;
-import org.kinotic.continuum.api.exceptions.RpcMissingServiceException;
-import org.kinotic.continuum.internal.core.api.support.*;
 import io.vertx.core.Future;
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.kinotic.continuum.api.Continuum;
+import org.kinotic.continuum.api.exceptions.RpcInvocationException;
+import org.kinotic.continuum.api.exceptions.RpcMissingMethodException;
+import org.kinotic.continuum.api.exceptions.RpcMissingServiceException;
 import org.kinotic.continuum.internal.core.api.support.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -35,9 +35,11 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
@@ -58,11 +60,17 @@ public class RpcTests {
     @Autowired
     private NonExistentServiceProxy nonExistentServiceProxy;
 
-    @Test
-    public void testRpcMonoString(){
-        Mono<String> mono = rpcTestServiceProxy.getString();
+    @Autowired
+    private Continuum continuum;
 
-        StepVerifier.create(mono).expectNext(RpcTestService.STRING_VALUE).expectComplete().verify();
+    // TODO: test to few arguments, and too many arguments, also a variation with the participant. Participant variant error message may be misleading?
+    // See org.kinotic.continuum.internal.core.api.service.json.AbstractJackson2Support Line 114, Line 180. Should we keep the number of participant args in mind.
+
+    @Test
+    public void testRpcCompletableFutureString(){
+        CompletableFuture<String> mono = rpcTestServiceProxy.getString();
+
+        StepVerifier.create(Mono.fromFuture(mono)).expectNext(RpcTestService.STRING_VALUE).expectComplete().verify();
     }
 
     @Test
@@ -201,15 +209,15 @@ public class RpcTests {
 
     @Test
     public void testMultipleRequests(){
-        Mono<String> mono = rpcTestServiceProxy.getString();
+        Mono<String> mono = Mono.fromFuture(rpcTestServiceProxy.getString());
 
         StepVerifier.create(mono).expectNext(RpcTestService.STRING_VALUE).expectComplete().verify();
 
-        Mono<String> mono2 = rpcTestServiceProxy.getString();
+        Mono<String> mono2 = Mono.fromFuture(rpcTestServiceProxy.getString());
 
         StepVerifier.create(mono2).expectNext(RpcTestService.STRING_VALUE).expectComplete().verify();
 
-        Mono<String> mono3 = rpcTestServiceProxy.getString();
+        Mono<String> mono3 = Mono.fromFuture(rpcTestServiceProxy.getString());
 
         StepVerifier.create(mono3).expectNext(RpcTestService.STRING_VALUE).expectComplete().verify();
     }
@@ -300,6 +308,7 @@ public class RpcTests {
                     .expectComplete()
                     .verify();
     }
+
     @Test
     public void testMonoStringLiterallyNull() {
         Mono<String> mono = rpcTestServiceProxy.getMonoStringLiterallyNull();
@@ -309,4 +318,41 @@ public class RpcTests {
                     .expectComplete()
                     .verify();
     }
+
+    @Test
+    public void testFirstArgParticipant(){
+        String suffix = " Wat";
+        Mono<String> mono = rpcTestServiceProxy.firstArgParticipant(suffix);
+
+        StepVerifier.create(mono)
+                    .expectNext(continuum.nodeName() + suffix)
+                    .expectComplete()
+                    .verify();
+    }
+
+    @Test
+    public void testMiddleArgParticipant(){
+        String prefix = "Hello ";
+        String suffix = " Wat";
+
+        Mono<String> mono = rpcTestServiceProxy.middleArgParticipant(prefix, suffix);
+
+        StepVerifier.create(mono)
+                    .expectNext(prefix + continuum.nodeName() + suffix)
+                    .expectComplete()
+                    .verify();
+    }
+
+    @Test
+    public void testLastArgParticipant(){
+        String prefix = "Hello ";
+
+        Mono<String> mono = rpcTestServiceProxy.lastArgParticipant(prefix);
+
+        StepVerifier.create(mono)
+                    .expectNext(prefix + continuum.nodeName())
+                    .expectComplete()
+                    .verify();
+    }
+
 }

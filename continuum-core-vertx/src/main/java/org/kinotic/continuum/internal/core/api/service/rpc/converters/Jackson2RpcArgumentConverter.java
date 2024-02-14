@@ -19,6 +19,7 @@ package org.kinotic.continuum.internal.core.api.service.rpc.converters;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.kinotic.continuum.api.config.ContinuumProperties;
 import org.kinotic.continuum.internal.core.api.service.json.AbstractJackson2Support;
 import org.kinotic.continuum.internal.core.api.service.rpc.RpcArgumentConverter;
 import org.springframework.core.ReactiveAdapterRegistry;
@@ -36,8 +37,9 @@ import java.lang.reflect.Method;
 public class Jackson2RpcArgumentConverter extends AbstractJackson2Support implements RpcArgumentConverter {
 
     public Jackson2RpcArgumentConverter(ObjectMapper objectMapper,
-                                        ReactiveAdapterRegistry reactiveAdapterRegistry) {
-        super(objectMapper, reactiveAdapterRegistry);
+                                        ReactiveAdapterRegistry reactiveAdapterRegistry,
+                                        ContinuumProperties continuumProperties) {
+        super(objectMapper, reactiveAdapterRegistry, continuumProperties);
     }
 
     @Override

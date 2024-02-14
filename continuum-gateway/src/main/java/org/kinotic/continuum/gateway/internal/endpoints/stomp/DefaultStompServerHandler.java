@@ -17,16 +17,21 @@
 
 package org.kinotic.continuum.gateway.internal.endpoints.stomp;
 
-import org.kinotic.continuum.core.api.event.CRI;
-import org.kinotic.continuum.core.api.event.EventConstants;
-import org.kinotic.continuum.gateway.internal.endpoints.EndpointConnectionHandler;
-import org.kinotic.continuum.gateway.internal.endpoints.Services;
-import org.kinotic.continuum.internal.utils.ContinuumUtil;
+import io.vertx.core.Future;
 import io.vertx.core.Promise;
+import io.vertx.core.Vertx;
 import io.vertx.ext.stomp.lite.StompServerConnection;
 import io.vertx.ext.stomp.lite.StompServerHandler;
 import io.vertx.ext.stomp.lite.frame.Frame;
 import io.vertx.ext.stomp.lite.frame.InvalidConnectFrame;
+import org.kinotic.continuum.api.exceptions.AuthorizationException;
+import org.kinotic.continuum.core.api.event.CRI;
+import org.kinotic.continuum.core.api.event.Event;
+import org.kinotic.continuum.core.api.event.EventBusService;
+import org.kinotic.continuum.gateway.internal.endpoints.EndpointConnectionHandler;
+import org.kinotic.continuum.gateway.internal.endpoints.Services;
+import org.kinotic.continuum.internal.core.api.service.invoker.ExceptionConverter;
+import org.kinotic.continuum.internal.utils.EventUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
@@ -41,42 +46,29 @@ public class DefaultStompServerHandler implements StompServerHandler {
 
     private static final Logger log = LoggerFactory.getLogger(DefaultStompServerHandler.class);
 
-    private final Services services;
+    private final Vertx vertx;
     private final StompServerConnection connection;
-    private String encodedIdentity;
-    private boolean translateDestination = false;
-
+    private final ExceptionConverter exceptionConverter;
+    private final EventBusService eventBusService;
     private final EndpointConnectionHandler endpointConnectionHandler;
 
-    public DefaultStompServerHandler(Services services,
+
+    public DefaultStompServerHandler(Vertx vertx,
+                                     Services services,
                                      StompServerConnection connection) {
-        this.services = services;
+        this.vertx = vertx;
         this.connection = connection;
-        this.endpointConnectionHandler = new EndpointConnectionHandler(services);
+        this.exceptionConverter = services.exceptionConverter;
+        this.eventBusService = services.eventBusService;
+        this.endpointConnectionHandler = new EndpointConnectionHandler(vertx, services);
     }
 
     @Override
     public Promise<Map<String, String>> authenticate(Map<String, String> connectHeaders) {
-        Promise<Map<String, String>> ret;
-        if(connectHeaders.containsKey(Frame.LOGIN)) {
-
-            String identity = connectHeaders.get(Frame.LOGIN);
-            encodedIdentity = ContinuumUtil.safeEncodeURI(identity);
-
-            // This logic is only needed by legacy devices it can go away once they are all upgraded
-            String clientVersion = connectHeaders.get("app.version");
-            if (clientVersion != null && !clientVersion.startsWith("3")) {
-                translateDestination = true;
-            }
-
-            ret = endpointConnectionHandler.authenticate(connectHeaders);
-
-        }else if (connectHeaders.containsKey(EventConstants.SESSION_HEADER)){
-            ret = endpointConnectionHandler.authenticate(connectHeaders);
-        }else{
-            ret = Promise.promise();
-            ret.fail("The connection frame does not contain valid credentials");
-        }
+        Promise<Map<String,String>> ret = Promise.promise();
+        Future<Map<String,String>> future = Future.fromCompletionStage(endpointConnectionHandler.authenticate(connectHeaders),
+                                                                       vertx.getOrCreateContext());
+        future.onComplete(ret);
         return ret;
     }
 
@@ -89,17 +81,16 @@ public class DefaultStompServerHandler implements StompServerHandler {
             log.trace("Frame received\n" + frame.toString());
         }
 
-        translateDestinationIfNeeded(frame);
+        Event<byte[]> incomingEvent = new FrameEventAdapter(frame);
 
-        endpointConnectionHandler.send(new FrameEventAdapter(frame))
-                                 .subscribe(null,
-                                            throwable -> {
-                                                connection.sendErrorAndDisconnect(throwable);
-                                            },
-                                            () -> {
-                                                connection.sendReceiptIfNeeded(frame);
-                                                connection.resume();
-                                            });
+        endpointConnectionHandler
+                .send(incomingEvent)
+                .subscribe(null,
+                           connection::sendErrorAndDisconnect,
+                           () -> {
+                               connection.sendReceiptIfNeeded(frame);
+                               connection.resume();
+                           });
     }
 
     @Override
@@ -109,7 +100,6 @@ public class DefaultStompServerHandler implements StompServerHandler {
         }
 
         try {
-            translateDestinationIfNeeded(frame);
 
             String subscriptionId = frame.getHeader(Frame.ID);
             Assert.hasText(subscriptionId,"Subscription requests must contain an Id header");
@@ -121,7 +111,7 @@ public class DefaultStompServerHandler implements StompServerHandler {
 
         } catch (Exception e) {
             log.error("Exception occurred handling subscribe", e);
-            connection.sendError(e); // we don't disconnect since not fatal
+            connection.sendErrorAndDisconnect(e);
         }
     }
 
@@ -138,40 +128,9 @@ public class DefaultStompServerHandler implements StompServerHandler {
 
         } catch (Exception e) {
             log.error("Exception occurred handling unsubscribe", e);
-            connection.sendError(e); // we don't disconnect since not fatal
+            connection.sendErrorAndDisconnect(e);
         }
     }
-
-
-    public void translateDestinationIfNeeded(Frame frame){
-        if(translateDestination){
-            String destination = frame.getDestination();
-
-            // first short circuit if destination is already correct format
-            if(destination.startsWith("srv://") || destination.startsWith("stream://")){
-                return;
-            }
-
-            // translate any v2 destination to a compatible v3 destination
-            if (destination.startsWith("bus/device/rpc/")){
-                if(destination.length() != 27){
-                    throw new IllegalArgumentException("Invalid destination. Bye!");
-                }
-                String deviceMac = destination.substring(15);
-                frame.getHeaders().put(Frame.DESTINATION, "srv://"+deviceMac+"@continuum.cpp.RpcService");
-            } else if(destination.startsWith("bus/")){
-                if(destination.length() < 5){
-                    throw new IllegalArgumentException("Invalid destination. Bye!");
-                }
-                frame.getHeaders().put(Frame.DESTINATION, "srv://"+destination.substring(4));
-            } else if(destination.startsWith("stomp/")) {
-                throw new IllegalArgumentException("Invalid destination. Bye!");
-            } else{
-                frame.getHeaders().put(Frame.DESTINATION, "stream://"+encodedIdentity+"@"+frame.getDestination());
-            }
-        }
-    }
-
 
     @Override
     public void begin(Frame frame) {
@@ -210,11 +169,13 @@ public class DefaultStompServerHandler implements StompServerHandler {
 
     @Override
     public void disconnected() {
+        // we remove the session since the client disconnected on purpose
         endpointConnectionHandler.removeSession();
     }
 
     @Override
     public void closed() {
+        // We don't remove the session if disconnect was not called because this could be a network issue
         endpointConnectionHandler.shutdown();
     }
 

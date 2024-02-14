@@ -35,8 +35,8 @@ public class FileProcessor {
 
     private final FileProcessorOptions fileProcessorOptions;
     protected final AtomicBoolean stopped = new AtomicBoolean(true);
-    private BlockingQueue<FileProcessEvent> workQueue;
-    private ArrayDeque<Worker> workers;
+    private final BlockingQueue<FileProcessEvent> workQueue;
+    private final ArrayDeque<Worker> workers;
 
     public FileProcessor(FileProcessorOptions fileProcessorOptions) {
         this.fileProcessorOptions = fileProcessorOptions;

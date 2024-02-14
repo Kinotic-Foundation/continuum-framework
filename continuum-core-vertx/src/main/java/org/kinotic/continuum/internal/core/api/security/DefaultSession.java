@@ -17,7 +17,7 @@
 
 package org.kinotic.continuum.internal.core.api.security;
 
-import org.kinotic.continuum.core.api.security.Participant;
+import org.kinotic.continuum.api.security.Participant;
 import org.springframework.http.server.PathContainer;
 import org.springframework.web.util.pattern.PathPattern;
 
@@ -34,10 +34,11 @@ public class DefaultSession extends AbstractSession {
     public DefaultSession(DefaultSessionManager sessionManager,
                           Participant participant,
                           String sessionId,
+                          String replyToId,
                           PathContainer.Options parseOptions,
                           List<PathPattern> sendPathPatterns,
                           List<PathPattern> subscribePathPatterns) {
-        super(sessionManager, participant, sessionId, parseOptions, sendPathPatterns, subscribePathPatterns);
+        super(sessionManager, participant, sessionId, replyToId, parseOptions, sendPathPatterns, subscribePathPatterns);
     }
 
     @Override

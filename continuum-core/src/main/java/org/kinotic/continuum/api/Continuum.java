@@ -20,7 +20,6 @@ package org.kinotic.continuum.api;
 /**
  * Contains information about this Continuum process
  *
- *
  * Created by navid on 9/24/19
  */
 public interface Continuum {

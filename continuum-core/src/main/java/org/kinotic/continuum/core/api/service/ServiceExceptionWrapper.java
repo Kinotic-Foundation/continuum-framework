@@ -23,26 +23,31 @@ package org.kinotic.continuum.core.api.service;
  */
 public class ServiceExceptionWrapper {
 
-    private String errorMessage;
+    private String exceptionName;
 
     private String exceptionClass;
+
+    private String errorMessage;
 
     private StackTraceElement[] stackTrace;
 
     public ServiceExceptionWrapper() {
     }
 
-    public ServiceExceptionWrapper(String errorMessage, String exceptionClass) {
-        this.errorMessage = errorMessage;
+    public ServiceExceptionWrapper(String exceptionName,
+                                   String exceptionClass,
+                                   String errorMessage) {
+        this.exceptionName = exceptionName;
         this.exceptionClass = exceptionClass;
-    }
-
-    public String getErrorMessage() {
-        return errorMessage;
-    }
-
-    public ServiceExceptionWrapper setErrorMessage(String errorMessage) {
         this.errorMessage = errorMessage;
+    }
+
+    public String getExceptionName() {
+        return exceptionName;
+    }
+
+    public ServiceExceptionWrapper setExceptionName(String exceptionName) {
+        this.exceptionName = exceptionName;
         return this;
     }
 
@@ -52,6 +57,15 @@ public class ServiceExceptionWrapper {
 
     public ServiceExceptionWrapper setExceptionClass(String exceptionClass) {
         this.exceptionClass = exceptionClass;
+        return this;
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
+    public ServiceExceptionWrapper setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
         return this;
     }
 

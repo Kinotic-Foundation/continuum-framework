@@ -5,7 +5,7 @@ package org.kinotic.continuum.api.exceptions;
  *
  * Created by Navíd Mitchell 🤪 on 5/12/22.
  */
-public class RpcMissingMethodException extends RuntimeException{
+public class RpcMissingMethodException extends ContinuumException{
     public RpcMissingMethodException() {
     }
 

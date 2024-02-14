@@ -24,11 +24,13 @@ import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
+import org.kinotic.continuum.api.config.ContinuumProperties;
 import org.kinotic.continuum.core.api.event.Event;
 import org.kinotic.continuum.core.api.event.EventConstants;
 import org.kinotic.continuum.core.api.event.Metadata;
+import org.kinotic.continuum.api.security.Participant;
 import org.kinotic.continuum.internal.core.api.service.invoker.ServiceInvocationSupervisor;
-import org.kinotic.continuum.internal.util.EventUtils;
+import org.kinotic.continuum.internal.utils.EventUtil;
 import org.apache.commons.lang3.Validate;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.core.MethodParameter;
@@ -53,18 +55,19 @@ public abstract class AbstractJackson2Support {
 
     private final ObjectMapper objectMapper;
     private final ReactiveAdapterRegistry reactiveAdapterRegistry;
+    private final ContinuumProperties continuumProperties;
 
     public AbstractJackson2Support(ObjectMapper objectMapper,
-                                   ReactiveAdapterRegistry reactiveAdapterRegistry) {
+                                   ReactiveAdapterRegistry reactiveAdapterRegistry,
+                                   ContinuumProperties continuumProperties) {
         this.objectMapper = objectMapper;
         this.reactiveAdapterRegistry = reactiveAdapterRegistry;
+        this.continuumProperties = continuumProperties;
     }
 
     public ObjectMapper getObjectMapper() {
         return objectMapper;
     }
-
-    private final int maxInMemorySize = 256 * 1024;
 
     /**
      * Tests if the content is considered json
@@ -89,9 +92,10 @@ public abstract class AbstractJackson2Support {
      * @return the deserialized Json as Java objects
      */
     protected Object[] createJavaObjectsFromJsonEvent(Event<byte[]> event, MethodParameter[] parameters, boolean dataInArray){
-        Validate.notNull(event, "event cannot be null");
+        Validate.notNull(event, "event must not be null");
         Validate.notNull(parameters, "parameters must not be null");
 
+        // TODO: remove the use of the Spring Tokenizer since I have found out about the performance issues with reactor
         // Should we use the Jackson2Tokenizer borrowed from spring? We are not really taking advantage of the claimed non blocking or the Flux themselves
         // I really don't see a way to do that anyhow since all Arguments at least for the invoker must be available upfront.
         // A return value could be parsed and streamed but that would require more machinery.
@@ -100,27 +104,54 @@ public abstract class AbstractJackson2Support {
                                                               getObjectMapper().getFactory(),
                                                               getObjectMapper(),
                                                               dataInArray,
-                                                              maxInMemorySize)
+                                                              continuumProperties.getMaxEventPayloadSize())
                                                     .collectList()
                                                     .block();
         List<Object> ret = new LinkedList<>();
         if(tokens!= null && !tokens.isEmpty()){
-            for(int i = 0; i < tokens.size(); i++){
 
-                if(i + 1 > parameters.length){ // index is zero base..
-                    throw new IllegalArgumentException("Received too many json arguments, Expected: " + parameters.length + " Got: " +tokens.size());
+            if(tokens.size() > parameters.length){
+                // Error could be misleading / inaccurate, Should we keep the number of participant args in mind?
+                throw new IllegalArgumentException("Received too many json arguments, Expected: " + parameters.length + " Got: " +tokens.size());
+            }
+
+            int tokenIdx = 0;
+            for(MethodParameter methodParameter: parameters){
+
+                methodParameter = methodParameter.nestedIfOptional();
+
+                // if the parameter is a participant we get this from the even metadata
+                if(Participant.class.isAssignableFrom(methodParameter.getParameterType())){
+
+                    String participantJson = event.metadata().get(EventConstants.SENDER_HEADER);
+
+                    if(participantJson != null){
+                        try {
+                            Participant participant = objectMapper.readValue(participantJson, Participant.class);
+                            ret.add(participant);
+                        } catch (JsonProcessingException e) {
+                            throw new DecodingException("JSON decoding error: " + e.getOriginalMessage(), e);
+                        }
+                    }else{
+                        throw new IllegalArgumentException("Participant parameter is required but no Participant is available");
+                    }
+
+                }else{
+                    if(tokenIdx + 1 > tokens.size()){ // index is zero base..
+                        // Error could be misleading / inaccurate, Should we keep the number of participant args in mind?
+                        throw new IllegalArgumentException("Received too few json arguments, Expected: " + parameters.length + " Got: " +tokens.size());
+                    }
+
+                    Object arg = decodeInternal(tokens.get(tokenIdx), methodParameter);
+                    ret.add(arg);
+                    tokenIdx++;
                 }
-
-                Object arg = decodeInternal(tokens.get(i), parameters[i]);
-                ret.add(arg);
             }
         }
         return ret.toArray();
     }
 
     private Object decodeInternal(TokenBuffer tokenBuffer, MethodParameter methodParameter){
-
-        methodParameter = methodParameter.nestedIfOptional();
 
         // Unwrap async classes, this is also used for method return values so this handles that..
         if(reactiveAdapterRegistry.getAdapter(methodParameter.getParameterType()) != null){
@@ -169,7 +200,7 @@ public abstract class AbstractJackson2Support {
      * @return the {@link Event} to send
      */
     protected Event<byte[]> createOutgoingEvent(Metadata incomingMetadata, Map<String, String> headers, Object body){
-        return EventUtils.createReplyEvent(incomingMetadata, headers, () -> {
+        return EventUtil.createReplyEvent(incomingMetadata, headers, () -> {
             byte[] jsonBytes;
             try {
 

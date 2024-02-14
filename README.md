@@ -1,8 +1,10 @@
+![CI](https://github.com/kinotic-foundation/continuum-framework/actions/workflows/gradle-build.yml/badge.svg?branch=develop)
+
 # The Continuum Framework
 
 The Continuum Framework is an open-source software framework developed by the Kinotic Foundation to provide developers with a powerful set of tools to create high-performance software solutions quickly and efficiently.
 
-At its core, the Continuum Framework is designed to simplify the process of building complex software applications by providing a modular and extensible architecture. This allows developers to easily integrate and reuse existing code modules, reducing development time and increasing code reusability.
+At its core, the Continuum Framework is designed to simplify the process of building complex software applications by providing a modular and extensible architecture. This allows developers to easily integrate and reuse existing code modules, reducing development time and increasing code usability.
 
 ## Microservices and IoT Support
 

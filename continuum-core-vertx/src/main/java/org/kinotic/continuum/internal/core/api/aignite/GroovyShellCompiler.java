@@ -31,7 +31,7 @@ import java.io.Reader;
  */
 public class GroovyShellCompiler {
 
-    private GroovyClassLoader gcl;
+    private final GroovyClassLoader gcl;
 
     public GroovyShellCompiler(ClassLoader baseLoader, Class<? extends Script> baseScriptClass) {
         CompilerConfiguration config = new CompilerConfiguration();

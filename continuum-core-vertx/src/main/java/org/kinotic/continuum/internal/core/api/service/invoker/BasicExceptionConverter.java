@@ -24,7 +24,7 @@ import org.kinotic.continuum.core.api.event.Event;
 import org.kinotic.continuum.core.api.event.EventConstants;
 import org.kinotic.continuum.core.api.event.Metadata;
 import org.kinotic.continuum.core.api.service.ServiceExceptionWrapper;
-import org.kinotic.continuum.internal.util.EventUtils;
+import org.kinotic.continuum.internal.utils.EventUtil;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.codec.EncodingException;
 import org.springframework.stereotype.Component;
@@ -61,8 +61,11 @@ public class BasicExceptionConverter implements ExceptionConverter {
         headers.put(EventConstants.ERROR_HEADER, throwable.getMessage());
         headers.put(EventConstants.CONTENT_TYPE_HEADER, MimeTypeUtils.APPLICATION_JSON_VALUE);
 
-        return EventUtils.createReplyEvent(incomingMetadata, headers, () -> {
-            ServiceExceptionWrapper wrapper = new ServiceExceptionWrapper(throwable.getMessage(), throwable.getClass().getName());
+        return EventUtil.createReplyEvent(incomingMetadata, headers, () -> {
+            Class<? extends Throwable> clazz = throwable.getClass();
+            ServiceExceptionWrapper wrapper = new ServiceExceptionWrapper(clazz.getSimpleName(),
+                                                                          clazz.getName(),
+                                                                          throwable.getMessage());
 
             if(properties.isDebug()) {
                 wrapper.setStackTrace(throwable.getStackTrace());

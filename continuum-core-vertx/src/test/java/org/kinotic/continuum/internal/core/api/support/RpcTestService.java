@@ -18,6 +18,7 @@
 package org.kinotic.continuum.internal.core.api.support;
 
 import org.kinotic.continuum.api.annotations.Publish;
+import org.kinotic.continuum.api.security.Participant;
 import org.kinotic.continuum.internal.core.api.RpcTests;
 import io.vertx.core.Future;
 import reactor.core.publisher.Flux;
@@ -93,4 +94,11 @@ public interface RpcTestService {
     Mono<String> getMonoEmptyString();
 
     Mono<String> getMonoStringLiterallyNull();
+
+    Mono<String> firstArgParticipant(Participant participant, String suffix);
+
+    Mono<String> middleArgParticipant(String prefix, Participant participant, String suffix);
+
+    Mono<String> lastArgParticipant(String prefix, Participant participant);
+
 }

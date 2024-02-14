@@ -21,7 +21,7 @@ import org.kinotic.continuum.core.api.event.Event;
 import org.kinotic.continuum.core.api.event.EventBusService;
 import org.kinotic.continuum.core.api.event.EventConstants;
 import org.kinotic.continuum.core.api.event.ListenerStatus;
-import org.kinotic.continuum.internal.util.IgniteUtils;
+import org.kinotic.continuum.internal.utils.IgniteUtil;
 import org.kinotic.continuum.internal.core.api.aignite.SubscriptionInfoCacheEntryEventFilter;
 import org.kinotic.continuum.internal.core.api.aignite.SubscriptionInfoCacheEntryListener;
 import io.vertx.core.AsyncResult;
@@ -112,7 +112,7 @@ public class DefaultEventBusService implements EventBusService {
                                            sink.error(reply.cause());
                                        }
                                      });
-        });
+        }).subscribeOn(scheduler).then();
     }
 
     private DeliveryOptions createDeliveryOptions(Event<?> event){
@@ -153,7 +153,7 @@ public class DefaultEventBusService implements EventBusService {
         if(ignite == null){
             throw new IllegalStateException("This method is not available when ignite is disabled");
         }
-        return IgniteUtils.futureToMono(() -> subscriptionsCache.containsKeyAsync(cri));
+        return IgniteUtil.futureToMono(() -> subscriptionsCache.containsKeyAsync(cri));
     }
 
     @Override

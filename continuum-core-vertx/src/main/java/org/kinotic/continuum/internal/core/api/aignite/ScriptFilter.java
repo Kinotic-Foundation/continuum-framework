@@ -145,7 +145,7 @@ public abstract class ScriptFilter extends Script {
 
         }else if(property.equals("identifier")){
 
-            ret = delegate.getIdentity();
+            ret = delegate.getId();
 
         }else{
 
@@ -190,7 +190,7 @@ public abstract class ScriptFilter extends Script {
     }
 
     static class GroovyPropertyAccessor implements Function<StreamData<?,?>,Object>{
-        private MetaProperty metaProperty;
+        private final MetaProperty metaProperty;
 
         public GroovyPropertyAccessor(MetaProperty metaProperty) {
             this.metaProperty = metaProperty;
@@ -208,7 +208,7 @@ public abstract class ScriptFilter extends Script {
     }
 
     static class BinaryFieldAccessor implements Function<StreamData<?,?>,Object>{
-        private BinaryField field;
+        private final BinaryField field;
 
         public BinaryFieldAccessor(BinaryField field) {
             this.field = field;

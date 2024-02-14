@@ -17,13 +17,10 @@
 
 package org.kinotic.continuum.gateway.internal.endpoints.rest;
 
-import org.kinotic.continuum.core.api.event.Event;
-import org.kinotic.continuum.core.api.event.EventBusService;
-import org.kinotic.continuum.core.api.event.EventConstants;
-import org.kinotic.continuum.gateway.api.config.ContinuumGatewayProperties;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Context;
-import io.vertx.core.Future;
+import io.vertx.core.Promise;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpMethod;
@@ -31,12 +28,18 @@ import io.vertx.core.http.HttpServer;
 import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
-import io.vertx.ext.web.handler.AuthHandler;
-import io.vertx.ext.web.handler.BasicAuthHandler;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.StaticHandler;
+import org.kinotic.continuum.core.api.event.Event;
+import org.kinotic.continuum.core.api.event.EventBusService;
+import org.kinotic.continuum.core.api.event.EventConstants;
+import org.kinotic.continuum.api.security.Participant;
+import org.kinotic.continuum.api.security.SecurityService;
+import org.kinotic.continuum.gateway.api.config.ContinuumGatewayProperties;
+import org.kinotic.continuum.gateway.api.security.AuthenticationHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
@@ -62,7 +65,9 @@ public class RestServerVerticle extends AbstractVerticle {
 
     private final ContinuumGatewayProperties gatewayProperties;
     private final EventBusService eventService;
-    private final ContinuumGatewayRestAuthProvider authProvider;
+    private final SecurityService securityService;
+    private final ObjectMapper objectMapper;
+
     private Scheduler scheduler;
 
     private Disposable disposable;
@@ -70,14 +75,16 @@ public class RestServerVerticle extends AbstractVerticle {
 
     public RestServerVerticle(ContinuumGatewayProperties gatewayProperties,
                               EventBusService eventService,
-                              ContinuumGatewayRestAuthProvider authProvider) {
+                              @Autowired(required = false) SecurityService securityService,
+                              ObjectMapper objectMapper) {
         this.gatewayProperties = gatewayProperties;
         this.eventService = eventService;
-        this.authProvider = authProvider;
+        this.securityService = securityService;
+        this.objectMapper = objectMapper;
     }
 
     @Override
-    public void start(Future<Void> startFuture) {
+    public void start(Promise<Void> startPromise) {
         final String replyDestination = EventConstants.SERVICE_DESTINATION_SCHEME + "://" + UUID.randomUUID() + "@continuum.java.rest.EventBus";
         final String restPath = gatewayProperties.getRest().getRestPath();
 
@@ -88,22 +95,13 @@ public class RestServerVerticle extends AbstractVerticle {
         httpServer = vertx.createHttpServer();
 
         Router router = Router.router(vertx);
-        router.route("/*").handler(StaticHandler.create());
+        router.route("/*").handler(StaticHandler.create("continuum-gateway-static"));
 
         Route restRoute = router.route(HttpMethod.POST, restPath+"/*");
 
-        // Setup handler for all incoming requests
-        restRoute.handler(routingContext -> {
-            // must pause receiving of content during auth, otherwise the body handler must be before auth which seems baaad!
-            routingContext.request().pause();
-            routingContext.next();
-        });
-        AuthHandler basicAuthHandler = BasicAuthHandler.create(authProvider);
-        restRoute.handler(basicAuthHandler);
-        restRoute.handler(routingContext -> {
-            routingContext.request().resume();
-            routingContext.next();
-        });
+        if(securityService !=null){
+            restRoute.handler(new AuthenticationHandler(securityService, vertx));
+        }
 
         // will ensure body is available
         restRoute.handler(BodyHandler.create()
@@ -121,6 +119,11 @@ public class RestServerVerticle extends AbstractVerticle {
                 // set claim ticket
                 requestEvent.metadata().put(EventConstants.CORRELATION_ID_HEADER, claimId);
                 responseCorrelationMap.put(claimId, routingContext);
+
+                Participant participant = routingContext.get(EventConstants.SENDER_HEADER);
+                if(participant != null){
+                    requestEvent.metadata().put(EventConstants.SENDER_HEADER, objectMapper.writeValueAsString(participant));
+                }
 
                 // now send event to invoke remote service
                 eventService.sendWithAck(requestEvent)
@@ -160,14 +163,14 @@ public class RestServerVerticle extends AbstractVerticle {
                       .listen(gatewayProperties.getRest().getPort(), ar -> {
                           if (ar.succeeded()) {
                               log.info("REST Server Listening on port "+ ar.result().actualPort());
-                              startFuture.complete();
+                              startPromise.complete();
                           } else {
                               log.error("Error starting REST Server", ar.cause());
-                              startFuture.fail(ar.cause());
+                              startPromise.fail(ar.cause());
                           }
                       });
         },
-        startFuture::fail);
+        startPromise::fail);
     }
 
 

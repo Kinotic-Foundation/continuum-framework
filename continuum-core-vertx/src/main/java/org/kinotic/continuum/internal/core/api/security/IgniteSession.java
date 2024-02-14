@@ -17,7 +17,7 @@
 
 package org.kinotic.continuum.internal.core.api.security;
 
-import org.kinotic.continuum.core.api.security.Participant;
+import org.kinotic.continuum.api.security.Participant;
 import org.apache.ignite.IgniteCache;
 import org.springframework.http.server.PathContainer;
 import org.springframework.web.util.pattern.PathPattern;
@@ -36,11 +36,12 @@ public class IgniteSession extends AbstractSession {
     public IgniteSession(DefaultSessionManager sessionManager,
                          Participant participant,
                          String sessionId,
+                         String replyToId,
                          PathContainer.Options parseOptions,
                          List<PathPattern> sendPathPatterns,
                          List<PathPattern> subscribePathPatterns,
                          IgniteCache<String, DefaultSessionMetadata> sessionCache) {
-        super(sessionManager, participant, sessionId, parseOptions, sendPathPatterns, subscribePathPatterns);
+        super(sessionManager, participant, sessionId, replyToId, parseOptions, sendPathPatterns, subscribePathPatterns);
         this.sessionCache = sessionCache;
     }
 
@@ -48,7 +49,7 @@ public class IgniteSession extends AbstractSession {
     public void touch() {
         lastUsedDate = new Date();
         DefaultSessionMetadata meta = sessionCache.get(sessionId());
-        meta.lastUsedDate(lastUsedDate);
+        meta.setLastUsedDate(lastUsedDate);
         sessionCache.put(sessionId(), meta);
     }
 

@@ -22,7 +22,7 @@ import org.kinotic.continuum.core.api.security.SessionMetadata;
 import org.kinotic.continuum.gateway.api.security.SessionInformationService;
 import org.kinotic.continuum.internal.config.IgniteCacheConstants;
 import org.kinotic.continuum.internal.core.api.aignite.IgniteContinuousQueryObserver;
-import org.kinotic.continuum.internal.util.IgniteUtils;
+import org.kinotic.continuum.internal.utils.IgniteUtil;
 import org.kinotic.continuum.internal.core.api.security.DefaultSessionMetadata;
 import io.vertx.core.Vertx;
 import org.apache.ignite.Ignite;
@@ -70,7 +70,7 @@ public class DefaultSessionInformationService implements SessionInformationServi
 
     @Override
     public Flux<Long> countActiveSessionsContinuous() {
-        return IgniteUtils.countCacheEntriesContinuous(ignite, vertx, sessionCache);
+        return IgniteUtil.countCacheEntriesContinuous(ignite, vertx, sessionCache);
     }
 
     @Override
@@ -80,7 +80,7 @@ public class DefaultSessionInformationService implements SessionInformationServi
         }
         Flux<StreamData<String, SessionMetadata>> ret;
 
-        ret = IgniteUtils.observerToFlux(() -> new IgniteContinuousQueryObserver<>(vertx, sessionCache, new ScanQuery<>()));
+        ret = IgniteUtil.observerToFlux(() -> new IgniteContinuousQueryObserver<>(vertx, sessionCache, new ScanQuery<>()));
         return ret.subscribeOn(scheduler);
     }
 

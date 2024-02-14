@@ -1,0 +1,38 @@
+name: Build and Deploy Continuum Website
+
+on:
+  push:
+    branches:
+      - develop
+    paths:
+      - 'website/continuum-vitepress/**'
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: |
+          cd website/continuum-vitepress
+          yarn install
+
+      - name: Build Structures site
+        run: |
+          cd website/continuum-vitepress
+          yarn docs:build
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: website/continuum-vitepress/src/.vitepress/dist
+          publish_branch: gh-pages

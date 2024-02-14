@@ -34,7 +34,7 @@ public class ScriptCacheEntryFilterFactory<I,T> implements Factory<CacheEntryEve
 
     private final String filterSource;
     private final String scriptSource;
-    private Object[] args;
+    private final Object[] args;
     private ScriptCacheEntryEventFilter<I,T> cacheEntryEventFilter = null;
 
     public ScriptCacheEntryFilterFactory(String filterSource, Object... args) {

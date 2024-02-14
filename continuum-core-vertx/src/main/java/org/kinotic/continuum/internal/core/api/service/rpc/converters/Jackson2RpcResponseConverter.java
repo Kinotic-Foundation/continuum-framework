@@ -18,6 +18,7 @@
 package org.kinotic.continuum.internal.core.api.service.rpc.converters;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.kinotic.continuum.api.config.ContinuumProperties;
 import org.kinotic.continuum.core.api.event.Event;
 import org.kinotic.continuum.internal.core.api.service.json.AbstractJackson2Support;
 import org.kinotic.continuum.internal.core.api.service.rpc.RpcResponseConverter;
@@ -34,8 +35,9 @@ import org.springframework.util.Assert;
 public class Jackson2RpcResponseConverter extends AbstractJackson2Support implements RpcResponseConverter {
 
     public Jackson2RpcResponseConverter(ObjectMapper objectMapper,
-                                        ReactiveAdapterRegistry reactiveAdapterRegistry) {
-        super(objectMapper, reactiveAdapterRegistry);
+                                        ReactiveAdapterRegistry reactiveAdapterRegistry,
+                                        ContinuumProperties continuumProperties) {
+        super(objectMapper, reactiveAdapterRegistry, continuumProperties);
     }
 
     @Override
@@ -59,7 +61,7 @@ public class Jackson2RpcResponseConverter extends AbstractJackson2Support implem
 
                 ret = temp[0];
 
-            }else if(temp.length <= 0){
+            }else if(temp.length == 0){
                 throw new IllegalStateException("Event data was present but no values could be converted");
             }
         }

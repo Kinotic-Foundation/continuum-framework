@@ -4,30 +4,17 @@ import { defineConfig } from 'vitepress'
 export default defineConfig({
   title: "Continuum",
   description: "Insanely versatile IoT and Microservice framework",
+  base: '/continuum-framework/',
   themeConfig: {
-    logo: '/images/icon.png',
+    logo: '/icon.png',
     // https://vitepress.vuejs.org/reference/default-theme-config
-    nav: [
-      { text: 'Guide', link: '/introduction/overview' },
-      { text: 'Reference', link: '/reference/index' }
-    ],
 
-    sidebar: [
-      {
-        text: 'Introduction',
-        items: [
-          { text: 'What is Continuum?', link: '/introduction/overview' },
-          { text: 'Getting Started', link: '/introduction/getting-started' }
-        ]
-      },
-      {
-        text: 'Guide',
-        items: [
-          { text: 'Command Line', link: '/guide/cli-overview' },
-          { text: 'Services', link: '/guide/services' }
-        ]
-      }
-    ],
+    nav: nav(),
+
+    sidebar: {
+      '/guide/': sidebarGuide(),
+      '/reference/': sidebarReference()
+    },
 
     socialLinks: [
       { icon: 'github', link: ' https://github.com/Kinotic-Foundation/continuum-framework' }
@@ -38,3 +25,50 @@ export default defineConfig({
     }
   }
 })
+
+function nav() {
+  return [
+    { text: 'Guide', link: '/guide/overview', activeMatch: '/guide/' },
+    {
+      text: 'Reference',
+      link: '/reference/continuum-config',
+      activeMatch: '/reference/'
+    }
+  ]
+}
+
+function sidebarGuide() {
+  return [
+    {
+      text: 'Introduction',
+      items: [
+        { text: 'What is Continuum?', link: '/guide/overview' },
+        { text: 'Getting Started', link: '/guide/getting-started' }
+      ]
+    },
+    {
+      text: 'Details',
+      items: [
+        { text: 'Command Line', link: '/guide/cli-overview' },
+        { text: 'Services', link: '/guide/services' }
+      ]
+    }
+  ]
+}
+
+function sidebarReference() {
+  return [
+    {
+      text: 'Reference',
+      items: [
+        { text: 'Continuum Config', link: '/reference/continuum-config' }
+      ]
+    },
+    {
+      text: 'API',
+      items: [
+        { text: 'Javadoc', link: '/reference/javadoc' }
+      ]
+    }
+  ]
+}

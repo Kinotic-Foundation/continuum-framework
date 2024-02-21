@@ -17,12 +17,15 @@
 
 package org.kinotic.continuum.idl.api.schema;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.*;
 import lombok.experimental.Accessors;
 import org.apache.commons.lang3.Validate;
+import org.kinotic.continuum.idl.api.schema.decorators.C3Decorator;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Provides functionality to define a function with a Continuum schema.
@@ -45,19 +48,57 @@ public class FunctionDefinition {
     /**
      * This is the {@link C3Type} that defines the return type of this function.
      */
+    @EqualsAndHashCode.Exclude
     private C3Type returnType = new VoidC3Type();
 
     /**
-     * This map defines the {@link C3Type}'s that define the arguments for this function.
-     * The Key is the argument name the value is the schema for the argument type.
-     * Argument names must be unique.
+     * The list of Decorators that should be applied to this {@link FunctionDefinition}
      */
-    private Map<String, C3Type> arguments = new LinkedHashMap<>();
+    @EqualsAndHashCode.Exclude
+    private List<C3Decorator> decorators = new ArrayList<>();
 
+    /**
+     * The list of arguments that this function takes
+     */
+    @EqualsAndHashCode.Exclude
+    @JsonDeserialize(as = LinkedList.class)
+    private List<ArgumentDefinition> arguments = new LinkedList<>();
 
+    /**
+     * Adds a new argument to this function
+     * @param name the name of the argument
+     * @param c3Type the type of the argument
+     * @return this {@link FunctionDefinition} for chaining
+     */
     public FunctionDefinition addArgument(String name, C3Type c3Type){
-        Validate.isTrue(!arguments.containsKey(name), "An argument already exists with the name "+name);
-        arguments.put(name, c3Type);
+        ArgumentDefinition argument = new ArgumentDefinition().setName(name).setType(c3Type);
+        Validate.isTrue(arguments.contains(argument), "FunctionDefinition already contains argument "+argument.getName());
+        arguments.add(argument);
+        return this;
+    }
+
+    /**
+     * Adds a new argument to this function
+     * @param name the name of the argument
+     * @param c3Type the type of the argument
+     * @param decorators the decorators to apply to the argument
+     * @return this {@link FunctionDefinition} for chaining
+     */
+    public FunctionDefinition addArgument(String name, C3Type c3Type, List<C3Decorator> decorators){
+        ArgumentDefinition argument = new ArgumentDefinition().setName(name).setType(c3Type).setDecorators(decorators);
+        Validate.isTrue(arguments.contains(argument), "FunctionDefinition already contains argument "+argument.getName());
+        arguments.add(argument);
+        return this;
+    }
+
+    /**
+     * Adds a new argument to this function
+     * @param argument the argument to add
+     * @return this {@link FunctionDefinition} for chaining
+     */
+    public FunctionDefinition addArgument(ArgumentDefinition argument){
+        Validate.isTrue(arguments.contains(argument), "FunctionDefinition already contains argument "+argument.getName());
+        arguments.add(argument);
         return this;
     }
 

@@ -18,12 +18,13 @@
 package org.kinotic.continuum.idl.api.schema;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.*;
 import lombok.experimental.Accessors;
 import org.apache.commons.lang3.Validate;
+import org.kinotic.continuum.idl.api.schema.decorators.C3Decorator;
 
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Provides functionality to define an interface with a Continuum schema.
@@ -50,10 +51,17 @@ public class ServiceDefinition {
     private String name;
 
     /**
+     * The list of Decorators that should be applied to this {@link ServiceDefinition}
+     */
+    @EqualsAndHashCode.Exclude
+    protected List<C3Decorator> decorators = new ArrayList<>();
+
+    /**
      * This defines {@link FunctionDefinition}'s for this {@link ServiceDefinition}
      * The key is the function name and the value is the schema that defines the function
      */
     @EqualsAndHashCode.Exclude
+    @JsonDeserialize(as = LinkedList.class)
     private Set<FunctionDefinition> functions = new LinkedHashSet<>();
 
     /**
@@ -65,6 +73,11 @@ public class ServiceDefinition {
     public ServiceDefinition addFunction(FunctionDefinition function){
         Validate.isTrue(!functions.contains(function), "ServiceDefinition already contains function "+function);
         functions.add(function);
+        return this;
+    }
+
+    public ServiceDefinition addDecorator(C3Decorator decorator){
+        decorators.add(decorator);
         return this;
     }
 

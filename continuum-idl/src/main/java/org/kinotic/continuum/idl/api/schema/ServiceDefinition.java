@@ -76,7 +76,14 @@ public class ServiceDefinition {
         return this;
     }
 
+    /**
+     * Adds a new decorator to this service
+     * @param decorator to add
+     * @return this {@link ServiceDefinition} for chaining
+     */
     public ServiceDefinition addDecorator(C3Decorator decorator){
+        Validate.notNull(decorator, "decorator cannot be null");
+        Validate.isTrue(!decorators.contains(decorator), "ServiceDefinition already contains decorator "+decorator);
         decorators.add(decorator);
         return this;
     }

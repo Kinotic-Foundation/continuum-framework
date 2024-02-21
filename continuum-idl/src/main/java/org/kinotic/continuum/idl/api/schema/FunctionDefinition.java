@@ -72,7 +72,7 @@ public class FunctionDefinition {
      */
     public FunctionDefinition addArgument(String name, C3Type c3Type){
         ArgumentDefinition argument = new ArgumentDefinition().setName(name).setType(c3Type);
-        Validate.isTrue(arguments.contains(argument), "FunctionDefinition already contains argument "+argument.getName());
+        Validate.isTrue(!arguments.contains(argument), "FunctionDefinition already contains argument "+argument.getName());
         arguments.add(argument);
         return this;
     }
@@ -86,7 +86,7 @@ public class FunctionDefinition {
      */
     public FunctionDefinition addArgument(String name, C3Type c3Type, List<C3Decorator> decorators){
         ArgumentDefinition argument = new ArgumentDefinition().setName(name).setType(c3Type).setDecorators(decorators);
-        Validate.isTrue(arguments.contains(argument), "FunctionDefinition already contains argument "+argument.getName());
+        Validate.isTrue(!arguments.contains(argument), "FunctionDefinition already contains argument "+argument.getName());
         arguments.add(argument);
         return this;
     }
@@ -97,8 +97,20 @@ public class FunctionDefinition {
      * @return this {@link FunctionDefinition} for chaining
      */
     public FunctionDefinition addArgument(ArgumentDefinition argument){
-        Validate.isTrue(arguments.contains(argument), "FunctionDefinition already contains argument "+argument.getName());
+        Validate.isTrue(!arguments.contains(argument), "FunctionDefinition already contains argument "+argument.getName());
         arguments.add(argument);
+        return this;
+    }
+
+    /**
+     * Adds a new decorator to this function
+     * @param decorator to add
+     * @return this {@link FunctionDefinition} for chaining
+     */
+    public FunctionDefinition addDecorator(C3Decorator decorator){
+        Validate.notNull(decorator, "decorator cannot be null");
+        Validate.isTrue(!decorators.contains(decorator), "FunctionDefinition already contains decorator "+decorator);
+        decorators.add(decorator);
         return this;
     }
 

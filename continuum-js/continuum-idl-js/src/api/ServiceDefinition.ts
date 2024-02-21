@@ -1,3 +1,4 @@
+import {C3Decorator} from '@/api/decorators/C3Decorator'
 import { FunctionDefinition } from '@/api/FunctionDefinition'
 
 /**
@@ -24,15 +25,19 @@ export class ServiceDefinition {
     public functions: Set<FunctionDefinition> = new Set<FunctionDefinition>()
 
     /**
+     * The list of Decorators that should be applied to this type
+     */
+    public decorators?: C3Decorator[] = []
+
+    /**
      * Stores the given value in the functions definitions for this schema
      * If a schema for the name already exists an error will be thrown
-     * @param name the name of the function
-     * @param schema {@link FunctionDefinition} defining the function
+     * @param func the function to add
      * @return this
      */
     public addFunction(func: FunctionDefinition): this {
         if(this.functions.has(func)){
-            throw new Error(`InterfaceJsonSchema already contains function for name ${func.name}`)
+            throw new Error(`ServiceDefinition already contains function for name ${func.name}`)
         }
         this.functions.add(func)
         return this

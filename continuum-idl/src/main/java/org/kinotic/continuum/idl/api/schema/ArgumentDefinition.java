@@ -2,6 +2,7 @@ package org.kinotic.continuum.idl.api.schema;
 
 import lombok.*;
 import lombok.experimental.Accessors;
+import org.apache.commons.lang3.Validate;
 import org.kinotic.continuum.idl.api.schema.decorators.C3Decorator;
 
 import java.util.ArrayList;
@@ -35,5 +36,17 @@ public class ArgumentDefinition {
      * This is the {@link C3Type} that defines the type of this argument.
      */
     private C3Type type;
+
+    /**
+     * Adds a new decorator to this argument
+     * @param decorator to add
+     * @return this {@link ArgumentDefinition} for chaining
+     */
+    public ArgumentDefinition addDecorator(C3Decorator decorator){
+        Validate.notNull(decorator, "decorator cannot be null");
+        Validate.isTrue(!decorators.contains(decorator), "ArgumentDefinition already contains decorator "+decorator);
+        decorators.add(decorator);
+        return this;
+    }
 
 }

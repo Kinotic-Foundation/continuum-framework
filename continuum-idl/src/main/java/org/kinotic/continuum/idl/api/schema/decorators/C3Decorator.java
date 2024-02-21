@@ -29,6 +29,13 @@ import java.util.List;
 public abstract class C3Decorator {
 
     /**
+     * The type of the decorator
+     * NOTE: This must be set by implementations. It is not declared final for deserialization purposes.
+     */
+    @JsonIgnore
+    protected String type;
+
+    /**
      * Targets specify where the decorator can be applied
      * NOTE: This must be set by implementations. It is not declared final for deserialization purposes.
      */

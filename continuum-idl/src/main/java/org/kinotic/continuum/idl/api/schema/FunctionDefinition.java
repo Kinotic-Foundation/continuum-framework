@@ -29,6 +29,8 @@ import java.util.List;
 
 /**
  * Provides functionality to define a function with a Continuum schema.
+ * The context for equality here is the {@link ServiceDefinition}.
+ * Given that no two functions can have the same name in the same {@link ServiceDefinition}.
  * Created by navid on 2023-4-13
  */
 @Getter
@@ -60,9 +62,8 @@ public class FunctionDefinition {
     /**
      * The list of arguments that this function takes
      */
-    @EqualsAndHashCode.Exclude
     @JsonDeserialize(as = LinkedList.class)
-    private List<ArgumentDefinition> arguments = new LinkedList<>();
+    private LinkedList<ArgumentDefinition> arguments = new LinkedList<>();
 
     /**
      * Adds a new argument to this function
@@ -72,9 +73,7 @@ public class FunctionDefinition {
      */
     public FunctionDefinition addArgument(String name, C3Type c3Type){
         ArgumentDefinition argument = new ArgumentDefinition().setName(name).setType(c3Type);
-        Validate.isTrue(!arguments.contains(argument), "FunctionDefinition already contains argument "+argument.getName());
-        arguments.add(argument);
-        return this;
+        return addArgument(argument);
     }
 
     /**
@@ -86,9 +85,7 @@ public class FunctionDefinition {
      */
     public FunctionDefinition addArgument(String name, C3Type c3Type, List<C3Decorator> decorators){
         ArgumentDefinition argument = new ArgumentDefinition().setName(name).setType(c3Type).setDecorators(decorators);
-        Validate.isTrue(!arguments.contains(argument), "FunctionDefinition already contains argument "+argument.getName());
-        arguments.add(argument);
-        return this;
+        return addArgument(argument);
     }
 
     /**

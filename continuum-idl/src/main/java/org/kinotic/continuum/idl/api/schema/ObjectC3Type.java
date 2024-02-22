@@ -18,19 +18,20 @@
 package org.kinotic.continuum.idl.api.schema;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.*;
 import lombok.experimental.Accessors;
 import org.apache.commons.lang3.Validate;
+import org.kinotic.continuum.idl.api.schema.decorators.C3Decorator;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
- * Objects map property names to values. The property names are strings, and the values can be any Continuum Schema type.
- * Each of these pairs is conventionally referred to as a “property”.
- * NOTE: To {@link ObjectC3Type} are considered equivalent if they have the same namespace and name.
- *       Properties and decorators are not considered when determining equivalence.
- * <p>
+ * ObjectC3Type is used to define a complex object type in the Continuum IDL.
+ * Properties are defined with {@link PropertyDefinition}s
+ * The context for equality here is the namespace and name.
+ * Given no two object types can have the same namespace and name this is the only context needed for equality.
  * Created by navid on 2019-06-11.
  */
 @Getter
@@ -63,9 +64,9 @@ public class ObjectC3Type extends C3Type {
      * The properties (key-value pairs) on an object are defined using the properties' keyword.
      * The value of properties is an object, where each key is the name of a property and each value is a Continuum schema used to validate that property.
      */
-    @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    private Map<String, C3Type> properties = new LinkedHashMap<>();
+    @JsonDeserialize(as = LinkedList.class)
+    private LinkedList<PropertyDefinition> properties = new LinkedList<>();
 
     /**
      * Adds a property to this {@link ObjectC3Type}
@@ -74,8 +75,30 @@ public class ObjectC3Type extends C3Type {
      * @return this {@link ObjectC3Type} for chaining
      */
     public ObjectC3Type addProperty(String name, C3Type c3Type){
-        Validate.isTrue(!properties.containsKey(name), "ObjectC3Type already contains property for name "+name);
-        properties.put(name, c3Type);
+        PropertyDefinition property = new PropertyDefinition().setName(name).setType(c3Type);
+        return addProperty(property);
+    }
+
+    /**
+     * Adds a property to this {@link ObjectC3Type}
+     * @param name of the property
+     * @param c3Type the type of the property
+     * @param decorators the decorators to apply to the property
+     * @return this {@link ObjectC3Type} for chaining
+     */
+    public ObjectC3Type addProperty(String name, C3Type c3Type, List<C3Decorator> decorators){
+        PropertyDefinition property = new PropertyDefinition().setName(name).setType(c3Type).setDecorators(decorators);
+        return addProperty(property);
+    }
+
+    /**
+     * Adds a property to this {@link ObjectC3Type}
+     * @param propertyDefinition to add to this {@link ObjectC3Type}
+     * @return this {@link ObjectC3Type} for chaining
+     */
+    public ObjectC3Type addProperty(PropertyDefinition propertyDefinition){
+        Validate.isTrue(!properties.contains(propertyDefinition), "ObjectC3Type already contains property "+propertyDefinition.getName());
+        properties.add(propertyDefinition);
         return this;
     }
 

@@ -9,10 +9,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Provides functionality to define an argument for a function with a Continuum schema.
- * The context for equality here is the {@link FunctionDefinition}.
- * Given that no two arguments can have the same name in the same {@link FunctionDefinition}.
- * Created by navid on 2023-4-13
+ * Defines a property for a {@link ObjectC3Type}
+ * The context for equality here is the {@link ObjectC3Type}.
+ * Given no two properties can have the same name in an {@link ObjectC3Type}.
+ * Created by Navíd Mitchell 🤪 on 2/22/24.
  */
 @Getter
 @Setter
@@ -20,34 +20,34 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
-@ToString
-public class ArgumentDefinition {
+@ToString(callSuper = true)
+public class PropertyDefinition {
 
     /**
-     * The name of this {@link ArgumentDefinition}, and the argument name for the {@link FunctionDefinition}
+     * This is the name of the {@link PropertyDefinition} such as "firstName", "lastName"
      */
-    private String name;
+    private String name = null;
 
     /**
-     * This is the {@link C3Type} that defines the type of this argument.
+     * This is the {@link C3Type} of this {@link PropertyDefinition}
      */
-    @EqualsAndHashCode.Exclude // The context for equality here is the function definition
+    @EqualsAndHashCode.Exclude
     private C3Type type;
 
     /**
-     * The list of Decorators that should be applied to this {@link ArgumentDefinition}
+     * The list of Decorators that should be applied to this {@link PropertyDefinition}
      */
     @EqualsAndHashCode.Exclude
     private List<C3Decorator> decorators = new ArrayList<>();
 
     /**
-     * Adds a new decorator to this argument
+     * Adds a new decorator to this {@link PropertyDefinition}
      * @param decorator to add
-     * @return this {@link ArgumentDefinition} for chaining
+     * @return this {@link FunctionDefinition} for chaining
      */
-    public ArgumentDefinition addDecorator(C3Decorator decorator){
+    public PropertyDefinition addDecorator(C3Decorator decorator){
         Validate.notNull(decorator, "decorator cannot be null");
-        Validate.isTrue(!decorators.contains(decorator), "ArgumentDefinition already contains decorator "+decorator);
+        Validate.isTrue(!decorators.contains(decorator), "PropertyDefinition already contains decorator "+decorator);
         decorators.add(decorator);
         return this;
     }
@@ -87,5 +87,4 @@ public class ArgumentDefinition {
         }
         return ret;
     }
-
 }

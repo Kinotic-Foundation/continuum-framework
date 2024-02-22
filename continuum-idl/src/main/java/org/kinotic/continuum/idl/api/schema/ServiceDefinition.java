@@ -27,8 +27,9 @@ import org.kinotic.continuum.idl.api.schema.decorators.C3Decorator;
 import java.util.*;
 
 /**
- * Provides functionality to define an interface with a Continuum schema.
- * <p>
+ * Provides functionality to define an interface / service with a Continuum schema.
+ * The context for equality here is the {@link NamespaceDefinition}.
+ * Given no two service definitions can have the same namespace and name in a {@link NamespaceDefinition}.
  * Created by navid on 2023-4-13.
  */
 @Getter

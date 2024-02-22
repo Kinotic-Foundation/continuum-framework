@@ -114,4 +114,40 @@ public class FunctionDefinition {
         return this;
     }
 
+    /**
+     * Checks if this type contains a {@link C3Decorator} of the given subclass
+     * @param clazz to see if this type has
+     * @return true if the {@link C3Decorator} is present false if not
+     */
+    public boolean containsDecorator(Class<? extends C3Decorator> clazz){
+        return findDecorator(clazz) != null;
+    }
+
+    /**
+     * Checks if this type has any {@link C3Decorator}
+     * @return true if any {@link C3Decorator}s are present false if not
+     */
+    public boolean hasDecorators(){
+        return decorators != null && !decorators.isEmpty();
+    }
+
+    /**
+     * Finds the first {@link C3Decorator} of the given subclass or null if none are found
+     * @param clazz to find the {@link C3Decorator} for
+     * @return the {@link C3Decorator} or null if none are found
+     */
+    public <T extends C3Decorator> T findDecorator(Class<T> clazz){
+        T ret = null;
+        if(decorators != null){
+            for (C3Decorator decorator : decorators){
+                if(clazz.isAssignableFrom(decorator.getClass())){
+                    //noinspection unchecked
+                    ret = (T) decorator;
+                    break;
+                }
+            }
+        }
+        return ret;
+    }
+
 }

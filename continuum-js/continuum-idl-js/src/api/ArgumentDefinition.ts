@@ -24,34 +24,47 @@ export class ArgumentDefinition {
     }
 
     /**
-     * Checks if this function has a C3Decorator for the given type
-     * @param value
+     * Checks if this type has a {@link C3Decorator} for the given type
+     * @param value the {@link C3Decorator} to check for
+     * @return true if the type has a {@link C3Decorator} for the given type false if not
      */
-    public containsDecorator(value: any): boolean {
+    public containsDecorator(value: C3Decorator): boolean {
         return this.findDecorator(value) !== null
     }
 
     /**
-     * Adds a decorator to this argument definition
-     * @param decorator The decorator to add
+     * Checks if this type has any {@link C3Decorator}
+     * @return true if any {@link C3Decorator}s are present false if not
      */
-    public addDecorator(decorator: any): ArgumentDefinition {
+    public hasDecorators(): boolean {
+        return this.decorators != null && this.decorators.length > 0
+    }
+
+    /**
+     * Adds a new decorator to this type
+     * @param decorator the decorator to add
+     * @return this {@link ArgumentDefinition}
+     */
+    public addDecorator(decorator: C3Decorator): ArgumentDefinition {
         if (this.containsDecorator(decorator)) {
             throw new Error(`ArgumentDefinition already contains decorator for name ${decorator.type}`);
         }
+
         if(!this.decorators){
             this.decorators = []
         }
+
         this.decorators.push(decorator)
         return this
     }
 
     /**
      * Finds a decorator for the given type if it exists
-     * @param value The type to find
+     * @param value the type to find
+     * @return the decorator if it exists null if not
      */
-    public findDecorator(value: any): any | null {
-        let ret: any | null = null
+    public findDecorator(value: C3Decorator): C3Decorator | null {
+        let ret: C3Decorator | null = null
         if (this.decorators) {
             for (const decorator of this.decorators) {
                 if(decorator.type === value.type) {

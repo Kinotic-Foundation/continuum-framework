@@ -40,6 +40,7 @@ public abstract class C3Decorator {
      * NOTE: This must be set by implementations. It is not declared final for deserialization purposes.
      */
     @JsonIgnore
+    @EqualsAndHashCode.Exclude
     protected List<DecoratorTarget> targets;
 
 }

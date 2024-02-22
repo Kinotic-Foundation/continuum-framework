@@ -20,6 +20,11 @@ export abstract class C3Type {
 
     public type: string = ""
 
+    /**
+     * Checks if this type has a {@link C3Decorator} for the given type
+     * @param value the {@link C3Decorator} to check for
+     * @return true if the type has a {@link C3Decorator} for the given type false if not
+     */
     public containsDecorator(value: C3Decorator): boolean {
         return this.findDecorator(value) !== null
     }
@@ -32,6 +37,11 @@ export abstract class C3Type {
         return this.decorators != null && this.decorators.length > 0
     }
 
+    /**
+     * Adds a new decorator to this type
+     * @param decorator the decorator to add
+     * @return this {@link C3Type}
+     */
     public addDecorator(decorator: C3Decorator): C3Type {
         if (this.containsDecorator(decorator)) {
             throw new Error(`C3Type already contains decorator for name ${decorator.type}`);
@@ -45,6 +55,11 @@ export abstract class C3Type {
         return this
     }
 
+    /**
+     * Finds a decorator for the given type if it exists
+     * @param value the type to find
+     * @return the decorator if it exists null if not
+     */
     public findDecorator(value: C3Decorator): C3Decorator | null {
         let ret: C3Decorator | null = null
         if (this.decorators) {

@@ -17,13 +17,12 @@
 
 package org.kinotic.continuum.gateway.internal.endpoints;
 
-import lombok.RequiredArgsConstructor;
-import org.kinotic.continuum.gateway.internal.endpoints.rest.RestServerVerticle;
-import org.kinotic.continuum.gateway.internal.endpoints.stomp.StompServerVerticle;
+import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
+import lombok.RequiredArgsConstructor;
+import org.kinotic.continuum.api.config.ContinuumProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
@@ -38,22 +37,23 @@ import javax.annotation.PostConstruct;
 public class ContinuumGatewayEndpointInitializer {
     private static final Logger log = LoggerFactory.getLogger(ContinuumGatewayEndpointInitializer.class);
 
-    private final StompServerVerticle stompServerVerticle;
-    private final RestServerVerticle restServerVerticle;
+    private final ContinuumVertcleFactory continuumVertcleFactory;
+    private final ContinuumProperties continuumProperties;
     private final Environment environment;
     private final Vertx vertx;
 
     @PostConstruct
     public void init(){
         // If production deploy one verticle of each per core
-        int numToDeploy = Math.min(environment.matchesProfiles("production") ? Math.max(Runtime.getRuntime().availableProcessors(), 1) : 1, 8);
+        int numToDeploy = continuumProperties.getMaxNumberOfCoresToUse();
         log.info(numToDeploy + " Cores will be used for Continuum Endpoints");
+        DeploymentOptions options = new DeploymentOptions().setInstances(numToDeploy);
 
-        log.info("Deploying Stomp Server Endpoint " + numToDeploy);
-        vertx.deployVerticle(stompServerVerticle);
+        log.info("Deploying " + numToDeploy + " Stomp Server Endpoint(s)");
+        vertx.deployVerticle(continuumVertcleFactory::createStompServerVerticle, options);
 
-        log.info("Deploying REST Server Endpoint " + numToDeploy);
-        vertx.deployVerticle(restServerVerticle);
+        log.info("Deploying " + numToDeploy + " REST Server Endpoint(s)");
+        vertx.deployVerticle(continuumVertcleFactory::createRestServerVerticle, options);
     }
 
 }

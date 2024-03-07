@@ -30,17 +30,16 @@ import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.StaticHandler;
+import lombok.RequiredArgsConstructor;
+import org.kinotic.continuum.api.security.Participant;
+import org.kinotic.continuum.api.security.SecurityService;
 import org.kinotic.continuum.core.api.event.Event;
 import org.kinotic.continuum.core.api.event.EventBusService;
 import org.kinotic.continuum.core.api.event.EventConstants;
-import org.kinotic.continuum.api.security.Participant;
-import org.kinotic.continuum.api.security.SecurityService;
 import org.kinotic.continuum.gateway.api.config.ContinuumGatewayProperties;
 import org.kinotic.continuum.gateway.api.security.AuthenticationHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -56,7 +55,7 @@ import java.util.UUID;
  *
  * Created by navid on 12/18/19
  */
-@Component
+@RequiredArgsConstructor
 public class RestServerVerticle extends AbstractVerticle {
 
     private static final Logger log = LoggerFactory.getLogger(RestServerVerticle.class);
@@ -72,16 +71,6 @@ public class RestServerVerticle extends AbstractVerticle {
 
     private Disposable disposable;
     private HttpServer httpServer;
-
-    public RestServerVerticle(ContinuumGatewayProperties gatewayProperties,
-                              EventBusService eventService,
-                              @Autowired(required = false) SecurityService securityService,
-                              ObjectMapper objectMapper) {
-        this.gatewayProperties = gatewayProperties;
-        this.eventService = eventService;
-        this.securityService = securityService;
-        this.objectMapper = objectMapper;
-    }
 
     @Override
     public void start(Promise<Void> startPromise) {

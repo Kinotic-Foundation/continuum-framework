@@ -125,9 +125,9 @@ public class ContinuumIgniteConfig {
 
         // Setup calcite sql engine
         cfg.setSqlConfiguration(
-                new SqlConfiguration().setQueryEnginesConfiguration(
-                        new CalciteQueryEngineConfiguration().setDefault(true)
-                )
+            new SqlConfiguration().setQueryEnginesConfiguration(
+                    new CalciteQueryEngineConfiguration().setDefault(true)
+            )
         );
 
         DataStorageConfiguration dataStorageConfiguration = new DataStorageConfiguration();

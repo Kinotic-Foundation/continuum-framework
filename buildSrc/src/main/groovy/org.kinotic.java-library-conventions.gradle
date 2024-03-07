@@ -80,7 +80,6 @@ signing {
     sign publishing.publications.mavenJava
 }
 
-
 javadoc {
     // suppress warnings
     options.addStringOption('Xdoclint:none', '-quiet')

@@ -1,9 +1,9 @@
 # General properties shared by all profiles
   continuum-gateway:
-    dataDir:                  /media/continuum/data/gateway
+    dataDir: /media/continuum/data/gateway
 
   continuum:
     discovery: zookeeper
-    debug: true
+    debug: false
     eventBusClusterPort: 57100
 

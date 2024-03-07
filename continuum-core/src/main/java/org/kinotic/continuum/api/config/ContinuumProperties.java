@@ -59,4 +59,10 @@ public interface ContinuumProperties {
     long getMaxOffHeapMemory();
 
     int getMaxEventPayloadSize();
+
+    /**
+     * The maximum number of CPU cores if not set or less than 1, this will default to the available number of cores.
+     * @return the max number of CPU Cores to Use
+     */
+    int getMaxNumberOfCoresToUse();
 }

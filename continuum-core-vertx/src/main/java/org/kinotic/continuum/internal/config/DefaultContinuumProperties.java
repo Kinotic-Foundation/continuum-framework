@@ -17,6 +17,9 @@
 
 package org.kinotic.continuum.internal.config;
 
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 import org.kinotic.continuum.api.config.ContinuumProperties;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -30,6 +33,9 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @ConfigurationProperties(prefix = "continuum")
+@Getter
+@Setter
+@Accessors(chain = true)
 public class DefaultContinuumProperties implements ContinuumProperties {
 
     public static String DEFAULT_KAFKA_BOOTSTRAP_SERVERS ="127.0.0.1:9092";
@@ -43,103 +49,21 @@ public class DefaultContinuumProperties implements ContinuumProperties {
     private boolean disableClustering = false;
     private int eventBusClusterPort = 0;
     private long sessionTimeout = DEFAULT_SESSION_TIMEOUT;
-    private String discovery = DEFAULT_DISCOVERY;
-    private long maxOffHeapMemory = DataStorageConfiguration.DFLT_DATA_REGION_MAX_SIZE;
-    private int maxEventPayloadSize = 1024 * 1024 * 100; // 100MB
-
-    @Override
-    public String getKafkaBootstrapServers() {
-        return kafkaBootstrapServers;
-    }
-
-    public ContinuumProperties setKafkaBootstrapServers(String kafkaBootstrapServers) {
-        this.kafkaBootstrapServers = kafkaBootstrapServers;
-        return this;
-    }
-
-    @Override
-    public String getZookeeperServers() {
-        return zookeeperServers;
-    }
-
-    public ContinuumProperties setZookeeperServers(String zookeeperServers) {
-        this.zookeeperServers = zookeeperServers;
-        return this;
-    }
-
-    @Override
-    public boolean isDebug() {
-        return debug;
-    }
-
-    public ContinuumProperties setDebug(boolean debug) {
-        this.debug = debug;
-        return this;
-    }
-
-    @Override
-    public boolean isDisableClustering() {
-        return disableClustering;
-    }
-
-    public void setDisableClustering(boolean disableClustering) {
-        this.disableClustering = disableClustering;
-    }
-
-    @Override
-    public int getEventBusClusterPort() {
-        return eventBusClusterPort;
-    }
-
-    public void setEventBusClusterPort(int eventBusClusterPort) {
-        this.eventBusClusterPort = eventBusClusterPort;
-    }
-
-    @Override
-    public long getSessionTimeout() {
-        return sessionTimeout;
-    }
-
-    public ContinuumProperties setSessionTimeout(long sessionTimeout) {
-        this.sessionTimeout = sessionTimeout;
-        return this;
-    }
-
-    @Override
-    public String getDiscovery() {
-        return discovery;
-    }
-
     /**
      * Sets the mode used for discovering other nodes within the cluster must be one of the following.
      * sharedfs : Uses TCP discovery with a shared filesystems
      * zookeeper : Uses Zookeeper discovery
-     *
-     * @param discovery the mode to use for discovery
-     * @return this for fluent use
      */
-    public ContinuumProperties setDiscovery(String discovery) {
-        this.discovery = discovery;
+    private String discovery = DEFAULT_DISCOVERY;
+    private long maxOffHeapMemory = DataStorageConfiguration.DFLT_DATA_REGION_MAX_SIZE;
+    private int maxEventPayloadSize = 1024 * 1024 * 100; // 100MB
+    private int maxNumberOfCoresToUse = Math.max(Runtime.getRuntime().availableProcessors(), 1);
+
+
+    public DefaultContinuumProperties setMaxNumberOfCoresToUse(int maxNumberOfCoresToUse) {
+        int availableProcessors = Runtime.getRuntime().availableProcessors();
+        this.maxNumberOfCoresToUse = maxNumberOfCoresToUse > 0 ? Math.min(availableProcessors, maxNumberOfCoresToUse) : Math.max(availableProcessors, 1);
         return this;
-    }
-
-    @Override
-    public long getMaxOffHeapMemory() {
-        return maxOffHeapMemory;
-    }
-
-    public ContinuumProperties setMaxOffHeapMemory(long maxOffHeapMemory) {
-        this.maxOffHeapMemory = maxOffHeapMemory;
-        return this;
-    }
-
-    @Override
-    public int getMaxEventPayloadSize() {
-        return maxEventPayloadSize;
-    }
-
-    public void setMaxEventPayloadSize(int maxEventPayloadSize) {
-        this.maxEventPayloadSize = maxEventPayloadSize;
     }
 
     @Override

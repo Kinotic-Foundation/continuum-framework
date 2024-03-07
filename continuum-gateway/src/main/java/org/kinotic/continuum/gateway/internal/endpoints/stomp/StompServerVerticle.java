@@ -25,11 +25,11 @@ import io.vertx.ext.stomp.lite.StompServerHandlerFactory;
 import io.vertx.ext.stomp.lite.StompServerOptions;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.StaticHandler;
+import lombok.RequiredArgsConstructor;
 import org.kinotic.continuum.api.config.ContinuumProperties;
 import org.kinotic.continuum.gateway.api.config.ContinuumGatewayProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
 import java.util.List;
 
@@ -37,26 +37,15 @@ import java.util.List;
  *
  * Created by Navid Mitchell on 2019-01-09.
  */
-@Component
+@RequiredArgsConstructor
 public class StompServerVerticle extends AbstractVerticle {
 
     private static final Logger log = LoggerFactory.getLogger(StompServerVerticle.class);
 
     private final ContinuumProperties continuumProperties;
-
     private final ContinuumGatewayProperties gatewayProperties;
-
     private final StompServerHandlerFactory stompServerHandlerFactory;
-
     private HttpServer httpServer;
-
-    public StompServerVerticle(ContinuumProperties continuumProperties,
-                               ContinuumGatewayProperties gatewayProperties,
-                               StompServerHandlerFactory stompServerHandlerFactory) {
-        this.continuumProperties = continuumProperties;
-        this.gatewayProperties = gatewayProperties;
-        this.stompServerHandlerFactory = stompServerHandlerFactory;
-    }
 
     @Override
     public void start() {

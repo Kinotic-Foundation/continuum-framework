@@ -134,7 +134,14 @@ export class EventBus implements IEventBus {
                     connectHeaders: connectHeadersInternal,
                     heartbeatIncoming: 120000,
                     heartbeatOutgoing: 30000,
-                    reconnectDelay: 30000
+                    reconnectDelay: 30000,
+                    // connectionTimeout: connectionRetryInterval, // Tbeir API prop is a little deceiving, it's actually the time to wait for the connection to be retried
+                    // beforeConnect: (rx: RxStomp) => {
+                    //     connectionAttempts++
+                    //     if connectionAttempts > maxConnectAttempts {
+                    //
+                    //     }
+                    // }
                 })
 
                 // This subscription is to handle any errors that occur during connection

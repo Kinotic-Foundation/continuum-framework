@@ -28,8 +28,16 @@ export class ConnectHeaders {
  * ConnectionInfo provides the information needed to connect to the continuum server
  */
 export class ConnectionInfo {
+    connectHeaders?: ConnectHeaders
+    /**
+     * The amount of time in milliseconds to wait for the connection to be established, before completing with an error
+     */
+    connectionTimeout?: number | null
+    /**
+     * The number of times to retry the connection attempt after the connectionTimeout is reached.
+     */
+    connectionRetries?: number | null
     host!: string
     port?: number | null
     useSSL?: boolean | null
-    connectHeaders?: ConnectHeaders
 }

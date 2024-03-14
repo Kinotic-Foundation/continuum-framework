@@ -25,32 +25,38 @@ import {CrudServiceProxyFactory} from '@/core/api/crud/CrudServiceProxyFactory'
 import {ConnectedInfo} from '@/api/security/ConnectedInfo'
 import {ConnectionInfo} from '@/api/Connection'
 
+
 /**
- * Provides a simplified way to connect to Continuum and access services
+ * Provides a simplified way to connect to Continuum and access services.
+ * All methods use a single connection to the Continuum Services
  */
-export namespace Continuum {
+export class ContinuumSingleton {
+    public readonly eventBus!: IEventBus
+    public readonly serviceRegistry!: ServiceRegistry
+    public readonly crudServiceProxyFactory!: CrudServiceProxyFactory
 
-    export const eventBus: IEventBus = new EventBus()
 
-    const serviceRegistry = new ServiceRegistry(eventBus)
-
-    const crudServiceProxyFactory = new CrudServiceProxyFactory(serviceRegistry)
+    constructor() {
+        this.eventBus = new EventBus()
+        this.serviceRegistry = new ServiceRegistry(this.eventBus)
+        this.crudServiceProxyFactory = new CrudServiceProxyFactory(this.serviceRegistry)
+    }
 
     /**
      * Requests a connection to the given Stomp url
      * @param connectionInfo provides the information needed to connect to the continuum server
      * @return Promise containing the result of the initial connection attempt
      */
-    export function connect(connectionInfo: ConnectionInfo): Promise<ConnectedInfo> {
-        return eventBus.connect(connectionInfo)
+     public connect(connectionInfo: ConnectionInfo): Promise<ConnectedInfo> {
+        return this.eventBus.connect(connectionInfo)
     }
 
     /**
      * Disconnects the client from the server
      * This will clear any subscriptions and close the connection
      */
-    export function disconnect(force?: boolean): Promise<void> {
-        return eventBus.disconnect(force)
+    public disconnect(force?: boolean): Promise<void> {
+        return this.eventBus.disconnect(force)
     }
 
     /**
@@ -58,12 +64,13 @@ export namespace Continuum {
      * @param serviceIdentifier the identifier of the service to be accessed
      * @return the {@link IServiceProxy} that can be used to access the service
      */
-    export function serviceProxy(serviceIdentifier: string): IServiceProxy {
-        return serviceRegistry.serviceProxy(serviceIdentifier)
+    public serviceProxy(serviceIdentifier: string): IServiceProxy {
+        return this.serviceRegistry.serviceProxy(serviceIdentifier)
     }
 
-    export function crudServiceProxy<T extends Identifiable<string>>(serviceIdentifier: string): ICrudServiceProxy<T> {
-        return crudServiceProxyFactory.crudServiceProxy<T>(serviceIdentifier)
+    public crudServiceProxy<T extends Identifiable<string>>(serviceIdentifier: string): ICrudServiceProxy<T> {
+        return this.crudServiceProxyFactory.crudServiceProxy<T>(serviceIdentifier)
     }
-
 }
+
+export const Continuum = new ContinuumSingleton()

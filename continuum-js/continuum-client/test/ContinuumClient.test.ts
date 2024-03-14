@@ -1,9 +1,8 @@
 import {describe, expect, it, beforeAll, afterAll} from 'vitest'
-import {ConnectedInfo, Continuum, Event, EventConstants, ParticipantConstants} from '../src'
+import {ConnectedInfo, Continuum, ContinuumSingleton, Event, EventConstants, ParticipantConstants} from '../src'
 import {WebSocket} from 'ws'
 import {initContinuumGateway, logFailure, validateConnectedInfo} from './TestHelper'
-import {TEST_SERVICE} from './ITestService'
-import {AlwaysPullPolicy, GenericContainer, StartedTestContainer} from 'testcontainers'
+import {StartedTestContainer} from 'testcontainers'
 
 // This is required when running Continuum from node
 Object.assign(global, { WebSocket})
@@ -26,7 +25,8 @@ describe('Continuum Client Tests', () => {
     })
 
     it('should connect and disconnect', async () => {
-        const connectedInfo: ConnectedInfo = await logFailure(Continuum.connect({
+        const continuum = new ContinuumSingleton()
+        const connectedInfo: ConnectedInfo = await logFailure(continuum.connect({
                 host:host,
                 port:port,
                 connectHeaders:{login: 'guest', passcode: 'guest'}
@@ -34,45 +34,47 @@ describe('Continuum Client Tests', () => {
             'Failed to connect to Continuum Gateway')
         validateConnectedInfo(connectedInfo)
 
-        await expect(Continuum.disconnect()).resolves.toBeUndefined()
+        await expect(continuum.disconnect()).resolves.toBeUndefined()
     })
 
     it('should connect and disconnect multiple times', async () => {
+        const continuum = new ContinuumSingleton()
         console.log(`Connecting to Continuum Gateway running at ${host}:${port} the first time`)
-        let connectedInfo: ConnectedInfo = await logFailure(Continuum.connect({
+        let connectedInfo: ConnectedInfo = await logFailure(continuum.connect({
                 host:host,
                 port:port,
                 connectHeaders:{login: 'guest', passcode: 'guest'}
         }),
             'Failed to connect to Continuum Gateway')
         validateConnectedInfo(connectedInfo)
-        await expect(Continuum.disconnect()).resolves.toBeUndefined()
+        await expect(continuum.disconnect()).resolves.toBeUndefined()
 
         console.log(`Connecting to Continuum Gateway running at ${host}:${port} the second time`)
-        connectedInfo = await logFailure(Continuum.connect({
+        connectedInfo = await logFailure(continuum.connect({
                 host:host,
                 port:port,
                 connectHeaders:{login: 'guest', passcode: 'guest'}
         }),
             'Failed to connect to Continuum Gateway')
         validateConnectedInfo(connectedInfo)
-        await expect(Continuum.disconnect()).resolves.toBeUndefined()
+        await expect(continuum.disconnect()).resolves.toBeUndefined()
 
         console.log(`Connecting to Continuum Gateway running at ${host}:${port} the third time`)
-        connectedInfo = await logFailure(Continuum.connect({
+        connectedInfo = await logFailure(continuum.connect({
                 host:host,
                 port:port,
                 connectHeaders:{login: 'guest', passcode: 'guest'}
         }),
             'Failed to connect to Continuum Gateway')
         validateConnectedInfo(connectedInfo)
-        await expect(Continuum.disconnect()).resolves.toBeUndefined()
+        await expect(continuum.disconnect()).resolves.toBeUndefined()
     })
 
     it('should allow continuum CLI to connect but not send any data', async () => {
+        const continuum = new ContinuumSingleton()
         console.log(`Connecting to Continuum Gateway running at ${host}:${port}`)
 
-        let connectedInfo: ConnectedInfo = await Continuum.connect(
+        let connectedInfo: ConnectedInfo = await continuum.connect(
             {
                 host:host,
                 port:port,
@@ -82,28 +84,29 @@ describe('Continuum Client Tests', () => {
         validateConnectedInfo(connectedInfo, ['ANONYMOUS'])
 
         const promise = new Promise((resolve, reject) => {
-            Continuum.eventBus.fatalErrors.subscribe((error: Error) => {
+            continuum.eventBus.fatalErrors.subscribe((error: Error) => {
                 resolve(error)
             })
         })
 
         console.log('Sending invalid event to continuum CLI')
-        Continuum.eventBus.send(new Event(EventConstants.SERVICE_DESTINATION_PREFIX+ 'blah'))
+        continuum.eventBus.send(new Event(EventConstants.SERVICE_DESTINATION_PREFIX+ 'blah'))
 
         const error = await logFailure(promise, 'Failed to receive error from fatalErrors observable')
 
         expect(error).toBeDefined()
 
         // make sure client was automatically disconnected
-        expect(Continuum.eventBus.isConnectionActive(),
+        expect(continuum.eventBus.isConnectionActive(),
             'Client to be disconnected').toBe(false)
 
-        await expect(Continuum.disconnect()).resolves.toBeUndefined()
+        await expect(continuum.disconnect()).resolves.toBeUndefined()
 
     })
 
     it('should allow connection with session id', async () => {
-        let connectedInfo: ConnectedInfo = await logFailure(Continuum.connect(
+        const continuum = new ContinuumSingleton()
+        let connectedInfo: ConnectedInfo = await logFailure(continuum.connect(
                 {
                     host:host,
                     port:port,
@@ -113,9 +116,9 @@ describe('Continuum Client Tests', () => {
         validateConnectedInfo(connectedInfo, ['ANONYMOUS'])
 
         // We use force here true. Otherwise, the server will clean up the session
-        await expect(Continuum.disconnect(true)).resolves.toBeUndefined()
+        await expect(continuum.disconnect(true)).resolves.toBeUndefined()
 
-        connectedInfo = await logFailure(Continuum.connect({
+        connectedInfo = await logFailure(continuum.connect({
                 host:host,
                 port:port,
                 connectHeaders:{session: connectedInfo.sessionId}
@@ -124,7 +127,7 @@ describe('Continuum Client Tests', () => {
 
         validateConnectedInfo(connectedInfo, ['ANONYMOUS'])
 
-        await expect(Continuum.disconnect()).resolves.toBeUndefined()
+        await expect(continuum.disconnect()).resolves.toBeUndefined()
 
     })
 

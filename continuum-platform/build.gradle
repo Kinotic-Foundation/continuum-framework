@@ -32,7 +32,7 @@ ext {
     springKafkaVersion='2.9.13'
     vertxVersion='3.9.16'
     vertxCompletableFutureVersion='0.1.2'
-    vertxStompLiteVersion='3.9.18'
+    vertxStompLiteVersion='3.9.19'
     vertxBeansVersion='1.6.2'
     zookeeperVersion='3.7.2'
 }

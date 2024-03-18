@@ -14,10 +14,12 @@ describe('Continuum RPC Tests', () => {
     let connectedInfo: ConnectedInfo
 
     beforeAll(async () => {
-        // connectionInfo.host = container.getHost()
-        // connectionInfo.port = container.getMappedPort(58503)
-        connectionInfo.host = '127.0.0.1'
-        connectionInfo.port = 58503
+        container = await initContinuumGateway()
+        connectionInfo.host = container.getHost()
+        connectionInfo.port = container.getMappedPort(58503)
+        connectionInfo.maxConnectionAttempts = 3
+        // connectionInfo.host = '127.0.0.1'
+        // connectionInfo.port = 58503
         connectionInfo.connectHeaders = {login: 'guest', passcode: 'guest'}
         console.log(`Continuum Gateway running at ${connectionInfo.host}:${connectionInfo.port}`)
 

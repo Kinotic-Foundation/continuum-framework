@@ -15,14 +15,12 @@ describe('Continuum Unavailable Tests', () => {
         const host: string = 'notavailable'
         const port: number = 58503
         console.log(`Trying to Connecting to Unavailable Continuum Gateway`)
-        const connectedInfo: ConnectedInfo = await logFailure(Continuum.connect({
-                                                                                    host:host,
-                                                                                    port:port,
-                                                                                    maxConnectionAttempts: 3,
-                                                                                    connectHeaders:{login: 'guest', passcode: 'guest'}
-                                                                                }),
-                                                              'Failed to connect to Continuum Gateway')
-        validateConnectedInfo(connectedInfo)
+        await  expect(Continuum.connect({
+                                    host:host,
+                                    port:port,
+                                    maxConnectionAttempts: 3,
+                                    connectHeaders:{login: 'guest', passcode: 'guest'}
+                                })).rejects.toEqual('Max number of reconnection attempts reached. Last WS Error getaddrinfo ENOTFOUND notavailable')
 
         await expect(Continuum.disconnect()).resolves.toBeUndefined()
     }, 1000 * 60 * 10) // 10 minutes

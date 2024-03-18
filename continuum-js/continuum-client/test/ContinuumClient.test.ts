@@ -1,8 +1,8 @@
-import {describe, expect, it, beforeAll, afterAll} from 'vitest'
-import {ConnectedInfo, Continuum, ContinuumSingleton, Event, EventConstants, ParticipantConstants} from '../src'
-import {WebSocket} from 'ws'
-import {initContinuumGateway, logFailure, validateConnectedInfo} from './TestHelper'
 import {StartedTestContainer} from 'testcontainers'
+import {afterAll, beforeAll, describe, expect, it} from 'vitest'
+import {WebSocket} from 'ws'
+import {ConnectedInfo, ContinuumSingleton, Event, EventConstants, ParticipantConstants} from '../src'
+import {initContinuumGateway, logFailure, validateConnectedInfo} from './TestHelper'
 
 // This is required when running Continuum from node
 Object.assign(global, { WebSocket})
@@ -24,14 +24,22 @@ describe('Continuum Client Tests', () => {
         await container.stop()
     })
 
+    async function connectToContinuum(continuum: ContinuumSingleton) {
+        return await logFailure(continuum.connect({
+                                                      host: host,
+                                                      port: port,
+                                                      maxConnectionAttempts: 3,
+                                                      connectHeaders: {
+                                                          login: 'guest',
+                                                          passcode: 'guest'
+                                                      }
+                                                  }),
+                                'Failed to connect to Continuum Gateway')
+    }
+
     it('should connect and disconnect', async () => {
         const continuum = new ContinuumSingleton()
-        const connectedInfo: ConnectedInfo = await logFailure(continuum.connect({
-                host:host,
-                port:port,
-                connectHeaders:{login: 'guest', passcode: 'guest'}
-        }),
-            'Failed to connect to Continuum Gateway')
+        const connectedInfo = await connectToContinuum(continuum)
         validateConnectedInfo(connectedInfo)
 
         await expect(continuum.disconnect()).resolves.toBeUndefined()
@@ -39,33 +47,19 @@ describe('Continuum Client Tests', () => {
 
     it('should connect and disconnect multiple times', async () => {
         const continuum = new ContinuumSingleton()
+
         console.log(`Connecting to Continuum Gateway running at ${host}:${port} the first time`)
-        let connectedInfo: ConnectedInfo = await logFailure(continuum.connect({
-                host:host,
-                port:port,
-                connectHeaders:{login: 'guest', passcode: 'guest'}
-        }),
-            'Failed to connect to Continuum Gateway')
+        let connectedInfo = await connectToContinuum(continuum)
         validateConnectedInfo(connectedInfo)
         await expect(continuum.disconnect()).resolves.toBeUndefined()
 
         console.log(`Connecting to Continuum Gateway running at ${host}:${port} the second time`)
-        connectedInfo = await logFailure(continuum.connect({
-                host:host,
-                port:port,
-                connectHeaders:{login: 'guest', passcode: 'guest'}
-        }),
-            'Failed to connect to Continuum Gateway')
+        connectedInfo = await connectToContinuum(continuum)
         validateConnectedInfo(connectedInfo)
         await expect(continuum.disconnect()).resolves.toBeUndefined()
 
         console.log(`Connecting to Continuum Gateway running at ${host}:${port} the third time`)
-        connectedInfo = await logFailure(continuum.connect({
-                host:host,
-                port:port,
-                connectHeaders:{login: 'guest', passcode: 'guest'}
-        }),
-            'Failed to connect to Continuum Gateway')
+        connectedInfo = await connectToContinuum(continuum)
         validateConnectedInfo(connectedInfo)
         await expect(continuum.disconnect()).resolves.toBeUndefined()
     })
@@ -74,12 +68,13 @@ describe('Continuum Client Tests', () => {
         const continuum = new ContinuumSingleton()
         console.log(`Connecting to Continuum Gateway running at ${host}:${port}`)
 
-        let connectedInfo: ConnectedInfo = await continuum.connect(
-            {
-                host:host,
-                port:port,
-                connectHeaders:{login: ParticipantConstants.CLI_PARTICIPANT_ID}
-            })
+        let connectedInfo: ConnectedInfo = await logFailure(continuum.connect(
+                                                                {
+                                                                    host:host,
+                                                                    port:port,
+                                                                    connectHeaders:{login: ParticipantConstants.CLI_PARTICIPANT_ID}
+                                                                }),
+                                                            'Failed to connect to Continuum Gateway')
 
         validateConnectedInfo(connectedInfo, ['ANONYMOUS'])
 
@@ -107,12 +102,12 @@ describe('Continuum Client Tests', () => {
     it('should allow connection with session id', async () => {
         const continuum = new ContinuumSingleton()
         let connectedInfo: ConnectedInfo = await logFailure(continuum.connect(
-                {
-                    host:host,
-                    port:port,
-                    connectHeaders:{login: ParticipantConstants.CLI_PARTICIPANT_ID}
-                }),
-            'Failed to connect to Continuum Gateway')
+                                                                {
+                                                                    host:host,
+                                                                    port:port,
+                                                                    connectHeaders:{login: ParticipantConstants.CLI_PARTICIPANT_ID}
+                                                                }),
+                                                            'Failed to connect to Continuum Gateway')
         validateConnectedInfo(connectedInfo, ['ANONYMOUS'])
 
         // We use force here true. Otherwise, the server will clean up the session

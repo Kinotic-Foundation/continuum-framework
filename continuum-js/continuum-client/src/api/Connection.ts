@@ -30,14 +30,14 @@ export class ConnectHeaders {
 export class ConnectionInfo {
     connectHeaders?: ConnectHeaders
     /**
-     * The amount of time in milliseconds to wait for the connection to be established, before completing with an error
+     * The maximum number of connection attempts to make during the {@link IEventBus} initial connection request.
+     * If the limit is reached the {@link IEventBus} will return an error to the caller of {@link IEventBus#connect}
+     * Set to 0, undefined, or null to try forever
      */
-    connectionTimeout?: number | null
-    /**
-     * The number of times to retry the connection attempt after the connectionTimeout is reached.
-     */
-    connectionRetries?: number | null
+    maxConnectionAttempts?: number | null
     host!: string
     port?: number | null
     useSSL?: boolean | null
 }
+
+

@@ -99,7 +99,6 @@ export interface IEventBus {
     /**
      * Any errors emitted by this observable will be fatal and the connection will be closed.
      * You will need to resolve the problem and reconnect.
-     * This most commonly happens due to authentication or authorization failures.
      */
     fatalErrors: Observable<ContinuumError>
 
@@ -123,10 +122,18 @@ export interface IEventBus {
 
     /**
      * Determines if the connection is active.
-     * This means connect was called and was successful.
+     * This means connect was called and was successful. The underlying connection may not be established yet.
+     * If this is true and {@link IEventBus#isConnected} is false messages sent will be queued
      * @return true if the connection is active false if not
      */
     isConnectionActive(): boolean
+
+    /**
+     * Determines if the connection is active.
+     * This means that there is an open connection to the Continuum server
+     * @return true if the connection is active false if not
+     */
+    isConnected(): boolean
 
     /**
      * Send a single {@link IEvent} to the connected server

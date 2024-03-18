@@ -15,11 +15,12 @@
  * limitations under the License.
  */
 
+import {StompConnectionManager} from '@/core/api/StompConnectionManager'
 import {IEvent, IEventBus, EventConstants} from './IEventBus'
 import { ConnectableObservable, Observable, Subject, Unsubscribable, Subscription, throwError } from 'rxjs'
 import { filter, map, multicast } from 'rxjs/operators'
 import { firstValueFrom } from 'rxjs'
-import { RxStomp, IMessage, StompHeaders, IFrame } from '@stomp/rx-stomp'
+import { IMessage, IFrame } from '@stomp/rx-stomp'
 import { Optional } from 'typescript-optional'
 import { v4 as uuidv4 } from 'uuid'
 import {ConnectedInfo} from '@/api/security/ConnectedInfo'
@@ -83,8 +84,7 @@ export class Event implements IEvent {
  */
 export class EventBus implements IEventBus {
 
-    private rxStomp: RxStomp | null = null
-    private clientReady: boolean = false
+    private stompConnectionManager: StompConnectionManager = new StompConnectionManager()
     private replyToCri: string  | null = null
     private requestRepliesObservable: ConnectableObservable<IEvent> | null = null
     private requestRepliesSubscription: Subscription | null = null
@@ -109,129 +109,39 @@ export class EventBus implements IEventBus {
     }
 
     public isConnectionActive(): boolean{
-        return this.rxStomp != null && this.rxStomp.active && this.clientReady
+        return this.stompConnectionManager.active
     }
 
-    connect(connectionInfo: ConnectionInfo): Promise<ConnectedInfo> {
-        return new Promise((resolve, reject): void => {
-            if (!this.isConnectionActive()) {
-
-                if(!(connectionInfo?.host)){
-                    reject('No host provided')
-                    return
-                }
-
-                const url = 'ws' + (connectionInfo.useSSL ? 's' : '')
-                    + '://' + connectionInfo.host
-                    + (connectionInfo.port ? ':' + connectionInfo.port : '') + '/v1'
-
-                this.rxStomp = new RxStomp()
-
-                let connectHeadersInternal: StompHeaders = (connectionInfo.connectHeaders ? connectionInfo.connectHeaders : {})
-
-                this.rxStomp.configure({
-                    brokerURL: url,
-                    connectHeaders: connectHeadersInternal,
-                    heartbeatIncoming: 120000,
-                    heartbeatOutgoing: 30000,
-                    reconnectDelay: 30000,
-                    // connectionTimeout: connectionRetryInterval, // Tbeir API prop is a little deceiving, it's actually the time to wait for the connection to be retried
-                    // beforeConnect: (rx: RxStomp) => {
-                    //     connectionAttempts++
-                    //     if connectionAttempts > maxConnectAttempts {
-                    //
-                    //     }
-                    // }
-                })
-
-                // This subscription is to handle any errors that occur during connection
-                const errorSubscription: Subscription = this.rxStomp.stompErrors$.subscribe((value: IFrame)  => {
-                    errorSubscription.unsubscribe()
-                    const message = value.headers['message']
-                    this.rxStomp?.deactivate()
-                    this.rxStomp = null
-                    reject(message)
-                })
-
-                const connectedSubscription: Subscription = this.rxStomp.serverHeaders$.subscribe((value: StompHeaders) => {
-                    connectedSubscription.unsubscribe()
-                    let connectedInfoJson: string | undefined = value[EventConstants.CONNECTED_INFO_HEADER]
-                    if (connectedInfoJson != null) {
-
-                        const connectedInfo: ConnectedInfo = JSON.parse(connectedInfoJson)
-
-                        if(connectedInfo.sessionId != null && connectedInfo.replyToId != null) {
-
-                            // Remove all information originally sent from the connect headers
-                            if(connectionInfo.connectHeaders != null) {
-                                for (let key in connectionInfo.connectHeaders) {
-                                    delete connectHeadersInternal[key]
-                                }
-                            }
-
-                            connectHeadersInternal.session = connectedInfo.sessionId
-
-                            this.replyToCri = EventConstants.SERVICE_DESTINATION_PREFIX + connectedInfo.replyToId + ':' + uuidv4() + '@continuum.js.EventBus/replyHandler'
-
-                            this.clientReady = true
-
-                            resolve(connectedInfo)
-                        }else {
-                            reject('Server did not return proper data for successful login')
-                        }
-                    }else {
-                        reject('Server did not return proper data for successful login')
-                    }
-
-                    // Connect the error subject for users to use
-                    this.errorSubjectSubscription = this.rxStomp?.stompErrors$.subscribe(this.errorSubject)
-                })
-
-                this.rxStomp.activate()
-
-            } else {
-                reject('Stomp connection already active')
-            }
-        })
+    public isConnected(): boolean {
+        return this.stompConnectionManager.connected
     }
 
-    public async disconnect(force?: boolean): Promise<void> {
-        if (this.isConnectionActive()) {
-            if (this.requestRepliesObservable != null) {
-                if (this.requestRepliesSubscription != null) {
-                    this.requestRepliesSubscription.unsubscribe()
-                    this.requestRepliesSubscription = null
-                }
-                this.requestRepliesObservable = null
-            }
+    public async connect(connectionInfo: ConnectionInfo): Promise<ConnectedInfo> {
+        if(!this.stompConnectionManager.active){
 
-            if (this.errorSubjectSubscription) {
-                this.errorSubjectSubscription.unsubscribe()
-                this.errorSubjectSubscription = null
-            }
+            // reset state in case connection ended due to max connection attempts
+            this.cleanupObservables()
 
-            try {
-                if(this.rxStomp?.stompClient){
-                    this.rxStomp.stompClient.reconnectDelay = 0
-                }
-                await this.rxStomp?.deactivate({force: force})
-            } catch (e) {
-                if(console){
-                    console.error('Error deactivating StompClient ' + e)
-                }
-            }
+            const connectedInfo = await this.stompConnectionManager.activate(connectionInfo)
 
-            this.rxStomp = null
-            this.clientReady = false
-            this.replyToCri = null
-            return
+            this.replyToCri = EventConstants.SERVICE_DESTINATION_PREFIX + connectedInfo.replyToId + ':' + uuidv4() + '@continuum.js.EventBus/replyHandler'
+
+            this.errorSubjectSubscription = this.stompConnectionManager.rxStomp?.stompErrors$.subscribe(this.errorSubject)
+
+            return connectedInfo
         }else{
-            return
+            throw new Error('Event Bus connection already active')
         }
     }
 
+    public async disconnect(force?: boolean): Promise<void> {
+        this.cleanupObservables()
+
+        return this.stompConnectionManager.deactivate(force)
+    }
+
     public send(event: IEvent): void {
-        if(this.isConnectionActive()){
+        if(this.stompConnectionManager.rxStomp){
             const headers: any = {}
 
             for (const [key, value] of event.headers.entries()) {
@@ -239,14 +149,13 @@ export class EventBus implements IEventBus {
             }
 
             // send data over stomp
-            // @ts-ignore
-            this.rxStomp.publish({
+            this.stompConnectionManager.rxStomp.publish({
                 destination: event.cri,
                 headers,
                 binaryBody: event.data.orUndefined()
             })
         }else{
-            throw new Error('You must call connect on the event bus before sending any event')
+            throw this.createSendUnavailableError()
         }
     }
 
@@ -255,7 +164,7 @@ export class EventBus implements IEventBus {
     }
 
     public requestStream(event: IEvent, sendControlEvents: boolean = true): Observable<IEvent> {
-        if(this.isConnectionActive()){
+        if(this.stompConnectionManager?.rxStomp){
             return new Observable<IEvent>((subscriber) => {
 
                 if (this.requestRepliesObservable == null) {
@@ -318,13 +227,38 @@ export class EventBus implements IEventBus {
                 }
             })
         }else{
-            return throwError(() => new Error('You must call connect on the event bus before sending any request'))
+            return throwError(() => this.createSendUnavailableError())
         }
-
     }
 
     public observe(cri: string): Observable<IEvent> {
        return this._observe(cri)
+    }
+
+    private cleanupObservables(): void{
+        if (this.requestRepliesObservable != null) {
+            if (this.requestRepliesSubscription != null) {
+                this.requestRepliesSubscription.unsubscribe()
+                this.requestRepliesSubscription = null
+            }
+            this.requestRepliesObservable = null
+        }
+
+        if (this.errorSubjectSubscription) {
+            this.errorSubjectSubscription.unsubscribe()
+            this.errorSubjectSubscription = null
+        }
+    }
+
+    /**
+     * Creates the proper error to return if this.stompConnectionManager?.rxStomp is not available on a send request
+     */
+    private createSendUnavailableError(): Error {
+        let ret: string = 'You must call connect on the event bus before sending any request'
+        if(this.stompConnectionManager.maxConnectionAttemptsReached){
+            ret = 'Max connection attempts reached event bus is not available'
+        }
+        return new Error(ret)
     }
 
     /**
@@ -334,9 +268,9 @@ export class EventBus implements IEventBus {
      * @return the cold {@link Observable<IEvent>} for the given destination
      */
     private _observe(cri: string): Observable<IEvent> {
-        if(this.isConnectionActive()) {
-            // @ts-ignore
-            return this.rxStomp
+        if(this.stompConnectionManager?.rxStomp) {
+            return this.stompConnectionManager
+                       .rxStomp
                        .watch(cri)
                        .pipe(map<IMessage, IEvent>((message: IMessage): IEvent => {
 
@@ -350,7 +284,7 @@ export class EventBus implements IEventBus {
                            return new Event(cri, headers, message.binaryBody)
                        }))
         }else{
-            return throwError(() => new Error('You must call connect on the event bus before sending any request'))
+            return throwError(() => this.createSendUnavailableError())
         }
     }
 

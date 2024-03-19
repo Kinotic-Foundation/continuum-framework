@@ -24,14 +24,10 @@ import io.vertx.ext.stomp.lite.StompServerConnection;
 import io.vertx.ext.stomp.lite.StompServerHandler;
 import io.vertx.ext.stomp.lite.frame.Frame;
 import io.vertx.ext.stomp.lite.frame.InvalidConnectFrame;
-import org.kinotic.continuum.api.exceptions.AuthorizationException;
 import org.kinotic.continuum.core.api.event.CRI;
 import org.kinotic.continuum.core.api.event.Event;
-import org.kinotic.continuum.core.api.event.EventBusService;
 import org.kinotic.continuum.gateway.internal.endpoints.EndpointConnectionHandler;
 import org.kinotic.continuum.gateway.internal.endpoints.Services;
-import org.kinotic.continuum.internal.core.api.service.invoker.ExceptionConverter;
-import org.kinotic.continuum.internal.utils.EventUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
@@ -48,8 +44,6 @@ public class DefaultStompServerHandler implements StompServerHandler {
 
     private final Vertx vertx;
     private final StompServerConnection connection;
-    private final ExceptionConverter exceptionConverter;
-    private final EventBusService eventBusService;
     private final EndpointConnectionHandler endpointConnectionHandler;
 
 
@@ -58,9 +52,7 @@ public class DefaultStompServerHandler implements StompServerHandler {
                                      StompServerConnection connection) {
         this.vertx = vertx;
         this.connection = connection;
-        this.exceptionConverter = services.exceptionConverter;
-        this.eventBusService = services.eventBusService;
-        this.endpointConnectionHandler = new EndpointConnectionHandler(vertx, services);
+        this.endpointConnectionHandler = new EndpointConnectionHandler(services);
     }
 
     @Override
@@ -74,6 +66,7 @@ public class DefaultStompServerHandler implements StompServerHandler {
 
     @Override
     public void send(Frame frame) {
+        // FIXME: this is probably the wrong way to do this, We are not really providing guaranteed delivery below so this kinda just creates a bottle neck for no reason.
         // We pause the client to effectively make all client requests block until the previous request is handled asynchronously
         connection.pause();
 

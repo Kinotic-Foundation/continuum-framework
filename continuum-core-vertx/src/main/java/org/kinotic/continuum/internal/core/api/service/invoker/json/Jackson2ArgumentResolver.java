@@ -40,13 +40,13 @@ public class Jackson2ArgumentResolver extends AbstractJackson2Support implements
     }
 
     @Override
-    public boolean supports(Event<byte[]> incomingEvent) {
-        return containsJsonContent(incomingEvent.metadata());
+    public Object[] resolveArguments(Event<byte[]> incomingEvent, HandlerMethod handlerMethod) {
+        return createJavaObjectsFromJsonEvent(incomingEvent, handlerMethod.getMethodParameters(), true);
     }
 
     @Override
-    public Object[] resolveArguments(Event<byte[]> incomingEvent, HandlerMethod handlerMethod) {
-        return createJavaObjectsFromJsonEvent(incomingEvent, handlerMethod.getMethodParameters(), true);
+    public boolean supports(Event<byte[]> incomingEvent) {
+        return containsJsonContent(incomingEvent.metadata());
     }
 
 }

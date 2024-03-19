@@ -56,16 +56,14 @@ public class ServiceInvocationSupervisor {
 
     private final AtomicBoolean active = new AtomicBoolean(false);
     private final ConcurrentHashMap<String, StreamSubscriber> activeStreamingResults = new ConcurrentHashMap<>();
-
-    private final ServiceDescriptor serviceDescriptor;
     private final ArgumentResolver argumentResolver;
-    private final ReturnValueConverter returnValueConverter;
-    private final ExceptionConverter exceptionConverter;
     private final EventBusService eventBusService;
-    private final ReactiveAdapterRegistry reactiveAdapterRegistry;
-    private final Vertx vertx;
+    private final ExceptionConverter exceptionConverter;
     private final Map<String, HandlerMethod> methodMap;
-
+    private final ReactiveAdapterRegistry reactiveAdapterRegistry;
+    private final ReturnValueConverter returnValueConverter;
+    private final ServiceDescriptor serviceDescriptor;
+    private final Vertx vertx;
     private Disposable methodInvocationEventListenerDisposable;
 
 
@@ -158,6 +156,62 @@ public class ServiceInvocationSupervisor {
         });
     }
 
+    private Map<String, HandlerMethod> buildMethodMap(ServiceDescriptor serviceDescriptor,
+                                                      ServiceFunctionInstanceProvider instanceProvider) {
+        final HashMap<String, HandlerMethod> ret = new HashMap<>();
+
+        for(ServiceFunction serviceFunction : serviceDescriptor.functions()){
+            Object instance = instanceProvider.provideInstance(serviceFunction);
+            Method specificMethod = AopUtils.selectInvocableMethod(serviceFunction.invocationMethod(), instance.getClass());
+
+            // add a / since uri paths contain this
+            String methodName = "/" + specificMethod.getName();
+
+            if(ret.containsKey(methodName)){
+                throw new IllegalArgumentException("Multiple ServiceFunctions provided with the name " + specificMethod.getName());
+            }else{
+                HandlerMethod handlerMethod = new HandlerMethod(instance, specificMethod);
+                ret.put(methodName,  handlerMethod);
+            }
+        }
+        return ret;
+    }
+
+    private void convertAndSend(Metadata incomingMetadata, HandlerMethod handlerMethod, Object result) {
+        try {
+            Event<byte[]> resultEvent = returnValueConverter.convert(incomingMetadata,
+                                                                     handlerMethod.getReturnType()
+                                                                                  .getParameterType(),
+                                                                     result);
+            eventBusService.send(resultEvent);
+        } catch (Exception e) {
+            if(log.isDebugEnabled()){
+                log.debug("Exception occurred sending response", e);
+            }
+            throw e;
+        }
+    }
+
+    private void handleException(Metadata incomingMetadata, Throwable e) {
+        try {
+            Event<byte[]> convertedEvent = exceptionConverter.convert(incomingMetadata, e);
+            eventBusService.send(convertedEvent);
+        } catch (Exception ex) {
+            log.error("Error occurred when calling exception converter",e);
+        }
+    }
+
+    private void processControlPlaneRequest(Event<byte[]> incomingEvent){
+        // All control plane requests require a CORRELATION_ID_HEADER to know what long-running request is being referenced
+        String correlationId = incomingEvent.metadata().get(EventConstants.CORRELATION_ID_HEADER);
+        Validate.notNull(correlationId, "Streaming control plain messages require a CORRELATION_ID_HEADER to be set");
+
+        activeStreamingResults.computeIfPresent(correlationId, (s, streamSubscriber) -> {
+            streamSubscriber.processControlEvent(incomingEvent);
+            return streamSubscriber;
+        });
+    }
+
     private void processEvent(Event<byte[]> incomingEvent){
         boolean isControl = incomingEvent.metadata().contains(EventConstants.CONTROL_HEADER);
         if(log.isTraceEnabled()){
@@ -232,6 +286,59 @@ public class ServiceInvocationSupervisor {
         }
     }
 
+    private void processMethodInvocationResult(Event<byte[]> incomingEvent, HandlerMethod handlerMethod, Object result){
+
+        Metadata incomingMetadata = incomingEvent.metadata();
+
+        // Check if result is reactive if so we only complete once result is complete
+        ReactiveAdapter reactiveAdapter = reactiveAdapterRegistry.getAdapter(null, result);
+        if(reactiveAdapter == null){
+
+            convertAndSend(incomingMetadata, handlerMethod, result);
+
+        }else{
+
+            if(!reactiveAdapter.isMultiValue()){
+
+                Mono<?> mono = Mono.from(reactiveAdapter.toPublisher(result));
+                mono.doOnSuccess((Consumer<Object>) o -> convertAndSend(incomingMetadata, handlerMethod, o))
+                    .subscribe(v -> {}, t -> {
+                        if(log.isDebugEnabled()){
+                            log.debug("Exception occurred processing service request\n" + EventUtil.toString(incomingEvent, true), t);
+                        }
+                        handleException(incomingMetadata, t);
+                    }); // We use an empty consumer this is handled with doOnSuccess, this is done so, we get a single "signal" instead of onNext, onComplete type logic..
+
+            }else{
+
+                // All long-running results require a CORRELATION_ID_HEADER to be able to coordinate with the requester
+                if(!incomingEvent.metadata().contains(EventConstants.CORRELATION_ID_HEADER)){
+                    throw new IllegalArgumentException("Streaming results require a CORRELATION_ID_HEADER to be set");
+                }
+
+                String correlationId = incomingEvent.metadata().get(EventConstants.CORRELATION_ID_HEADER);
+                activeStreamingResults.computeIfAbsent(correlationId, s -> {
+                    //  FIXME: logic error here clients like the js client will stay alive during multiple requests even though previous request was invalidated indirectly
+                    Flux<?> flux = Flux.from(reactiveAdapter.toPublisher(result));
+
+                    CRI replyCRI = CRI.create(incomingEvent.metadata().get(EventConstants.REPLY_TO_HEADER));
+                    Flux<ListenerStatus> replyListenerStatus = eventBusService.monitorListenerStatus(replyCRI.baseResource());
+
+                    StreamSubscriber streamSubscriber = new StreamSubscriber(incomingMetadata, handlerMethod, replyListenerStatus);
+                    flux.subscribe(streamSubscriber);
+                    return streamSubscriber;
+                });
+            }
+        }
+    }
+
+    private void sendCompletionEvent(Metadata incomingMetadata){
+        Event<byte[]> completionEvent = EventUtil.createReplyEvent(incomingMetadata,
+                                                                   Map.of(EventConstants.CONTROL_HEADER, EventConstants.CONTROL_VALUE_COMPLETE),
+                                                                   null);
+        eventBusService.send(completionEvent);
+    }
+
     private boolean validateReplyTo(Event<byte[]> incomingEvent){
         boolean ret = false;
         String replyTo = incomingEvent.metadata().get(EventConstants.REPLY_TO_HEADER);
@@ -257,113 +364,44 @@ public class ServiceInvocationSupervisor {
         return ret;
     }
 
-    private void processControlPlaneRequest(Event<byte[]> incomingEvent){
-        // All control plane requests require a CORRELATION_ID_HEADER to know what long-running request is being referenced
-        String correlationId = incomingEvent.metadata().get(EventConstants.CORRELATION_ID_HEADER);
-        Validate.notNull(correlationId, "Streaming control plain messages require a CORRELATION_ID_HEADER to be set");
+    /**
+     * This subscriber handles monitoring the remote ends subscription for reply events.
+     * If it detects that the remote ends subscription for reply events is removed it will terminate the {@link StreamSubscriber}
+     */
+    private static class ReplyListenerStatusSubscriber extends BaseSubscriber<ListenerStatus> {
+        private final StreamSubscriber streamSubscription;
 
-        activeStreamingResults.computeIfPresent(correlationId, (s, streamSubscriber) -> {
-            streamSubscriber.processControlEvent(incomingEvent);
-            return streamSubscriber;
-        });
-    }
+        public ReplyListenerStatusSubscriber(StreamSubscriber streamSubscription) {
+            this.streamSubscription = streamSubscription;
+        }
 
+        @Override
+        protected void hookOnComplete() {
+            // This condition should not occur under normal operation
+            log.error("Reply Listener Monitor completed for some reason! Terminating streaming result.");
+            streamSubscription.cancel();
+        }
 
-    private void processMethodInvocationResult(Event<byte[]> incomingEvent, HandlerMethod handlerMethod, Object result){
+        @Override
+        protected void hookOnError(Throwable throwable) {
+            // This condition should not occur under normal operation
+            log.error("Reply Listener Monitor threw an exception. Terminating streaming result.", throwable);
+            streamSubscription.cancel();
+        }
 
-        Metadata incomingMetadata = incomingEvent.metadata();
-
-        // Check if result is reactive if so we only complete once result is complete
-        ReactiveAdapter reactiveAdapter = reactiveAdapterRegistry.getAdapter(null, result);
-        if(reactiveAdapter == null){
-
-            convertAndSend(incomingMetadata, handlerMethod, result);
-
-        }else{
-
-            if(!reactiveAdapter.isMultiValue()){
-
-                Mono<?> mono = Mono.from(reactiveAdapter.toPublisher(result));
-                mono.doOnSuccess((Consumer<Object>) o -> convertAndSend(incomingMetadata, handlerMethod, o))
-                    .subscribe(v -> {}, t -> {
-                        if(log.isDebugEnabled()){
-                            log.debug("Exception occurred processing service request\n" + EventUtil.toString(incomingEvent, true), t);
-                        }
-                        handleException(incomingMetadata, t);
-                    }); // We use an empty consumer this is handled with doOnSuccess, this is done so we get a single "signal" instead of onNext, onComplete type logic..
-
-            }else{
-
-                // All long-running results require a CORRELATION_ID_HEADER to be able to coordinate with the requester
-                if(!incomingEvent.metadata().contains(EventConstants.CORRELATION_ID_HEADER)){
-                    throw new IllegalArgumentException("Streaming results require a CORRELATION_ID_HEADER to be set");
+        @Override
+        protected void hookOnNext(ListenerStatus status) {
+            if(log.isTraceEnabled()){
+                log.trace("Received ListenerStatus "+status);
+            }
+            // TODO: handle resume restart type logic
+            if(status == ListenerStatus.INACTIVE){
+                if(!streamSubscription.isDisposed()) {
+                    log.trace("No more listeners active terminating streaming result.");
+                    streamSubscription.cancel();
+                    // ReplyListenerStatusSubscriber will be canceled by the streamSubscription
                 }
-
-                String correlationId = incomingEvent.metadata().get(EventConstants.CORRELATION_ID_HEADER);
-                activeStreamingResults.computeIfAbsent(correlationId, s -> {
-                    //  FIXME: logic error here clients like the js client will stay alive during multiple requests even though previous request was invalidated indirectly
-                    Flux<?> flux = Flux.from(reactiveAdapter.toPublisher(result));
-
-                    CRI replyCRI = CRI.create(incomingEvent.metadata().get(EventConstants.REPLY_TO_HEADER));
-                    Flux<ListenerStatus> replyListenerStatus = eventBusService.monitorListenerStatus(replyCRI.baseResource());
-
-                    StreamSubscriber streamSubscriber = new StreamSubscriber(incomingMetadata, handlerMethod, replyListenerStatus);
-                    flux.subscribe(streamSubscriber);
-                    return streamSubscriber;
-                });
             }
-        }
-    }
-
-    private void convertAndSend(Metadata incomingMetadata, HandlerMethod handlerMethod, Object result) {
-        try {
-            Event<byte[]> resultEvent = returnValueConverter.convert(incomingMetadata,
-                                                                     handlerMethod.getReturnType()
-                                                                                  .getParameterType(),
-                                                                     result);
-            eventBusService.send(resultEvent);
-        } catch (Exception e) {
-            if(log.isDebugEnabled()){
-                log.debug("Exception occurred sending response", e);
-            }
-            throw e;
-        }
-    }
-
-    private void sendCompletionEvent(Metadata incomingMetadata){
-        Event<byte[]> completionEvent = EventUtil.createReplyEvent(incomingMetadata,
-                                                                   Map.of(EventConstants.CONTROL_HEADER, EventConstants.CONTROL_VALUE_COMPLETE),
-                                                                   null);
-        eventBusService.send(completionEvent);
-    }
-
-    private Map<String, HandlerMethod> buildMethodMap(ServiceDescriptor serviceDescriptor,
-                                                      ServiceFunctionInstanceProvider instanceProvider) {
-        final HashMap<String, HandlerMethod> ret = new HashMap<>();
-
-        for(ServiceFunction serviceFunction : serviceDescriptor.functions()){
-            Object instance = instanceProvider.provideInstance(serviceFunction);
-            Method specificMethod = AopUtils.selectInvocableMethod(serviceFunction.invocationMethod(), instance.getClass());
-
-            // add a / since uri paths contain this
-            String methodName = "/" + specificMethod.getName();
-
-            if(ret.containsKey(methodName)){
-                throw new IllegalArgumentException("Multiple ServiceFunctions provided with the name " + specificMethod.getName());
-            }else{
-                HandlerMethod handlerMethod = new HandlerMethod(instance, specificMethod);
-                ret.put(methodName,  handlerMethod);
-            }
-        }
-        return ret;
-    }
-
-    private void handleException(Metadata incomingMetadata, Throwable e) {
-        try {
-            Event<byte[]> convertedEvent = exceptionConverter.convert(incomingMetadata, e);
-            eventBusService.send(convertedEvent);
-        } catch (Exception ex) {
-            log.error("Error occurred when calling exception converter",e);
         }
     }
 
@@ -373,8 +411,8 @@ public class ServiceInvocationSupervisor {
      */
     private class StreamSubscriber extends BaseSubscriber<Object> {
 
-        private final Metadata incomingMetadata;
         private final HandlerMethod handlerMethod;
+        private final Metadata incomingMetadata;
         private final Flux<ListenerStatus> replyListenerStatus;
         private ReplyListenerStatusSubscriber replyListenerStatusSubscriber;
 
@@ -385,16 +423,6 @@ public class ServiceInvocationSupervisor {
             this.handlerMethod = handlerMethod;
             this.replyListenerStatus = replyListenerStatus;
         }
-
-        @Override
-        protected void hookOnSubscribe(Subscription subscription) {
-
-            replyListenerStatusSubscriber = new ReplyListenerStatusSubscriber(this);
-            replyListenerStatus.subscribe(replyListenerStatusSubscriber);
-
-            super.hookOnSubscribe(subscription);
-        }
-
 
         public void processControlEvent(Event<byte[]> incomingEvent){
             String control = incomingEvent.metadata().get(EventConstants.CONTROL_HEADER);
@@ -417,11 +445,18 @@ public class ServiceInvocationSupervisor {
         }
 
         @Override
-        protected void hookOnNext(Object value) {
-            if(log.isTraceEnabled()){
-                log.trace("Next stream value " + value);
-            }
-            convertAndSend(incomingMetadata, handlerMethod, value);
+        protected void hookFinally(SignalType type) {
+            log.trace("Stream Cleanup Now");
+
+            replyListenerStatusSubscriber.cancel();
+
+            String correlationId = incomingMetadata.get(EventConstants.CORRELATION_ID_HEADER);
+            // we must do this in a background thread since if the flux is created like Flux.just this will be executed in the same thread as the invocation
+            // and hence inside the activeStreamingResults.computeIfAbsent block
+            vertx.executeBlocking(p -> {
+                activeStreamingResults.remove(correlationId);
+                p.complete();
+            }, null);
         }
 
         @Override
@@ -439,61 +474,22 @@ public class ServiceInvocationSupervisor {
         }
 
         @Override
-        protected void hookFinally(SignalType type) {
-            log.trace("Stream Cleanup Now");
-
-            replyListenerStatusSubscriber.cancel();
-
-            String correlationId = incomingMetadata.get(EventConstants.CORRELATION_ID_HEADER);
-            // we must do this in a background thread since if the flux is created like Flux.just this will be executed in the same thread as the invocation
-            // and hence inside the activeStreamingResults.computeIfAbsent block
-            vertx.executeBlocking(p -> {
-                activeStreamingResults.remove(correlationId);
-                p.complete();
-            }, null);
-        }
-
-    }
-
-    /**
-     * This subscriber handles monitoring the remote ends subscription for reply events.
-     * If it detects that the remote ends subscription for reply events is removed it will terminate the {@link StreamSubscriber}
-     */
-    private static class ReplyListenerStatusSubscriber extends BaseSubscriber<ListenerStatus> {
-        private final StreamSubscriber streamSubscription;
-
-        public ReplyListenerStatusSubscriber(StreamSubscriber streamSubscription) {
-            this.streamSubscription = streamSubscription;
-        }
-
-        @Override
-        protected void hookOnNext(ListenerStatus status) {
+        protected void hookOnNext(Object value) {
             if(log.isTraceEnabled()){
-                log.trace("Received ListenerStatus "+status);
+                log.trace("Next stream value " + value);
             }
-            // TODO: handle resume restart type logic
-            if(status == ListenerStatus.INACTIVE){
-                if(!streamSubscription.isDisposed()) {
-                    log.trace("No more listeners active terminating streaming result.");
-                    streamSubscription.cancel();
-                    // ReplyListenerStatusSubscriber will be canceled by the streamSubscription
-                }
-            }
+            convertAndSend(incomingMetadata, handlerMethod, value);
         }
 
         @Override
-        protected void hookOnComplete() {
-            // This condition should not occur under normal operation
-            log.error("Reply Listener Monitor completed for some reason! Terminating streaming result.");
-            streamSubscription.cancel();
+        protected void hookOnSubscribe(Subscription subscription) {
+
+            replyListenerStatusSubscriber = new ReplyListenerStatusSubscriber(this);
+            replyListenerStatus.subscribe(replyListenerStatusSubscriber);
+
+            super.hookOnSubscribe(subscription);
         }
 
-        @Override
-        protected void hookOnError(Throwable throwable) {
-            // This condition should not occur under normal operation
-            log.error("Reply Listener Monitor threw an exception. Terminating streaming result.", throwable);
-            streamSubscription.cancel();
-        }
     }
 
 }

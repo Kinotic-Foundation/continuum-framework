@@ -18,9 +18,7 @@
 package org.kinotic.continuum.internal;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.Validate;
 import org.kinotic.continuum.api.annotations.Publish;
-import org.kinotic.continuum.api.annotations.Version;
 import org.kinotic.continuum.core.api.RpcServiceProxy;
 import org.kinotic.continuum.core.api.ServiceRegistry;
 import org.kinotic.continuum.core.api.service.ServiceIdentifier;
@@ -32,10 +30,8 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.FatalBeanException;
 import org.springframework.beans.factory.config.DestructionAwareBeanPostProcessor;
 import org.springframework.core.annotation.AnnotationUtils;
-import org.springframework.core.type.StandardAnnotationMetadata;
 import org.springframework.stereotype.Component;
 
-import java.beans.Beans;
 import java.util.List;
 import java.util.function.BiConsumer;
 
@@ -57,6 +53,20 @@ public class ServiceRegistrationBeanPostProcessor implements DestructionAwareBea
     }
 
     @Override
+    public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+
+        processBean(bean, (serviceIdentifier, clazz) -> {
+
+            log.info("Registering Service "+ serviceIdentifier);
+
+            serviceRegistry.register(serviceIdentifier, clazz, bean)
+                           .subscribe(null,
+                                      throwable -> log.error("Error Registering service "+ serviceIdentifier, throwable));
+        });
+        return bean;
+    }
+
+    @Override
     public void postProcessBeforeDestruction(Object bean, String beanName) throws BeansException {
         processBean(bean, (serviceIdentifier, clazz) -> {
 
@@ -70,20 +80,6 @@ public class ServiceRegistrationBeanPostProcessor implements DestructionAwareBea
 
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
-        return bean;
-    }
-
-    @Override
-    public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
-
-        processBean(bean, (serviceIdentifier, clazz) -> {
-
-            log.info("Registering Service "+ serviceIdentifier);
-
-            serviceRegistry.register(serviceIdentifier, clazz, bean)
-                           .subscribe(null,
-                                      throwable -> log.error("Error Registering service "+ serviceIdentifier, throwable));
-        });
         return bean;
     }
 

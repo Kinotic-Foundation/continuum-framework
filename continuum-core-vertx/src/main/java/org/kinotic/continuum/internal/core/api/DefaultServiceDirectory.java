@@ -47,29 +47,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
 //@Component
 public class DefaultServiceDirectory implements ServiceDirectory {
 
-    private static final Logger log = LoggerFactory.getLogger(DefaultServiceDirectory.class);
-
     private static final String CONTINUUM_SERVICE_DIRECTORY_KEY = "ContinuumServiceDirectory";
-
-    @Autowired
-    private ObjectMapper mapper;
-
-    @Autowired
-    private Vertx vertx;
-
-
+    private static final Logger log = LoggerFactory.getLogger(DefaultServiceDirectory.class);
     private final ConcurrentLinkedQueue<DirectoryChangeRequest> directoryChangeRequests = new ConcurrentLinkedQueue<>();
     private String deploymentId = null;
-
-    @Override
-    public void register(ServiceDescriptor serviceDescriptor) {
-
-    }
-
-    @Override
-    public void unregister(ServiceIdentifier serviceIdentifier) {
-
-    }
+    @Autowired
+    private ObjectMapper mapper;
+    @Autowired
+    private Vertx vertx;
 
     @EventListener
     public void onApplicationReadyEvent(ApplicationReadyEvent applicationReadyEvent) {
@@ -94,39 +79,19 @@ public class DefaultServiceDirectory implements ServiceDirectory {
         }
     }
 
-    private class DirectoryWorkerVerticle extends AbstractVerticle implements Handler<Void> {
-        private final AtomicBoolean stopped = new AtomicBoolean(false);
-        private final Future<Void> finished = Future.future();
-        private Context creatingContext;
+    @Override
+    public void register(ServiceDescriptor serviceDescriptor) {
 
-        @Override
-        public void start(Future<Void> startFuture) throws Exception {
-            // Setup control structures used by this directory
-            this.creatingContext = getVertx().getOrCreateContext();
+    }
 
-            doLoop();
-            startFuture.complete();
-        }
+    @Override
+    public void unregister(ServiceIdentifier serviceIdentifier) {
 
-        @Override
-        public void stop(Future<Void> stopFuture) throws Exception {
-            stopped.compareAndSet(false, true);
-            finished.setHandler(stopFuture);
-        }
-
-        @Override
-        public void handle(Void event) {
-
-        }
-
-        private void doLoop() {
-            creatingContext.runOnContext(this);
-        }
     }
 
     private class DirectoryChangeRequest {
-        private boolean publish = true;
         private final String serviceIdentifier;
+        private boolean publish = true;
         private Class<?> serviceInterface;
 
         public DirectoryChangeRequest(String serviceIdentifier, Class<?> serviceInterface) {
@@ -149,6 +114,36 @@ public class DefaultServiceDirectory implements ServiceDirectory {
 
         public boolean isPublish() {
             return publish;
+        }
+    }
+
+    private class DirectoryWorkerVerticle extends AbstractVerticle implements Handler<Void> {
+        private final Future<Void> finished = Future.future();
+        private final AtomicBoolean stopped = new AtomicBoolean(false);
+        private Context creatingContext;
+
+        @Override
+        public void handle(Void event) {
+
+        }
+
+        @Override
+        public void start(Future<Void> startFuture) throws Exception {
+            // Setup control structures used by this directory
+            this.creatingContext = getVertx().getOrCreateContext();
+
+            doLoop();
+            startFuture.complete();
+        }
+
+        @Override
+        public void stop(Future<Void> stopFuture) throws Exception {
+            stopped.compareAndSet(false, true);
+            finished.setHandler(stopFuture);
+        }
+
+        private void doLoop() {
+            creatingContext.runOnContext(this);
         }
     }
 

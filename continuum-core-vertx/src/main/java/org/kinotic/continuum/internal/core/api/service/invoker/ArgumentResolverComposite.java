@@ -52,15 +52,15 @@ public class ArgumentResolverComposite implements ArgumentResolver {
     }
 
     @Override
-    public boolean supports(Event<byte[]> incomingEvent) {
-        return selectResolver(incomingEvent) != null;
-    }
-
-    @Override
     public Object[] resolveArguments(Event<byte[]> incomingEvent, HandlerMethod handlerMethod) {
         ArgumentResolver resolver = selectResolver(incomingEvent);
         Assert.notNull(resolver,"Unsupported Message content no parameter resolver can be found. Should call supports() first.");
         return resolver.resolveArguments(incomingEvent, handlerMethod);
+    }
+
+    @Override
+    public boolean supports(Event<byte[]> incomingEvent) {
+        return selectResolver(incomingEvent) != null;
     }
 
     private ArgumentResolver selectResolver(Event<byte[]> message){

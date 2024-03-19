@@ -49,17 +49,17 @@ public class ExceptionConverterComposite implements ExceptionConverter {
         this.converters.addAll(converters);
         return this;
     }
-    
-    @Override
-    public boolean supports(Metadata incomingMetadata) {
-        return selectConverter(incomingMetadata) != null;
-    }
 
     @Override
     public Event<byte[]> convert(Metadata incomingMetadata, Throwable throwable) {
         ExceptionConverter converter = selectConverter(incomingMetadata);
         Assert.notNull(converter,"No ExceptionConverter can be found. Should call supports() first.");
         return converter.convert(incomingMetadata, throwable);
+    }
+
+    @Override
+    public boolean supports(Metadata incomingMetadata) {
+        return selectConverter(incomingMetadata) != null;
     }
 
     private ExceptionConverter selectConverter(Metadata incomingMetadata){

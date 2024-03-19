@@ -31,14 +31,6 @@ import org.kinotic.continuum.core.api.event.EventBusService;
 public interface ReturnValueConverter {
 
     /**
-     * Checks it a given {@link ReturnValueConverter} supports the incoming {@link Event} by checking the data provided
-     * @param incomingMetadata the original {@link Metadata} sent to the {@link ServiceInvocationSupervisor}
-     * @param returnType of the {@link java.lang.reflect.Method} that will be invoked
-     * @return true if this converter can handle the data
-     */
-    boolean supports(Metadata incomingMetadata, Class<?> returnType);
-
-    /**
      * Converts the return value to an {@link Event} to send
      * @param incomingMetadata the original {@link Metadata} sent to the {@link ServiceInvocationSupervisor}
      * @param returnType of the {@link java.lang.reflect.Method} that was invoked to get this return value
@@ -46,5 +38,13 @@ public interface ReturnValueConverter {
      * @return the {@link Event} containing the converted data
      */
     Event<byte[]> convert(Metadata incomingMetadata, Class<?> returnType, Object returnValue);
+
+    /**
+     * Checks it a given {@link ReturnValueConverter} supports the incoming {@link Event} by checking the data provided
+     * @param incomingMetadata the original {@link Metadata} sent to the {@link ServiceInvocationSupervisor}
+     * @param returnType of the {@link java.lang.reflect.Method} that will be invoked
+     * @return true if this converter can handle the data
+     */
+    boolean supports(Metadata incomingMetadata, Class<?> returnType);
 
 }

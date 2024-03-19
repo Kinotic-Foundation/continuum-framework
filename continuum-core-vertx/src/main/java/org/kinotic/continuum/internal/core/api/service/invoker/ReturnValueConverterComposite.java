@@ -53,15 +53,15 @@ public class ReturnValueConverterComposite implements ReturnValueConverter {
     }
 
     @Override
-    public boolean supports(Metadata incomingMetadata, Class<?> returnType) {
-        return selectConverter(incomingMetadata, returnType) != null;
-    }
-
-    @Override
     public Event<byte[]> convert(Metadata incomingMetadata, Class<?> returnType, Object returnValue) {
         ReturnValueConverter converter = selectConverter(incomingMetadata, returnType);
         Assert.notNull(converter,"Unsupported Return Value no ReturnValueConverter can be found. Should call supports() first.");
         return converter.convert(incomingMetadata, returnType, returnValue);
+    }
+
+    @Override
+    public boolean supports(Metadata incomingMetadata, Class<?> returnType) {
+        return selectConverter(incomingMetadata, returnType) != null;
     }
 
     private ReturnValueConverter selectConverter(Metadata incomingMetadata, Class<?> returnType){

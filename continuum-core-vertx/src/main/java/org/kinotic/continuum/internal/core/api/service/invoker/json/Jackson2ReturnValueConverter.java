@@ -44,11 +44,6 @@ public class Jackson2ReturnValueConverter extends AbstractJackson2Support implem
     }
 
     @Override
-    public boolean supports(Metadata incomingMetadata, Class<?> returnType) {
-        return containsJsonContent(incomingMetadata);
-    }
-
-    @Override
     public Event<byte[]> convert(Metadata incomingMetadata, Class<?> returnType, Object returnValue) {
         // insure void return types are not mistakenly seen as null
         if(Void.TYPE.isAssignableFrom(returnType)){
@@ -58,6 +53,11 @@ public class Jackson2ReturnValueConverter extends AbstractJackson2Support implem
         headers.put(EventConstants.CONTENT_TYPE_HEADER, MimeTypeUtils.APPLICATION_JSON_VALUE);
 
         return createOutgoingEvent(incomingMetadata, headers, returnValue);
+    }
+
+    @Override
+    public boolean supports(Metadata incomingMetadata, Class<?> returnType) {
+        return containsJsonContent(incomingMetadata);
     }
 
 }

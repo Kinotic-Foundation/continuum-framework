@@ -56,13 +56,6 @@ public class RpcServiceProxyBeanFactory extends AbstractFactoryBean<Object> {
     }
 
     @Override
-    protected synchronized void destroyInstance(Object instance) throws Exception {
-        if(serviceHandle != null){
-            serviceHandle.release();
-        }
-    }
-
-    @Override
     public synchronized Class<?> getObjectType() {
         return serviceClass;
     }
@@ -77,5 +70,12 @@ public class RpcServiceProxyBeanFactory extends AbstractFactoryBean<Object> {
             }
         }
         return serviceHandle.getService();
+    }
+
+    @Override
+    protected synchronized void destroyInstance(Object instance) throws Exception {
+        if(serviceHandle != null){
+            serviceHandle.release();
+        }
     }
 }

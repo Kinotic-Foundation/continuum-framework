@@ -19,7 +19,6 @@ package org.kinotic.continuum.gateway.internal.endpoints;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.vertx.core.Promise;
-import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.ReplyException;
 import io.vertx.core.eventbus.ReplyFailure;
 import org.apache.commons.lang3.Validate;
@@ -55,7 +54,6 @@ public class EndpointConnectionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(EndpointConnectionHandler.class);
 
-    private final Vertx vertx;
     private final Services services;
     private final SecurityService securityService;
 
@@ -63,9 +61,7 @@ public class EndpointConnectionHandler {
     private Session session;
     private long sessionTimer = -1;
 
-    public EndpointConnectionHandler(Vertx vertx,
-                                     Services services) {
-        this.vertx = vertx;
+    public EndpointConnectionHandler(Services services) {
         this.services = services;
 
         if(services.continuumGatewayProperties.isEnableCLIConnections()){
@@ -142,6 +138,7 @@ public class EndpointConnectionHandler {
 
                 try {
 
+                    // FIXME: when the invocation is local this happens for no reason. If the event stays on the local bus we shouldn't do this..
                     incomingEvent.metadata().put(EventConstants.SENDER_HEADER, services.objectMapper.writeValueAsString(session.participant()));
 
                     // make sure reply-to if present is scoped to sender

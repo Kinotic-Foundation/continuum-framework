@@ -41,17 +41,12 @@ import java.util.Map;
 @Order
 public class BasicExceptionConverter implements ExceptionConverter {
 
-    private final ContinuumProperties properties;
     private final ObjectMapper objectMapper;
+    private final ContinuumProperties properties;
 
     public BasicExceptionConverter(ContinuumProperties properties, ObjectMapper objectMapper) {
         this.properties = properties;
         this.objectMapper = objectMapper;
-    }
-
-    @Override
-    public boolean supports(Metadata incomingMetadata) {
-        return true;
     }
 
     @Override
@@ -76,6 +71,11 @@ public class BasicExceptionConverter implements ExceptionConverter {
                 throw new EncodingException("JSON encoding error: " + e.getOriginalMessage(), e);
             }
         });
+    }
+
+    @Override
+    public boolean supports(Metadata incomingMetadata) {
+        return true;
     }
 
 }

@@ -56,36 +56,27 @@ import java.util.concurrent.ConcurrentHashMap;
 public class DefaultServiceRegistry implements ServiceRegistry {
 
     private static final Logger log = LoggerFactory.getLogger(ServiceRegistrationBeanPostProcessor.class);
-
-    @Autowired
-    private Vertx vertx; //TODO: move thread scheduling and execution functionality into Continuum API such as Scheduling Service ect..
-
-    @Autowired
-    private EventBusService eventBusService;
-
-    @Autowired
-    private Continuum continuum;
-
+    private final ConcurrentHashMap<ServiceIdentifier, ServiceInvocationSupervisor> supervisors = new ConcurrentHashMap<>();
     // These converters are used by ServiceInvocationSupervisor
     @Autowired
     private ArgumentResolverComposite argumentResolver;
     @Autowired
-    private ReturnValueConverterComposite returnValueConverter;
+    private Continuum continuum;
+    @Autowired
+    private EventBusService eventBusService;
     @Autowired
     private ExceptionConverterComposite exceptionConverter;
-
+    @Autowired
+    private ReactiveAdapterRegistry reactiveAdapterRegistry;
+    @Autowired
+    private ReturnValueConverterComposite returnValueConverter;
     // These are used for proxy side logic
     @Autowired
     private RpcArgumentConverterResolver rpcArgumentConverterResolver;
-
     @Autowired
     private RpcReturnValueHandlerFactory rpcReturnValueHandlerFactory;
-
     @Autowired
-    private ReactiveAdapterRegistry reactiveAdapterRegistry;
-
-    private final ConcurrentHashMap<ServiceIdentifier, ServiceInvocationSupervisor> supervisors = new ConcurrentHashMap<>();
-
+    private Vertx vertx; //TODO: move thread scheduling and execution functionality into Continuum API such as Scheduling Service ect..
 
     @Override
     public Mono<Void> register(ServiceIdentifier serviceIdentifier, Class<?> serviceInterface, Object instance) {
@@ -124,22 +115,6 @@ public class DefaultServiceRegistry implements ServiceRegistry {
                                                                sink.error(new IllegalArgumentException("Service already registered for ServiceIdentifier "+ serviceDescriptor.serviceIdentifier()));
                                                            }
                                                            return serviceInvocationSupervisor;
-                                                       }));
-    }
-
-    @Override
-    public Mono<Void> unregister(ServiceIdentifier serviceIdentifier) {
-        return Mono.create(sink -> supervisors.compute(serviceIdentifier,
-                                                       (serviceIdentifier1, serviceInvocationSupervisor) -> {
-                                                           if(serviceInvocationSupervisor != null){
-                                                               serviceInvocationSupervisor
-                                                                       .stop()
-                                                                       .subscribe(sink::success,
-                                                                                  sink::error);
-                                                           }else{
-                                                               sink.error(new IllegalArgumentException(" No Service registered for for ServiceIdentifier "+ serviceIdentifier));
-                                                           }
-                                                           return null; // remove from map
                                                        }));
     }
 
@@ -184,5 +159,21 @@ public class DefaultServiceRegistry implements ServiceRegistry {
                                                                     version);
 
         return serviceProxy(serviceIdentifier, serviceInterface, MimeTypeUtils.APPLICATION_JSON_VALUE);
+    }
+
+    @Override
+    public Mono<Void> unregister(ServiceIdentifier serviceIdentifier) {
+        return Mono.create(sink -> supervisors.compute(serviceIdentifier,
+                                                       (serviceIdentifier1, serviceInvocationSupervisor) -> {
+                                                           if(serviceInvocationSupervisor != null){
+                                                               serviceInvocationSupervisor
+                                                                       .stop()
+                                                                       .subscribe(sink::success,
+                                                                                  sink::error);
+                                                           }else{
+                                                               sink.error(new IllegalArgumentException(" No Service registered for for ServiceIdentifier "+ serviceIdentifier));
+                                                           }
+                                                           return null; // remove from map
+                                                       }));
     }
 }

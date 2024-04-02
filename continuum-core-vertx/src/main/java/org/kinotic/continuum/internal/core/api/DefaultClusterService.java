@@ -65,15 +65,6 @@ public class DefaultClusterService implements ClusterService {
         return _deployClusterSingleton(igniteServices, serviceIdentifier, serviceClass, constructorArgs);
     }
 
-    private Mono<Void> _deployClusterSingleton(IgniteServices igniteServices, String serviceIdentifier, Class<?> serviceClass, Object ... constructorArgs){
-        validateClass(serviceClass);
-        return IgniteUtil.futureToMono(() -> igniteServices.deployClusterSingletonAsync(serviceIdentifier,
-                                                                                        createIgniteService(serviceIdentifier,
-                                                                                                             serviceClass,
-                                                                                                             constructorArgs)));
-    }
-
-
     public Mono<Void> deployNodeSingleton(String serviceIdentifier, Class<?> serviceClass, Object ... constructorArgs){
         validateClass(serviceClass);
         return IgniteUtil.futureToMono(() -> ignite.services()
@@ -81,12 +72,6 @@ public class DefaultClusterService implements ClusterService {
                                                       createIgniteService(serviceIdentifier,
                                                                           serviceClass,
                                                                           constructorArgs)));
-    }
-
-
-    @Override
-    public Mono<Void> unDeployService(String serviceIdentifier) {
-        return IgniteUtil.futureToMono(() -> ignite.services().cancelAsync(serviceIdentifier));
     }
 
     @Override
@@ -127,6 +112,19 @@ public class DefaultClusterService implements ClusterService {
                 sink.error(e);
             }
         });
+    }
+
+    @Override
+    public Mono<Void> unDeployService(String serviceIdentifier) {
+        return IgniteUtil.futureToMono(() -> ignite.services().cancelAsync(serviceIdentifier));
+    }
+
+    private Mono<Void> _deployClusterSingleton(IgniteServices igniteServices, String serviceIdentifier, Class<?> serviceClass, Object ... constructorArgs){
+        validateClass(serviceClass);
+        return IgniteUtil.futureToMono(() -> igniteServices.deployClusterSingletonAsync(serviceIdentifier,
+                                                                                        createIgniteService(serviceIdentifier,
+                                                                                                             serviceClass,
+                                                                                                             constructorArgs)));
     }
 
     private Service createIgniteService(String serviceIdentifier, Class<?> serviceClass, Object[] constructorArgs){

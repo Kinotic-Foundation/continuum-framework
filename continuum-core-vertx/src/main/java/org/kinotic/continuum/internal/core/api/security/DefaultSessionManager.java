@@ -23,13 +23,12 @@ import io.vertx.core.Vertx;
 import io.vertx.ext.auth.PRNG;
 import org.apache.ignite.Ignite;
 import org.apache.ignite.IgniteCache;
-import org.kinotic.continuum.core.api.event.EventConstants;
-import org.kinotic.continuum.api.security.ParticipantConstants;
 import org.kinotic.continuum.api.security.Participant;
+import org.kinotic.continuum.api.security.ParticipantConstants;
+import org.kinotic.continuum.core.api.event.EventConstants;
 import org.kinotic.continuum.core.api.security.Session;
 import org.kinotic.continuum.core.api.security.SessionManager;
 import org.kinotic.continuum.internal.config.IgniteCacheConstants;
-import org.kinotic.continuum.internal.utils.ContinuumUtil;
 import org.kinotic.continuum.internal.utils.IgniteUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.server.PathContainer;
@@ -181,7 +180,7 @@ public class DefaultSessionManager implements SessionManager {
 
             }
 
-            // clients can subscribe to any service that is scoped to their identity
+            // clients can subscribe to any service that is scoped to their identity, including the CLI
             subscriptionPatterns.add(parser.parse(EventConstants.SERVICE_DESTINATION_SCHEME + "://"
                                                           + replyToId
                                                           + ":*@*.**"));

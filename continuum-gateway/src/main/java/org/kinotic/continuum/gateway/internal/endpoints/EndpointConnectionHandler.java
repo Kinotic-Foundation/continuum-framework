@@ -19,13 +19,12 @@ package org.kinotic.continuum.gateway.internal.endpoints;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.vertx.core.Promise;
-import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.ReplyException;
 import io.vertx.core.eventbus.ReplyFailure;
 import org.apache.commons.lang3.Validate;
-import org.kinotic.continuum.api.exceptions.RpcMissingServiceException;
 import org.kinotic.continuum.api.exceptions.AuthenticationException;
 import org.kinotic.continuum.api.exceptions.AuthorizationException;
+import org.kinotic.continuum.api.exceptions.RpcMissingServiceException;
 import org.kinotic.continuum.api.security.ConnectedInfo;
 import org.kinotic.continuum.api.security.SecurityService;
 import org.kinotic.continuum.core.api.event.CRI;
@@ -33,7 +32,6 @@ import org.kinotic.continuum.core.api.event.Event;
 import org.kinotic.continuum.core.api.event.EventConstants;
 import org.kinotic.continuum.core.api.security.Session;
 import org.kinotic.continuum.gateway.internal.api.security.CliSecurityService;
-import org.kinotic.continuum.internal.utils.ContinuumUtil;
 import org.kinotic.continuum.internal.utils.EventUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,8 +43,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiFunction;
-import java.util.function.Consumer;
-import java.util.function.Function;
 
 /**
  * Generic class to perform {@link Event} handling coming from various endpoints
@@ -58,7 +54,6 @@ public class EndpointConnectionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(EndpointConnectionHandler.class);
 
-    private final Vertx vertx;
     private final Services services;
     private final SecurityService securityService;
 
@@ -66,9 +61,7 @@ public class EndpointConnectionHandler {
     private Session session;
     private long sessionTimer = -1;
 
-    public EndpointConnectionHandler(Vertx vertx,
-                                     Services services) {
-        this.vertx = vertx;
+    public EndpointConnectionHandler(Services services) {
         this.services = services;
 
         if(services.continuumGatewayProperties.isEnableCLIConnections()){
@@ -145,10 +138,11 @@ public class EndpointConnectionHandler {
 
                 try {
 
+                    // FIXME: when the invocation is local this happens for no reason. If the event stays on the local bus we shouldn't do this..
                     incomingEvent.metadata().put(EventConstants.SENDER_HEADER, services.objectMapper.writeValueAsString(session.participant()));
 
                     // make sure reply-to if present is scoped to sender
-                    validateReplyTo(incomingEvent);
+                    validateReplyToForServiceRequest(incomingEvent);
 
                     ret = services.eventBusService
                             .sendWithAck(incomingEvent)
@@ -202,12 +196,12 @@ public class EndpointConnectionHandler {
         return ret;
     }
 
-    private void validateReplyTo(Event<byte[]> event) {
+    private void validateReplyToForServiceRequest(Event<byte[]> event) {
         String replyTo = event.metadata().get(EventConstants.REPLY_TO_HEADER);
         if (replyTo != null) {
             // reply-to must not use any * characters and must be "scoped" to the participant replyToId
             if (replyTo.contains("*")) {
-                throw new IllegalArgumentException("reply-to header invalid * are not allowed");
+                throw new IllegalArgumentException("reply-to header invalid * are not allowed for service requests");
             }
 
             CRI replyCRI;
@@ -219,7 +213,7 @@ public class EndpointConnectionHandler {
 
             String scheme = replyCRI.scheme();
             if(scheme == null || !scheme.equals(EventConstants.SERVICE_DESTINATION_SCHEME)){
-                throw new IllegalArgumentException("reply-to header invalid, scheme: " + scheme + " is not valid for authenticated participant");
+                throw new IllegalArgumentException("reply-to header invalid, scheme: " + scheme + " is not valid for service requests");
             }
 
             String scope = replyCRI.scope();
@@ -231,11 +225,13 @@ public class EndpointConnectionHandler {
                 }
 
                 if (!scope.equals(session.replyToId())) {
-                    throw new IllegalArgumentException("reply-to header invalid, scope: " + scope + " is not valid for authenticated participant");
+                    throw new IllegalArgumentException("reply-to header invalid, scope: " + scope + " is not valid for service requests");
                 }
             }else{
-                throw new IllegalArgumentException("reply-to header invalid, scope: null is not valid for authenticated participant");
+                throw new IllegalArgumentException("reply-to header invalid, scope: null is not valid for service requests");
             }
+        }else{
+            throw new IllegalArgumentException("reply-to header invalid not provided for service requests");
         }
     }
 

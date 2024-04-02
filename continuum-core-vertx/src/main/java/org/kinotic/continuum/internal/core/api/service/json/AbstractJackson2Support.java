@@ -24,6 +24,7 @@ import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
+import lombok.Getter;
 import org.kinotic.continuum.api.config.ContinuumProperties;
 import org.kinotic.continuum.core.api.event.Event;
 import org.kinotic.continuum.core.api.event.EventConstants;
@@ -53,6 +54,7 @@ import java.util.Map;
  */
 public abstract class AbstractJackson2Support {
 
+    @Getter
     private final ObjectMapper objectMapper;
     private final ReactiveAdapterRegistry reactiveAdapterRegistry;
     private final ContinuumProperties continuumProperties;
@@ -65,10 +67,6 @@ public abstract class AbstractJackson2Support {
         this.continuumProperties = continuumProperties;
     }
 
-    public ObjectMapper getObjectMapper() {
-        return objectMapper;
-    }
-
     /**
      * Tests if the content is considered json
      * @param incomingMetadata to evaluate
@@ -77,7 +75,7 @@ public abstract class AbstractJackson2Support {
     protected boolean containsJsonContent(Metadata incomingMetadata) {
         boolean ret = false;
         String contentType = incomingMetadata.get(EventConstants.CONTENT_TYPE_HEADER);
-        if(contentType != null && contentType.length() > 0){
+        if(contentType != null && !contentType.isEmpty()){
             ret =  MimeTypeUtils.APPLICATION_JSON_VALUE.contentEquals(contentType);
         }
         return ret;
@@ -120,6 +118,7 @@ public abstract class AbstractJackson2Support {
 
                 methodParameter = methodParameter.nestedIfOptional();
 
+                // FIXME: when the invocation is local this happens for no reason. If the event stays on the local bus we shouldn't do this..
                 // if the parameter is a participant we get this from the even metadata
                 if(Participant.class.isAssignableFrom(methodParameter.getParameterType())){
 

@@ -21,7 +21,6 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.BridgeMethodResolver;
-import org.springframework.core.GenericTypeResolver;
 import org.springframework.core.MethodParameter;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ReflectionUtils;
@@ -49,11 +48,8 @@ public class HandlerMethod {
     private final Object bean;
 
     private final Class<?> beanType;
-
-    private final Method method;
-
     private final Method bridgedMethod;
-
+    private final Method method;
     private final MethodParameter[] parameters;
 
     /**
@@ -69,29 +65,11 @@ public class HandlerMethod {
         this.parameters = initMethodParameters();
     }
 
-    private MethodParameter[] initMethodParameters() {
-        int count = this.bridgedMethod.getParameterCount();
-        MethodParameter[] result = new MethodParameter[count];
-        for (int i = 0; i < count; i++) {
-            MethodParameter parameter = new MethodParameter(this.bridgedMethod, i);
-            GenericTypeResolver.resolveParameterType(parameter, this.beanType);
-            result[i] = parameter;
-        }
-        return result;
-    }
-
     /**
      * Return the bean for this handler method.
      */
     public Object getBean() {
         return this.bean;
-    }
-
-    /**
-     * Return the method for this handler method.
-     */
-    public Method getMethod() {
-        return this.method;
     }
 
     /**
@@ -104,11 +82,10 @@ public class HandlerMethod {
     }
 
     /**
-     * If the bean method is a bridge method, this method returns the bridged
-     * (user-defined) method. Otherwise it returns the same method as {@link #getMethod()}.
+     * Return the method for this handler method.
      */
-    protected Method getBridgedMethod() {
-        return this.bridgedMethod;
+    public Method getMethod() {
+        return this.method;
     }
 
     /**
@@ -125,7 +102,6 @@ public class HandlerMethod {
         return new MethodParameter(this.bridgedMethod, -1);
     }
 
-
     /**
      * Invokes the handler with the given arguments provided
      * The method invocation will happen in a background thread
@@ -140,33 +116,9 @@ public class HandlerMethod {
         return doInvoke(args);
     }
 
-
-    @Override
-    public boolean equals(Object other) {
-        if (this == other) {
-            return true;
-        }
-        if (!(other instanceof HandlerMethod)) {
-            return false;
-        }
-        HandlerMethod otherMethod = (HandlerMethod) other;
-        return (this.bean.equals(otherMethod.bean) && this.method.equals(otherMethod.method));
-    }
-
-    @Override
-    public int hashCode() {
-        return (this.bean.hashCode() * 31 + this.method.hashCode());
-    }
-
-    @Override
-    public String toString() {
-        return this.method.toGenericString();
-    }
-
-
     /**
      * Assert that the target bean class is an instance of the class where the given
-     * method is declared. In some cases the actual controller instance at request-
+     * method is declared. In some cases the actual controller instance at request
      * processing time may be a JDK dynamic proxy (lazy initialization, prototype
      * beans, and others). {@code @Controller}'s that require proxying should prefer
      * class-based proxy mechanisms.
@@ -182,19 +134,6 @@ public class HandlerMethod {
             throw new IllegalStateException(formatInvokeMessage(text, args));
         }
     }
-
-    protected String formatInvokeMessage(String text, Object[] args) {
-        String formattedArgs = IntStream.range(0, args.length)
-                .mapToObj(i -> (args[i] != null ?
-                        "[" + i + "] [type=" + args[i].getClass().getName() + "] [value=" + args[i] + "]" :
-                        "[" + i + "] [null]"))
-                .collect(Collectors.joining(",\n", " ", " "));
-        return text + "\n" +
-                "Service [" + getBeanType().getName() + "]\n" +
-                "Method [" + getBridgedMethod().toGenericString() + "] " +
-                "with argument values:\n" + formattedArgs;
-    }
-
 
     /**
      * Invoke the handler method with the given argument values.
@@ -230,6 +169,59 @@ public class HandlerMethod {
                 throw new IllegalStateException(formatInvokeMessage("Invocation failure", args), targetException);
             }
         }
+    }
+
+    protected String formatInvokeMessage(String text, Object[] args) {
+        String formattedArgs = IntStream.range(0, args.length)
+                .mapToObj(i -> (args[i] != null ?
+                        "[" + i + "] [type=" + args[i].getClass().getName() + "] [value=" + args[i] + "]" :
+                        "[" + i + "] [null]"))
+                .collect(Collectors.joining(",\n", " ", " "));
+        return text + "\n" +
+                "Service [" + getBeanType().getName() + "]\n" +
+                "Method [" + getBridgedMethod().toGenericString() + "] " +
+                "with argument values:\n" + formattedArgs;
+    }
+
+    /**
+     * If the bean method is a bridge method, this method returns the bridged
+     * (user-defined) method. Otherwise it returns the same method as {@link #getMethod()}.
+     */
+    protected Method getBridgedMethod() {
+        return this.bridgedMethod;
+    }
+
+    private MethodParameter[] initMethodParameters() {
+        int count = this.bridgedMethod.getParameterCount();
+        MethodParameter[] result = new MethodParameter[count];
+        for (int i = 0; i < count; i++) {
+            MethodParameter parameter = new MethodParameter(this.bridgedMethod, i)
+                                                .withContainingClass(this.beanType);
+            result[i] = parameter;
+        }
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return this.method.toGenericString();
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) {
+            return true;
+        }
+        if (!(other instanceof HandlerMethod)) {
+            return false;
+        }
+        HandlerMethod otherMethod = (HandlerMethod) other;
+        return (this.bean.equals(otherMethod.bean) && this.method.equals(otherMethod.method));
+    }
+
+    @Override
+    public int hashCode() {
+        return (this.bean.hashCode() * 31 + this.method.hashCode());
     }
 
 }

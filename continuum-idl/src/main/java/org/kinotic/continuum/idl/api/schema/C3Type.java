@@ -82,6 +82,7 @@ public abstract class C3Type {
      * @return this {@link C3Type} for chaining
      */
     public C3Type addDecorator(C3Decorator decorator){
+        // FIXME: either lazy init everywhere or no where 
         if(decorators == null){
             decorators = new ArrayList<>();
         }

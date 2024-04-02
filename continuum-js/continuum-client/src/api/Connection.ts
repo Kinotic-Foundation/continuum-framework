@@ -28,8 +28,16 @@ export class ConnectHeaders {
  * ConnectionInfo provides the information needed to connect to the continuum server
  */
 export class ConnectionInfo {
+    connectHeaders?: ConnectHeaders
+    /**
+     * The maximum number of connection attempts to make during the {@link IEventBus} initial connection request.
+     * If the limit is reached the {@link IEventBus} will return an error to the caller of {@link IEventBus#connect}
+     * Set to 0, undefined, or null to try forever
+     */
+    maxConnectionAttempts?: number | null
     host!: string
     port?: number | null
     useSSL?: boolean | null
-    connectHeaders?: ConnectHeaders
 }
+
+

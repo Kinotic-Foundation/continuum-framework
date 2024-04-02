@@ -30,9 +30,9 @@ import org.kinotic.continuum.core.api.event.Metadata;
  */
 public interface ExceptionConverter {
 
-    boolean supports(Metadata incomingMetadata);
-
     Event<byte[]> convert(Metadata incomingMetadata, Throwable throwable);
+
+    boolean supports(Metadata incomingMetadata);
 
 }
 

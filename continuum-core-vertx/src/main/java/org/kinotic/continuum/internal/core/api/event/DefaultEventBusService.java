@@ -67,16 +67,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class DefaultEventBusService implements EventBusService {
 
     private static final Logger log = LoggerFactory.getLogger(DefaultEventBusService.class);
-
-    @Autowired
-    private Vertx vertx;
-
     @Autowired(required = false) // this done so unit tests can complete faster. Kinda silly but hey that is unit tests.. I guess I could mock..
     private Ignite ignite;
-
     private Scheduler scheduler;
     // This is the cache used by the IgniteVertxCluster manager to track subscriptions
     private IgniteCache<String, Set<ClusterNodeInfo>> subscriptionsCache;
+    @Autowired
+    private Vertx vertx;
 
     @PostConstruct
     public void init(){
@@ -88,45 +85,11 @@ public class DefaultEventBusService implements EventBusService {
     }
 
     @Override
-    public void send(Event<byte[]> event) {
-        DeliveryOptions deliveryOptions = createDeliveryOptions(event);
-        vertx.eventBus().send(event.cri().baseResource(),
-                              event.data(),
-                              deliveryOptions);
-    }
-
-    @Override
-    public Mono<Void> sendWithAck(Event<byte[]> event) {
-        Validate.notNull(event, "Event must not be null");
-
-        return Mono.create(sink -> {
-            DeliveryOptions deliveryOptions = createDeliveryOptions(event);
-            // We expect that a response will be sent upon receipt. This will happen automatically if the listener is created with this class.
-            vertx.eventBus().request(event.cri().baseResource(),
-                                     event.data(),
-                                     deliveryOptions,
-                                     (Handler<AsyncResult<Message<Void>>>) reply -> {
-                                       if(reply.succeeded()){
-                                           sink.success();
-                                       }else{
-                                           sink.error(reply.cause());
-                                       }
-                                     });
-        }).subscribeOn(scheduler).then();
-    }
-
-    private DeliveryOptions createDeliveryOptions(Event<?> event){
-        DeliveryOptions deliveryOptions = new DeliveryOptions();
-        // fast path for MultiMapMetadataAdapter's
-        if(event.metadata() instanceof MultiMapMetadataAdapter){
-            deliveryOptions.setHeaders(((MultiMapMetadataAdapter)event.metadata()).getMultiMap());
-        }else{
-            for(Map.Entry<String, String> entry: event.metadata()){
-                deliveryOptions.addHeader(entry.getKey(), entry.getValue());
-            }
+    public Mono<Boolean> isAnybodyListening(String cri) {
+        if(ignite == null){
+            throw new IllegalStateException("This method is not available when ignite is disabled");
         }
-        deliveryOptions.addHeader(EventConstants.CRI_HEADER, event.cri().raw());
-        return deliveryOptions;
+        return IgniteUtil.futureToMono(() -> subscriptionsCache.containsKeyAsync(cri));
     }
 
     @Override
@@ -146,14 +109,6 @@ public class DefaultEventBusService implements EventBusService {
             consumer.completionHandler(event -> sink.success(flux));
             flux.connect(); // we have to connect now so flux create will be signaled and vertx consumer handler will be set
         });
-    }
-
-    @Override
-    public Mono<Boolean> isAnybodyListening(String cri) {
-        if(ignite == null){
-            throw new IllegalStateException("This method is not available when ignite is disabled");
-        }
-        return IgniteUtil.futureToMono(() -> subscriptionsCache.containsKeyAsync(cri));
     }
 
     @Override
@@ -204,6 +159,34 @@ public class DefaultEventBusService implements EventBusService {
         return ret.subscribeOn(scheduler);
     }
 
+    @Override
+    public void send(Event<byte[]> event) {
+        DeliveryOptions deliveryOptions = createDeliveryOptions(event);
+        vertx.eventBus().send(event.cri().baseResource(),
+                              event.data(),
+                              deliveryOptions);
+    }
+
+    @Override
+    public Mono<Void> sendWithAck(Event<byte[]> event) {
+        Validate.notNull(event, "Event must not be null");
+
+        return Mono.create(sink -> {
+            DeliveryOptions deliveryOptions = createDeliveryOptions(event);
+            // We expect that a response will be sent upon receipt. This will happen automatically if the listener is created with this class.
+            vertx.eventBus().request(event.cri().baseResource(),
+                                     event.data(),
+                                     deliveryOptions,
+                                     (Handler<AsyncResult<Message<Void>>>) reply -> {
+                                       if(reply.succeeded()){
+                                           sink.success();
+                                       }else{
+                                           sink.error(reply.cause());
+                                       }
+                                     });
+        }).subscribeOn(scheduler).then();
+    }
+
     private Flux<Event<byte[]>> _listen(String cri, MessageConsumer<byte[]> vertxEventBusConsumer) {
         MessageConsumer<byte[]> consumer;
         if(vertxEventBusConsumer != null){
@@ -236,6 +219,20 @@ public class DefaultEventBusService implements EventBusService {
         });
 
         return ret.subscribeOn(scheduler); // ensure message delivery happens on vertx event loop, not sure but this by itself did not move the next above to the work loop
+    }
+
+    private DeliveryOptions createDeliveryOptions(Event<?> event){
+        DeliveryOptions deliveryOptions = new DeliveryOptions();
+        // fast path for MultiMapMetadataAdapter's
+        if(event.metadata() instanceof MultiMapMetadataAdapter){
+            deliveryOptions.setHeaders(((MultiMapMetadataAdapter)event.metadata()).getMultiMap());
+        }else{
+            for(Map.Entry<String, String> entry: event.metadata()){
+                deliveryOptions.addHeader(entry.getKey(), entry.getValue());
+            }
+        }
+        deliveryOptions.addHeader(EventConstants.CRI_HEADER, event.cri().raw());
+        return deliveryOptions;
     }
 
 }

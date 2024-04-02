@@ -1,49 +1,26 @@
-import {ArgumentDefinition} from '@/api/ArgumentDefinition'
-import { C3Type } from '@/api/C3Type'
+import {C3Type} from '@/api/C3Type'
 import {C3Decorator} from '@/api/decorators/C3Decorator'
-import { VoidC3Type } from '@/api/VoidC3Type'
 
-/**
- * Provides functionality to define a function with a Continuum schema.
- * Created by navid on 2023-4-13
- */
-export class FunctionDefinition {
+export class ArgumentDefinition {
+    /**
+     * The name of this {@link ArgumentDefinition}
+     */
+    public name: string
 
     /**
-     * The name of this {@link FunctionDefinition}
+     * The type of this {@link ArgumentDefinition}
      */
-    public name: string = ''
-
-    /**
-     * This is the C3Type that defines the return type of this function.
-     */
-    public returnType: C3Type = new VoidC3Type()
-
-    /**
-     * This array defines the {@link C3Type}s that define the arguments for this function.
-     * Argument names must be unique.
-     */
-    public arguments: ArgumentDefinition[] = []
+    public type: C3Type
 
     /**
      * The list of Decorators that should be applied to this type
      */
     public decorators?: C3Decorator[] = []
 
-    /**
-     * Adds a new argument to this function definition
-     * Arguments must have unique names
-     * @param name the name of the argument
-     * @param c3Type the type of the argument
-     * @param decorators the decorators to apply to the argument
-     */
-    public addArgument(name: string, c3Type: C3Type, decorators?: C3Decorator[]): FunctionDefinition {
-        const arg = new ArgumentDefinition(name, c3Type, decorators)
-        if(this.arguments.find((value) => value.name === name)){
-            throw new Error(`FunctionDefinition already contains argument for name ${name}`);
-        }
-        this.arguments.push(arg)
-        return this
+    public constructor(name: string, type: C3Type, decorators?: C3Decorator[]) {
+        this.name = name
+        this.type = type
+        this.decorators = decorators ? decorators : []
     }
 
     /**
@@ -66,11 +43,11 @@ export class FunctionDefinition {
     /**
      * Adds a new decorator to this type
      * @param decorator the decorator to add
-     * @return this {@link FunctionDefinition}
+     * @return this {@link ArgumentDefinition}
      */
-    public addDecorator(decorator: C3Decorator): FunctionDefinition {
+    public addDecorator(decorator: C3Decorator): ArgumentDefinition {
         if (this.containsDecorator(decorator)) {
-            throw new Error(`FunctionDefinition already contains decorator for name ${decorator.type}`);
+            throw new Error(`ArgumentDefinition already contains decorator for name ${decorator.type}`);
         }
 
         if(!this.decorators){
@@ -98,5 +75,4 @@ export class FunctionDefinition {
         }
         return ret
     }
-
 }

@@ -10,6 +10,7 @@
         "rootDir": "src",
         "strict": true,
         "target": "esnext",
+        "skipLibCheck": true
     },
     "lib": [
         "esnext"
@@ -17,6 +18,7 @@
     "include": [
         "src/**/*"
     ],
+    "exclude": ["node_modules"],
     "ts-node": {
         "esm": true
     }

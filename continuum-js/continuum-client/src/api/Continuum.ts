@@ -147,9 +147,13 @@ export class ContinuumSingleton {
         const stack = ContinuumContextStack as ContinuumContextStackClass
         stack.push({instance: this, eventFactory: eventFactory})
 
-        const ret = await toExecute()
+        let ret: any
+        try {
+            ret = await toExecute()
+        } finally {
+            stack.pop()
+        }
 
-        stack.pop()
         return ret
     }
 }

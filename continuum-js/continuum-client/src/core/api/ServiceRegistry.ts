@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+import {ContinuumContextStack} from '@/api/Continuum'
 import { IServiceProxy, IServiceRegistry, IEventFactory } from './IServiceRegistry'
 import { EventConstants, IEvent, IEventBus } from './IEventBus'
 import { Event } from './EventBus'
@@ -130,12 +131,20 @@ class ServiceProxy implements IServiceProxy {
 
         const cri: string = EventConstants.SERVICE_DESTINATION_PREFIX + (scope != null ? scope + '@' : '') + this.serviceIdentifier + '/' + methodIdentifier
         let eventFactoryToUse = defaultEventFactory
-        if(eventFactory !== null && eventFactory !== undefined){
+        if(eventFactory){
             eventFactoryToUse = eventFactory
+        }else if(ContinuumContextStack.getEventFactory()){
+            eventFactoryToUse = ContinuumContextStack.getEventFactory()!
         }
+
+        let eventBusToUse = this.eventBus
+        if(ContinuumContextStack.getContinuumInstance()){
+            eventBusToUse = ContinuumContextStack.getContinuumInstance()!.eventBus
+        }
+
         let event: IEvent = eventFactoryToUse.create(cri, args)
 
-        return this.eventBus.requestStream(event, sendControlEvents)
+        return eventBusToUse.requestStream(event, sendControlEvents)
             .pipe(map<IEvent, any>((value: IEvent): any => {
 
                 const contentType: string | undefined = value.getHeader(EventConstants.CONTENT_TYPE_HEADER)

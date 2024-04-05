@@ -58,16 +58,10 @@ class ContinuumContextStackClass implements IContinuumContextStack {
 
     private continuumOverride: ContinuumContext[] = []
 
-    /**
-     * Returns the current Continuum instance to use for all {@link IServiceProxy} instances invoked with {@link ContinuumContext.execute}
-     */
     getContinuumInstance(): ContinuumSingleton | undefined {
         return this.continuumOverride[this.continuumOverride.length - 1]?.instance
     }
 
-    /**
-     * Returns the current event factory to use for all {@link IServiceProxy} instances invoked with {@link ContinuumContext.execute}
-     */
     getEventFactory(): IEventFactory | undefined{
         return this.continuumOverride[this.continuumOverride.length - 1]?.eventFactory
     }

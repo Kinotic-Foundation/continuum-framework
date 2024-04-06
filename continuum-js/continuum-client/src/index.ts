@@ -19,7 +19,7 @@
  * Export all the things
  */
 
-export * from './api/Connectioninfo'
+export * from './api/ConnectionInfo'
 export * from './api/Continuum'
 export * from './api/Identifiable'
 export * from './api/ILogManager'

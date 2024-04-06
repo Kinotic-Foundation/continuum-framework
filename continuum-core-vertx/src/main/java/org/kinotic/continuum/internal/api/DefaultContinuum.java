@@ -26,6 +26,7 @@ import org.apache.commons.text.WordUtils;
 import org.apache.ignite.internal.util.typedef.internal.U;
 import org.awaitility.Awaitility;
 import org.kinotic.continuum.api.Continuum;
+import org.kinotic.continuum.api.ServerInfo;
 import org.kinotic.continuum.api.annotations.ContinuumPackages;
 import org.kinotic.continuum.api.annotations.EnableContinuum;
 import org.kinotic.continuum.api.config.ContinuumProperties;
@@ -63,16 +64,15 @@ import java.util.stream.Stream;
 @Component
 public class DefaultContinuum implements Continuum {
 
-    private static final Logger log = LoggerFactory.getLogger(Continuum.class);
-    private static final SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yy HH:mm:ss z");
     private static final int ADJECTIVE_COUNT = 1915;
     private static final int ANIMAL_COUNT = 587;
-    private final String name;
+    private static final Logger log = LoggerFactory.getLogger(Continuum.class);
+    private static final SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yy HH:mm:ss z");
     private final ContinuumProperties continuumProperties;
+    private final ServerInfo serverInfo;
     private final Vertx vertx;
     private String applicationName;
     private String applicationVersion;
-    private final String nodeId;
 
     public DefaultContinuum(ResourceLoader resourceLoader,
                             @Autowired(required = false)
@@ -81,10 +81,10 @@ public class DefaultContinuum implements Continuum {
                             ApplicationContext applicationContext,
                             ContinuumProperties continuumProperties,
                             ReactiveAdapterRegistry reactiveAdapterRegistry) throws IOException {
-        String name;
+        String nodeName;
 
         try (Stream<String> fileStream = new BufferedReader(new InputStreamReader(resourceLoader.getResource("classpath:adjectives.txt").getInputStream())).lines()) {
-            name = fileStream.skip(ContinuumUtil.getRandomNumberInRange(ADJECTIVE_COUNT))
+            nodeName = fileStream.skip(ContinuumUtil.getRandomNumberInRange(ADJECTIVE_COUNT))
                              .findFirst()
                              .orElse("");
         }
@@ -93,12 +93,12 @@ public class DefaultContinuum implements Continuum {
             String temp = fileStream.skip(ContinuumUtil.getRandomNumberInRange(ANIMAL_COUNT))
                                     .findFirst()
                                     .orElse("");
-            name = name + " " + WordUtils.capitalize(temp);
+            nodeName = nodeName + " " + WordUtils.capitalize(temp);
         }
-        this.name = name;
         this.vertx = vertx;
         this.continuumProperties = continuumProperties;
-        this.nodeId = (clusterManager != null  ?  clusterManager.getNodeID() : UUID.randomUUID().toString());
+        String nodeId = (clusterManager != null  ?  clusterManager.getNodeID() : UUID.randomUUID().toString());
+        this.serverInfo = new ServerInfo(nodeId, nodeName);
 
         // find Continuum application name
         List<String> packages = ContinuumPackages.get(applicationContext);
@@ -156,20 +156,9 @@ public class DefaultContinuum implements Continuum {
     }
 
     @Override
-    public String nodeName() {
-        return name;
-    }
-
-    @Override
-    public String nodeId() {
-        return nodeId;
-    }
-
-    @Override
     public String applicationName() {
         return applicationName;
     }
-
 
     @Override
     public String applicationVersion() {
@@ -179,9 +168,9 @@ public class DefaultContinuum implements Continuum {
     @EventListener
     public void onApplicationReadyEvent(ApplicationReadyEvent event) {
         StringBuilder info = new StringBuilder("\n\n##### Continuum Process Started #####\n\n\t");
-        info.append(name);
+        info.append(serverInfo.getNodeName());
         info.append("\n\tNode Id: ");
-        info.append(nodeId);
+        info.append(serverInfo.getNodeId());
         info.append("\n\t");
         info.append(sdf.format(new Date()));
         info.append("\n\n\tHost IPs:");
@@ -193,6 +182,11 @@ public class DefaultContinuum implements Continuum {
         info.append(continuumProperties.toString());
 
         log.info(info.toString());
+    }
+
+    @Override
+    public ServerInfo serverInfo() {
+        return serverInfo;
     }
 
     @PreDestroy

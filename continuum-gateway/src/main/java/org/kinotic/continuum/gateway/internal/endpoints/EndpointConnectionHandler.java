@@ -53,10 +53,8 @@ import java.util.function.BiFunction;
 public class EndpointConnectionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(EndpointConnectionHandler.class);
-
-    private final Services services;
     private final SecurityService securityService;
-
+    private final Services services;
     private final Map<String, BaseSubscriber<Event<byte[]>>> subscriptions = new HashMap<>();
     private Session session;
     private long sessionTimer = -1;
@@ -108,26 +106,40 @@ public class EndpointConnectionHandler {
                                   })
                                   .thenCompose(participant -> services.sessionManager.create(participant))
                                   .thenApply(session -> {
+
                                       sessionActive(session);
-                                      return Map.of(EventConstants.CONNECTED_INFO_HEADER, createConnectedInfoJson(session));
+
+                                      Map<String, String> ret = new HashMap<>(2,1);
+                                      ret.put(EventConstants.CONNECTED_INFO_HEADER, createConnectedInfoJson(session));
+                                      if(services.continuumProperties.isDebug()){
+                                          ret.put(EventConstants.SERVER_INFO_HEADER, createServerInfoJson());
+                                      }
+                                      return ret;
                                   });
         }
     }
 
-    private String createConnectedInfoJson(Session session){
-        try {
-            ConnectedInfo connectedInfo = new ConnectedInfo(session.sessionId(), session.replyToId(), session.participant());
-            return services.objectMapper.writeValueAsString(connectedInfo);
-        } catch (JsonProcessingException e) {
-            throw new IllegalStateException(e);
-        }
-    }
+    public void removeSession() {
+        if (session != null) {
+            // We remove the session timer here so the timer does not fire after the session is removed
+            if (sessionTimer != -1) {
+                services.vertx.cancelTimer(sessionTimer);
+                sessionTimer = -1;
+            }
 
-    private void sessionActive(Session session) {
-        this.session = session;
-        // update session at least every half the time of the timeout
-        long sessionUpdateInterval = services.continuumProperties.getSessionTimeout() / 2;
-        sessionTimer = services.vertx.setPeriodic(sessionUpdateInterval, event -> this.session.touch());
+            services.sessionManager
+                    .removeSession(session.sessionId())
+                    .handle((BiFunction<Boolean, Throwable, Void>) (aBoolean, throwable) -> {
+                        if (throwable != null) {
+                            log.error("Could not remove sessionId: " + session.sessionId(), throwable);
+                        }
+                        return null;
+                    });
+
+            session = null;
+        } else {
+            log.error("No session for connection was set");
+        }
     }
 
     public Mono<Void> send(Event<byte[]> incomingEvent) {
@@ -196,43 +208,13 @@ public class EndpointConnectionHandler {
         return ret;
     }
 
-    private void validateReplyToForServiceRequest(Event<byte[]> event) {
-        String replyTo = event.metadata().get(EventConstants.REPLY_TO_HEADER);
-        if (replyTo != null) {
-            // reply-to must not use any * characters and must be "scoped" to the participant replyToId
-            if (replyTo.contains("*")) {
-                throw new IllegalArgumentException("reply-to header invalid * are not allowed for service requests");
-            }
-
-            CRI replyCRI;
-            try {
-                replyCRI = CRI.create(replyTo);
-            } catch (Exception e) {
-                throw new IllegalArgumentException("reply-to header invalid " + e.getMessage());
-            }
-
-            String scheme = replyCRI.scheme();
-            if(scheme == null || !scheme.equals(EventConstants.SERVICE_DESTINATION_SCHEME)){
-                throw new IllegalArgumentException("reply-to header invalid, scheme: " + scheme + " is not valid for service requests");
-            }
-
-            String scope = replyCRI.scope();
-            if (scope != null) {
-                // valid scopes are PARTICIPANT-REPLY_TO_ID:UUID or PARTICIPANT-REPLY_TO_ID
-                int idx = scope.indexOf(":");
-                if (idx != -1) {
-                    scope = scope.substring(0, idx);
-                }
-
-                if (!scope.equals(session.replyToId())) {
-                    throw new IllegalArgumentException("reply-to header invalid, scope: " + scope + " is not valid for service requests");
-                }
-            }else{
-                throw new IllegalArgumentException("reply-to header invalid, scope: null is not valid for service requests");
-            }
-        }else{
-            throw new IllegalArgumentException("reply-to header invalid not provided for service requests");
+    public void shutdown() {
+        if (sessionTimer != -1) {
+            services.vertx.cancelTimer(sessionTimer);
+            sessionTimer = -1;
         }
+        subscriptions.forEach((s, messageConsumer) -> messageConsumer.cancel());
+        subscriptions.clear();
     }
 
     public void subscribe(CRI cri, String subscriptionIdentifier, BaseSubscriber<Event<byte[]>> subscriber) {
@@ -300,36 +282,67 @@ public class EndpointConnectionHandler {
         }
     }
 
-    public void removeSession() {
-        if (session != null) {
-            // We remove the session timer here so the timer does not fire after the session is removed
-            if (sessionTimer != -1) {
-                services.vertx.cancelTimer(sessionTimer);
-                sessionTimer = -1;
-            }
-
-            services.sessionManager
-                    .removeSession(session.sessionId())
-                    .handle((BiFunction<Boolean, Throwable, Void>) (aBoolean, throwable) -> {
-                        if (throwable != null) {
-                            log.error("Could not remove sessionId: " + session.sessionId(), throwable);
-                        }
-                        return null;
-                    });
-
-            session = null;
-        } else {
-            log.error("No session for connection was set");
+    private String createConnectedInfoJson(Session session){
+        try {
+            ConnectedInfo connectedInfo = new ConnectedInfo(session.participant(), session.replyToId(), session.sessionId());
+            return services.objectMapper.writeValueAsString(connectedInfo);
+        } catch (JsonProcessingException e) {
+            throw new IllegalStateException(e);
         }
     }
 
-    public void shutdown() {
-        if (sessionTimer != -1) {
-            services.vertx.cancelTimer(sessionTimer);
-            sessionTimer = -1;
+    private String createServerInfoJson(){
+        try {
+            return services.objectMapper.writeValueAsString(services.continuum.serverInfo());
+        } catch (JsonProcessingException e) {
+            throw new IllegalStateException(e);
         }
-        subscriptions.forEach((s, messageConsumer) -> messageConsumer.cancel());
-        subscriptions.clear();
+    }
+
+    private void sessionActive(Session session) {
+        this.session = session;
+        // update session at least every half the time of the timeout
+        long sessionUpdateInterval = services.continuumProperties.getSessionTimeout() / 2;
+        sessionTimer = services.vertx.setPeriodic(sessionUpdateInterval, event -> this.session.touch());
+    }
+
+    private void validateReplyToForServiceRequest(Event<byte[]> event) {
+        String replyTo = event.metadata().get(EventConstants.REPLY_TO_HEADER);
+        if (replyTo != null) {
+            // reply-to must not use any * characters and must be "scoped" to the participant replyToId
+            if (replyTo.contains("*")) {
+                throw new IllegalArgumentException("reply-to header invalid * are not allowed for service requests");
+            }
+
+            CRI replyCRI;
+            try {
+                replyCRI = CRI.create(replyTo);
+            } catch (Exception e) {
+                throw new IllegalArgumentException("reply-to header invalid " + e.getMessage());
+            }
+
+            String scheme = replyCRI.scheme();
+            if(scheme == null || !scheme.equals(EventConstants.SERVICE_DESTINATION_SCHEME)){
+                throw new IllegalArgumentException("reply-to header invalid, scheme: " + scheme + " is not valid for service requests");
+            }
+
+            String scope = replyCRI.scope();
+            if (scope != null) {
+                // valid scopes are PARTICIPANT-REPLY_TO_ID:UUID or PARTICIPANT-REPLY_TO_ID
+                int idx = scope.indexOf(":");
+                if (idx != -1) {
+                    scope = scope.substring(0, idx);
+                }
+
+                if (!scope.equals(session.replyToId())) {
+                    throw new IllegalArgumentException("reply-to header invalid, scope: " + scope + " is not valid for service requests");
+                }
+            }else{
+                throw new IllegalArgumentException("reply-to header invalid, scope: null is not valid for service requests");
+            }
+        }else{
+            throw new IllegalArgumentException("reply-to header invalid not provided for service requests");
+        }
     }
 
 }

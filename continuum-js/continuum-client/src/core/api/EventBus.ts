@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+import {ServerInfo} from '@/core/api/ServerInfo'
 import {StompConnectionManager} from '@/core/api/StompConnectionManager'
 import {IEvent, IEventBus, EventConstants} from './IEventBus'
 import { ConnectableObservable, Observable, Subject, Unsubscribable, Subscription, throwError } from 'rxjs'
@@ -25,7 +26,7 @@ import { Optional } from 'typescript-optional'
 import { v4 as uuidv4 } from 'uuid'
 import {ConnectedInfo} from '@/api/security/ConnectedInfo'
 import {ContinuumError} from '@/api/errors/ContinuumError'
-import {ConnectionInfo} from '@/api/Connection'
+import {ConnectionInfo} from '@/api/ConnectionInfo'
 
 /**
  * Default IEvent implementation
@@ -84,6 +85,7 @@ export class Event implements IEvent {
  */
 export class EventBus implements IEventBus {
 
+    public fatalErrors: Observable<Error>
     private stompConnectionManager: StompConnectionManager = new StompConnectionManager()
     private replyToCri: string  | null = null
     private requestRepliesObservable: ConnectableObservable<IEvent> | null = null
@@ -91,8 +93,9 @@ export class EventBus implements IEventBus {
     private errorSubject: Subject<IFrame> = new Subject<IFrame>()
     private errorSubjectSubscription: Subscription | null | undefined = null
 
-    public fatalErrors: Observable<Error>
-
+    public get serverInfo(): ServerInfo | null {
+        return this.stompConnectionManager.serverInfo
+    }
 
     constructor() {
         this.fatalErrors = this.errorSubject

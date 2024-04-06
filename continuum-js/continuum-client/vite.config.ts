@@ -21,6 +21,9 @@ export default defineConfig({
     },
     plugins: [externalizeDeps(), dts()],
     test: {
-        // vitest options here
+        coverage: {
+            provider: 'v8',
+            reporter: ['text', 'json', 'html'],
+        },
     },
 })

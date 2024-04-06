@@ -23,7 +23,7 @@ import {Identifiable} from '@/api/Identifiable'
 import {ICrudServiceProxy} from '@/core/api/crud/ICrudServiceProxy'
 import {CrudServiceProxyFactory} from '@/core/api/crud/CrudServiceProxyFactory'
 import {ConnectedInfo} from '@/api/security/ConnectedInfo'
-import {ConnectionInfo} from '@/api/Connection'
+import {ConnectionInfo} from '@/api/ConnectionInfo'
 
 
 /**
@@ -92,8 +92,17 @@ export const ContinuumContextStack: IContinuumContextStack = new ContinuumContex
  * All methods use a single connection to the Continuum Services
  */
 export class ContinuumSingleton {
+    /**
+     * The {@link IEventBus} that is used to communicate with the Continuum server
+     */
     public readonly eventBus!: IEventBus
+    /**
+     * The {@link ServiceRegistry} that is used to manage the services that are available
+     */
     public readonly serviceRegistry!: ServiceRegistry
+    /**
+     * The {@link CrudServiceProxyFactory} that is used to create {@link ICrudServiceProxy} instances
+     */
     public readonly crudServiceProxyFactory!: CrudServiceProxyFactory
 
     constructor() {

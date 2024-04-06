@@ -56,7 +56,7 @@ public class DefaultLogManager implements LogManager {
 
     @Override
     public String nodeId() {
-        return continuum.nodeId();
+        return continuum.serverInfo().getNodeId();
     }
 
     public LoggersDescriptor loggers() {

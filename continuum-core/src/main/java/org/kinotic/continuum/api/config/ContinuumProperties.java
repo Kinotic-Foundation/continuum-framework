@@ -28,7 +28,8 @@ public interface ContinuumProperties {
     String getZookeeperServers();
 
     /**
-     * If true additional information will be provided to clients about errors occurring when invoking services
+     * If true additional information will be provided to clients,
+     * including server information, and information about errors occurring when invoking services
      * This is off by default since this could reveal server implementation details
      * @return true to enable debug mode false to disable it
      */

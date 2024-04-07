@@ -17,7 +17,6 @@
 
 package org.kinotic.continuum.core.api.event;
 
-import org.kinotic.continuum.api.ServerInfo;
 import org.kinotic.continuum.api.security.ConnectedInfo;
 
 /**
@@ -45,11 +44,6 @@ public class EventConstants {
      * Header provided by the server on connection to provide the {@link ConnectedInfo}
      */
     public static final String CONNECTED_INFO_HEADER = "connected-info";
-
-    /**
-     * Header provided by the server on connection to provide the {@link ServerInfo} as a json string
-     */
-    public static final String SERVER_INFO_HEADER = "server-info";
 
     /**
      * Correlates a response with a given request

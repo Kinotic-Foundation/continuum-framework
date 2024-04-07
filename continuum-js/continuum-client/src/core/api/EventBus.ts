@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-import {ServerInfo} from '@/core/api/ServerInfo'
 import {StompConnectionManager} from '@/core/api/StompConnectionManager'
 import {IEvent, IEventBus, EventConstants} from './IEventBus'
 import { ConnectableObservable, Observable, Subject, Unsubscribable, Subscription, throwError } from 'rxjs'
@@ -92,10 +91,6 @@ export class EventBus implements IEventBus {
     private requestRepliesSubscription: Subscription | null = null
     private errorSubject: Subject<IFrame> = new Subject<IFrame>()
     private errorSubjectSubscription: Subscription | null | undefined = null
-
-    public get serverInfo(): ServerInfo | null {
-        return this.stompConnectionManager.serverInfo
-    }
 
     constructor() {
         this.fatalErrors = this.errorSubject

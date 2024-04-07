@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-import {ServerInfo} from '@/core/api/ServerInfo'
 import { Optional } from 'typescript-optional'
 import { Observable } from 'rxjs'
 import {ConnectedInfo} from '@/api/security/ConnectedInfo'
@@ -104,13 +103,6 @@ export interface IEventBus {
     fatalErrors: Observable<ContinuumError>
 
     /**
-     * The server information for the node that this {@link IEventBus} is connected to if available.
-     * If {@link IEventBus#connect} has not been called this will be null.
-     * If the server does not provide this information this will be null.
-     */
-    serverInfo: ServerInfo | null
-
-    /**
      * Requests a connection to the given Stomp url
      * @param connectionInfo provides the information needed to connect to the continuum server
      * @return Promise containing the result of the initial connection attempt
@@ -191,11 +183,6 @@ export enum EventConstants {
      * Header provided by the server on connection to provide the {@link ConnectionInfo} as a json string
      */
     CONNECTED_INFO_HEADER = 'connected-info',
-
-    /**
-     * Header provided by the server on connection to provide the {@link ServerInfo} as a json strin
-     */
-    SERVER_INFO_HEADER = 'server-info',
 
     /**
      * Correlates a response with a given request

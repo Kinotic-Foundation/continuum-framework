@@ -106,14 +106,9 @@ public class EndpointConnectionHandler {
                                   })
                                   .thenCompose(participant -> services.sessionManager.create(participant))
                                   .thenApply(session -> {
-
                                       sessionActive(session);
-
                                       Map<String, String> ret = new HashMap<>(2,1);
                                       ret.put(EventConstants.CONNECTED_INFO_HEADER, createConnectedInfoJson(session));
-                                      if(services.continuumProperties.isDebug()){
-                                          ret.put(EventConstants.SERVER_INFO_HEADER, createServerInfoJson());
-                                      }
                                       return ret;
                                   });
         }

@@ -1,7 +1,6 @@
 import {ConnectionInfo} from '@/api/ConnectionInfo'
 import {ConnectedInfo} from '@/api/security/ConnectedInfo'
 import {EventConstants} from '@/core/api/IEventBus'
-import {ServerInfo} from '@/core/api/ServerInfo'
 import {IFrame, RxStomp, StompHeaders} from '@stomp/rx-stomp'
 import {Subscription} from 'rxjs'
 
@@ -17,12 +16,6 @@ export class StompConnectionManager {
      */
     public maxConnectionAttemptsReached: boolean = false
     public rxStomp: RxStomp | null = null
-    /**
-     * The server information for the node that this {@link IEventBus} is connected to if available.
-     * If {@link IEventBus#connect} has not been called this will be null.
-     * If the server does not provide this information this will be null.
-     */
-    public serverInfo: ServerInfo | null = null
     private readonly INITIAL_RECONNECT_DELAY: number = 10000
     private readonly MAX_RECONNECT_DELAY: number = 120000 // 2 mins
     private readonly BASE_BACKOFF: number = 10000
@@ -156,11 +149,6 @@ export class StompConnectionManager {
             const connectedSubscription: Subscription = this.rxStomp.serverHeaders$.subscribe((value: StompHeaders) => {
                 connectedSubscription.unsubscribe()
 
-                let serverInfoJson: string | undefined = value[EventConstants.SERVER_INFO_HEADER]
-                if (serverInfoJson != null) {
-                    this.serverInfo = JSON.parse(serverInfoJson)
-                }
-
                 let connectedInfoJson: string | undefined = value[EventConstants.CONNECTED_INFO_HEADER]
                 if (connectedInfoJson != null) {
 
@@ -195,7 +183,6 @@ export class StompConnectionManager {
             this.rxStomp.stompClient.reconnectDelay = 0
             await this.rxStomp.deactivate({force: force})
             this.rxStomp = null
-            this.serverInfo = null
         }
         return
     }

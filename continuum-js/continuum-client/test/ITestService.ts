@@ -6,6 +6,8 @@ export interface ITestService {
 
     testMissingMethod(): Promise<void>;
 
+    getTestUUID(): Promise<string>;
+
 }
 
 class TestService implements ITestService {
@@ -23,7 +25,10 @@ class TestService implements ITestService {
     testMissingMethod(): Promise<void> {
         return this.serviceProxy.invoke('testMissingMethod')
     }
-}
 
+    getTestUUID(): Promise<string> {
+        return this.serviceProxy.invoke('getTestUUID')
+    }
+}
 
 export const TEST_SERVICE: ITestService = new TestService()

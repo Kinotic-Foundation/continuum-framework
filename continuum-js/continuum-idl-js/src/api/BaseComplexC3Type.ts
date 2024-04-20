@@ -7,14 +7,14 @@ import {MetadataType} from '@/api/HasMetadata'
 export class BaseComplexC3Type extends BaseC3Type implements ComplexC3Type {
 
     /**
-     * The namespace that this {@link EnumC3Type} belongs to
-     */
-    public namespace: string | null = null
-
-    /**
      * This is the name of the {@link EnumC3Type} such as "EventType"
      */
     public name: string
+
+    /**
+     * The namespace that this {@link EnumC3Type} belongs to
+     */
+    public namespace?: string | null = null
 
     /**
      * The list of Decorators that should be applied to this type
@@ -28,13 +28,13 @@ export class BaseComplexC3Type extends BaseC3Type implements ComplexC3Type {
     public metadata?: MetadataType | null
 
     constructor(type: string,
-                namespace: string | null,
                 name: string,
+                namespace?: string | null,
                 decorators?: C3Decorator[] | null,
                 metadata?: MetadataType | null) {
         super(type)
-        this.namespace = namespace
         this.name = name
+        this.namespace = namespace
         this.decorators = decorators
         this.metadata = metadata
     }

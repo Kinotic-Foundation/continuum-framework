@@ -23,11 +23,11 @@ export class ObjectC3Type extends BaseComplexC3Type {
      */
     public properties: PropertyDefinition[] = []
 
-    constructor(namespace: string | null,
-                name: string,
+    constructor(name: string,
+                namespace?: string | null,
                 decorators?: C3Decorator[] | null,
                 metadata?: MetadataType | null) {
-        super('object', namespace, name, decorators, metadata)
+        super('object', name, namespace, decorators, metadata)
     }
 
     public addProperty(name: string, c3Type: C3Type, decorators?: C3Decorator[]): ObjectC3Type {

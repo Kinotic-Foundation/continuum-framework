@@ -2,18 +2,14 @@ import {AbstractDefinition} from '@/api/AbstractDefinition'
 import {ArgumentDefinition} from '@/api/ArgumentDefinition'
 import { C3Type } from '@/api/C3Type'
 import {C3Decorator} from '@/api/decorators/C3Decorator'
+import {MetadataType} from '@/api/HasMetadata'
 import { VoidC3Type } from '@/api/VoidC3Type'
 
 /**
  * Provides functionality to define a function with a Continuum schema.
  * Created by navid on 2023-4-13
  */
-export class FunctionDefinition extends AbstractDefinition{
-
-    /**
-     * The name of this {@link FunctionDefinition}
-     */
-    public name: string = ''
+export class FunctionDefinition extends AbstractDefinition {
 
     /**
      * This is the C3Type that defines the return type of this function.
@@ -25,6 +21,13 @@ export class FunctionDefinition extends AbstractDefinition{
      * Argument names must be unique.
      */
     public arguments: ArgumentDefinition[] = []
+
+
+    constructor(name: string,
+                decorators?: C3Decorator[] | null,
+                metadata?: MetadataType | null) {
+        super(name, decorators, metadata)
+    }
 
     /**
      * Adds a new argument to this function definition

@@ -16,10 +16,10 @@ export class UnionC3Type extends BaseComplexC3Type {
      */
     public types: ObjectC3Type[] = []
 
-    constructor(namespace: string | null,
-                name: string,
+    constructor(name: string,
+                namespace?: string | null,
                 decorators?: C3Decorator[] | null,
                 metadata?: MetadataType | null) {
-        super('union', namespace, name, decorators, metadata)
+        super('union', name, namespace, decorators, metadata)
     }
 }

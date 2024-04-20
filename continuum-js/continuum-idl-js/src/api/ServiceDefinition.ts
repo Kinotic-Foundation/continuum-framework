@@ -1,4 +1,5 @@
 import {AbstractDefinition} from '@/api/AbstractDefinition'
+import {C3Decorator} from '@/api/decorators/C3Decorator'
 import { FunctionDefinition } from '@/api/FunctionDefinition'
 import {HasQualifiedName} from '@/api/HasQualifiedName'
 
@@ -12,12 +13,16 @@ export class ServiceDefinition extends AbstractDefinition implements HasQualifie
     /**
      * The namespace this {@link ServiceDefinition} belongs to
      */
-    public namespace: string = ''
+    public namespace?: string | null = null
 
-    /**
-     * The name of this {@link ServiceDefinition}
-     */
-    public name: string = ''
+
+    public constructor(name: string,
+                       namespace?: string | null,
+                       decorators?: C3Decorator[],
+                       metadata?: { [p: string]: any } | null) {
+        super(name, decorators, metadata)
+        this.namespace = namespace
+    }
 
     /**
      * This defines {@link FunctionDefinition}'s for this {@link ServiceDefinition}
@@ -31,7 +36,7 @@ export class ServiceDefinition extends AbstractDefinition implements HasQualifie
      * @param func the function to add
      * @return this
      */
-    public addFunction(func: FunctionDefinition): this {
+    public addFunction(func: FunctionDefinition): ServiceDefinition {
         if(this.functions.has(func)){
             throw new Error(`ServiceDefinition already contains function for name ${func.name}`)
         }

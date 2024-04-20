@@ -8,6 +8,11 @@ import {HasMetadata, MetadataType} from '@/api/HasMetadata'
 export abstract class AbstractDefinition implements HasDecorators, HasMetadata {
 
     /**
+     * The name of this {@link ArgumentDefinition}
+     */
+    public name: string
+
+    /**
      * The list of Decorators that should be applied to this type
      */
     public decorators?: C3Decorator[] | null = null
@@ -18,7 +23,10 @@ export abstract class AbstractDefinition implements HasDecorators, HasMetadata {
      */
     public metadata?: MetadataType | null = null
 
-    protected constructor(decorators?: C3Decorator[] | null, metadata?: MetadataType | null) {
+    protected constructor(name: string,
+                          decorators?: C3Decorator[] | null,
+                          metadata?: MetadataType | null) {
+        this.name = name
         this.decorators = decorators
         this.metadata = metadata
     }

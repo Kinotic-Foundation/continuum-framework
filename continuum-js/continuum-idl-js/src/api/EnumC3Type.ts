@@ -12,11 +12,11 @@ export class EnumC3Type extends BaseComplexC3Type {
      */
     public values: string[] = []
 
-    constructor(namespace: string | null,
-                name: string,
+    constructor(name: string,
+                namespace?: string | null,
                 decorators?: C3Decorator[] | null,
                 metadata?: MetadataType | null) {
-        super('enum', namespace, name, decorators, metadata)
+        super('enum', name, namespace, decorators, metadata)
     }
 
     public addValue(value: string): EnumC3Type {

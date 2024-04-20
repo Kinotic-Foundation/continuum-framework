@@ -6,7 +6,7 @@ export interface HasQualifiedName {
     /**
      * This is the namespace of this such as "org.kinotic.continuum.idl.api.schema"
      */
-    namespace: string | null
+    namespace?: string | null
 
     /**
      * This is the name of this such as "Person", "Animal"

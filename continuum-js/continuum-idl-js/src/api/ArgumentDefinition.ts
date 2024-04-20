@@ -6,10 +6,6 @@ import {C3Decorator} from '@/api/decorators/C3Decorator'
  * Provides functionality to define an argument for a {@link FunctionDefinition}.
  */
 export class ArgumentDefinition extends AbstractDefinition {
-    /**
-     * The name of this {@link ArgumentDefinition}
-     */
-    public name: string
 
     /**
      * The type of this {@link ArgumentDefinition}
@@ -20,8 +16,7 @@ export class ArgumentDefinition extends AbstractDefinition {
                        type: C3Type,
                        decorators?: C3Decorator[],
                        metadata?: { [p: string]: any } | null) {
-        super(decorators, metadata)
-        this.name = name
+        super(name, decorators, metadata)
         this.type = type
     }
 }

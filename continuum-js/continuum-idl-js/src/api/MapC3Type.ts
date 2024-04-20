@@ -1,10 +1,11 @@
+import {BaseC3Type} from '@/api/BaseC3Type'
 import { C3Type } from '@/api/C3Type'
 
 /**
  * Defines a map of key value pairs
  * Created by navid on 2023-4-13.
  */
-export class MapC3Type extends C3Type {
+export class MapC3Type extends BaseC3Type {
     /**
      * The type of the defined map's keys.
      */
@@ -16,7 +17,6 @@ export class MapC3Type extends C3Type {
     public value: C3Type | null = null
 
     constructor() {
-        super();
-        this.type = "map"
+        super('map')
     }
 }

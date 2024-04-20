@@ -47,7 +47,7 @@ public class NamespaceDefinition {
     /**
      * This is all the objects defined for a given namespace
      */
-    private Set<ObjectC3Type> objects = new HashSet<>();
+    private Set<ComplexC3Type> complexC3Types = new HashSet<>();
 
     /**
      * This is all the services defined for a given namespace
@@ -55,9 +55,9 @@ public class NamespaceDefinition {
     private Set<ServiceDefinition> services = new HashSet<>();
 
 
-    public NamespaceDefinition addObject(ObjectC3Type type){
-        Validate.isTrue(!objects.contains(type), "This NamespaceDefinition already contains an ObjectC3Type" + type);
-        objects.add(type);
+    public NamespaceDefinition addComplexC3Type(ComplexC3Type type){
+        Validate.isTrue(!complexC3Types.contains(type), "This NamespaceDefinition already contains an ComplexC3Type" + type);
+        complexC3Types.add(type);
         return this;
     }
 

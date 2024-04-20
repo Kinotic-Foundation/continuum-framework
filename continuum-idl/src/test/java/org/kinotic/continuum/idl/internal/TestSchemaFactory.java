@@ -41,7 +41,7 @@ public class TestSchemaFactory {
 
         Assertions.assertTrue(serviceOptional.isPresent());
 
-        Assertions.assertEquals(TestService.class.getName(), serviceOptional.get().getUrn());
+        Assertions.assertEquals(TestService.class.getName(), serviceOptional.get().getQualifiedName());
 
         ServiceDefinition serviceDefinition = serviceOptional.get();
 

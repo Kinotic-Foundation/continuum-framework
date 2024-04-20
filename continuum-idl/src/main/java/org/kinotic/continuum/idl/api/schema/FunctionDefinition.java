@@ -23,7 +23,6 @@ import lombok.experimental.Accessors;
 import org.apache.commons.lang3.Validate;
 import org.kinotic.continuum.idl.api.schema.decorators.C3Decorator;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -38,9 +37,9 @@ import java.util.List;
 @Accessors(chain = true)
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = false)
 @ToString
-public class FunctionDefinition {
+public class FunctionDefinition extends AbstractDefinition {
 
     /**
      * The name of this {@link FunctionDefinition}
@@ -52,12 +51,6 @@ public class FunctionDefinition {
      */
     @EqualsAndHashCode.Exclude
     private C3Type returnType = new VoidC3Type();
-
-    /**
-     * The list of Decorators that should be applied to this {@link FunctionDefinition}
-     */
-    @EqualsAndHashCode.Exclude
-    private List<C3Decorator> decorators = new ArrayList<>();
 
     /**
      * The list of arguments that this function takes
@@ -72,7 +65,7 @@ public class FunctionDefinition {
      * @return this {@link FunctionDefinition} for chaining
      */
     public FunctionDefinition addArgument(String name, C3Type c3Type){
-        ArgumentDefinition argument = new ArgumentDefinition().setName(name).setType(c3Type);
+        ArgumentDefinition argument = new ArgumentDefinition(name, c3Type);
         return addArgument(argument);
     }
 
@@ -84,7 +77,8 @@ public class FunctionDefinition {
      * @return this {@link FunctionDefinition} for chaining
      */
     public FunctionDefinition addArgument(String name, C3Type c3Type, List<C3Decorator> decorators){
-        ArgumentDefinition argument = new ArgumentDefinition().setName(name).setType(c3Type).setDecorators(decorators);
+        ArgumentDefinition argument = new ArgumentDefinition(name, c3Type);
+        argument.setDecorators(decorators);
         return addArgument(argument);
     }
 
@@ -97,54 +91,6 @@ public class FunctionDefinition {
         Validate.isTrue(!arguments.contains(argument), "FunctionDefinition already contains argument "+argument.getName());
         arguments.add(argument);
         return this;
-    }
-
-    /**
-     * Adds a new decorator to this function
-     * @param decorator to add
-     * @return this {@link FunctionDefinition} for chaining
-     */
-    public FunctionDefinition addDecorator(C3Decorator decorator){
-        Validate.notNull(decorator, "decorator cannot be null");
-        Validate.isTrue(!decorators.contains(decorator), "FunctionDefinition already contains decorator "+decorator);
-        decorators.add(decorator);
-        return this;
-    }
-
-    /**
-     * Checks if this type contains a {@link C3Decorator} of the given subclass
-     * @param clazz to see if this type has
-     * @return true if the {@link C3Decorator} is present false if not
-     */
-    public boolean containsDecorator(Class<? extends C3Decorator> clazz){
-        return findDecorator(clazz) != null;
-    }
-
-    /**
-     * Checks if this type has any {@link C3Decorator}
-     * @return true if any {@link C3Decorator}s are present false if not
-     */
-    public boolean hasDecorators(){
-        return decorators != null && !decorators.isEmpty();
-    }
-
-    /**
-     * Finds the first {@link C3Decorator} of the given subclass or null if none are found
-     * @param clazz to find the {@link C3Decorator} for
-     * @return the {@link C3Decorator} or null if none are found
-     */
-    public <T extends C3Decorator> T findDecorator(Class<T> clazz){
-        T ret = null;
-        if(decorators != null){
-            for (C3Decorator decorator : decorators){
-                if(clazz.isAssignableFrom(decorator.getClass())){
-                    //noinspection unchecked
-                    ret = (T) decorator;
-                    break;
-                }
-            }
-        }
-        return ret;
     }
 
 }

@@ -18,7 +18,7 @@
 package org.kinotic.continuum.idl.internal.directory;
 
 import org.kinotic.continuum.idl.api.schema.C3Type;
-import org.kinotic.continuum.idl.api.schema.ObjectC3Type;
+import org.kinotic.continuum.idl.api.schema.ComplexC3Type;
 import org.kinotic.continuum.idl.api.schema.ReferenceC3Type;
 import org.springframework.core.ResolvableType;
 
@@ -40,8 +40,8 @@ public interface ConversionContext {
     C3Type convert(ResolvableType resolvableType);
 
     /**
-     * @return all of the {@link ObjectC3Type} known to this {@link ConversionContext}
+     * @return all of the {@link ComplexC3Type} known to this {@link ConversionContext}
      */
-    Set<ObjectC3Type> getObjects();
+    Set<ComplexC3Type> getComplexC3Types();
 
 }

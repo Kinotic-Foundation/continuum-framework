@@ -1,4 +1,4 @@
-import {C3Type} from "@/api/C3Type"
+import {BaseC3Type} from '@/api/BaseC3Type'
 
 /**
  * The boolean type matches only two special values: true and false.
@@ -6,10 +6,9 @@ import {C3Type} from "@/api/C3Type"
  * <p>
  * Created by navid on 2023-4-13.
  */
-export class BooleanC3Type extends C3Type {
+export class BooleanC3Type extends BaseC3Type {
 
     constructor() {
-        super();
-        this.type = "boolean"
+        super('boolean')
     }
 }

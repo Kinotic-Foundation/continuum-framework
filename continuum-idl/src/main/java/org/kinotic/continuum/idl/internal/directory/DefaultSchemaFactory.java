@@ -75,7 +75,6 @@ public class DefaultSchemaFactory implements SchemaFactory {
 
 
         ServiceDefinition serviceDefinition = new ServiceDefinition();
-        serviceDefinition.setNamespace(clazz.getPackage().getName());
         serviceDefinition.setName(clazz.getSimpleName());
 
         ReflectionUtils.doWithMethods(clazz, method -> {
@@ -99,7 +98,7 @@ public class DefaultSchemaFactory implements SchemaFactory {
         }, ReflectionUtils.USER_DECLARED_METHODS);
 
         NamespaceDefinition ret = new NamespaceDefinition();
-        ret.setObjects(conversionContext.getObjects());
+        ret.setComplexC3Types(conversionContext.getComplexC3Types());
         ret.addServiceDefinition(serviceDefinition);
 
         return ret;

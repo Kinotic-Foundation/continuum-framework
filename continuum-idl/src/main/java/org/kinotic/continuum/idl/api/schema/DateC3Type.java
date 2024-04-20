@@ -17,19 +17,16 @@
 
 package org.kinotic.continuum.idl.api.schema;
 
-import lombok.*;
-import lombok.experimental.Accessors;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 /**
  * Represents a date type
  * Created by nic on 2019-12-10.
  */
-@Getter
-@Setter
-@Accessors(chain = true)
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class DateC3Type extends C3Type {
-
+public class DateC3Type extends BaseC3Type {
 }

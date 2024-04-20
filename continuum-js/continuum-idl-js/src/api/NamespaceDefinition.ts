@@ -1,3 +1,4 @@
+import {ComplexC3Type} from '@/api/ComplexC3Type'
 import {ObjectC3Type} from "@/api/ObjectC3Type"
 import {ServiceDefinition} from "@/api/ServiceDefinition"
 
@@ -17,18 +18,18 @@ export class NamespaceDefinition {
     /**
      * This is all the objects defined for a given namespace
      */
-    public objects: Set<ObjectC3Type> = new Set<ObjectC3Type>()
+    public complexC3Types: Set<ComplexC3Type> = new Set<ComplexC3Type>()
 
     /**
      * This is all the services defined for a given namespace
      */
     public services: Set<ServiceDefinition> = new Set<ServiceDefinition>()
 
-    public addObject(type: ObjectC3Type): NamespaceDefinition {
-        if (this.objects.has(type)) {
-            throw new Error(`This NamespaceSchema already contains an ObjectSchema for name ${type.name}`)
+    public addComplexC3Types(type: ComplexC3Type): NamespaceDefinition {
+        if (this.complexC3Types.has(type)) {
+            throw new Error(`This NamespaceSchema already contains an ComplexC3Type for name ${type.name}`)
         }
-        this.objects.add(type)
+        this.complexC3Types.add(type)
         return this
     }
 

@@ -18,6 +18,7 @@
 package org.kinotic.continuum.idl.api.schema;
 
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 /**
@@ -26,8 +27,8 @@ import lombok.ToString;
  * <p>
  * Created by navid on 2023-4-13.
  */
+@NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class BooleanC3Type extends C3Type {
-
+public class BooleanC3Type extends BaseC3Type {
 }

@@ -1,55 +1,72 @@
+import {BaseComplexC3Type} from '@/api/BaseComplexC3Type'
 import { C3Type } from '@/api/C3Type'
+import {C3Decorator} from '@/api/decorators/C3Decorator'
+import {MetadataType} from '@/api/HasMetadata'
+import {PropertyDefinition} from '@/api/PropertyDefinition'
 
 /**
- * Objects map property names to values. The property names are strings, and the values can be any Continuum Schema type.
- * Each of these pairs is conventionally referred to as a “property”.
- * <p>
- * Created by navid on 2019-06-11.
+ * ObjectC3Type is used to define a complex object type in the Continuum IDL.
+ * Properties are defined with {@link PropertyDefinition}s
+ * The context for equality here is the namespace and name.
+ * Given no two object types can have the same namespace and name this is the only context needed for equality.
  */
-export class ObjectC3Type extends C3Type {
-
-    /**
-     * The namespace that this {@link ObjectC3Type} belongs to
-     */
-    public namespace: string = ''
-
-    /**
-     * This is the name of the {@link ObjectC3Type} such as "Person", "Animal"
-     */
-    public name: string =  ''
+export class ObjectC3Type extends BaseComplexC3Type {
 
     /**
      * The parent schema of this object definition.
      * This is used to support inheritance.
      */
-    public parent: ObjectC3Type | null = null
+    public parent?: ObjectC3Type | null = null
 
     /**
-     * The properties (key-value pairs) on an object are defined using the properties' keyword.
-     * The value of properties is an object, where each key is the name of a property and each value is a Continuum schema used to validate that property.
+     * The properties are the fields of this object type.
      */
-    public properties: {[key: string]: C3Type} = {}
+    public properties: PropertyDefinition[] = []
 
-    constructor() {
-        super();
-        this.type = "object"
+    constructor(namespace: string | null,
+                name: string,
+                decorators?: C3Decorator[] | null,
+                metadata?: MetadataType | null) {
+        super('object', namespace, name, decorators, metadata)
     }
 
-    public addProperty(name: string, c3Type: C3Type): ObjectC3Type {
-        if (this.properties.hasOwnProperty(name)) {
-            throw new Error(`ObjectTypeDefinition already contains property for name ${name}`);
+    public addProperty(name: string, c3Type: C3Type, decorators?: C3Decorator[]): ObjectC3Type {
+        const prop = new PropertyDefinition()
+        prop.name = name
+        prop.type = c3Type
+        if(decorators){
+            prop.decorators = decorators
         }
+        return this.addPropertyDefinition(prop)
+    }
 
-        this.properties[name] = c3Type
-        return this
+
+    /**
+     * Adds a property to this {@link ObjectC3Type}
+     * @param propertyDefinition to add to this {@link ObjectC3Type}
+     * @return this {@link ObjectC3Type} for chaining
+     */
+    public addPropertyDefinition(propertyDefinition: PropertyDefinition): ObjectC3Type {
+        this.properties.push(propertyDefinition);
+        return this;
     }
 
     /**
-     * Gets the URN for this {@link ObjectC3Type} which is the namespace + "." + name
-     * @return the urn for this {@link ObjectC3Type}
+     * Finds the first {@link PropertyDefinition} for the given name
+     * @param name the property to find
+     * @return the {@link PropertyDefinition}  if it exists null if not
      */
-    public getUrn(): string {
-        return this.namespace + "." + this.name
+    public findProperty(name: string): PropertyDefinition | null {
+        let ret: PropertyDefinition | null = null
+        if (this.properties) {
+            for (const property of this.properties) {
+                if(property.name === name) {
+                    ret = property
+                    break
+                }
+            }
+        }
+        return ret
     }
 
 }

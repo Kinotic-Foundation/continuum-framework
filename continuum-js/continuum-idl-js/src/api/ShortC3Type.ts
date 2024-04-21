@@ -1,4 +1,4 @@
-import {C3Type} from "@/api/C3Type"
+import {C3Type} from '@/api/C3Type'
 
 /**
  * Represents a Short number
@@ -7,7 +7,6 @@ import {C3Type} from "@/api/C3Type"
 export class ShortC3Type extends C3Type {
 
     constructor() {
-        super();
-        this.type = "short"
+        super('short')
     }
 }

@@ -20,13 +20,9 @@ package org.kinotic.continuum.idl.api.schema;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import lombok.*;
-import lombok.experimental.Accessors;
-import org.kinotic.continuum.idl.api.schema.decorators.C3Decorator;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 /**
  * This is the base class for all type schemas.
@@ -57,73 +53,8 @@ import java.util.Map;
         @JsonSubTypes.Type(value = VoidC3Type.class, name = "void")
 })
 @JsonInclude(JsonInclude.Include.NON_EMPTY) // do not include any empty or null fields
-@Getter
-@Setter
-@Accessors(chain = true)
 @NoArgsConstructor
 @EqualsAndHashCode
 @ToString
 public abstract class C3Type {
-
-    /**
-     * The metadata keyword is legal on any schema, The objects provided must be serializable to JSON.
-     * Usually, metadata is for putting things like descriptions or hints for code generators, or other things tools can use.
-     */
-    protected Map<String, ?> metadata;
-
-    /**
-     * The list of Decorators that should be applied to this type
-     */
-    protected List<C3Decorator> decorators;
-
-    /**
-     * Adds a {@link C3Decorator} to this type
-     * @param decorator to add
-     * @return this {@link C3Type} for chaining
-     */
-    public C3Type addDecorator(C3Decorator decorator){
-        // FIXME: either lazy init everywhere or no where 
-        if(decorators == null){
-            decorators = new ArrayList<>();
-        }
-        decorators.add(decorator);
-        return this;
-    }
-
-    /**
-     * Checks if this type contains a {@link C3Decorator} of the given subclass
-     * @param clazz to see if this type has
-     * @return true if the {@link C3Decorator} is present false if not
-     */
-    public boolean containsDecorator(Class<? extends C3Decorator> clazz){
-        return findDecorator(clazz) != null;
-    }
-
-    /**
-     * Checks if this type has any {@link C3Decorator}
-     * @return true if any {@link C3Decorator}s are present false if not
-     */
-    public boolean hasDecorators(){
-        return decorators != null && !decorators.isEmpty();
-    }
-
-    /**
-     * Finds the first {@link C3Decorator} of the given subclass or null if none are found
-     * @param clazz to find the {@link C3Decorator} for
-     * @return the {@link C3Decorator} or null if none are found
-     */
-    public <T extends C3Decorator> T findDecorator(Class<T> clazz){
-        T ret = null;
-        if(decorators != null){
-            for (C3Decorator decorator : decorators){
-                if(clazz.isAssignableFrom(decorator.getClass())){
-                    //noinspection unchecked
-                    ret = (T) decorator;
-                    break;
-                }
-            }
-        }
-        return ret;
-    }
-
 }

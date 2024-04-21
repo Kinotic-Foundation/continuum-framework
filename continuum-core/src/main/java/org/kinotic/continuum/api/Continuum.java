@@ -17,29 +17,35 @@
 
 package org.kinotic.continuum.api;
 
+import org.kinotic.continuum.api.annotations.EnableContinuum;
+import org.kinotic.continuum.api.annotations.Publish;
+
 /**
  * Contains information about this Continuum process
  *
  * Created by navid on 9/24/19
  */
+@Publish
 public interface Continuum {
 
     /**
-     * Returns a human-readable name for this node
-     * @return a string containing the name
+     * Returns information about this Continuum server.
+     * @return the {@link ServerInfo} object
      */
-    String nodeName();
+    ServerInfo serverInfo();
 
     /**
-     * The UUID for this node
-     * @return the string containing the UUID
+     * Returns the name of the application.
+     * This comes from the class annotated with {@link EnableContinuum}
+     * @return the name of the application
      */
-    String nodeId();
-
-
     String applicationName();
 
-
+    /**
+     * Returns the version of the application
+     * This comes from the class annotated with {@link EnableContinuum}
+     * @return the version of the application
+     */
     String applicationVersion();
 
 }

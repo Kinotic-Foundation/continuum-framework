@@ -19,6 +19,7 @@ package org.kinotic.continuum.idl.internal.directory;
 
 import org.apache.commons.lang3.StringUtils;
 import org.kinotic.continuum.idl.api.schema.C3Type;
+import org.kinotic.continuum.idl.api.schema.ComplexC3Type;
 import org.kinotic.continuum.idl.api.schema.ObjectC3Type;
 import org.kinotic.continuum.idl.api.schema.ReferenceC3Type;
 import org.slf4j.Logger;
@@ -43,14 +44,14 @@ public class DefaultConversionContext implements ConversionContext {
 
     private final Map<String, C3Type> schemaCache = new HashMap<>();
 
-    private final Set<ObjectC3Type> objects = new HashSet<>();
+    private final Set<ComplexC3Type> complexC3Types = new HashSet<>();
 
     private final boolean shouldCreateReferences;
 
     /**
      * Creates a new {@link ConversionContext}
      * @param resolvableTypeConverter the converter to use to be used for conversion. Typically, this will be a {@link ResolvableTypeConverterComposite}
-     * @param shouldCreateReferences if true, {@link ObjectC3Type}'s will be added to the {@link #getObjects()} set and {@link ReferenceC3Type}'s will be returned when appropriate
+     * @param shouldCreateReferences if true, {@link ObjectC3Type}'s will be added to the {@link #getComplexC3Types()} set and {@link ReferenceC3Type}'s will be returned when appropriate
      */
     public DefaultConversionContext(ResolvableTypeConverter resolvableTypeConverter,
                                     boolean shouldCreateReferences) {
@@ -97,15 +98,15 @@ public class DefaultConversionContext implements ConversionContext {
         C3Type c3Type = convertInternal(resolvableType);
         if(c3Type instanceof ObjectC3Type && shouldCreateReferences){
             ObjectC3Type objectC3Type = (ObjectC3Type) c3Type;
-            objects.add(objectC3Type);
+            complexC3Types.add(objectC3Type);
             c3Type = new ReferenceC3Type(objectC3Type.getQualifiedName());
         }
         return c3Type;
     }
 
     @Override
-    public Set<ObjectC3Type> getObjects() {
-        return objects;
+    public Set<ComplexC3Type> getComplexC3Types() {
+        return complexC3Types;
     }
 
     /**

@@ -1,4 +1,6 @@
-import {C3Type} from "@/api/C3Type"
+import {ComplexC3Type} from '@/api/ComplexC3Type'
+import {C3Decorator} from '@/api/decorators/C3Decorator'
+import {MetadataType} from '@/api/HasMetadata'
 import {ObjectC3Type} from "@/api/ObjectC3Type"
 
 /**
@@ -6,17 +8,7 @@ import {ObjectC3Type} from "@/api/ObjectC3Type"
  * Union types are a way to represent a type that can be one of many types.
  * Created by Navíd Mitchell 🤪 on 4/13/23.
  */
-export class UnionC3Type extends C3Type {
-
-    /**
-     * The namespace that this {@link UnionC3Type} belongs to
-     */
-    public namespace!: string
-
-    /**
-     * This is the name of the {@link UnionC3Type} such as "Animal"
-     */
-    public name!: string
+export class UnionC3Type extends ComplexC3Type {
 
     /**
      * The types that are part of this union
@@ -24,8 +16,10 @@ export class UnionC3Type extends C3Type {
      */
     public types: ObjectC3Type[] = []
 
-    constructor() {
-        super();
-        this.type = "union"
+    constructor(name: string,
+                namespace: string,
+                decorators?: C3Decorator[] | null,
+                metadata?: MetadataType | null) {
+        super('union', name, namespace, decorators, metadata)
     }
 }

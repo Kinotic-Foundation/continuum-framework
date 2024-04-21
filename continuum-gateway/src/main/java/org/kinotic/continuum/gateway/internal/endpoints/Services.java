@@ -19,6 +19,7 @@ package org.kinotic.continuum.gateway.internal.endpoints;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.vertx.core.Vertx;
+import org.kinotic.continuum.api.Continuum;
 import org.kinotic.continuum.api.config.ContinuumProperties;
 import org.kinotic.continuum.core.api.event.EventBusService;
 import org.kinotic.continuum.core.api.event.EventStreamService;
@@ -34,41 +35,30 @@ import org.springframework.stereotype.Component;
 /**
  * Facade class to make it easier to get needed services into {@link DefaultStompServerHandler}
  * This keeps the constructor there small and adding new service dependencies can just be done here...
- *
- *
  * Created by navid on 1/23/20
  */
 @Component
 public class Services {
-
     @Autowired
-    public ContinuumProperties continuumProperties;
-
+    public Continuum continuum;
     @Autowired
     public ContinuumGatewayProperties continuumGatewayProperties;
-
     @Autowired
-    public SecurityService securityService;
-
-    @Autowired
-    public Vertx vertx;
-
-    @Autowired
-    public EventStreamService eventStreamService;
-
+    public ContinuumProperties continuumProperties;
     @Autowired
     public EventBusService eventBusService;
-
     @Autowired
-    public SessionManager sessionManager;
-
-    @Autowired
-    public HFTQueueManager hftQueueManager;
-
-    @Autowired
-    public ObjectMapper objectMapper;
-
+    public EventStreamService eventStreamService;
     @Autowired
     public ExceptionConverter exceptionConverter;
-
+    @Autowired
+    public HFTQueueManager hftQueueManager;
+    @Autowired
+    public ObjectMapper objectMapper;
+    @Autowired
+    public SecurityService securityService;
+    @Autowired
+    public SessionManager sessionManager;
+    @Autowired
+    public Vertx vertx;
 }

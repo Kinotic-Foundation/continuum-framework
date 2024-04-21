@@ -2,6 +2,7 @@ package org.kinotic.continuum.idl.api.schema;
 
 import lombok.*;
 import lombok.experimental.Accessors;
+import org.kinotic.continuum.idl.api.schema.decorators.C3Decorator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,21 +19,42 @@ import java.util.List;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 @ToString(callSuper = true)
-public class UnionC3Type extends C3Type {
-
-    /**
-     * The namespace that this {@link UnionC3Type} belongs to
-     */
-    private String namespace = null;
-
-    /**
-     * This is the name of the {@link UnionC3Type} such as "Animal"
-     */
-    private String name = null;
+public class UnionC3Type extends ComplexC3Type {
 
     /**
      * The types that are part of this union
      */
     private List<ObjectC3Type> types = new ArrayList<>();
+
+    /**
+     * Adds a {@link C3Decorator} to this type
+     *
+     * @param decorator to add
+     */
+    @Override
+    public UnionC3Type addDecorator(C3Decorator decorator) {
+        super.addDecorator(decorator);
+        return this;
+    }
+
+    /**
+     * Sets the name of this {@link UnionC3Type}s
+     * @param name of this {@link UnionC3Type}
+     * @return this {@link UnionC3Type} for chaining
+     */
+    public UnionC3Type setName(String name) {
+        this.name = name;
+        return this;
+    }
+
+    /**
+     * Sets the namespace of this {@link UnionC3Type}s
+     * @param namespace of this {@link UnionC3Type}
+     * @return this {@link UnionC3Type} for chaining
+     */
+    public UnionC3Type setNamespace(String namespace) {
+        this.namespace = namespace;
+        return this;
+    }
 
 }

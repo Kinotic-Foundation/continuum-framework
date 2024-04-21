@@ -6,7 +6,6 @@ on:
       - develop
       - master
     paths-ignore:
-      - 'continuum-js/**'
       - 'website/**'
 
 jobs:

@@ -1,55 +1,31 @@
 package org.kinotic.continuum.api.security;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 /**
+ * Contains information about a connected client.
  * Created by Navíd Mitchell 🤪on 7/11/23.
  */
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
 public class ConnectedInfo {
-
-    private String sessionId;
-
-    private String replyToId;
-
-    private Participant participant;
-
-    public ConnectedInfo() {
-    }
-
-    public ConnectedInfo(String sessionId,
-                         String replyToId,
-                         Participant participant) {
-        this.sessionId = sessionId;
-        this.replyToId = replyToId;
-        this.participant = participant;
-    }
-
-    public String getSessionId() {
-        return sessionId;
-    }
-
-    public ConnectedInfo setSessionId(String sessionId) {
-        this.sessionId = sessionId;
-        return this;
-    }
-
     /**
-     * This id is the only valid "reply-to" scope that can be used by the client.
-     * @return the reply to id
+     * The connected clients {@link Participant}.
      */
-    public String getReplyToId() {
-        return replyToId;
-    }
-
-    public void setReplyToId(String replyToId) {
-        this.replyToId = replyToId;
-    }
-
-    public Participant getParticipant() {
-        return participant;
-    }
-
-    public ConnectedInfo setParticipant(Participant participant) {
-        this.participant = participant;
-        return this;
-    }
+    private Participant participant;
+    /**
+     * The connected clients reply to id.
+     * This id is the only valid "reply-to" scope that can be used by the client.
+     */
+    private String replyToId;
+    /**
+     * The connected clients session id.
+     */
+    private String sessionId;
 
 }

@@ -1,4 +1,4 @@
-import {ConnectedInfo} from '../src'
+import {ConnectedInfo, ConnectionInfo} from '../src'
 import {AlwaysPullPolicy, GenericContainer, StartedTestContainer} from 'testcontainers'
 import {expect} from 'vitest'
 
@@ -29,12 +29,25 @@ export function validateConnectedInfo(connectedInfo: ConnectedInfo, roles?: stri
     }
 }
 
-export async function initContinuumGateway(): Promise<StartedTestContainer> {
+export async function initContinuumGateway(): Promise<{
+                                                        testContainer: StartedTestContainer,
+                                                        connectionInfo: ConnectionInfo
+                                                      }> {
     console.log('Starting Continuum Gateway')
-    return await new GenericContainer('kinotic/continuum-gateway-server:latest')
+    const testContainer= await new GenericContainer('kinotic/continuum-gateway-server:latest')
         .withExposedPorts(58503)
         .withEnvironment({SPRING_PROFILES_ACTIVE: "clienttest"})
         .withBindMounts([{source:'/tmp/ignite', target:'/workspace/ignite/work', mode:'rw'}])
         .withPullPolicy(new AlwaysPullPolicy())
         .start()
+    const connectionInfo = new ConnectionInfo()
+    connectionInfo.host = testContainer.getHost()
+    connectionInfo.port = testContainer.getMappedPort(58503)
+    connectionInfo.maxConnectionAttempts = 3
+    connectionInfo.connectHeaders = {login: 'guest', passcode: 'guest'}
+    console.log(`Continuum Gateway running at ${connectionInfo.host}:${connectionInfo.port}`)
+    return {
+        testContainer,
+        connectionInfo
+    }
 }

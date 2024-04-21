@@ -19,7 +19,7 @@ import { Optional } from 'typescript-optional'
 import { Observable } from 'rxjs'
 import {ConnectedInfo} from '@/api/security/ConnectedInfo'
 import {ContinuumError} from '@/api/errors/ContinuumError'
-import {ConnectionInfo} from '@/api/Connection'
+import {ConnectionInfo} from '@/api/ConnectionInfo'
 
 /**
  * Part of the low level portion of continuum representing data to be processed
@@ -122,14 +122,14 @@ export interface IEventBus {
 
     /**
      * Determines if the connection is active.
-     * This means connect was called and was successful. The underlying connection may not be established yet.
+     * This means {@link IEventBus#connect()} was called and was successful. The underlying connection may not be established yet.
      * If this is true and {@link IEventBus#isConnected} is false messages sent will be queued
      * @return true if the connection is active false if not
      */
     isConnectionActive(): boolean
 
     /**
-     * Determines if the connection is active.
+     * Determines if the connection is connected.
      * This means that there is an open connection to the Continuum server
      * @return true if the connection is active false if not
      */
@@ -164,7 +164,6 @@ export interface IEventBus {
      */
     observe(cri: string): Observable<IEvent>
 
-
 }
 
 /**
@@ -181,7 +180,7 @@ export enum EventConstants {
     SESSION_HEADER = 'session',
 
     /**
-     * Header provided by the server on connection to represent the users participant and session id as a json string
+     * Header provided by the server on connection to provide the {@link ConnectionInfo} as a json string
      */
     CONNECTED_INFO_HEADER = 'connected-info',
 

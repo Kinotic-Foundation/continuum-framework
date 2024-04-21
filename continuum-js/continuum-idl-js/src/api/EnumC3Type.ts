@@ -1,27 +1,22 @@
-import { C3Type } from '@/api/C3Type'
+import {ComplexC3Type} from '@/api/ComplexC3Type'
+import {C3Decorator} from '@/api/decorators/C3Decorator'
+import {MetadataType} from '@/api/HasMetadata'
 
 /**
  * Created by Navíd Mitchell 🤪 on 4/13/23.
  */
-export class EnumC3Type extends C3Type {
-    /**
-     * The namespace that this {@link EnumC3Type} belongs to
-     */
-    public namespace!: string
-
-    /**
-     * This is the name of the {@link EnumC3Type} such as "EventType"
-     */
-    public name!: string
+export class EnumC3Type extends ComplexC3Type {
 
     /**
      * The values that are part of this enum
      */
     public values: string[] = []
 
-    constructor() {
-        super();
-        this.type = "enum"
+    constructor(name: string,
+                namespace: string,
+                decorators?: C3Decorator[] | null,
+                metadata?: MetadataType | null) {
+        super('enum', name, namespace, decorators, metadata)
     }
 
     public addValue(value: string): EnumC3Type {

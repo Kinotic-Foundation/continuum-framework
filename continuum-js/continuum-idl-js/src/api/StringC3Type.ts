@@ -1,4 +1,4 @@
-import {C3Type} from "@/api/C3Type"
+import {C3Type} from '@/api/C3Type'
 
 /**
  * The string type is used for strings of text. It may contain Unicode characters.
@@ -7,7 +7,6 @@ import {C3Type} from "@/api/C3Type"
 export class StringC3Type extends C3Type {
 
     constructor() {
-        super();
-        this.type = "string"
+        super('string')
     }
 }

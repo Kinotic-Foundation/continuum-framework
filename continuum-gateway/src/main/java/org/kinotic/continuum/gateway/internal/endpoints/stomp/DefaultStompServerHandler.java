@@ -66,7 +66,7 @@ public class DefaultStompServerHandler implements StompServerHandler {
 
     @Override
     public void send(Frame frame) {
-        // FIXME: this is probably the wrong way to do this, We are not really providing guaranteed delivery below so this kinda just creates a bottle neck for no reason.
+        // FIXME: this is probably the wrong way to  do this, We are not really providing guaranteed delivery below so this kinda just creates a bottle neck for no reason.
         // We pause the client to effectively make all client requests block until the previous request is handled asynchronously
         connection.pause();
 

@@ -1,4 +1,4 @@
-import {C3Type} from "@/api/C3Type"
+import {C3Type} from '@/api/C3Type'
 
 /**
  * Represents a Continuum Schema for a character
@@ -7,7 +7,6 @@ import {C3Type} from "@/api/C3Type"
 export class CharC3Type extends C3Type {
 
     constructor() {
-        super();
-        this.type = "char"
+        super('char')
     }
 }

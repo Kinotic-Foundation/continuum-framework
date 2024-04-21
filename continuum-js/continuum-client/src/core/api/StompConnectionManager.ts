@@ -1,4 +1,4 @@
-import {ConnectionInfo} from '@/api/Connection'
+import {ConnectionInfo} from '@/api/ConnectionInfo'
 import {ConnectedInfo} from '@/api/security/ConnectedInfo'
 import {EventConstants} from '@/core/api/IEventBus'
 import {IFrame, RxStomp, StompHeaders} from '@stomp/rx-stomp'
@@ -10,16 +10,37 @@ import {Subscription} from 'rxjs'
  */
 export class StompConnectionManager {
 
+    public lastWebsocketError: Event | null = null
+    /**
+     * This will return true if a {@link ConnectionInfo#maxConnectionAttempts} threshold was set and was reached
+     */
+    public maxConnectionAttemptsReached: boolean = false
+    public rxStomp: RxStomp | null = null
     private readonly INITIAL_RECONNECT_DELAY: number = 10000
     private readonly MAX_RECONNECT_DELAY: number = 120000 // 2 mins
     private readonly BASE_BACKOFF: number = 10000
     private readonly JITTER_MAX: number = 5000
-
     private connectionAttempts: number = 0
     private initialConnectionSuccessful: boolean = false
-    private _lastWebsocketError: Event | null = null
-    private _maxConnectionAttemptsReached: boolean = false
-    private _rxStomp: RxStomp | null = null
+
+    /**
+     * @return true if this {@link StompConnectionManager} is actively trying to maintain a connection to the Stomp server, false if not.
+     */
+    public get active(): boolean {
+        if(this.rxStomp){
+            return true
+        }else{
+            return false
+        }
+    }
+
+    /**
+     * return true if this {@link StompConnectionManager} is active and has a connection to the stomp server
+     */
+    public get connected(): boolean {
+        return this.rxStomp != null
+            && this.rxStomp.connected()
+    }
 
     public activate(connectionInfo: ConnectionInfo): Promise<ConnectedInfo> {
         return new Promise((resolve, reject): void => {
@@ -34,7 +55,7 @@ export class StompConnectionManager {
                 return
             }
 
-            if(this._rxStomp) {
+            if(this.rxStomp) {
                 reject('Stomp connection already active')
                 return
             }
@@ -42,19 +63,19 @@ export class StompConnectionManager {
             // we reset most state here so, it will persist on a connection failure
             this.connectionAttempts = 0
             this.initialConnectionSuccessful = false
-            this._lastWebsocketError = null
-            this._maxConnectionAttemptsReached = false
+            this.lastWebsocketError = null
+            this.maxConnectionAttemptsReached = false
 
             const url = 'ws' + (connectionInfo.useSSL ? 's' : '')
                 + '://' + connectionInfo.host
                 + (connectionInfo.port ? ':' + connectionInfo.port : '') + '/v1'
 
-            this._rxStomp = new RxStomp()
+            this.rxStomp = new RxStomp()
 
             let connectHeadersInternal: StompHeaders = (connectionInfo.connectHeaders ? connectionInfo.connectHeaders : {})
 
             //*** Begin Block that handles backoff ***
-            this._rxStomp.configure({
+            this.rxStomp.configure({
                                         brokerURL: url,
                                         connectHeaders: connectHeadersInternal,
                                         heartbeatIncoming: 120000,
@@ -68,12 +89,12 @@ export class StompConnectionManager {
                                                 if(this.connectionAttempts > connectionInfo.maxConnectionAttempts){
 
                                                     // Reached threshold give up
-                                                    this._maxConnectionAttemptsReached = true
+                                                    this.maxConnectionAttemptsReached = true
                                                     await this.deactivate()
 
                                                     // If we have not made an initial connection the promise is not yet resolved
                                                     if(!this.initialConnectionSuccessful) {
-                                                        let message = (this._lastWebsocketError as any)?.message ? (this._lastWebsocketError as any)?.message : 'UNKNOWN'
+                                                        let message = (this.lastWebsocketError as any)?.message ? (this.lastWebsocketError as any)?.message : 'UNKNOWN'
                                                         reject(`Max number of reconnection attempts reached. Last WS Error ${message}`)
                                                     }
                                                 }
@@ -82,51 +103,52 @@ export class StompConnectionManager {
                                     })
 
             // Handles Websocket Errors
-            this._rxStomp.webSocketErrors$.subscribe(value => {
-                this._lastWebsocketError = value
+            this.rxStomp.webSocketErrors$.subscribe(value => {
+                this.lastWebsocketError = value
 
                 // An error occurred if the initial connection has been made, Add backoff to reconnect delay
-                if(this._rxStomp && this.initialConnectionSuccessful){
+                if(this.rxStomp && this.initialConnectionSuccessful){
 
-                    const currentReconnectDelay = this._rxStomp.stompClient.reconnectDelay
+                    const currentReconnectDelay = this.rxStomp.stompClient.reconnectDelay
 
                     if(currentReconnectDelay < this.MAX_RECONNECT_DELAY){
 
                         const randomJitter = Math.random() * this.JITTER_MAX;
-                        this._rxStomp.stompClient.reconnectDelay = currentReconnectDelay + this.BASE_BACKOFF + randomJitter
+                        this.rxStomp.stompClient.reconnectDelay = currentReconnectDelay + this.BASE_BACKOFF + randomJitter
 
                         if(currentReconnectDelay < this.MAX_RECONNECT_DELAY){
-                            this._rxStomp.stompClient.reconnectDelay = this.MAX_RECONNECT_DELAY
+                            this.rxStomp.stompClient.reconnectDelay = this.MAX_RECONNECT_DELAY
                         }
                     }
                 }
             })
 
             // Handles Successful Connections
-            this._rxStomp.connected$.subscribe(() =>{
+            this.rxStomp.connected$.subscribe(() =>{
                 // Successful Connection
                 if(!this.initialConnectionSuccessful){
                     this.initialConnectionSuccessful = true
                 }
-                if(this._rxStomp) {
+                if(this.rxStomp) {
                     // Set connection delay to base
-                    this._rxStomp.stompClient.reconnectDelay = this.INITIAL_RECONNECT_DELAY
+                    this.rxStomp.stompClient.reconnectDelay = this.INITIAL_RECONNECT_DELAY
                 }
             })
             //*** End Block that handles backoff ***
 
 
             // This subscription is to handle any errors that occur during connection
-            const errorSubscription: Subscription = this._rxStomp.stompErrors$.subscribe((value: IFrame) => {
+            const errorSubscription: Subscription = this.rxStomp.stompErrors$.subscribe((value: IFrame) => {
                 errorSubscription.unsubscribe()
                 const message = value.headers['message']
-                this._rxStomp?.deactivate()
-                this._rxStomp = null
+                this.rxStomp?.deactivate()
+                this.rxStomp = null
                 reject(message)
             })
 
-            const connectedSubscription: Subscription = this._rxStomp.serverHeaders$.subscribe((value: StompHeaders) => {
+            const connectedSubscription: Subscription = this.rxStomp.serverHeaders$.subscribe((value: StompHeaders) => {
                 connectedSubscription.unsubscribe()
+
                 let connectedInfoJson: string | undefined = value[EventConstants.CONNECTED_INFO_HEADER]
                 if (connectedInfoJson != null) {
 
@@ -141,7 +163,7 @@ export class StompConnectionManager {
                             }
                         }
 
-                        connectHeadersInternal.session = connectedInfo.sessionId
+                        connectHeadersInternal[EventConstants.SESSION_HEADER] = connectedInfo.sessionId
 
                         resolve(connectedInfo)
                     } else {
@@ -152,51 +174,17 @@ export class StompConnectionManager {
                 }
             })
 
-            this._rxStomp.activate()
+            this.rxStomp.activate()
         })
     }
 
     public async deactivate(force?: boolean): Promise<void> {
-        if(this._rxStomp){
-            this._rxStomp.stompClient.reconnectDelay = 0
-            await this._rxStomp.deactivate({force: force})
-            this._rxStomp = null
+        if(this.rxStomp){
+            this.rxStomp.stompClient.reconnectDelay = 0
+            await this.rxStomp.deactivate({force: force})
+            this.rxStomp = null
         }
         return
-    }
-
-    /**
-     * @return true if this {@link StompConnectionManager} is actively trying to maintain a connection to the Stomp server, false if not.
-     */
-    public get active(): boolean {
-        if(this._rxStomp){
-            return true
-        }else{
-            return false
-        }
-    }
-
-    /**
-     * return true if this {@link StompConnectionManager} is active and has a connection to the stomp server
-     */
-    public get connected(): boolean {
-        return this._rxStomp != null
-            && this._rxStomp.connected()
-    }
-
-    public get rxStomp(): RxStomp | null {
-        return this._rxStomp;
-    }
-
-    public get lastWebsocketError(): Event | null{
-        return this._lastWebsocketError
-    }
-
-    /**
-     * This will return true if a {@link ConnectionInfo#maxConnectionAttempts} threshold was set and was reached
-     */
-    public get maxConnectionAttemptsReached(): boolean{
-        return this._maxConnectionAttemptsReached
     }
 
 }

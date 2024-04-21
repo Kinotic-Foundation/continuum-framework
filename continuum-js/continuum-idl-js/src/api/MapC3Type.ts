@@ -16,7 +16,6 @@ export class MapC3Type extends C3Type {
     public value: C3Type | null = null
 
     constructor() {
-        super();
-        this.type = "map"
+        super('map')
     }
 }

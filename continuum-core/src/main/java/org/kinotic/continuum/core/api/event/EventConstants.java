@@ -17,6 +17,8 @@
 
 package org.kinotic.continuum.core.api.event;
 
+import org.kinotic.continuum.api.security.ConnectedInfo;
+
 /**
  *
  * Created by Navid Mitchell on 2018-12-11.
@@ -39,7 +41,7 @@ public class EventConstants {
     public static final String SESSION_HEADER = "session";
 
     /**
-     * Header provided by the server on connection to represent the users participant and session id as a json string
+     * Header provided by the server on connection to provide the {@link ConnectedInfo}
      */
     public static final String CONNECTED_INFO_HEADER = "connected-info";
 

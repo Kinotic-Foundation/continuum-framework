@@ -18,23 +18,92 @@
 import { EventBus } from '@/core/api/EventBus'
 import {IEventBus} from '@/core/api/IEventBus'
 import { ServiceRegistry } from '@/core/api/ServiceRegistry'
-import { IServiceProxy } from '@/core/api/IServiceRegistry'
+import {IEventFactory, IServiceProxy} from '@/core/api/IServiceRegistry'
 import {Identifiable} from '@/api/Identifiable'
 import {ICrudServiceProxy} from '@/core/api/crud/ICrudServiceProxy'
 import {CrudServiceProxyFactory} from '@/core/api/crud/CrudServiceProxyFactory'
 import {ConnectedInfo} from '@/api/security/ConnectedInfo'
-import {ConnectionInfo} from '@/api/Connection'
+import {ConnectionInfo} from '@/api/ConnectionInfo'
 
+
+/**
+ * Provides a way to store the current {@link ContinuumSingleton} and {@link IEventFactory} instances
+ * This allows the {@link IServiceProxy} instances to dynamically switch between different {@link ContinuumSingleton} and {@link IEventFactory} instances
+ */
+type ContinuumContext = {
+    instance?: ContinuumSingleton
+    eventFactory?: IEventFactory
+}
+
+/**
+ * Interface that defines the methods needed to manage the current {@link ContinuumContext} instance
+ */
+interface IContinuumContextStack {
+    /**
+     * Returns the current Continuum instance to use for all {@link IServiceProxy} instances invoked with {@link ContinuumContext.execute}
+     */
+    getContinuumInstance(): ContinuumSingleton | undefined
+
+    /**
+     * Returns the current event factory to use for all {@link IServiceProxy} instances invoked with {@link ContinuumContext.execute}
+     */
+    getEventFactory(): IEventFactory | undefined
+}
+
+/**
+ * Provides a way to store the current {@link ContinuumContext} instance
+ * This is used to allow for {@link IServiceProxy} instances to dynamically switch between different {@link ContinuumSingleton} instances
+ */
+class ContinuumContextStackClass implements IContinuumContextStack {
+
+    private continuumOverride: ContinuumContext[] = []
+
+    getContinuumInstance(): ContinuumSingleton | undefined {
+        return this.continuumOverride[this.continuumOverride.length - 1]?.instance
+    }
+
+    getEventFactory(): IEventFactory | undefined{
+        return this.continuumOverride[this.continuumOverride.length - 1]?.eventFactory
+    }
+
+    /**
+     * Sets the current {@link ContinuumContext} instance to use for all {@link IServiceProxy} instances invoked with {@link ContinuumContext.execute}
+     * @param continuumContext
+     */
+    push(continuumContext: ContinuumContext): void {
+        this.continuumOverride.push(continuumContext)
+    }
+
+    /**
+     * Removes the current {@link ContinuumContext} from the stack
+     */
+    pop(): void {
+        this.continuumOverride.pop()
+    }
+}
+
+/**
+ * The default {@link ContinuumContextStackClass} instance that can be used to manage the current {@link ContinuumContext} instance
+ */
+export const ContinuumContextStack: IContinuumContextStack = new ContinuumContextStackClass()
 
 /**
  * Provides a simplified way to connect to Continuum and access services.
  * All methods use a single connection to the Continuum Services
  */
 export class ContinuumSingleton {
+    /**
+     * The {@link IEventBus} that is used to communicate with the Continuum server
+     */
     public readonly eventBus!: IEventBus
+    /**
+     * The {@link ServiceRegistry} that is used to manage the services that are available
+     */
     public readonly serviceRegistry!: ServiceRegistry
+    /**
+     * The {@link CrudServiceProxyFactory} that is used to create {@link ICrudServiceProxy} instances
+     */
     public readonly crudServiceProxyFactory!: CrudServiceProxyFactory
-
 
     constructor() {
         this.eventBus = new EventBus()
@@ -68,9 +137,37 @@ export class ContinuumSingleton {
         return this.serviceRegistry.serviceProxy(serviceIdentifier)
     }
 
+    /**
+     * Returns a {@link ICrudServiceProxy} for the given service identifier
+     * @param serviceIdentifier the identifier of the service to be accessed
+     */
     public crudServiceProxy<T extends Identifiable<string>>(serviceIdentifier: string): ICrudServiceProxy<T> {
         return this.crudServiceProxyFactory.crudServiceProxy<T>(serviceIdentifier)
     }
+
+    /**
+     * Allows for the execution of a function that requires a connection to the Continuum server
+     * When the function is executed any calls using an {@link IServiceProxy} will be executed using the connection defined by this {@link ContinuumSingleton}
+     * @param toExecute the function to execute
+     * @param eventFactory an optional {@link IEventFactory} to use for the duration of the execution
+     * @return the result of the function that was executed
+     */
+    public async execute(toExecute: () => Promise<any>, eventFactory?: IEventFactory): Promise<any> {
+        const stack = ContinuumContextStack as ContinuumContextStackClass
+        stack.push({instance: this, eventFactory: eventFactory})
+
+        let ret: any
+        try {
+            ret = await toExecute()
+        } finally {
+            stack.pop()
+        }
+
+        return ret
+    }
 }
 
+/**
+ * The default {@link ContinuumSingleton} instance that can be used to access Continuum services
+ */
 export const Continuum = new ContinuumSingleton()

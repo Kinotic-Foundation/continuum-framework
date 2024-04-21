@@ -17,14 +17,14 @@
 
 package org.kinotic.continuum.idl.api.schema;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.*;
 import lombok.experimental.Accessors;
 import org.apache.commons.lang3.Validate;
-import org.kinotic.continuum.idl.api.schema.decorators.C3Decorator;
 
-import java.util.*;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.Set;
 
 /**
  * Provides functionality to define an interface / service with a Continuum schema.
@@ -37,12 +37,12 @@ import java.util.*;
 @Accessors(chain = true)
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = false)
 @ToString
-public class ServiceDefinition {
+public class ServiceDefinition extends AbstractDefinition implements HasQualifiedName {
 
     /**
-     * The namespace this {@link ServiceDefinition} belongs to
+     * The namespace of this {@link ServiceDefinition}
      */
     private String namespace;
 
@@ -52,27 +52,12 @@ public class ServiceDefinition {
     private String name;
 
     /**
-     * The list of Decorators that should be applied to this {@link ServiceDefinition}
-     */
-    @EqualsAndHashCode.Exclude
-    protected List<C3Decorator> decorators = new ArrayList<>();
-
-    /**
      * This defines {@link FunctionDefinition}'s for this {@link ServiceDefinition}
      * The key is the function name and the value is the schema that defines the function
      */
     @EqualsAndHashCode.Exclude
     @JsonDeserialize(as = LinkedList.class)
     private Set<FunctionDefinition> functions = new LinkedHashSet<>();
-
-    /**
-     * The URN is the namespace + "." + name
-     * @return the urn for this {@link ServiceDefinition}
-     */
-    @JsonIgnore
-    public String getUrn(){
-        return namespace + "." + name;
-    }
 
     /**
      * Stores the given value in the functions definitions for this schema
@@ -84,54 +69,6 @@ public class ServiceDefinition {
         Validate.isTrue(!functions.contains(function), "ServiceDefinition already contains function "+function);
         functions.add(function);
         return this;
-    }
-
-    /**
-     * Adds a new decorator to this service
-     * @param decorator to add
-     * @return this {@link ServiceDefinition} for chaining
-     */
-    public ServiceDefinition addDecorator(C3Decorator decorator){
-        Validate.notNull(decorator, "decorator cannot be null");
-        Validate.isTrue(!decorators.contains(decorator), "ServiceDefinition already contains decorator "+decorator);
-        decorators.add(decorator);
-        return this;
-    }
-
-    /**
-     * Checks if this type contains a {@link C3Decorator} of the given subclass
-     * @param clazz to see if this type has
-     * @return true if the {@link C3Decorator} is present false if not
-     */
-    public boolean containsDecorator(Class<? extends C3Decorator> clazz){
-        return findDecorator(clazz) != null;
-    }
-
-    /**
-     * Checks if this type has any {@link C3Decorator}
-     * @return true if any {@link C3Decorator}s are present false if not
-     */
-    public boolean hasDecorators(){
-        return decorators != null && !decorators.isEmpty();
-    }
-
-    /**
-     * Finds the first {@link C3Decorator} of the given subclass or null if none are found
-     * @param clazz to find the {@link C3Decorator} for
-     * @return the {@link C3Decorator} or null if none are found
-     */
-    public <T extends C3Decorator> T findDecorator(Class<T> clazz){
-        T ret = null;
-        if(decorators != null){
-            for (C3Decorator decorator : decorators){
-                if(clazz.isAssignableFrom(decorator.getClass())){
-                    //noinspection unchecked
-                    ret = (T) decorator;
-                    break;
-                }
-            }
-        }
-        return ret;
     }
 
 }

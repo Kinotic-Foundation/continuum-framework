@@ -11,13 +11,10 @@ describe('Continuum Client Tests', () => {
 
     let host: string = '127.0.0.1'
     let port: number = 58503
+
     let container: StartedTestContainer
     beforeAll(async () => {
-        console.log('Starting Continuum Gateway')
-        container = await initContinuumGateway()
-        host = container.getHost()
-        port = container.getMappedPort(58503)
-        console.log(`Continuum Gateway running at ${host}:${port}`)
+        const connectionInfo = await initContinuumGateway()
     }, 1000 * 60 * 10) // 10 minutes
 
     afterAll(async () => {

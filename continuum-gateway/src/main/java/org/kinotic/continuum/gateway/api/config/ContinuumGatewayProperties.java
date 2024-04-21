@@ -19,6 +19,8 @@ package org.kinotic.continuum.gateway.api.config;
 
 import io.vertx.ext.stomp.lite.StompServerOptions;
 import io.vertx.mqtt.MqttServerOptions;
+import lombok.Getter;
+import lombok.Setter;
 import org.kinotic.continuum.api.config.ContinuumProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
@@ -28,16 +30,18 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @ConfigurationProperties(prefix = "continuum-gateway")
+@Getter
+@Setter
 public class ContinuumGatewayProperties {
     /**
      * Default properties unless overridden in application properties
      */
-    public static String    DEFAULT_DATA_DIRECTORY = "gateway-data/";
-    public static int       DEFAULT_STOMP_PORT = 58503;
-    public static String    DEFAULT_STOMP_WEBSOCKET_PATH = "/v1";
-    public static int       DEFAULT_REST_PORT = 58504;
-    public static String    DEFAULT_REST_PATH = "/api";
-    public static long      DEFAULT_REST_BODY_LIMIT_SIZE = 2048;
+    public static String DEFAULT_DATA_DIRECTORY = "gateway-data/";
+    public static int DEFAULT_STOMP_PORT = 58503;
+    public static String DEFAULT_STOMP_WEBSOCKET_PATH = "/v1";
+    public static int DEFAULT_REST_PORT = 58504;
+    public static String DEFAULT_REST_PATH = "/api";
+    public static long DEFAULT_REST_BODY_LIMIT_SIZE = 2048;
 
     private String dataDir = DEFAULT_DATA_DIRECTORY;
 
@@ -47,50 +51,18 @@ public class ContinuumGatewayProperties {
 
     private final ContinuumRestServerProperties rest = new ContinuumRestServerProperties();
 
+    /**
+     * Denotes if the CLI connections should be enabled or not
+     * True if CLI connections should be enabled false if not
+     */
     private boolean enableCLIConnections = true;
 
     public ContinuumGatewayProperties(ContinuumProperties continuumProperties) {
         stomp = new StompServerOptions()
-                        .setPort(DEFAULT_STOMP_PORT)
-                        .setWebsocketPath(DEFAULT_STOMP_WEBSOCKET_PATH)
-                        .setDebugEnabled(continuumProperties.isDebug());
+                .setPort(DEFAULT_STOMP_PORT)
+                .setWebsocketPath(DEFAULT_STOMP_WEBSOCKET_PATH)
+                .setDebugEnabled(continuumProperties.isDebug());
 
         mqtt = new MqttServerOptions();
-    }
-
-    public String getDataDir() {
-        return dataDir;
-    }
-
-    public void setDataDir(String dataDir) {
-        this.dataDir = dataDir;
-    }
-
-    public ContinuumRestServerProperties getRest() {
-        return rest;
-    }
-
-    public StompServerOptions getStomp() {
-        return stomp;
-    }
-
-    public MqttServerOptions getMqtt() {
-        return mqtt;
-    }
-
-    /**
-     * Determines if the CLI connections should be enabled or not
-     * @return true if CLI connections should be enabled false if not
-     */
-    public boolean isEnableCLIConnections() {
-        return enableCLIConnections;
-    }
-
-    /**
-     * Set if the CLI connections should be enabled or not
-     * @param enableCLIConnections true if CLI connections should be enabled false if not
-     */
-    public void setEnableCLIConnections(boolean enableCLIConnections) {
-        this.enableCLIConnections = enableCLIConnections;
     }
 }

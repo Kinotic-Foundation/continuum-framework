@@ -17,7 +17,6 @@
 
 package org.kinotic.continuum.idl.api.schema;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.*;
 import lombok.experimental.Accessors;
@@ -28,9 +27,9 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * ObjectC3Type is used to define a complex object type in the Continuum IDL.
+ * {@link ObjectC3Type} is used to define a complex object type in the Continuum IDL.
  * Properties are defined with {@link PropertyDefinition}s
- * The context for equality here is the namespace and name.
+ * The context for equality here is the name.
  * Given no two object types can have the same namespace and name this is the only context needed for equality.
  * Created by navid on 2019-06-11.
  */
@@ -41,17 +40,7 @@ import java.util.List;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 @ToString(callSuper = true)
-public class ObjectC3Type extends C3Type {
-
-    /**
-     * The namespace that this {@link ObjectC3Type} belongs to
-     */
-    private String namespace = null;
-
-    /**
-     * This is the name of the {@link ObjectC3Type} such as "Person", "Animal"
-     */
-    private String name = null;
+public class ObjectC3Type extends ComplexC3Type {
 
     /**
      * The parent schema of this object definition
@@ -61,12 +50,22 @@ public class ObjectC3Type extends C3Type {
     private ObjectC3Type parent = null;
 
     /**
-     * The properties (key-value pairs) on an object are defined using the properties' keyword.
-     * The value of properties is an object, where each key is the name of a property and each value is a Continuum schema used to validate that property.
+     * The properties are the fields of this object type.
      */
     @EqualsAndHashCode.Exclude
     @JsonDeserialize(as = LinkedList.class)
     private LinkedList<PropertyDefinition> properties = new LinkedList<>();
+
+    /**
+     * Adds a {@link C3Decorator} to this type
+     *
+     * @param decorator to add
+     */
+    @Override
+    public ObjectC3Type addDecorator(C3Decorator decorator) {
+        super.addDecorator(decorator);
+        return this;
+    }
 
     /**
      * Adds a property to this {@link ObjectC3Type}
@@ -75,26 +74,27 @@ public class ObjectC3Type extends C3Type {
      * @return this {@link ObjectC3Type} for chaining
      */
     public ObjectC3Type addProperty(String name, C3Type c3Type){
-        PropertyDefinition property = new PropertyDefinition().setName(name).setType(c3Type);
+        PropertyDefinition property = new PropertyDefinition(name, c3Type);
         return addProperty(property);
     }
 
     /**
      * Adds a property to this {@link ObjectC3Type}
      * @param name of the property
-     * @param c3Type the type of the property
+     * @param c3Type the type of the property]
      * @param decorators the decorators to apply to the property
      * @return this {@link ObjectC3Type} for chaining
      */
     public ObjectC3Type addProperty(String name, C3Type c3Type, List<C3Decorator> decorators){
-        PropertyDefinition property = new PropertyDefinition().setName(name).setType(c3Type).setDecorators(decorators);
+        PropertyDefinition property = new PropertyDefinition(name, c3Type);
+        property.setDecorators(decorators);
         return addProperty(property);
     }
 
     /**
      * Adds a property to this {@link ObjectC3Type}
      * @param propertyDefinition to add to this {@link ObjectC3Type}
-     * @return this {@link ObjectC3Type} for chaining
+     * @return this {@link ObjectC3Type} for chaising
      */
     public ObjectC3Type addProperty(PropertyDefinition propertyDefinition){
         Validate.isTrue(!properties.contains(propertyDefinition), "ObjectC3Type already contains property "+propertyDefinition.getName());
@@ -103,12 +103,23 @@ public class ObjectC3Type extends C3Type {
     }
 
     /**
-     * Gets the fully qualified name for this {@link ObjectC3Type} which is the namespace + "." + name
-     * @return the fully qualified name for this {@link ObjectC3Type}
+     * Sets the name of this {@link ObjectC3Type}s
+     * @param name of this {@link ObjectC3Type}
+     * @return this {@link ObjectC3Type} for chaining
      */
-    @JsonIgnore
-    public String getQualifiedName(){
-        return namespace + "." + name;
+    public ObjectC3Type setName(String name) {
+        this.name = name;
+        return this;
+    }
+
+    /**
+     * Sets the namespace of this {@link ObjectC3Type}s
+     * @param namespace of this {@link ObjectC3Type}
+     * @return this {@link ObjectC3Type} for chaining
+     */
+    public ObjectC3Type setNamespace(String namespace) {
+        this.namespace = namespace;
+        return this;
     }
 
 }

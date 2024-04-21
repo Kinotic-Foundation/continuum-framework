@@ -325,7 +325,7 @@ public class RpcTests {
         Mono<String> mono = rpcTestServiceProxy.firstArgParticipant(suffix);
 
         StepVerifier.create(mono)
-                    .expectNext(continuum.nodeName() + suffix)
+                    .expectNext(continuum.serverInfo().getNodeName() + suffix)
                     .expectComplete()
                     .verify();
     }
@@ -338,7 +338,7 @@ public class RpcTests {
         Mono<String> mono = rpcTestServiceProxy.middleArgParticipant(prefix, suffix);
 
         StepVerifier.create(mono)
-                    .expectNext(prefix + continuum.nodeName() + suffix)
+                    .expectNext(prefix + continuum.serverInfo().getNodeName() + suffix)
                     .expectComplete()
                     .verify();
     }
@@ -350,7 +350,7 @@ public class RpcTests {
         Mono<String> mono = rpcTestServiceProxy.lastArgParticipant(prefix);
 
         StepVerifier.create(mono)
-                    .expectNext(prefix + continuum.nodeName())
+                    .expectNext(prefix + continuum.serverInfo().getNodeName())
                     .expectComplete()
                     .verify();
     }

@@ -13,11 +13,10 @@ export class ServiceDefinition extends AbstractDefinition implements HasQualifie
     /**
      * The namespace this {@link ServiceDefinition} belongs to
      */
-    public namespace?: string | null = null
-
+    public namespace: string
 
     public constructor(name: string,
-                       namespace?: string | null,
+                       namespace: string,
                        decorators?: C3Decorator[],
                        metadata?: { [p: string]: any } | null) {
         super(name, decorators, metadata)

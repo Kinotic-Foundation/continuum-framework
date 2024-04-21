@@ -56,6 +56,7 @@ public class PojoTypeConverter implements GenericTypeConverter {
         Assert.notNull(rawClass, "Raw class could not be found for ResolvableType");
 
         ObjectC3Type ret = new ObjectC3Type();
+        ret.setNamespace(rawClass.getPackage().getName());
         ret.setName(rawClass.getSimpleName());
 
         PropertyDescriptor[] descriptors = BeanUtils.getPropertyDescriptors(rawClass);

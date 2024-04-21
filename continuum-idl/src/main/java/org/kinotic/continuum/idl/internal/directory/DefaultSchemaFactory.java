@@ -75,6 +75,7 @@ public class DefaultSchemaFactory implements SchemaFactory {
 
 
         ServiceDefinition serviceDefinition = new ServiceDefinition();
+        serviceDefinition.setNamespace(clazz.getPackage().getName());
         serviceDefinition.setName(clazz.getSimpleName());
 
         ReflectionUtils.doWithMethods(clazz, method -> {

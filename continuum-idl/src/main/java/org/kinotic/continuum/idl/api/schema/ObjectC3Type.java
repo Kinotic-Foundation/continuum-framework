@@ -40,7 +40,7 @@ import java.util.List;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 @ToString(callSuper = true)
-public class ObjectC3Type extends BaseComplexC3Type {
+public class ObjectC3Type extends ComplexC3Type {
 
     /**
      * The parent schema of this object definition

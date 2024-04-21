@@ -31,7 +31,7 @@ import lombok.experimental.Accessors;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class MapC3Type extends BaseC3Type {
+public class MapC3Type extends C3Type {
 
     /**
      * The type of the defined maps keys

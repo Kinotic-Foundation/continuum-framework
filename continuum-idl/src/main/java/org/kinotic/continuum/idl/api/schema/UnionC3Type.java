@@ -19,7 +19,7 @@ import java.util.List;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 @ToString(callSuper = true)
-public class UnionC3Type extends BaseComplexC3Type {
+public class UnionC3Type extends ComplexC3Type {
 
     /**
      * The types that are part of this union

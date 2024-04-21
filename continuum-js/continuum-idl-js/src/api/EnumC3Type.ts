@@ -1,11 +1,11 @@
-import {BaseComplexC3Type} from '@/api/BaseComplexC3Type'
+import {ComplexC3Type} from '@/api/ComplexC3Type'
 import {C3Decorator} from '@/api/decorators/C3Decorator'
 import {MetadataType} from '@/api/HasMetadata'
 
 /**
  * Created by Navíd Mitchell 🤪 on 4/13/23.
  */
-export class EnumC3Type extends BaseComplexC3Type {
+export class EnumC3Type extends ComplexC3Type {
 
     /**
      * The values that are part of this enum

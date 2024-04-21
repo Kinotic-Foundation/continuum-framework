@@ -17,7 +17,7 @@ import java.util.List;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 @ToString(callSuper = true)
-public class EnumC3Type extends BaseComplexC3Type {
+public class EnumC3Type extends ComplexC3Type {
 
     /**
      * The values that are part of this enum

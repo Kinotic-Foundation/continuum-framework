@@ -1,4 +1,4 @@
-import {BaseComplexC3Type} from '@/api/BaseComplexC3Type'
+import {ComplexC3Type} from '@/api/ComplexC3Type'
 import { C3Type } from '@/api/C3Type'
 import {C3Decorator} from '@/api/decorators/C3Decorator'
 import {MetadataType} from '@/api/HasMetadata'
@@ -10,7 +10,7 @@ import {PropertyDefinition} from '@/api/PropertyDefinition'
  * The context for equality here is the namespace and name.
  * Given no two object types can have the same namespace and name this is the only context needed for equality.
  */
-export class ObjectC3Type extends BaseComplexC3Type {
+export class ObjectC3Type extends ComplexC3Type {
 
     /**
      * The parent schema of this object definition.

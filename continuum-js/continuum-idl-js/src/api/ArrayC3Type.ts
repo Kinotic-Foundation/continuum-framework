@@ -1,11 +1,10 @@
-import {BaseC3Type} from '@/api/BaseC3Type'
 import {C3Type} from '@/api/C3Type'
 
 /**
  * Arrays are used for ordered elements.
  * Created by navid on 2023-4-13.
  */
-export class ArrayC3Type extends BaseC3Type {
+export class ArrayC3Type extends C3Type {
     /**
      * The type the defined array will contain
      * <p>

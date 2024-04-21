@@ -28,5 +28,5 @@ import lombok.ToString;
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class DateC3Type extends BaseC3Type {
+public class DateC3Type extends C3Type {
 }

@@ -11,5 +11,5 @@ import lombok.ToString;
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class LongC3Type extends BaseC3Type {
+public class LongC3Type extends C3Type {
 }

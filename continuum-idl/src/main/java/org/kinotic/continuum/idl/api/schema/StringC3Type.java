@@ -28,6 +28,6 @@ import lombok.ToString;
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class StringC3Type extends BaseC3Type {
+public class StringC3Type extends C3Type {
 
 }

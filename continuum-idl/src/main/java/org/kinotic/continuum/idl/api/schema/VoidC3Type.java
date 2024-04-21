@@ -30,5 +30,5 @@ import lombok.ToString;
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class VoidC3Type extends BaseC3Type {
+public class VoidC3Type extends C3Type {
 }

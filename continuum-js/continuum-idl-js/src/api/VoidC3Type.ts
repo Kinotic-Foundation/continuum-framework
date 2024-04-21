@@ -1,4 +1,4 @@
-import {BaseC3Type} from '@/api/BaseC3Type'
+import {C3Type} from '@/api/C3Type'
 
 /**
  * This is a type to represent a void type.
@@ -6,7 +6,7 @@ import {BaseC3Type} from '@/api/BaseC3Type'
  *
  * Created by navid on 2023-4-13.
  */
-export class VoidC3Type extends BaseC3Type {
+export class VoidC3Type extends C3Type {
 
     constructor() {
         super('void')

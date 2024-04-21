@@ -31,7 +31,7 @@ import lombok.experimental.Accessors;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class ReferenceC3Type extends BaseC3Type {
+public class ReferenceC3Type extends C3Type {
 
     /**
      * The fully qualified name of the schema being referenced

@@ -40,8 +40,8 @@ public class DefaultC3ConversionContext<R, S> implements C3ConversionContext<R, 
 
             conversionDepthStack.addFirst(c3Type);
 
-            //noinspection unchecked
-            C3TypeConverter<R, C3Type, S> converter = (C3TypeConverter<R, C3Type, S>) strategy.converterFor(c3Type);
+            @SuppressWarnings("unchecked")
+            C3TypeConverter<R, C3Type, S> converter = (C3TypeConverter<R, C3Type, S>) findConverter(c3Type);
             Validate.isTrue(converter != null,
                             "No C3TypeConverter can be found for " + c3Type.getClass().getName()
                                     + " When using strategy " + strategy.getClass().getName());
@@ -70,6 +70,15 @@ public class DefaultC3ConversionContext<R, S> implements C3ConversionContext<R, 
     @Override
     public S state() {
         return state;
+    }
+
+    private C3TypeConverter<R, ? extends C3Type, S> findConverter(C3Type c3Type) {
+        for (C3TypeConverter<R, ? extends C3Type, S> converter : strategy.converters()) {
+            if (converter.supports(c3Type)) {
+                return converter;
+            }
+        }
+        return null;
     }
 
     /**

@@ -12,9 +12,9 @@ export class BaseComplexC3Type extends BaseC3Type implements ComplexC3Type {
     public name: string
 
     /**
-     * The namespace that this {@link EnumC3Type} belongs to
+     * The namespace that this {@link BaseComplexC3Type} belongs to
      */
-    public namespace?: string | null = null
+    public namespace: string
 
     /**
      * The list of Decorators that should be applied to this type
@@ -22,14 +22,13 @@ export class BaseComplexC3Type extends BaseC3Type implements ComplexC3Type {
     public decorators?: C3Decorator[] | null = null
 
     /**
-     * The metadata keyword is legal on any {@link AbstractDefinition}, The objects provided must be serializable to JSON.
-     * Usually, metadata is for putting things like descriptions or hints for code generators, or other things tools can use.
+     * Metadata is for putting things like descriptions or hints for code generators, or other things tools can use.
      */
     public metadata?: MetadataType | null
 
     constructor(type: string,
                 name: string,
-                namespace?: string | null,
+                namespace: string,
                 decorators?: C3Decorator[] | null,
                 metadata?: MetadataType | null) {
         super(type)

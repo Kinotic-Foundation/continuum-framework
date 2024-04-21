@@ -24,20 +24,14 @@ export class ObjectC3Type extends BaseComplexC3Type {
     public properties: PropertyDefinition[] = []
 
     constructor(name: string,
-                namespace?: string | null,
+                namespace: string,
                 decorators?: C3Decorator[] | null,
                 metadata?: MetadataType | null) {
         super('object', name, namespace, decorators, metadata)
     }
 
     public addProperty(name: string, c3Type: C3Type, decorators?: C3Decorator[]): ObjectC3Type {
-        const prop = new PropertyDefinition()
-        prop.name = name
-        prop.type = c3Type
-        if(decorators){
-            prop.decorators = decorators
-        }
-        return this.addPropertyDefinition(prop)
+        return this.addPropertyDefinition(new PropertyDefinition(name, c3Type, decorators))
     }
 
 

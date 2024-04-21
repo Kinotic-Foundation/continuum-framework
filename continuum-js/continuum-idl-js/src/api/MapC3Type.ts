@@ -1,4 +1,3 @@
-import {C3Type} from '@/api/C3Type'
 import { C3Type } from '@/api/C3Type'
 
 /**

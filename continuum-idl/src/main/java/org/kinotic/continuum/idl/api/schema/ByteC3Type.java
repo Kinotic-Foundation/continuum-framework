@@ -11,5 +11,5 @@ import lombok.ToString;
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class ByteC3Type extends C3Type {
+public class ByteC3Type extends NumberC3Type {
 }

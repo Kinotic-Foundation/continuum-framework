@@ -5,11 +5,10 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 /**
- * Represents a Continuum Schema for a float
- * Created by Navíd Mitchell 🤪 on 4/13/23.
+ * Created by Navíd Mitchell 🤪 on 4/29/24.
  */
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class FloatC3Type extends NumberC3Type {
+public abstract class NumberC3Type extends C3Type{
 }

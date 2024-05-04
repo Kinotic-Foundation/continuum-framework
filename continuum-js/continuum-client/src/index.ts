@@ -37,7 +37,6 @@ export * from './api/security/ParticipantConstants'
 export * from './core/api/EventBus'
 export * from './core/api/IEventBus'
 export * from './core/api/IServiceRegistry'
-export * from './core/api/ServerInfo'
 export * from './core/api/ServiceRegistry'
 export * from './core/api/StreamData'
 

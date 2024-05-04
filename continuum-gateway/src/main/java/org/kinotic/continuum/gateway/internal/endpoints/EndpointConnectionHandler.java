@@ -107,7 +107,7 @@ public class EndpointConnectionHandler {
                                   .thenCompose(participant -> services.sessionManager.create(participant))
                                   .thenApply(session -> {
                                       sessionActive(session);
-                                      Map<String, String> ret = new HashMap<>(2,1);
+                                      Map<String, String> ret = new HashMap<>(2,1.5F);
                                       ret.put(EventConstants.CONNECTED_INFO_HEADER, createConnectedInfoJson(session));
                                       return ret;
                                   });
@@ -149,6 +149,7 @@ public class EndpointConnectionHandler {
                     incomingEvent.metadata().put(EventConstants.SENDER_HEADER, services.objectMapper.writeValueAsString(session.participant()));
 
                     // make sure reply-to if present is scoped to sender
+                    // FIXME: a reply should not need a reply, therefore a replyCri probably should not be a EventConstants.SERVICE_DESTINATION_PREFIX
                     validateReplyToForServiceRequest(incomingEvent);
 
                     ret = services.eventBusService
@@ -286,14 +287,6 @@ public class EndpointConnectionHandler {
         }
     }
 
-    private String createServerInfoJson(){
-        try {
-            return services.objectMapper.writeValueAsString(services.continuum.serverInfo());
-        } catch (JsonProcessingException e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
     private void sessionActive(Session session) {
         this.session = session;
         // update session at least every half the time of the timeout
@@ -317,7 +310,7 @@ public class EndpointConnectionHandler {
             }
 
             String scheme = replyCRI.scheme();
-            if(scheme == null || !scheme.equals(EventConstants.SERVICE_DESTINATION_SCHEME)){
+            if (scheme == null || !scheme.equals(EventConstants.SERVICE_DESTINATION_SCHEME)) {
                 throw new IllegalArgumentException("reply-to header invalid, scheme: " + scheme + " is not valid for service requests");
             }
 
@@ -332,12 +325,15 @@ public class EndpointConnectionHandler {
                 if (!scope.equals(session.replyToId())) {
                     throw new IllegalArgumentException("reply-to header invalid, scope: " + scope + " is not valid for service requests");
                 }
-            }else{
-                throw new IllegalArgumentException("reply-to header invalid, scope: null is not valid for service requests");
+            } else {
+                throw new IllegalArgumentException(
+                        "reply-to header invalid, scope: null is not valid for service requests");
             }
-        }else{
-            throw new IllegalArgumentException("reply-to header invalid not provided for service requests");
         }
+        // FIXME: put this back when we fix the reply-to to reply-to problem
+//        }else{
+//            throw new IllegalArgumentException("reply-to header invalid not provided for service requests");
+//        }
     }
 
 }

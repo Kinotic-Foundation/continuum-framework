@@ -8,7 +8,7 @@ import {StartedTestContainer} from 'testcontainers'
 // This is required when running Continuum from node
 Object.assign(global, { WebSocket})
 
-describe('Continuum RPC Tests', () => {
+describe('Continuum Context Tests', () => {
     let container: StartedTestContainer
 
     beforeAll(async () => {

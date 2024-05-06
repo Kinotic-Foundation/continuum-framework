@@ -347,19 +347,13 @@ public class ServiceInvocationSupervisor {
                 if (replyTo.startsWith(EventConstants.SERVICE_DESTINATION_SCHEME + ":")) {
                     ret = true;
                 } else {
-                    if(log.isDebugEnabled()) {
-                        log.debug("Reply-to header must be a valid service destination");
-                    }
+                    log.warn("Reply-to header must be a valid service destination");
                 }
             }else {
-                if(log.isDebugEnabled()) {
-                    log.debug("Reply-to header must not be blank");
-                }
+                log.warn("Reply-to header must not be blank");
             }
         }else {
-            if(log.isDebugEnabled()) {
-                log.debug("No reply-to header found in event");
-            }
+            log.warn("No reply-to header found in event");
         }
         return ret;
     }

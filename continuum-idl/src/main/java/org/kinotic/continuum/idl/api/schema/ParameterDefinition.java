@@ -4,9 +4,9 @@ import lombok.*;
 import lombok.experimental.Accessors;
 
 /**
- * Provides functionality to define an argument for a {@link FunctionDefinition}.
+ * Provides functionality to define a parameter for a {@link FunctionDefinition}.
  * The context for equality here is the {@link FunctionDefinition}.
- * Given that no two arguments can have the same name in the same {@link FunctionDefinition}.
+ * Given that no two {@link ParameterDefinition}s can have the same name in the same {@link FunctionDefinition}.
  * Created by navid on 2023-4-13
  */
 @Getter
@@ -16,10 +16,10 @@ import lombok.experimental.Accessors;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 @ToString
-public class ArgumentDefinition extends AbstractDefinition {
+public class ParameterDefinition extends AbstractDefinition {
 
     /**
-     * The name of this {@link ArgumentDefinition}, and the argument name for the {@link FunctionDefinition}
+     * The name of this {@link ParameterDefinition}, and the argument name for the {@link FunctionDefinition}
      */
     private String name;
 

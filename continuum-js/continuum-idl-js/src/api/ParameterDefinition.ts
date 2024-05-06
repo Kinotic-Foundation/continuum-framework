@@ -3,12 +3,12 @@ import {C3Type} from '@/api/C3Type'
 import {C3Decorator} from '@/api/decorators/C3Decorator'
 
 /**
- * Provides functionality to define an argument for a {@link FunctionDefinition}.
+ * Provides functionality to define a parameter for a {@link FunctionDefinition}.
  */
-export class ArgumentDefinition extends AbstractDefinition {
+export class ParameterDefinition extends AbstractDefinition {
 
     /**
-     * The type of this {@link ArgumentDefinition}
+     * The type of this {@link ParameterDefinition}
      */
     public type: C3Type
 

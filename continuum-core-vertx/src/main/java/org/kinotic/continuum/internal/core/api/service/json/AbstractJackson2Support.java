@@ -185,7 +185,7 @@ public abstract class AbstractJackson2Support {
     }
 
     JavaType getJavaType(MethodParameter methodParameter){
-        Type targetType = methodParameter.getNestedParameterType();
+        Type targetType = methodParameter.getNestedGenericParameterType();
         Class<?> contextClass = methodParameter.getContainingClass();
         TypeFactory typeFactory = this.objectMapper.getTypeFactory();
         return typeFactory.constructType(GenericTypeResolver.resolveType(targetType, contextClass));

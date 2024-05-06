@@ -25,7 +25,6 @@ import org.kinotic.continuum.core.api.security.Session;
 import org.kinotic.continuum.core.api.security.SessionManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -39,7 +38,6 @@ import java.util.concurrent.CompletableFuture;
  */
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
-@ActiveProfiles({"test"})
 public class TestSessionManager {
 
     // FIXME: Need to test path mapping patterns, Sessions no longer handle this.

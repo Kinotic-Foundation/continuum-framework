@@ -27,6 +27,7 @@ import org.springframework.boot.autoconfigure.jmx.JmxAutoConfiguration;
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.test.context.ActiveProfiles;
 
 /**
  *
@@ -41,5 +42,6 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
         JmxAutoConfiguration.class})
 @EnableConfigurationProperties
 @EnableContinuum
+@ActiveProfiles({"test"})
 public class TestApplication {
 }

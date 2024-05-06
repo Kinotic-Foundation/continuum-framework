@@ -26,8 +26,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.MonoSink;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
@@ -42,36 +41,6 @@ public class DefaultRpcTestService implements RpcTestService{
     private Vertx vertx;
 
     @Override
-    public String getString() {
-        return RpcTestService.STRING_VALUE;
-    }
-
-    @Override
-    public SimpleObject getSimpleObject() {
-        return STATIC_SIMPLE_OBJECT;
-    }
-
-    @Override
-    public String getSimpleObjectToString(SimpleObject simpleObject) {
-        return simpleObject.toString();
-    }
-
-    @Override
-    public String getUnknownFailure() {
-        throw new UnknownThrowable("Everything failed Sucka!");
-    }
-
-    @Override
-    public String getAnotherString() {
-        return RpcTestService.STRING_VALUE;
-    }
-
-    @Override
-    public Future<String> getVertxFutureNullString() {
-        return Future.succeededFuture(null);
-    }
-
-    @Override
     public ABunchOfArgumentsHolder acceptABunchOfArguments(int intValue,
                                             long longValue,
                                             String stringValue,
@@ -82,28 +51,18 @@ public class DefaultRpcTestService implements RpcTestService{
     }
 
     @Override
+    public Mono<String> firstArgParticipant(Participant participant, String suffix){
+        return Mono.just(participant.getId() + suffix);
+    }
+
+    @Override
     public List<List<String>> getAListOfLists(List<List<String>> inputList) {
         return inputList.stream().map(strings -> strings.stream().map(s -> "Hello "+ s).collect(Collectors.toList())).collect(Collectors.toList());
     }
 
     @Override
-    public List<String> getListOfStrings() {
-        return LIST_OF_STRINGS;
-    }
-
-    @Override
-    public Integer putListOfStrings(List<String> strings) {
-        return strings.size();
-    }
-
-    @Override
-    public List<String> modifyListOfStrings(String[] stringsToModify) {
-        return Arrays.stream(stringsToModify).map(s -> "Hello "+ s).collect(Collectors.toList());
-    }
-
-    @Override
-    public Flux<Integer> getLimitedFlux() {
-        return Flux.just(1,2,3,4,5);
+    public String getAnotherString() {
+        return RpcTestService.STRING_VALUE;
     }
 
     @Override
@@ -119,6 +78,45 @@ public class DefaultRpcTestService implements RpcTestService{
                 vertx.cancelTimer(timerId);
             });
 
+        });
+    }
+
+    @Override
+    public Flux<Integer> getLimitedFlux() {
+        return Flux.just(1,2,3,4,5);
+    }
+
+    @Override
+    public List<String> getListOfStrings() {
+        return LIST_OF_STRINGS;
+    }
+
+    @Override
+    public Mono<String> getMonoEmptyString() {
+        return Mono.just("");
+    }
+
+    @Override
+    public Mono<String> getMonoFailure() {
+        return Mono.error(new IllegalStateException("Something went terribly wrong"));
+    }
+
+    @Override
+    public Mono<Integer> getMonoIntegerNull() {
+        return Mono.create(sink -> {
+            sink.success(null);
+        });
+    }
+
+    @Override
+    public Mono<String> getMonoStringLiterallyNull() {
+        return Mono.just("null");
+    }
+
+    @Override
+    public Mono<String> getMonoStringNull() {
+        return Mono.create(sink -> {
+            sink.success(null);
         });
     }
 
@@ -140,37 +138,33 @@ public class DefaultRpcTestService implements RpcTestService{
     }
 
     @Override
-    public Mono<String> getMonoStringNull() {
-        return Mono.create(sink -> {
-            sink.success(null);
-        });
+    public SimpleObject getSimpleObject() {
+        return STATIC_SIMPLE_OBJECT;
     }
 
     @Override
-    public Mono<Integer> getMonoIntegerNull() {
-        return Mono.create(sink -> {
-            sink.success(null);
-        });
+    public String getSimpleObjectToString(SimpleObject simpleObject) {
+        return simpleObject.toString();
     }
 
     @Override
-    public Mono<String> getMonoFailure() {
-        return Mono.error(new IllegalStateException("Something went terribly wrong"));
+    public String getString() {
+        return RpcTestService.STRING_VALUE;
     }
 
     @Override
-    public Mono<String> getMonoEmptyString() {
-        return Mono.just("");
+    public String getUnknownFailure() {
+        throw new UnknownThrowable("Everything failed Sucka!");
     }
 
     @Override
-    public Mono<String> getMonoStringLiterallyNull() {
-        return Mono.just("null");
+    public Future<String> getVertxFutureNullString() {
+        return Future.succeededFuture(null);
     }
 
     @Override
-    public Mono<String> firstArgParticipant(Participant participant, String suffix){
-        return Mono.just(participant.getId() + suffix);
+    public Mono<String> lastArgParticipant(String prefix, Participant participant){
+        return Mono.just(prefix + participant.getId());
     }
 
     @Override
@@ -179,8 +173,66 @@ public class DefaultRpcTestService implements RpcTestService{
     }
 
     @Override
-    public Mono<String> lastArgParticipant(String prefix, Participant participant){
-        return Mono.just(prefix + participant.getId());
+    public List<String> modifyListOfStrings(String[] stringsToModify) {
+        return Arrays.stream(stringsToModify).map(s -> "Hello "+ s).collect(Collectors.toList());
+    }
+
+    @Override
+    public Integer putListOfSimpleObjects(List<SimpleObject> simpleObjects) {
+        for(SimpleObject simpleObject : simpleObjects){
+            if(simpleObject == null){
+                throw new IllegalArgumentException("SimpleObject cannot be null");
+            }
+            if(!simpleObject.getFirstName().equals("Johnny")){
+                throw new IllegalArgumentException("SimpleObject firstname must be Johnny");
+            }
+        }
+        return simpleObjects.size();
+    }
+
+    @Override
+    public Integer putListOfStrings(List<String> strings) {
+        return strings.size();
+    }
+
+    @Override
+    public Integer putMapOfSimpleObjects(Map<String, SimpleObject> simpleObjects) {
+        for(Map.Entry<String, SimpleObject> entry : simpleObjects.entrySet()){
+            if(entry == null){
+                throw new IllegalArgumentException("Map.Entry cannot be null");
+            }
+
+            //noinspection ResultOfMethodCallIgnored
+            UUID.fromString(entry.getKey());
+
+            if(!entry.getValue().getFirstName().equals("Johnny")){
+                throw new IllegalArgumentException("SimpleObject firstname must be Johnny");
+            }
+        }
+        return simpleObjects.size();
+    }
+
+    @Override
+    public Integer putNestedGenerics(List<Map<String, Set<SimpleObject>>> objects) {
+        Integer ret = 0;
+        for(Map<String, Set<SimpleObject>> map : objects){
+            for(Map.Entry<String, Set<SimpleObject>> entry : map.entrySet()){
+
+                //noinspection ResultOfMethodCallIgnored
+                UUID.fromString(entry.getKey());
+
+                for(SimpleObject simpleObject : entry.getValue()){
+                    if(simpleObject == null){
+                        throw new IllegalArgumentException("SimpleObject cannot be null");
+                    }
+                    if(!simpleObject.getFirstName().equals("Johnny")){
+                        throw new IllegalArgumentException("SimpleObject firstname must be Johnny");
+                    }
+                    ret++;
+                }
+            }
+        }
+        return ret;
     }
 
     private static class UnknownThrowable extends RuntimeException{

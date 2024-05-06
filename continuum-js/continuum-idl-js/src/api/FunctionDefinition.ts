@@ -1,5 +1,5 @@
 import {AbstractDefinition} from '@/api/AbstractDefinition'
-import {ParameterDefinition} from '@/api/ParameterDefinition.js'
+import {ParameterDefinition} from '@/api/ParameterDefinition'
 import { C3Type } from '@/api/C3Type'
 import {C3Decorator} from '@/api/decorators/C3Decorator'
 import {MetadataType} from '@/api/HasMetadata'

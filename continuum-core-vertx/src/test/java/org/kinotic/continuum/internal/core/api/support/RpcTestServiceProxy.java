@@ -23,6 +23,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -33,18 +35,6 @@ import java.util.concurrent.CompletableFuture;
        name = "RpcTestService")
 public interface RpcTestServiceProxy {
 
-    CompletableFuture<String> getString();
-
-    Mono<SimpleObject> getSimpleObject();
-
-    Mono<String> getSimpleObjectToString(SimpleObject simpleObject);
-
-    Mono<String> getUnknownFailure();
-
-    Future<String> getAnotherString();
-
-    Future<String> getVertxFutureNullString();
-
     Mono<ABunchOfArgumentsHolder> acceptABunchOfArguments(int intValue,
                                                           long longValue,
                                                           String stringValue,
@@ -52,17 +42,27 @@ public interface RpcTestServiceProxy {
                                                           SimpleObject simpleObject,
                                                           List<String> listOfStrings);
 
+    Mono<String> firstArgParticipant(String suffix);
+
     Mono<List<List<String>>> getAListOfLists(List<List<String>> inputList);
 
-    Mono<List<String>> getListOfStrings();
+    Future<String> getAnotherString();
 
-    Mono<Integer> putListOfStrings(List<String> strings);
-
-    Mono<List<String>> modifyListOfStrings(List<String> stringsToModify);
+    Flux<String> getInfiniteFlux();
 
     Flux<Integer> getLimitedFlux();
 
-    Flux<String> getInfiniteFlux();
+    Mono<List<String>> getListOfStrings();
+
+    Mono<String> getMissingRemoteMethodFailure();
+
+    Mono<String> getMonoEmptyString();
+
+    Mono<Integer> getMonoIntegerNull();
+
+    Mono<String> getMonoStringLiterallyNull();
+
+    Mono<String> getMonoStringNull();
 
     Mono<String> getMonoWithValue();
 
@@ -70,20 +70,27 @@ public interface RpcTestServiceProxy {
 
     Mono<Void> getMonoWithVoidFromNull();
 
-    Mono<String> getMonoStringNull();
+    Mono<SimpleObject> getSimpleObject();
 
-    Mono<Integer> getMonoIntegerNull();
+    Mono<String> getSimpleObjectToString(SimpleObject simpleObject);
 
-    Mono<String> getMissingRemoteMethodFailure();
+    CompletableFuture<String> getString();
 
-    Mono<String> getMonoEmptyString();
+    Mono<String> getUnknownFailure();
 
-    Mono<String> getMonoStringLiterallyNull();
-
-    Mono<String> firstArgParticipant(String suffix);
-
-    Mono<String> middleArgParticipant(String prefix, String suffix);
+    Future<String> getVertxFutureNullString();
 
     Mono<String> lastArgParticipant(String prefix);
 
+    Mono<String> middleArgParticipant(String prefix, String suffix);
+
+    Mono<List<String>> modifyListOfStrings(List<String> stringsToModify);
+
+    Mono<Integer> putListOfSimpleObjects(List<SimpleObject> simpleObjects);
+
+    Mono<Integer> putListOfStrings(List<String> strings);
+
+    Mono<Integer> putMapOfSimpleObjects(Map<String, SimpleObject> simpleObjects);
+
+    Mono<Integer> putNestedGenerics(List<Map<String, Set<SimpleObject>>> objects);
 }

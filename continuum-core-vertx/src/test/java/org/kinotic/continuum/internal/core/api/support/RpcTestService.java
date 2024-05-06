@@ -25,6 +25,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Class to publish various service methods to be used by the {@link RpcTests}
@@ -34,31 +36,16 @@ import java.util.List;
 @Publish
 public interface RpcTestService {
 
-    /**
-     * The value returned by getString below
-     */
-    String STRING_VALUE = "Hello Sucka!";
-
     List<String> LIST_OF_STRINGS = List.of("Bob", "Annie", "Wendy", "Nick", "Jose", "Joaquin", "Chaoxiang", "Johnny Blaze", "Sucka");
-
     SimpleObject STATIC_SIMPLE_OBJECT  = new SimpleObject().setFirstName("Johnny")
                                                            .setLastName("Blaze")
                                                            .setCount(10)
                                                            .setBigCount(10000000L);
-
     ABunchOfArgumentsHolder BUNCH_OF_ARGUMENTS = new ABunchOfArgumentsHolder(42, 23421432343242L, "Method Man", true, STATIC_SIMPLE_OBJECT, LIST_OF_STRINGS);
-
-    String getString();
-
-    SimpleObject getSimpleObject();
-
-    String getSimpleObjectToString(SimpleObject simpleObject);
-
-    String getUnknownFailure();
-
-    String getAnotherString();
-
-    Future<String> getVertxFutureNullString();
+    /**
+     * The value returned by getString below
+     */
+    String STRING_VALUE = "Hello Sucka!";
 
     ABunchOfArgumentsHolder acceptABunchOfArguments(int intValue,
                                                     long longValue,
@@ -67,17 +54,27 @@ public interface RpcTestService {
                                                     SimpleObject simpleObject,
                                                     List<String> listOfStrings);
 
+    Mono<String> firstArgParticipant(Participant participant, String suffix);
+
     List<List<String>> getAListOfLists(List<List<String>> inputList);
 
-    List<String> getListOfStrings();
+    String getAnotherString();
 
-    Integer putListOfStrings(List<String> strings);
-
-    List<String> modifyListOfStrings(String[] stringsToModify);
+    Flux<String> getInfiniteFlux();
 
     Flux<Integer> getLimitedFlux();
 
-    Flux<String> getInfiniteFlux();
+    List<String> getListOfStrings();
+
+    Mono<String> getMonoEmptyString();
+
+    Mono<String> getMonoFailure();
+
+    Mono<Integer> getMonoIntegerNull();
+
+    Mono<String> getMonoStringLiterallyNull();
+
+    Mono<String> getMonoStringNull();
 
     Mono<String> getMonoWithValue();
 
@@ -85,20 +82,28 @@ public interface RpcTestService {
 
     Mono<Void> getMonoWithVoidFromNull();
 
-    Mono<String> getMonoStringNull();
+    SimpleObject getSimpleObject();
 
-    Mono<Integer> getMonoIntegerNull();
+    String getSimpleObjectToString(SimpleObject simpleObject);
 
-    Mono<String> getMonoFailure();
+    String getString();
 
-    Mono<String> getMonoEmptyString();
+    String getUnknownFailure();
 
-    Mono<String> getMonoStringLiterallyNull();
+    Future<String> getVertxFutureNullString();
 
-    Mono<String> firstArgParticipant(Participant participant, String suffix);
+    Mono<String> lastArgParticipant(String prefix, Participant participant);
 
     Mono<String> middleArgParticipant(String prefix, Participant participant, String suffix);
 
-    Mono<String> lastArgParticipant(String prefix, Participant participant);
+    List<String> modifyListOfStrings(String[] stringsToModify);
+
+    Integer putListOfSimpleObjects(List<SimpleObject> simpleObjects);
+
+    Integer putListOfStrings(List<String> strings);
+
+    Integer putMapOfSimpleObjects(Map<String, SimpleObject> simpleObjects);
+
+    Integer putNestedGenerics(List<Map<String, Set<SimpleObject>>> objects);
 
 }

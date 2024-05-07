@@ -16,7 +16,7 @@ import java.util.Map;
 @Setter
 @Accessors(chain = true)
 @NoArgsConstructor
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = false)
 @ToString
 public abstract class ComplexC3Type extends C3Type implements HasQualifiedName, HasDecorators, HasMetadata {
 

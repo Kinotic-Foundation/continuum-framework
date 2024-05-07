@@ -34,7 +34,7 @@ export abstract class Pageable {
     /**
      * Returns the number of items to be returned.
      */
-    pageSize: number = 10
+    pageSize: number = 25
 
     /**
      * Creates a {@link Pageable} that uses Offset based pagination.

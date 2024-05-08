@@ -3,8 +3,6 @@ export * from './api/decorators/NotNullDecorator.js'
 
 export * from './api/ArrayC3Type'
 export * from './api/BooleanC3Type'
-export * from './api/C3Type'
-export * from './api/ComplexC3Type'
 export * from './api/ByteC3Type'
 export * from './api/C3Type'
 export * from './api/CharC3Type'

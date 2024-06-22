@@ -20,7 +20,7 @@ ext {
     commonsIoVersion='2.15.1'
     failsafeVersion='3.3.2'
     groovyVersion='3.0.10'
-    igniteVersion='2.15.0'
+    igniteVersion='2.16.0'
     jacksonVersion='2.16.0'
     jCacheApiVersion='1.0.0'
     jsonPathVersion='2.8.0'

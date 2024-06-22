@@ -44,13 +44,13 @@ public class ContinuumGatewayEndpointInitializer {
     public void init(){
         // If production deploy one verticle of each per core
         int numToDeploy = continuumProperties.getMaxNumberOfCoresToUse();
-        log.info(numToDeploy + " Cores will be used for Continuum Endpoints");
+        log.info("{} Cores will be used for Continuum Endpoints", numToDeploy);
         DeploymentOptions options = new DeploymentOptions().setInstances(numToDeploy);
 
-        log.info("Deploying " + numToDeploy + " Stomp Server Endpoint(s)");
+        log.info("Deploying {} Stomp Server Endpoint(s)", numToDeploy);
         vertx.deployVerticle(continuumVertcleFactory::createStompServerVerticle, options);
 
-        log.info("Deploying " + numToDeploy + " REST Server Endpoint(s)");
+        log.info("Deploying {} REST Server Endpoint(s)", numToDeploy);
         vertx.deployVerticle(continuumVertcleFactory::createRestServerVerticle, options);
     }
 

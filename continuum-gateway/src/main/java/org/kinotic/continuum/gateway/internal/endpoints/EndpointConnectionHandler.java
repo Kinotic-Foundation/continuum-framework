@@ -249,9 +249,11 @@ public class EndpointConnectionHandler {
 
             subscriptions.put(subscriptionIdentifier, subscriber);
 
-            if (log.isDebugEnabled()) {
-                log.debug("New subscription cri: " + cri.raw() + " id: " + subscriptionIdentifier + " for login: " + session.participant());
-            }
+            log.debug("New Service Subscription cri: {} id: {} for login: {}",
+                      cri.raw(),
+                      subscriptionIdentifier,
+                      session.participant());
+
 
         } else if (cri.scheme().equals(EventConstants.STREAM_DESTINATION_SCHEME)) {
 
@@ -259,9 +261,10 @@ public class EndpointConnectionHandler {
 
             subscriptions.put(subscriptionIdentifier, subscriber);
 
-            if (log.isDebugEnabled()) {
-                log.debug("New subscription cri: " + cri.raw() + " id: " + subscriptionIdentifier + " for login: " + session.participant());
-            }
+            log.debug("New Event Subscription cri: {} id: {} for login: {}",
+                      cri.raw(),
+                      subscriptionIdentifier,
+                      session.participant());
 
         } else {
             throw new IllegalArgumentException("CRI scheme not supported");

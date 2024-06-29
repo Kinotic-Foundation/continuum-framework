@@ -32,7 +32,7 @@ dependencies {
 	implementation project(':continuum-core')
 	implementation project(':continuum-core-vertx')
 
-	implementation 'org.codehaus.groovy:groovy'
+	implementation 'org.apache.groovy:groovy'
 	implementation 'org.springframework.boot:spring-boot-starter'
 
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'

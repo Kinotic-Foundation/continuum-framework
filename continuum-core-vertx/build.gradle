@@ -47,7 +47,7 @@ dependencies {
     api 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
 
     // Dependencies required to handle various JsonSchema converters. These can be moved when that code is separated
-    implementation 'org.codehaus.groovy:groovy'
+    implementation 'org.apache.groovy:groovy'
 
     // Misc
     implementation 'commons-io:commons-io'

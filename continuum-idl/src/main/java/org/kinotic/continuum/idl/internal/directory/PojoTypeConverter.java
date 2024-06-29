@@ -44,7 +44,7 @@ public class PojoTypeConverter implements GenericTypeConverter {
                 && !rawClass.getPackage().getName().startsWith("javax")
                 && !rawClass.getPackage().getName().startsWith("jdk")
                 && !rawClass.getPackage().getName().startsWith("sun")
-                && !rawClass.getPackage().getName().startsWith("org.codehaus.groovy")
+                && !rawClass.getPackage().getName().startsWith("org.apache.groovy")
                 && Object.class.isAssignableFrom(rawClass);
     }
 

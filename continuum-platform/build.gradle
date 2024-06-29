@@ -19,9 +19,9 @@ ext {
     chronicleQueueVersion='5.24ea27'
     commonsIoVersion='2.15.1'
     failsafeVersion='3.3.2'
-    groovyVersion='3.0.10'
+    groovyVersion='4.0.21'
     igniteVersion='2.16.0'
-    jacksonVersion='2.16.0'
+    jacksonVersion='2.17.1'
     javaxAnnotationApi='1.3.2'
     jCacheApiVersion='1.0.0'
     jsonPathVersion='2.8.0'
@@ -112,15 +112,13 @@ dependencies {
         api "org.apache.ignite:ignite-zookeeper:${igniteVersion}"
         api "org.apache.ignite:ignite-kubernetes:${igniteVersion}"
 
-        api "org.apache.kafka:kafka-clients:${kafkaVersion}"
-
         api "net.jodah:failsafe:${failsafeVersion}"
 
         api "net.openhft:chronicle-queue:${chronicleQueueVersion}"
 
         api "org.apache.zookeeper:zookeeper:${zookeeperVersion}"
 
-        api "org.codehaus.groovy:groovy:${groovyVersion}"
+        api "org.apache.groovy:groovy:${groovyVersion}"
 
         api "org.kinotic:vertx-stomp-lite:${vertxStompLiteVersion}"
 

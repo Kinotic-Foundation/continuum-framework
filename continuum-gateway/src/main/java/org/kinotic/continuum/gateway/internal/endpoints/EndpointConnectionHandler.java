@@ -36,7 +36,6 @@ import org.kinotic.continuum.internal.utils.EventUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.BaseSubscriber;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
@@ -184,16 +183,7 @@ public class EndpointConnectionHandler {
 
             } else if (incomingEvent.cri().scheme().equals(EventConstants.STREAM_DESTINATION_SCHEME)) {
 
-                Mono<Void> hftMono = services.hftQueueManager.write(incomingEvent)
-                                                             .onErrorMap(t -> {
-                                                                 log.error("Error occurred writing to HFT Queue", t);
-                                                                 return new IllegalStateException("Could not store");
-                                                             });
-
-                Mono<Void> streamMono = services.eventStreamService.send(incomingEvent);
-
-                ret = Flux.concat(hftMono, streamMono)
-                          .then();
+                ret = services.eventStreamService.send(incomingEvent);
 
             } else {
                 ret = Mono.error(new IllegalArgumentException("CRI scheme not supported"));

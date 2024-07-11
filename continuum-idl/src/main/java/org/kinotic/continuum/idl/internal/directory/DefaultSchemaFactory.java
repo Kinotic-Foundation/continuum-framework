@@ -90,7 +90,7 @@ public class DefaultSchemaFactory implements SchemaFactory {
 
                 C3Type c3Type = conversionContext.convert(ResolvableType.forMethodParameter(methodParameter));
 
-                functionDefinition.addArgument(getName(methodParameter), c3Type);
+                functionDefinition.addParameter(getName(methodParameter), c3Type);
             }
 
             functionDefinition.setName(method.getName());

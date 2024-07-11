@@ -1,5 +1,5 @@
 import {AbstractDefinition} from '@/api/AbstractDefinition'
-import {ArgumentDefinition} from '@/api/ArgumentDefinition'
+import {ParameterDefinition} from '@/api/ParameterDefinition'
 import { C3Type } from '@/api/C3Type'
 import {C3Decorator} from '@/api/decorators/C3Decorator'
 import {MetadataType} from '@/api/HasMetadata'
@@ -20,7 +20,7 @@ export class FunctionDefinition extends AbstractDefinition {
      * This array defines the {@link C3Type}s that define the arguments for this function.
      * Argument names must be unique.
      */
-    public arguments: ArgumentDefinition[] = []
+    public parameters: ParameterDefinition[] = []
 
 
     constructor(name: string,
@@ -30,18 +30,18 @@ export class FunctionDefinition extends AbstractDefinition {
     }
 
     /**
-     * Adds a new argument to this function definition
-     * Arguments must have unique names
-     * @param name the name of the argument
-     * @param c3Type the type of the argument
-     * @param decorators the decorators to apply to the argument
+     * Adds a new {@link ParameterDefinition} to this {@link FunctionDefinition}
+     * {@link ParameterDefinition} must have unique names
+     * @param name the name of the parameter
+     * @param c3Type the type of the parameter
+     * @param decorators the decorators to apply to the parameter
      */
-    public addArgument(name: string, c3Type: C3Type, decorators?: C3Decorator[]): FunctionDefinition {
-        const arg = new ArgumentDefinition(name, c3Type, decorators)
-        if(this.arguments.find((value) => value.name === name)){
-            throw new Error(`FunctionDefinition already contains argument for name ${name}`);
+    public addParameter(name: string, c3Type: C3Type, decorators?: C3Decorator[]): FunctionDefinition {
+        const param = new ParameterDefinition(name, c3Type, decorators)
+        if(this.parameters.find((value) => value.name === name)){
+            throw new Error(`FunctionDefinition already contains parameter for name ${name}`);
         }
-        this.arguments.push(arg)
+        this.parameters.push(param)
         return this
     }
 

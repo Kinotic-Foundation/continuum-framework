@@ -14,7 +14,9 @@ describe('Continuum Client Tests', () => {
 
     let container: StartedTestContainer
     beforeAll(async () => {
-        const connectionInfo = await initContinuumGateway()
+        const connectionInfo = (await initContinuumGateway()).connectionInfo
+        host = connectionInfo.host
+        port = connectionInfo.port
     }, 1000 * 60 * 10) // 10 minutes
 
     afterAll(async () => {

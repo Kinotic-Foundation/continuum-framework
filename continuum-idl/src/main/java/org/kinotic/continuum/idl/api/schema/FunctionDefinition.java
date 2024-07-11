@@ -56,40 +56,40 @@ public class FunctionDefinition extends AbstractDefinition {
      * The list of arguments that this function takes
      */
     @JsonDeserialize(as = LinkedList.class)
-    private LinkedList<ArgumentDefinition> arguments = new LinkedList<>();
+    private LinkedList<ParameterDefinition> parameters = new LinkedList<>();
 
     /**
-     * Adds a new argument to this function
-     * @param name the name of the argument
-     * @param c3Type the type of the argument
+     * Adds a new parameter to this function
+     * @param name the name of the parameter
+     * @param c3Type the type of the parameter
      * @return this {@link FunctionDefinition} for chaining
      */
-    public FunctionDefinition addArgument(String name, C3Type c3Type){
-        ArgumentDefinition argument = new ArgumentDefinition(name, c3Type);
-        return addArgument(argument);
+    public FunctionDefinition addParameter(String name, C3Type c3Type){
+        ParameterDefinition parameter = new ParameterDefinition(name, c3Type);
+        return addParameter(parameter);
     }
 
     /**
      * Adds a new argument to this function
-     * @param name the name of the argument
-     * @param c3Type the type of the argument
-     * @param decorators the decorators to apply to the argument
+     * @param name the name of the parameter
+     * @param c3Type the type of the parameter
+     * @param decorators the decorators to apply to the parameter
      * @return this {@link FunctionDefinition} for chaining
      */
-    public FunctionDefinition addArgument(String name, C3Type c3Type, List<C3Decorator> decorators){
-        ArgumentDefinition argument = new ArgumentDefinition(name, c3Type);
-        argument.setDecorators(decorators);
-        return addArgument(argument);
+    public FunctionDefinition addParameter(String name, C3Type c3Type, List<C3Decorator> decorators){
+        ParameterDefinition parameter = new ParameterDefinition(name, c3Type);
+        parameter.setDecorators(decorators);
+        return addParameter(parameter);
     }
 
     /**
-     * Adds a new argument to this function
-     * @param argument the argument to add
+     * Adds a new parameter to this function
+     * @param parameter the parameter to add
      * @return this {@link FunctionDefinition} for chaining
      */
-    public FunctionDefinition addArgument(ArgumentDefinition argument){
-        Validate.isTrue(!arguments.contains(argument), "FunctionDefinition already contains argument "+argument.getName());
-        arguments.add(argument);
+    public FunctionDefinition addParameter(ParameterDefinition parameter){
+        Validate.isTrue(!parameters.contains(parameter), "FunctionDefinition already contains parameter "+parameter.getName());
+        parameters.add(parameter);
         return this;
     }
 

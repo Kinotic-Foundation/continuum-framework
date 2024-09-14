@@ -36,12 +36,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * This implementation relies on vertx {@link io.vertx.core.shareddata.SharedData} structures to store the directory
  * and manage multiple applications using it concurrently.
  * The following describes the data structures used and there purpose.
- *
- *
- *
- *
- *
- *
  * Created by navid on 2019-06-11.
  */
 //@Component

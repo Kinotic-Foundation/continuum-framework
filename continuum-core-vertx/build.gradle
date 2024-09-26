@@ -13,20 +13,12 @@ dependencies {
     implementation 'org.springframework:spring-web' // used for json conversion functionality spring web has a lot of helpful utilities
     implementation 'javax.annotation:javax.annotation-api'
     implementation 'org.springframework.boot:spring-boot-autoconfigure' // Used for conditionally wiring beans
-    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
 
     // vertx
     api 'io.vertx:vertx-core'
     implementation 'io.vertx:vertx-auth-common'
     implementation 'com.github.rworsnop:vertx-beans'
 
-    api 'org.apache.kafka:kafka-clients'
-    api 'org.springframework.kafka:spring-kafka'
-    api 'io.projectreactor.kafka:reactor-kafka'
-    api ('org.apache.zookeeper:zookeeper') {
-        exclude group: 'org.slf4j', module: 'slf4j-log4j12'
-        exclude group: 'log4j', module: 'log4j'
-    }
 
     // Apache Ignite
     implementation 'io.vertx:vertx-ignite'
@@ -34,9 +26,6 @@ dependencies {
     implementation 'org.apache.ignite:ignite-calcite'
     implementation 'org.apache.ignite:ignite-spring'
     implementation 'org.apache.ignite:ignite-slf4j'
-    implementation ('org.apache.ignite:ignite-zookeeper'){
-        exclude group: 'org.slf4j', module: 'slf4j-log4j12'
-    }
     implementation 'javax.cache:cache-api'
 
     // Json
@@ -47,7 +36,7 @@ dependencies {
     api 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
 
     // Dependencies required to handle various JsonSchema converters. These can be moved when that code is separated
-    implementation 'org.codehaus.groovy:groovy'
+    implementation 'org.apache.groovy:groovy'
 
     // Misc
     implementation 'commons-io:commons-io'
@@ -56,7 +45,6 @@ dependencies {
 
     testImplementation 'org.springframework.boot:spring-boot-loader-tools'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'org.springframework.kafka:spring-kafka-test'
     testImplementation 'io.projectreactor:reactor-test'
 }
 

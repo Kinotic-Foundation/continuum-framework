@@ -21,8 +21,8 @@ dependencies {
     implementation 'org.apache.ignite:ignite-core'
 
     // OpenHFT, temps storage before event backend
-    implementation 'net.openhft:chronicle-queue'
-    implementation 'com.github.ben-manes.caffeine:caffeine'
+//    implementation 'net.openhft:chronicle-queue'
+//    implementation 'com.github.ben-manes.caffeine:caffeine'
 
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 

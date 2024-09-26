@@ -6,6 +6,8 @@ plugins {
 repositories {
     // Use the plugin portal to apply community plugins in convention plugins.
     gradlePluginPortal()
+
+    mavenCentral()
 }
 
 /**
@@ -22,8 +24,11 @@ properties.each { key, val -> project.ext."$key" = val }
 
 
 dependencies {
-    implementation "org.springframework.boot:org.springframework.boot.gradle.plugin:${springBootPluginVersion}"
+    implementation "org.springframework.boot:org.springframework.boot.gradle.plugin:${springBootVersion}"
+
+    // see https://docs.spring.io/dependency-management-plugin/docs/current-SNAPSHOT/reference/html/
+    implementation "io.spring.gradle:dependency-management-plugin:${springDependencyManagementVersion}"
 
     // lombok
-    implementation("io.freefair.gradle:lombok-plugin:${lombokPluginVersion}")
+    implementation "io.freefair.gradle:lombok-plugin:${lombokPluginVersion}"
 }

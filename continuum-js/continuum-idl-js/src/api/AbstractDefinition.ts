@@ -8,7 +8,7 @@ import {HasMetadata, MetadataType} from '@/api/HasMetadata'
 export abstract class AbstractDefinition implements HasDecorators, HasMetadata {
 
     /**
-     * The name of this {@link ArgumentDefinition}
+     * The name of this {@link AbstractDefinition}
      */
     public name: string
 

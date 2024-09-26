@@ -23,10 +23,6 @@ package org.kinotic.continuum.api.config;
  */
 public interface ContinuumProperties {
 
-    String getKafkaBootstrapServers();
-
-    String getZookeeperServers();
-
     /**
      * If true additional information will be provided to clients,
      * including server information, and information about errors occurring when invoking services
@@ -50,7 +46,6 @@ public interface ContinuumProperties {
     /**
      * Determines the mode used for discovering other nodes within the cluster must be one of the following.
      * sharedfs : Uses TCP discovery with a shared filesystems. This only works when all nodes run on the same host.
-     * zookeeper : Uses Zookeeper discovery
      * multicast : Uses multicast discovery
      *
      * @return the discovery mode

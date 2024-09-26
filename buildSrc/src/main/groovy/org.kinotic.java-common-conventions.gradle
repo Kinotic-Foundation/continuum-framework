@@ -6,7 +6,7 @@ plugins {
 }
 
 group 'org.kinotic'
-version = project.ext.continuumVersion
+version = "${continuumVersion}"
 sourceCompatibility = '21'
 
 repositories {

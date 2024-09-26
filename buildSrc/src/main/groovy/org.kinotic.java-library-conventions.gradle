@@ -8,21 +8,7 @@ plugins {
 }
 
 dependencies {
-    // We publish the common dependencies in both this and the application conventions plugin. Otherwise the platform did not end up in consumers of these projects..
-    /** Begin Common Dependencies **/
-    api platform(project(':continuum-platform'))
-    //noinspection DependencyNotationArgument
-    annotationProcessor platform(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES)
 
-    implementation 'org.apache.commons:commons-lang3'
-    implementation 'org.apache.commons:commons-text'
-
-    implementation "ch.qos.logback:logback-core"
-    implementation "ch.qos.logback:logback-classic"
-
-    testImplementation 'org.junit.jupiter:junit-jupiter-api'
-    testImplementation 'org.junit.jupiter:junit-jupiter-engine'
-    /** End Common Dependencies **/
 }
 
 
@@ -36,6 +22,16 @@ publishing {
         mavenJava(MavenPublication) {
 
             from components.java
+
+            // Use resolved versions since we are not directly depending on the spring POM
+            versionMapping {
+                usage('java-api') {
+                    fromResolutionOf('runtimeClasspath')
+                }
+                usage('java-runtime') {
+                    fromResolutionResult()
+                }
+            }
 
             pom {
                 name = 'Continuum Framework'

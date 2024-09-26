@@ -8,31 +8,11 @@ plugins {
 }
 
 dependencies {
-
-	// We publish the common dependencies in both this and the library conventions plugin. Otherwise the platform did not end up in consumers of the library projects..
-	/** Begin Common Dependencies **/
-	implementation platform(project(':continuum-platform'))
-	//noinspection DependencyNotationArgument
-	annotationProcessor platform(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES)
-	annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
-
-	implementation "org.apache.commons:commons-lang3"
-
-	implementation "ch.qos.logback:logback-core"
-	implementation "ch.qos.logback:logback-classic"
-
-	testImplementation 'org.junit.jupiter:junit-jupiter-api'
-	testImplementation 'org.junit.jupiter:junit-jupiter-engine'
-	/** End Common Dependencies **/
-
-
-	/** Application Common Dependencies **/
-
 	// Continuum Dependencies
 	implementation project(':continuum-core')
 	implementation project(':continuum-core-vertx')
 
-	implementation 'org.codehaus.groovy:groovy'
+	implementation 'org.apache.groovy:groovy'
 	implementation 'org.springframework.boot:spring-boot-starter'
 
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'

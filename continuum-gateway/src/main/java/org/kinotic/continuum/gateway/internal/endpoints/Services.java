@@ -27,14 +27,13 @@ import org.kinotic.continuum.api.security.SecurityService;
 import org.kinotic.continuum.core.api.security.SessionManager;
 import org.kinotic.continuum.gateway.api.config.ContinuumGatewayProperties;
 import org.kinotic.continuum.gateway.internal.endpoints.stomp.DefaultStompServerHandler;
-import org.kinotic.continuum.gateway.internal.hft.HFTQueueManager;
 import org.kinotic.continuum.internal.core.api.service.invoker.ExceptionConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
  * Facade class to make it easier to get needed services into {@link DefaultStompServerHandler}
- * This keeps the constructor there small and adding new service dependencies can just be done here...
+ * To keep the constructor args small and adding new service dependencies can just be done here...
  * Created by navid on 1/23/20
  */
 @Component
@@ -51,8 +50,6 @@ public class Services {
     public EventStreamService eventStreamService;
     @Autowired
     public ExceptionConverter exceptionConverter;
-    @Autowired
-    public HFTQueueManager hftQueueManager;
     @Autowired
     public ObjectMapper objectMapper;
     @Autowired

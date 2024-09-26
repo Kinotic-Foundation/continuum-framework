@@ -25,7 +25,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import java.util.Base64;
 
 /**
- * Default data container for data written to the gateway events {@link net.openhft.chronicle.queue.ChronicleQueue}
+ * Default data container for data written to the gateway events ChronicleQueue
  *
  * Created by navid on 11/19/19
  */

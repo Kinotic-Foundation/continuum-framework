@@ -80,7 +80,6 @@ dependencyManagement {
 
 
 dependencies {
-    //implementation platform("org.springframework.boot:spring-boot-dependencies:${springBootVersion}")
 
     annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
 

@@ -17,4 +17,3 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-json'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
-s

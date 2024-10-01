@@ -17,7 +17,8 @@
 
 package org.kinotic.continuum.grind.internal.api;
 
-import org.kinotic.continuum.grind.api.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.kinotic.continuum.grind.api.*;
 import org.reactivestreams.Publisher;
 import org.slf4j.Logger;
@@ -103,9 +104,9 @@ public class JobDefinitionStep extends AbstractStep implements HasSteps {
                     jobFlux = Flux.concat(assembledTaskDefinitions);
                 }
 
-                int percentPerStep = assembledTaskDefinitions.size() > 0 ? (int) Math.floor(100F / assembledTaskDefinitions.size()) : 100;
+                int percentPerStep = !assembledTaskDefinitions.isEmpty() ? (int) Math.floor(100F / assembledTaskDefinitions.size()) : 100;
                 ProgressHolder progressHolder = new ProgressHolder();
-                // Another var so it is "effectively" final..
+                // Another var so it is "effectively" final
                 boolean cleanupContextOnFinally = cleanupContextOnFinallyDecision;
                 Disposable disposable = jobFlux.doOnNext(result -> {
                                                     // notify progress at the job level as internal tasks complete
@@ -171,15 +172,10 @@ public class JobDefinitionStep extends AbstractStep implements HasSteps {
         return ret;
     }
 
+    @Getter
+    @NoArgsConstructor
     private static class ProgressHolder {
         private int percentageComplete = 0;
-
-        public ProgressHolder() {
-        }
-
-        public int getPercentageComplete() {
-            return percentageComplete;
-        }
 
         public void incrementPercentageComplete(int progress){
             percentageComplete += progress;

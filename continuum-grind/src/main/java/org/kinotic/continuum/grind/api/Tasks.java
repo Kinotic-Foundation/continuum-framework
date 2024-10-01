@@ -17,11 +17,13 @@
 
 package org.kinotic.continuum.grind.api;
 
+import org.apache.commons.io.IOUtils;
 import org.kinotic.continuum.grind.internal.api.InstanceTask;
 import org.kinotic.continuum.grind.internal.api.NoopTask;
 import org.kinotic.continuum.grind.internal.api.ValueTask;
 import org.springframework.context.support.GenericApplicationContext;
 
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.Callable;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -47,6 +49,27 @@ public class Tasks {
                                           throw new RuntimeException(e);
                                       }
                                   });
+    }
+
+    public static Task<String> fromExec(String description,
+                                        String... command) {
+        return new Task<>() {
+            @Override
+            public String getDescription() {
+                return description;
+            }
+
+            @Override
+            public String execute(GenericApplicationContext applicationContext) throws Exception {
+                Process process = new ProcessBuilder(command).start();
+                String out =  IOUtils.toString(process.getInputStream(), StandardCharsets.UTF_8);
+                int exitCode = process.waitFor();
+                if (exitCode != 0) {
+                    throw new RuntimeException(out);
+                }
+                return out;
+            }
+        };
     }
 
     public static <R> Task<R> fromSupplier(Supplier<R> instance) {

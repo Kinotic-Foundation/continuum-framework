@@ -18,7 +18,6 @@
 package org.kinotic.continuum.grind.internal.api;
 
 import org.kinotic.continuum.grind.api.*;
-import org.kinotic.continuum.grind.api.*;
 import org.slf4j.Logger;
 import reactor.core.publisher.FluxSink;
 
@@ -44,9 +43,7 @@ public abstract class AbstractStep implements Step {
     protected void notifyProgress(Supplier<Progress> progressSupplier, FluxSink<Result<?>> sink, ResultOptions options, Logger log){
         Progress progress = (options.isEnableProgressResults() || log.isDebugEnabled()) ? progressSupplier.get() : new Progress();
 
-        if (log.isDebugEnabled()){
-            log.debug(progress.getMessage() + " (" + progress.getPercentageComplete() + "%)");
-        }
+        log.debug("{} ({}%)", progress.getMessage(), progress.getPercentageComplete());
 
         if(options.isEnableProgressResults()){
             sink.next(new DefaultResult<>(new StepInfo(sequence), ResultType.PROGRESS, progress));

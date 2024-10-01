@@ -37,12 +37,7 @@ public class ContextUtils {
     @SuppressWarnings("unchecked")
     public static <T> T getProperty(String propertyName, GenericApplicationContext applicationContext){
         Validate.notBlank(propertyName, "propertyName must not be blank");
-        Validate.notNull(applicationContext,"applicationContext must not be null");
-
-        MapPropertySource propertySource = (MapPropertySource) applicationContext.getEnvironment()
-                                                                                 .getPropertySources()
-                                                                                 .get(GrindConstants.GRIND_MAP_PROPERTY_SOURCE);
-        Validate.notNull(propertySource, "Could not find Grind property source");
+        MapPropertySource propertySource = getGrindPropertySource(applicationContext);
 
         return (T) propertySource.getProperty(propertyName);
     }

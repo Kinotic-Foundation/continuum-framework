@@ -17,7 +17,6 @@
 
 package org.kinotic.continuum.grind.internal.api;
 
-import org.kinotic.continuum.grind.api.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -185,7 +184,7 @@ public class TestJobService {
 
     @Test
     public void testAutowireCollection(){
-        JobDefinition definition 
+        JobDefinition definition
                 = JobDefinition.create("testAutowireCollection")
                     .taskStoreResult(Tasks.fromCallable("Creating Grinds", () -> {
                         List<CrazyGrind> ret = new ArrayList<>();
@@ -210,7 +209,7 @@ public class TestJobService {
                     .expectNextMatches(resultPredicate(10))
                     .expectComplete()
                     .verify();
-                
+
     }
 
     // FIXME: Test is failing

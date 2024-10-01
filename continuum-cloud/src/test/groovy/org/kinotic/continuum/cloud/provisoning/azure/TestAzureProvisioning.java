@@ -37,7 +37,7 @@ public class TestAzureProvisioning {
     @Autowired
     private DefaultAzureService azureService;
 
-    @Test
+    //@Test
     public void testSimple(){
 
         DefaultAzureCredential defaultCredential = new DefaultAzureCredentialBuilder().build();

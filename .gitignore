@@ -64,3 +64,5 @@ out/
 /continuum-iam/ignite/
 
 continuum-gateway-server/ignite/
+
+.idea/

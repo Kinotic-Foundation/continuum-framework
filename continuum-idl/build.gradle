@@ -3,6 +3,8 @@ plugins {
 	id 'io.freefair.lombok'
 }
 
+version = "${continuumIdlVersion}"
+
 dependencies {
 
 	implementation project(':continuum-core')

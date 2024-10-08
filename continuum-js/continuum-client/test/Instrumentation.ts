@@ -1,23 +1,40 @@
-import { NodeSDK } from '@opentelemetry/sdk-node';
-import { ConsoleSpanExporter } from '@opentelemetry/sdk-trace-node'
+// WARNING: Only import this into tests
+
+
+import {ConsoleSpanExporter, SimpleSpanProcessor} from '@opentelemetry/sdk-trace-node'
 import {
-    PeriodicExportingMetricReader,
-    ConsoleMetricExporter,
-} from '@opentelemetry/sdk-metrics'
-import { Resource } from '@opentelemetry/resources'
-import {
-    ATTR_SERVICE_NAME,
-    ATTR_SERVICE_VERSION,
+    ATTR_SERVICE_NAME
 } from '@opentelemetry/semantic-conventions'
+import { Resource } from '@opentelemetry/resources'
 
-const sdk = new NodeSDK({
-                            resource: new Resource({
-                                                       [ATTR_SERVICE_NAME]: 'ContinuumTests'
-                                                   }),
-                            traceExporter: new ConsoleSpanExporter(),
-                            metricReader: new PeriodicExportingMetricReader({
-                                                                                exporter: new ConsoleMetricExporter(),
-                                                                            }),
-                        });
 
-sdk.start();
+// import {
+//     PeriodicExportingMetricReader,
+//     ConsoleMetricExporter,
+// } from '@opentelemetry/sdk-metrics'
+// import { NodeSDK } from '@opentelemetry/sdk-node'
+// import {
+//     ATTR_SERVICE_NAME
+// } from '@opentelemetry/semantic-conventions'
+//
+// export const otelSdk = new NodeSDK({
+//                             resource: new Resource({
+//                                                        [ATTR_SERVICE_NAME]: 'ContinuumTests'
+//                                                    }),
+//                             traceExporter: new ConsoleSpanExporter(),
+//                             metricReader: new PeriodicExportingMetricReader({
+//                                                                                 exporter: new ConsoleMetricExporter(),
+//                                                                             }),
+//                         })
+//
+// otelSdk.start()
+
+import { NodeTracerProvider } from '@opentelemetry/sdk-trace-node'
+export const otelTracerProvider = new NodeTracerProvider({
+                                            resource: new Resource({
+                                                                       [ATTR_SERVICE_NAME]: 'ContinuumTests'
+                                                                   }),
+                                        })
+
+otelTracerProvider.addSpanProcessor(new SimpleSpanProcessor(new ConsoleSpanExporter()))
+otelTracerProvider.register()

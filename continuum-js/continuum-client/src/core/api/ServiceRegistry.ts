@@ -16,7 +16,6 @@
  */
 
 import {ContinuumContextStack} from '@/api/Continuum'
-import pTap from 'p-tap'
 import { IServiceProxy, IServiceRegistry, IEventFactory } from './IServiceRegistry'
 import { EventConstants, IEvent, IEventBus } from './IEventBus'
 import { Event } from './EventBus'
@@ -120,19 +119,29 @@ class ServiceProxy implements IServiceProxy {
            scope?: string | null | undefined,
            eventFactory?: IEventFactory | null | undefined): Promise<any> {
         return tracer.startActiveSpan(
-            `${this.serviceIdentifier}.${methodIdentifier}`,
+            `${this.serviceIdentifier}/${methodIdentifier}`,
             async(span) => {
                 if (scope) {
                     span.setAttribute('continuum.scope', scope)
                 }
+                span.setAttribute('rpc.system', 'continuum')
+                span.setAttribute('rpc.method', methodIdentifier)
+                span.setAttribute('rpc.service', this.serviceIdentifier)
+
                 return this.__invokeStream(false, methodIdentifier, args, scope, eventFactory)
                            .pipe(first())
                            .toPromise()
-                           .then(pTap(() => span.end()))
-                           .catch(pTap.catch((ex) => {
-                               span.recordException(ex);
-                               span.setStatus({ code: SpanStatusCode.ERROR });
-                           }))
+                           .then(
+                               async (value) => {
+                                   span.end()
+                                   return value
+                               },
+                               async (ex) => {
+                                   span.recordException(ex)
+                                   span.setStatus({ code: SpanStatusCode.ERROR })
+                                   span.end()
+                                   throw ex
+                               })
             })
     }
 

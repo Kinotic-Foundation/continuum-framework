@@ -38,13 +38,9 @@ import org.springframework.stereotype.Component;
 @Accessors(chain = true)
 public class DefaultContinuumProperties implements ContinuumProperties {
 
-    public static String DEFAULT_KAFKA_BOOTSTRAP_SERVERS ="127.0.0.1:9092";
-    public static String DEFAULT_ZOOKEEPER_SERVERS ="127.0.0.1:2181";
     public static long DEFAULT_SESSION_TIMEOUT = 1000 * 60 * 30;
     public static String DEFAULT_DISCOVERY = "sharedfs";
 
-    private String kafkaBootstrapServers = DEFAULT_KAFKA_BOOTSTRAP_SERVERS;
-    private String zookeeperServers = DEFAULT_ZOOKEEPER_SERVERS;
     private boolean debug = false;
     private boolean disableClustering = false;
     private int eventBusClusterPort = 0;
@@ -69,8 +65,6 @@ public class DefaultContinuumProperties implements ContinuumProperties {
     @Override
     public String toString() {
         return new ToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE)
-                .append("kafkaBootstrapServers", kafkaBootstrapServers)
-                .append("zookeeperServers", zookeeperServers)
                 .append("debug", debug)
                 .append("disableClustering", disableClustering)
                 .append("sessionTimeout", sessionTimeout)

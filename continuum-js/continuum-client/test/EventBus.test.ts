@@ -1,9 +1,10 @@
-import {describe, expect, it, beforeAll, afterAll} from 'vitest'
-import {ConnectionInfo, Continuum, ConnectedInfo, IEvent, Event, EventConstants} from '../src'
-import {WebSocket} from 'ws'
-import {logFailure, validateConnectedInfo, initContinuumGateway} from './TestHelper'
+import './Instrumentation'
 import {StartedTestContainer} from 'testcontainers'
-import { v4 as uuidv4 } from 'uuid'
+import {v4 as uuidv4} from 'uuid'
+import {afterAll, beforeAll, describe, expect, it} from 'vitest'
+import {WebSocket} from 'ws'
+import {ConnectedInfo, Continuum, Event, EventConstants, IEvent} from '../src'
+import {initContinuumGateway, logFailure, validateConnectedInfo} from './TestHelper'
 
 // This is required when running Continuum from node
 Object.assign(global, { WebSocket})

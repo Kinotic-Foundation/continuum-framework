@@ -16,11 +16,19 @@
  */
 
 import {ContinuumContextStack} from '@/api/Continuum'
+import pTap from 'p-tap'
 import { IServiceProxy, IServiceRegistry, IEventFactory } from './IServiceRegistry'
 import { EventConstants, IEvent, IEventBus } from './IEventBus'
 import { Event } from './EventBus'
 import { Observable } from 'rxjs'
 import { first, map } from 'rxjs/operators'
+import opentelemetry, {SpanStatusCode} from '@opentelemetry/api'
+import info from '../../../package.json' assert { type: 'json' }
+
+const tracer = opentelemetry.trace.getTracer(
+    'continuum.client',
+    info.version
+)
 
 /**
  * An implementation of a {@link IEventFactory} which uses JSON content
@@ -78,7 +86,7 @@ export class ServiceRegistry implements IServiceRegistry {
     private readonly eventBus: IEventBus
 
     constructor(eventBus: IEventBus) {
-         this.eventBus = eventBus
+        this.eventBus = eventBus
     }
 
     public serviceProxy(serviceIdentifier: string): IServiceProxy {
@@ -99,7 +107,6 @@ class ServiceProxy implements IServiceProxy {
     public readonly serviceIdentifier: string
     private readonly eventBus: IEventBus
 
-
     constructor(serviceIdentifier: string, eventBus: IEventBus) {
         if ( typeof serviceIdentifier === 'undefined' || serviceIdentifier.length === 0 ) {
             throw new Error('The serviceIdentifier provided must contain a value')
@@ -108,12 +115,25 @@ class ServiceProxy implements IServiceProxy {
         this.eventBus = eventBus
     }
 
-
     invoke(methodIdentifier: string,
            args?: any[] | null | undefined,
            scope?: string | null | undefined,
            eventFactory?: IEventFactory | null | undefined): Promise<any> {
-        return this.__invokeStream(false, methodIdentifier, args, scope, eventFactory).pipe(first()).toPromise()
+        return tracer.startActiveSpan(
+            `${this.serviceIdentifier}.${methodIdentifier}`,
+            async(span) => {
+                if (scope) {
+                    span.setAttribute('continuum.scope', scope)
+                }
+                return this.__invokeStream(false, methodIdentifier, args, scope, eventFactory)
+                           .pipe(first())
+                           .toPromise()
+                           .then(pTap(() => span.end()))
+                           .catch(pTap.catch((ex) => {
+                               span.recordException(ex);
+                               span.setStatus({ code: SpanStatusCode.ERROR });
+                           }))
+            })
     }
 
     invokeStream(methodIdentifier: string,
@@ -145,22 +165,22 @@ class ServiceProxy implements IServiceProxy {
         let event: IEvent = eventFactoryToUse.create(cri, args)
 
         return eventBusToUse.requestStream(event, sendControlEvents)
-            .pipe(map<IEvent, any>((value: IEvent): any => {
+                            .pipe(map<IEvent, any>((value: IEvent): any => {
 
-                const contentType: string | undefined = value.getHeader(EventConstants.CONTENT_TYPE_HEADER)
+                                const contentType: string | undefined = value.getHeader(EventConstants.CONTENT_TYPE_HEADER)
 
-                if (contentType !== undefined) {
-                    if (contentType === 'application/json') {
-                        return JSON.parse(value.getDataString())
-                    } else if (contentType === 'text/plain') {
-                        return value.getDataString()
-                    } else {
-                        throw new Error('Content Type ' + contentType + ' is unknown')
-                    }
-                } else {
-                    return null
-                }
-        }))
+                                if (contentType !== undefined) {
+                                    if (contentType === 'application/json') {
+                                        return JSON.parse(value.getDataString())
+                                    } else if (contentType === 'text/plain') {
+                                        return value.getDataString()
+                                    } else {
+                                        throw new Error('Content Type ' + contentType + ' is unknown')
+                                    }
+                                } else {
+                                    return null
+                                }
+                            }))
     }
 }
 

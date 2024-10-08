@@ -1,9 +1,10 @@
-import {describe, expect, it, beforeAll, afterAll} from 'vitest'
-import {ConnectionInfo, Continuum, ConnectedInfo, ContinuumSingleton} from '../src'
-import {WebSocket} from 'ws'
-import {logFailure, validateConnectedInfo, initContinuumGateway} from './TestHelper'
-import {TEST_SERVICE} from './ITestService'
+import './Instrumentation'
 import {StartedTestContainer} from 'testcontainers'
+import {afterAll, beforeAll, describe, expect, it} from 'vitest'
+import {WebSocket} from 'ws'
+import {ConnectedInfo, Continuum, ContinuumSingleton} from '../src'
+import {TEST_SERVICE} from './ITestService'
+import {initContinuumGateway, logFailure, validateConnectedInfo} from './TestHelper'
 
 // This is required when running Continuum from node
 Object.assign(global, { WebSocket})

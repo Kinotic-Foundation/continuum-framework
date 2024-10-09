@@ -19,7 +19,7 @@ import { Optional } from 'typescript-optional'
 import { Observable } from 'rxjs'
 import {ConnectedInfo} from '@/api/security/ConnectedInfo'
 import {ContinuumError} from '@/api/errors/ContinuumError'
-import {ConnectionInfo} from '@/api/ConnectionInfo'
+import {ConnectionInfo, ServerInfo} from '@/api/ConnectionInfo'
 
 /**
  * Part of the low level portion of continuum representing data to be processed
@@ -48,6 +48,11 @@ export interface IEvent {
     data: Optional<Uint8Array>
 
     /**
+     * @return the data property as a UTF-8 encoded string
+     */
+    getDataString(): string
+
+    /**
      * Gets the value for the header with the given key
      * @param key to get the header value for
      * @return the header value or undefined if there is no header for the key
@@ -69,22 +74,17 @@ export interface IEvent {
     removeHeader(key: string): boolean
 
     /**
-     * Sets the header into the headers map
-     * @param key the key to use
-     * @param value the value to use
-     */
-    setHeader(key: string, value: string): void
-
-    /**
      * Sets the data property from the given string value
      * @param data
      */
     setDataString(data: string): void
 
     /**
-     * @return the data property as a UTF-8 encoded string
+     * Sets the header into the headers map
+     * @param key the key to use
+     * @param value the value to use
      */
-    getDataString(): string
+    setHeader(key: string, value: string): void
 
 }
 
@@ -101,6 +101,11 @@ export interface IEventBus {
      * You will need to resolve the problem and reconnect.
      */
     fatalErrors: Observable<ContinuumError>
+
+    /**
+     * The {@link ServerInfo} used when connecting, if connected or null
+     */
+    serverInfo: ServerInfo | null
 
     /**
      * Requests a connection to the given Stomp url
@@ -121,6 +126,13 @@ export interface IEventBus {
     disconnect(force?: boolean): Promise<void>
 
     /**
+     * Determines if the connection is connected.
+     * This means that there is an open connection to the Continuum server
+     * @return true if the connection is active false if not
+     */
+    isConnected(): boolean
+
+    /**
      * Determines if the connection is active.
      * This means {@link IEventBus#connect()} was called and was successful. The underlying connection may not be established yet.
      * If this is true and {@link IEventBus#isConnected} is false messages sent will be queued
@@ -129,17 +141,10 @@ export interface IEventBus {
     isConnectionActive(): boolean
 
     /**
-     * Determines if the connection is connected.
-     * This means that there is an open connection to the Continuum server
-     * @return true if the connection is active false if not
+     * Creates a subscription for all {@link IEvent}'s for the given destination
+     * @param cri to subscribe to
      */
-    isConnected(): boolean
-
-    /**
-     * Send a single {@link IEvent} to the connected server
-     * @param event to send
-     */
-    send(event: IEvent): void
+    observe(cri: string): Observable<IEvent>
 
     /**
      * Sends an {@link IEvent} expecting a response
@@ -155,19 +160,21 @@ export interface IEventBus {
      * @param event to send as the request
      * @param sendControlEvents if true then control events will be sent to the server when changes to the returned to Observable are requested
      * @return an {@link Observable<IEvent} that will provide the response stream
+     * NOTE: the naming here is similar to RSocket https://www.baeldung.com/rsocket#3-requeststream
      */
     requestStream(event: IEvent, sendControlEvents: boolean): Observable<IEvent>
 
     /**
-     * Creates a subscription for all {@link IEvent}'s for the given destination
-     * @param cri to subscribe to
+     * Send a single {@link IEvent} to the connected server
+     * @param event to send
      */
-    observe(cri: string): Observable<IEvent>
+    send(event: IEvent): void
 
 }
 
 /**
  * Constants used within {@link IEvent}'s to control the flow of events
+ * Header that start with __ will always be persisted between messages
  */
 export enum EventConstants {
     CONTENT_TYPE_HEADER = 'content-type',
@@ -175,12 +182,12 @@ export enum EventConstants {
     REPLY_TO_HEADER = 'reply-to',
 
     /**
-     * Header provided by the sever on connection to represent the users session id
+     * Header provided by the sever on connection to represent the user's session id
      */
     SESSION_HEADER = 'session',
 
     /**
-     * Header provided by the server on connection to provide the {@link ConnectionInfo} as a json string
+     * Header provided by the server on connection to provide the {@link ConnectionInfo} as a JSON string
      */
     CONNECTED_INFO_HEADER = 'connected-info',
 
@@ -206,7 +213,7 @@ export enum EventConstants {
     CONTROL_HEADER = 'control',
 
     /**
-     * Stream is complete no further values will be sent.
+     * Stream is complete, no further values will be sent.
      */
     CONTROL_VALUE_COMPLETE = 'complete',
 
@@ -220,5 +227,22 @@ export enum EventConstants {
     STREAM_DESTINATION_PREFIX =  'stream://',
 
     CONTENT_JSON = 'application/json',
-    CONTENT_TEXT = 'text/plain'
+    CONTENT_TEXT = 'text/plain',
+
+    /**
+     * The traceparent HTTP header field identifies the incoming request in a tracing system. It has four fields:
+     *
+     *     version
+     *     trace-id
+     *     parent-id
+     *     trace-flags
+     * @see https://www.w3.org/TR/trace-context/#traceparent-header
+     */
+    TRACEPARENT_HEADER = 'traceparent',
+
+    /**
+     * The main purpose of the tracestate header is to provide additional vendor-specific trace identification information across different distributed tracing systems and is a companion header for the traceparent field. It also conveys information about the request’s position in multiple distributed tracing graphs.
+     * @see https://www.w3.org/TR/trace-context/#tracestate-header
+     */
+    TRACESTATE_HEADER = 'tracestate'
 }

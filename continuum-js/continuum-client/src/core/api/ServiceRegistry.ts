@@ -16,13 +16,20 @@
  */
 
 import {ContinuumContextStack} from '@/api/Continuum'
-import { IServiceProxy, IServiceRegistry, IEventFactory } from './IServiceRegistry'
-import { EventConstants, IEvent, IEventBus } from './IEventBus'
-import { Event } from './EventBus'
-import { Observable } from 'rxjs'
-import { first, map } from 'rxjs/operators'
-import opentelemetry, {SpanStatusCode} from '@opentelemetry/api'
-import info from '../../../package.json' assert { type: 'json' }
+import opentelemetry, {SpanKind, SpanStatusCode} from '@opentelemetry/api'
+import {
+    ATTR_SERVER_ADDRESS,
+    ATTR_SERVER_PORT,
+    ATTR_RPC_METHOD,
+    ATTR_RPC_SERVICE,
+    ATTR_RPC_SYSTEM
+} from '@opentelemetry/semantic-conventions/incubating'
+import {Observable} from 'rxjs'
+import {first, map} from 'rxjs/operators'
+import info from '../../../package.json' assert {type: 'json'}
+import {Event} from './EventBus'
+import {EventConstants, IEvent, IEventBus} from './IEventBus'
+import {IEventFactory, IServiceProxy, IServiceRegistry} from './IServiceRegistry'
 
 const tracer = opentelemetry.trace.getTracer(
     'continuum.client',
@@ -120,13 +127,16 @@ class ServiceProxy implements IServiceProxy {
            eventFactory?: IEventFactory | null | undefined): Promise<any> {
         return tracer.startActiveSpan(
             `${this.serviceIdentifier}/${methodIdentifier}`,
+            {
+                kind: SpanKind.CLIENT
+            },
             async(span) => {
                 if (scope) {
                     span.setAttribute('continuum.scope', scope)
                 }
-                span.setAttribute('rpc.system', 'continuum')
-                span.setAttribute('rpc.method', methodIdentifier)
-                span.setAttribute('rpc.service', this.serviceIdentifier)
+                span.setAttribute(ATTR_RPC_SYSTEM, 'continuum')
+                span.setAttribute(ATTR_RPC_SERVICE, this.serviceIdentifier)
+                span.setAttribute(ATTR_RPC_METHOD, methodIdentifier)
 
                 return this.__invokeStream(false, methodIdentifier, args, scope, eventFactory)
                            .pipe(first())
@@ -169,6 +179,13 @@ class ServiceProxy implements IServiceProxy {
         let eventBusToUse = this.eventBus
         if(ContinuumContextStack.getContinuumInstance()){
             eventBusToUse = ContinuumContextStack.getContinuumInstance()!.eventBus
+        }
+
+        // store additional attribute if there is an active span
+        const span = opentelemetry.trace.getActiveSpan()
+        if(span){
+            span.setAttribute(ATTR_SERVER_ADDRESS, eventBusToUse.serverInfo?.host || 'unknown')
+            span.setAttribute(ATTR_SERVER_PORT, eventBusToUse.serverInfo?.port || 'unknown')
         }
 
         let event: IEvent = eventFactoryToUse.create(cri, args)

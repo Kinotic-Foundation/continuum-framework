@@ -14,9 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import {ContinuumContextStack} from '@/api/Continuum'
-import opentelemetry, {SpanKind, SpanStatusCode} from '@opentelemetry/api'
+import opentelemetry, {SpanKind, SpanStatusCode, Tracer} from '@opentelemetry/api'
 import {
     ATTR_SERVER_ADDRESS,
     ATTR_SERVER_PORT,
@@ -30,11 +29,6 @@ import info from '../../../package.json' assert {type: 'json'}
 import {Event} from './EventBus'
 import {EventConstants, IEvent, IEventBus} from './IEventBus'
 import {IEventFactory, IServiceProxy, IServiceRegistry} from './IServiceRegistry'
-
-const tracer = opentelemetry.trace.getTracer(
-    'continuum.client',
-    info.version
-)
 
 /**
  * An implementation of a {@link IEventFactory} which uses JSON content
@@ -112,6 +106,7 @@ class ServiceProxy implements IServiceProxy {
 
     public readonly serviceIdentifier: string
     private readonly eventBus: IEventBus
+    private tracer: Tracer
 
     constructor(serviceIdentifier: string, eventBus: IEventBus) {
         if ( typeof serviceIdentifier === 'undefined' || serviceIdentifier.length === 0 ) {
@@ -119,13 +114,17 @@ class ServiceProxy implements IServiceProxy {
         }
         this.serviceIdentifier = serviceIdentifier
         this.eventBus = eventBus
+        this.tracer = opentelemetry.trace.getTracer(
+            'continuum.client',
+            info.version
+        )
     }
 
     invoke(methodIdentifier: string,
            args?: any[] | null | undefined,
            scope?: string | null | undefined,
            eventFactory?: IEventFactory | null | undefined): Promise<any> {
-        return tracer.startActiveSpan(
+        return this.tracer.startActiveSpan(
             `${this.serviceIdentifier}/${methodIdentifier}`,
             {
                 kind: SpanKind.CLIENT

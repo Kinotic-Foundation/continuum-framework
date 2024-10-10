@@ -62,7 +62,7 @@ public class EventConstants {
     public static final String CONTROL_HEADER = "control";
 
     /**
-     * Stream is complete no further values will be sent.
+     * Stream is complete, no further values will be sent.
      */
     public static final String CONTROL_VALUE_COMPLETE = "complete";
 
@@ -87,5 +87,22 @@ public class EventConstants {
      * Event data format that can be used for raw UTF-8 data
      */
     public static final byte RAW_EVENT_FORMAT_UTF8 = 0x02;
+
+    /**
+     * The traceparent HTTP header field identifies the incoming request in a tracing system. It has four fields:
+     *
+     *     version
+     *     trace-id
+     *     parent-id
+     *     trace-flags
+     * @see <a href="https://www.w3.org/TR/trace-context/#traceparent-header">Traceparent Header Docs</a>
+     */
+    public static final String TRACEPARENT_HEADER = "traceparent";
+
+    /**
+     * The main purpose of the tracestate header is to provide additional vendor-specific trace identification information across different distributed tracing systems and is a companion header for the traceparent field. It also conveys information about the request’s position in multiple distributed tracing graphs.
+     * @see <a href="https://www.w3.org/TR/trace-context/#tracestate-header">Tracestate Header Docs</a>
+     */
+    public static final String TRACESTATE_HEADER = "tracestate";
 
 }

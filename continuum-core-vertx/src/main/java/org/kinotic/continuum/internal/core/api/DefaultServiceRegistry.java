@@ -17,6 +17,7 @@
 
 package org.kinotic.continuum.internal.core.api;
 
+import io.opentelemetry.api.OpenTelemetry;
 import org.kinotic.continuum.api.Continuum;
 import org.kinotic.continuum.api.annotations.Proxy;
 import org.kinotic.continuum.core.api.RpcServiceProxyHandle;
@@ -77,6 +78,8 @@ public class DefaultServiceRegistry implements ServiceRegistry {
     private RpcReturnValueHandlerFactory rpcReturnValueHandlerFactory;
     @Autowired
     private Vertx vertx; //TODO: move thread scheduling and execution functionality into Continuum API such as Scheduling Service ect..
+    @Autowired
+    private OpenTelemetry openTelemetry;
 
     @Override
     public Mono<Void> register(ServiceIdentifier serviceIdentifier, Class<?> serviceInterface, Object instance) {
@@ -101,7 +104,8 @@ public class DefaultServiceRegistry implements ServiceRegistry {
                                                                            exceptionConverter,
                                                                            eventBusService,
                                                                            reactiveAdapterRegistry,
-                                                                           vertx);
+                                                                           vertx,
+                                                                           openTelemetry);
 
                                                                    serviceInvocationSupervisor
                                                                            .start()

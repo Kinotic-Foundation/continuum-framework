@@ -91,7 +91,7 @@ public class EventUtil {
      * @param incomingMetadata the original {@link Metadata} sent to the {@link ServiceInvocationSupervisor}
      * @param headers key value pairs that will be added to the outgoing headers
      * @param bodySupplier that will provide the bytes needed for the message body.
-     *                     A supplier is used so all validation can occur prior to doing the work of creating the body bytes..
+     *                     A supplier is used so all validations can occur before doing the work of creating the body bytes.
      * @return the {@link Event} to send
      */
     public static Event<byte[]> createReplyEvent(Metadata incomingMetadata, Map<String, String> headers, Supplier<byte[]> bodySupplier){

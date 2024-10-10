@@ -17,6 +17,7 @@ repositories {
 dependencyManagement {
     imports {
         mavenBom "org.springframework.boot:spring-boot-dependencies:${springBootVersion}"
+        mavenBom "io.opentelemetry:opentelemetry-bom:${otelBomVersion}"
     }
     dependencies {
         dependency "ch.qos.logback:logback-core:${logbackVersion}"
@@ -41,6 +42,8 @@ dependencyManagement {
         dependency "io.netty:netty-resolver-dns:${nettyVersion}"
         dependency "io.netty:netty-resolver:${nettyVersion}"
         dependency "io.netty:netty-transport:${nettyVersion}"
+
+        dependency "io.opentelemetry.instrumentation:opentelemetry-instrumentation-annotations:${otelAnnotationsVersion}"
 
         dependency "io.vertx:vertx-core:${vertxVersion}"
         dependency "io.vertx:vertx-web:${vertxVersion}"
@@ -81,13 +84,16 @@ dependencyManagement {
 
 dependencies {
 
-    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 
-    implementation "org.apache.commons:commons-lang3"
-    implementation "org.apache.commons:commons-text"
+    implementation 'org.apache.commons:commons-lang3'
+    implementation 'org.apache.commons:commons-text'
 
-    implementation "ch.qos.logback:logback-core"
-    implementation "ch.qos.logback:logback-classic"
+    implementation 'ch.qos.logback:logback-core'
+    implementation 'ch.qos.logback:logback-classic'
+
+    implementation 'io.opentelemetry.instrumentation:opentelemetry-instrumentation-annotations'
+    implementation 'io.opentelemetry:opentelemetry-api'
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api'
     testImplementation 'org.junit.jupiter:junit-jupiter-engine'
@@ -95,5 +101,5 @@ dependencies {
 
 test {
     useJUnitPlatform()
-    environment("JAVA_TOOL_OPTIONS", "--add-opens=jdk.management/com.sun.management.internal=ALL-UNNAMED --add-opens=java.base/jdk.internal.misc=ALL-UNNAMED --add-opens=java.base/sun.nio.ch=ALL-UNNAMED --add-opens=java.management/com.sun.jmx.mbeanserver=ALL-UNNAMED --add-opens=jdk.internal.jvmstat/sun.jvmstat.monitor=ALL-UNNAMED --add-opens=java.base/sun.reflect.generics.reflectiveObjects=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-opens=java.base/java.nio=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED")
+    environment('JAVA_TOOL_OPTIONS', '--add-opens=jdk.management/com.sun.management.internal=ALL-UNNAMED --add-opens=java.base/jdk.internal.misc=ALL-UNNAMED --add-opens=java.base/sun.nio.ch=ALL-UNNAMED --add-opens=java.management/com.sun.jmx.mbeanserver=ALL-UNNAMED --add-opens=jdk.internal.jvmstat/sun.jvmstat.monitor=ALL-UNNAMED --add-opens=java.base/sun.reflect.generics.reflectiveObjects=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-opens=java.base/java.nio=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED')
 }

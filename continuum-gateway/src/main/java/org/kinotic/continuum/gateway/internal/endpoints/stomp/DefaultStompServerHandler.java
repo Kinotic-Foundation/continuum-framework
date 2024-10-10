@@ -20,6 +20,7 @@ package org.kinotic.continuum.gateway.internal.endpoints.stomp;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
+import io.vertx.core.impl.ContextInternal;
 import io.vertx.ext.stomp.lite.StompServerConnection;
 import io.vertx.ext.stomp.lite.StompServerHandler;
 import io.vertx.ext.stomp.lite.frame.Frame;
@@ -70,9 +71,7 @@ public class DefaultStompServerHandler implements StompServerHandler {
         // We pause the client to effectively make all client requests block until the previous request is handled asynchronously
         connection.pause();
 
-        if(log.isTraceEnabled()) {
-            log.trace("Frame received\n" + frame.toString());
-        }
+        log.trace("Send Frame received\n{}", frame.toString());
 
         Event<byte[]> incomingEvent = new FrameEventAdapter(frame);
 
@@ -88,9 +87,7 @@ public class DefaultStompServerHandler implements StompServerHandler {
 
     @Override
     public void subscribe(Frame frame) {
-        if(log.isTraceEnabled()) {
-            log.trace("Frame received\n" + frame.toString());
-        }
+        log.trace("Subscribe Frame received\n{}", frame.toString());
 
         try {
 
@@ -110,9 +107,7 @@ public class DefaultStompServerHandler implements StompServerHandler {
 
     @Override
     public void unsubscribe(Frame frame) {
-        if(log.isTraceEnabled()) {
-            log.trace("Frame received\n" + frame.toString());
-        }
+        log.trace("Unsubscribe Frame received\n{}", frame.toString());
 
         try {
             String subscriptionId = frame.getHeader(Frame.ID);

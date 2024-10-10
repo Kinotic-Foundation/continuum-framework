@@ -26,6 +26,7 @@ import { v4 as uuidv4 } from 'uuid'
 import {ConnectedInfo} from '@/api/security/ConnectedInfo'
 import {ContinuumError} from '@/api/errors/ContinuumError'
 import {ConnectionInfo, ServerInfo} from '@/api/ConnectionInfo'
+import { context, propagation } from '@opentelemetry/api';
 
 /**
  * Default IEvent implementation
@@ -77,6 +78,11 @@ export class Event implements IEvent {
         this.data.ifPresent(( value ) => ret = new TextDecoder().decode(value))
         return ret
     }
+}
+
+interface Carrier {
+    traceparent?: string;
+    tracestate?: string;
 }
 
 /**
@@ -151,6 +157,15 @@ export class EventBus implements IEventBus {
 
             for (const [key, value] of event.headers.entries()) {
                 headers[key] = value
+            }
+
+            const carrier: Carrier = {}
+            propagation.inject(context.active(), carrier)
+            if(carrier.traceparent){
+                headers[EventConstants.TRACEPARENT_HEADER] = carrier.traceparent
+            }
+            if(carrier.tracestate){
+                headers[EventConstants.TRACESTATE_HEADER] = carrier.tracestate
             }
 
             // send data over stomp

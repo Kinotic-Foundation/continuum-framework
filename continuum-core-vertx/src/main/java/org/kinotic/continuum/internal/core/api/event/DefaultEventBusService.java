@@ -17,13 +17,6 @@
 
 package org.kinotic.continuum.internal.core.api.event;
 
-import org.kinotic.continuum.core.api.event.Event;
-import org.kinotic.continuum.core.api.event.EventBusService;
-import org.kinotic.continuum.core.api.event.EventConstants;
-import org.kinotic.continuum.core.api.event.ListenerStatus;
-import org.kinotic.continuum.internal.utils.IgniteUtil;
-import org.kinotic.continuum.internal.core.api.aignite.SubscriptionInfoCacheEntryEventFilter;
-import org.kinotic.continuum.internal.core.api.aignite.SubscriptionInfoCacheEntryListener;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Context;
 import io.vertx.core.Handler;
@@ -31,12 +24,19 @@ import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.eventbus.MessageConsumer;
-import io.vertx.core.eventbus.impl.clustered.ClusterNodeInfo;
+import io.vertx.spi.cluster.ignite.impl.IgniteNodeInfo;
 import org.apache.commons.lang3.Validate;
 import org.apache.ignite.Ignite;
 import org.apache.ignite.IgniteCache;
 import org.apache.ignite.lang.IgniteFuture;
 import org.apache.ignite.lang.IgniteInClosure;
+import org.kinotic.continuum.core.api.event.Event;
+import org.kinotic.continuum.core.api.event.EventBusService;
+import org.kinotic.continuum.core.api.event.EventConstants;
+import org.kinotic.continuum.core.api.event.ListenerStatus;
+import org.kinotic.continuum.internal.core.api.aignite.SubscriptionInfoCacheEntryEventFilter;
+import org.kinotic.continuum.internal.core.api.aignite.SubscriptionInfoCacheEntryListener;
+import org.kinotic.continuum.internal.utils.IgniteUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,7 +71,7 @@ public class DefaultEventBusService implements EventBusService {
     private Ignite ignite;
     private Scheduler scheduler;
     // This is the cache used by the IgniteVertxCluster manager to track subscriptions
-    private IgniteCache<String, Set<ClusterNodeInfo>> subscriptionsCache;
+    private IgniteCache<String, Set<IgniteNodeInfo>> subscriptionsCache;
     @Autowired
     private Vertx vertx;
 
@@ -120,15 +120,15 @@ public class DefaultEventBusService implements EventBusService {
 
             Context vertxContext = vertx.getOrCreateContext();
 
-            IgniteCache<String, Set<ClusterNodeInfo>> cache = ignite.cache("__vertx.subs");
+            IgniteCache<String, Set<IgniteNodeInfo>> cache = ignite.cache("__vertx.subs");
 
-            Factory<? extends CacheEntryListener<String, Set<ClusterNodeInfo>>> listenerFactory =
+            Factory<? extends CacheEntryListener<String, Set<IgniteNodeInfo>>> listenerFactory =
                     FactoryBuilder.factoryOf(new SubscriptionInfoCacheEntryListener(sink, vertxContext));
 
-            Factory<? extends CacheEntryEventFilter<String, Set<ClusterNodeInfo>>> filterFactory =
+            Factory<? extends CacheEntryEventFilter<String, Set<IgniteNodeInfo>>> filterFactory =
                     FactoryBuilder.factoryOf(new SubscriptionInfoCacheEntryEventFilter(cri));
 
-            MutableCacheEntryListenerConfiguration<String, Set<ClusterNodeInfo>> cacheEntryListenerConfiguration =
+            MutableCacheEntryListenerConfiguration<String, Set<IgniteNodeInfo>> cacheEntryListenerConfiguration =
                     new MutableCacheEntryListenerConfiguration<>(listenerFactory, filterFactory, false, false);
 
             sink.onDispose(() -> {
@@ -141,7 +141,7 @@ public class DefaultEventBusService implements EventBusService {
             cache.registerCacheEntryListener(cacheEntryListenerConfiguration);
 
             AtomicInteger excessCount = new AtomicInteger(0);
-            cache.getAsync(cri).listen((IgniteInClosure<IgniteFuture<Set<ClusterNodeInfo>>>) setIgniteFuture -> {
+            cache.getAsync(cri).listen((IgniteInClosure<IgniteFuture<Set<IgniteNodeInfo>>>) setIgniteFuture -> {
                 if(sink.isCancelled()){
                     if(excessCount.incrementAndGet() > 4) { // we only send after a couple since there is a possible delay between cancellation and stopping
                         log.error("Sink is canceled but cache listener still sending data for cri: " + cri);

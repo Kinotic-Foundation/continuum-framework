@@ -55,7 +55,6 @@ dependencyManagement {
         dependency "io.vertx:vertx-web-graphql:${vertxVersion}"
         dependency "io.vertx:vertx-health-check:${vertxVersion}"
         dependency "com.github.rworsnop:vertx-beans:${vertxBeansVersion}"
-        dependency "me.escoffier.vertx:vertx-completable-future:${vertxCompletableFutureVersion}"
 
         dependency "javax.annotation:javax.annotation-api:${javaxAnnotationApi}"
         dependency "javax.cache:cache-api:${jCacheApiVersion}"

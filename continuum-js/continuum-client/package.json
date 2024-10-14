@@ -1,12 +1,12 @@
 {
   "name": "@kinotic/continuum-client",
-  "version": "2.10.4",
+  "version": "2.10.5",
   "author": "Kinotic Foundation <develop@kinotic.org>",
   "license": "MIT",
   "type": "module",
   "main": "./dist/continuum.umd.cjs",
   "module": "./dist/continuum.js",
-  "types": "./dist/index.d.ts",
+  "types": "./dist/src/index.d.ts",
   "exports": {
     ".": {
       "import": "./dist/continuum.js",

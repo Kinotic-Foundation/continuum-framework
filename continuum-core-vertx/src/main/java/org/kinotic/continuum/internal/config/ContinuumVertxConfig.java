@@ -58,12 +58,10 @@ public class ContinuumVertxConfig {
     public EventBusOptions eventBusOptions(ContinuumProperties properties){
         EventBusOptions ret = new EventBusOptions();
         ret.setPort(properties.getEventBusClusterPort());
-        ret.setClustered(true); // This setting must be set again because in this scenario the setting below is overridden by the EventBusOptions here
-                                // Eventually we should create our own impl of VertxBeans
 
         for(String ip : U.allLocalIps()){
             if(!ip.startsWith("169.254")){ // avoid binding to AWS internal net
-                log.info("Setting vertx Cluster host to "+ip);
+                log.info("Setting vertx Cluster host to {}", ip);
                 ret.setHost(ip);
                 break;
             }

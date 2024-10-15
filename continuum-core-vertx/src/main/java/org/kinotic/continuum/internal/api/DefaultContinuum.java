@@ -16,10 +16,7 @@
  */
 
 package org.kinotic.continuum.internal.api;
-
-import io.vertx.core.Future;
-import io.vertx.core.Promise;
-import io.vertx.core.Vertx;
+import io.vertx.core.*;
 import io.vertx.core.spi.cluster.ClusterManager;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.text.WordUtils;
@@ -60,7 +57,6 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-;
 
 /**
  * Provides information about the Continuum process and handles controlled shutdown of Vertx and Ignite.
@@ -90,8 +86,8 @@ public class DefaultContinuum implements Continuum {
 
         try (Stream<String> fileStream = new BufferedReader(new InputStreamReader(resourceLoader.getResource("classpath:adjectives.txt").getInputStream())).lines()) {
             nodeName = fileStream.skip(ContinuumUtil.getRandomNumberInRange(ADJECTIVE_COUNT))
-                             .findFirst()
-                             .orElse("");
+                                 .findFirst()
+                                 .orElse("");
         }
 
         try (Stream<String> fileStream = new BufferedReader(new InputStreamReader(resourceLoader.getResource("classpath:animals.txt").getInputStream())).lines()) {
@@ -102,13 +98,13 @@ public class DefaultContinuum implements Continuum {
         }
         this.vertx = vertx;
         this.continuumProperties = continuumProperties;
-        String nodeId = (clusterManager != null  ?  clusterManager.getNodeID() : UUID.randomUUID().toString());
+        String nodeId = (clusterManager != null  ?  clusterManager.getNodeId() : UUID.randomUUID().toString());
         this.serverInfo = new ServerInfo(nodeId, nodeName);
 
         // find Continuum application name
         List<String> packages = ContinuumPackages.get(applicationContext);
         MetadataReader[] readers = MetaUtil.findClassesWithAnnotation(applicationContext, packages, EnableContinuum.class)
-                                              .toArray(new MetadataReader[0]);
+                                           .toArray(new MetadataReader[0]);
 
         MetadataReader readerToUse = null;
         for(MetadataReader reader : readers) {
@@ -120,7 +116,7 @@ public class DefaultContinuum implements Continuum {
 
         if(readerToUse != null){
             Map<String, Object> annotationAttributes = readerToUse.getAnnotationMetadata()
-                                                             .getAnnotationAttributes(EnableContinuum.class.getName());
+                                                                  .getAnnotationAttributes(EnableContinuum.class.getName());
             if(annotationAttributes != null){
                 applicationName = (String) annotationAttributes.get("name");
                 applicationVersion = (String) annotationAttributes.get("version");
@@ -138,14 +134,15 @@ public class DefaultContinuum implements Continuum {
                                                                                                 (Supplier<Future<?>>) Future::succeededFuture),
                                                      source -> {
                                                          Future<?> future = (Future<?>) source;
-                                                         return Mono.create(monoSink -> future.setHandler(
-                                                                 event -> {
-                                                                     if(event.succeeded()){
-                                                                         monoSink.success(event.result());
-                                                                     }else{
-                                                                         monoSink.error(event.cause());
-                                                                     }
-                                                                 }));
+                                                         return Mono.create(monoSink -> {
+                                                             future.onComplete(event -> {
+                                                                 if (event.succeeded()) {
+                                                                     monoSink.success(event.result());
+                                                                 } else {
+                                                                     monoSink.error(event.cause());
+                                                                 }
+                                                             });
+                                                         });
                                                      },
                                                      publisher -> Future.future(promise -> Mono.from(publisher)
                                                                                                .doOnSuccess((Consumer<Object>) o -> {

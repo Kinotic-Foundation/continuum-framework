@@ -93,7 +93,7 @@ public class IterableEventLooper<T> implements SuspendableObserver<T> , Closeabl
 
     private synchronized void closeIfAutoCloseable(){
         if(iterable instanceof AutoCloseable){
-            creatingContext.executeBlocking((Handler<Promise<Void>>) event -> {
+            creatingContext.executeBlocking(() -> {
                 try {
                     if(iterable != null) {
                         ((AutoCloseable) iterable).close();
@@ -102,7 +102,8 @@ public class IterableEventLooper<T> implements SuspendableObserver<T> , Closeabl
                 } catch (Exception e2) {
                     log.error("AutoCloseable Iterable threw error during close",e2);
                 }
-            },null);
+                return null;
+            });
         }
     }
 
@@ -195,7 +196,7 @@ public class IterableEventLooper<T> implements SuspendableObserver<T> , Closeabl
     }
 
     @Override
-    public void close(Handler<AsyncResult<Void>> compHandler) {
+    public void close(Promise<Void> completion) {
         if(cursorIterator != null){
             cursorIterator.close();
         }
@@ -203,9 +204,9 @@ public class IterableEventLooper<T> implements SuspendableObserver<T> , Closeabl
         // handles any context closing to ensure iterable is closed as well
         closeIfAutoCloseable();
 
-        if (compHandler != null) {
+        if (completion != null) {
             Context context = vertx.getOrCreateContext();
-            context.runOnContext(v -> compHandler.handle(Future.succeededFuture()));
+            context.runOnContext(v -> completion.handle(Future.succeededFuture()));
         }
 
         if (creatingContext != null) {

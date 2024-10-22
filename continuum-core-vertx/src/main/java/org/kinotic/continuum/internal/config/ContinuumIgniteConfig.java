@@ -33,6 +33,7 @@ import org.apache.ignite.spi.discovery.tcp.ipfinder.multicast.TcpDiscoveryMultic
 import org.apache.ignite.spi.discovery.tcp.ipfinder.sharedfs.TcpDiscoverySharedFsIpFinder;
 import org.kinotic.continuum.api.config.ContinuumProperties;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -64,7 +65,7 @@ public class ContinuumIgniteConfig {
     @Autowired(required = false)
     private List<DataRegionConfiguration> dataRegions;
 
-
+    @ConditionalOnMissingBean
     @Bean
     public DiscoverySpi tcpDiscoverySpi() {
         DiscoverySpi ret;

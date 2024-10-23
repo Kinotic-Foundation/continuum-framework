@@ -1,7 +1,6 @@
 rootProject.name = 'continuum-framework'
 
-include(
-        'continuum-platform',
+include('continuum-cloud',
         'continuum-core',
         'continuum-core-vertx',
         'continuum-gateway',

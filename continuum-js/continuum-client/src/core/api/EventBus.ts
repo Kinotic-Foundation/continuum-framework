@@ -25,7 +25,8 @@ import { Optional } from 'typescript-optional'
 import { v4 as uuidv4 } from 'uuid'
 import {ConnectedInfo} from '@/api/security/ConnectedInfo'
 import {ContinuumError} from '@/api/errors/ContinuumError'
-import {ConnectionInfo} from '@/api/ConnectionInfo'
+import {ConnectionInfo, ServerInfo} from '@/api/ConnectionInfo'
+import { context, propagation } from '@opentelemetry/api';
 
 /**
  * Default IEvent implementation
@@ -79,12 +80,18 @@ export class Event implements IEvent {
     }
 }
 
+interface Carrier {
+    traceparent?: string;
+    tracestate?: string;
+}
+
 /**
  * Default implementation of {@link IEventBus}
  */
 export class EventBus implements IEventBus {
 
     public fatalErrors: Observable<Error>
+    public serverInfo: ServerInfo | null = null
     private stompConnectionManager: StompConnectionManager = new StompConnectionManager()
     private replyToCri: string  | null = null
     private requestRepliesObservable: ConnectableObservable<IEvent> | null = null
@@ -118,9 +125,14 @@ export class EventBus implements IEventBus {
         if(!this.stompConnectionManager.active){
 
             // reset state in case connection ended due to max connection attempts
-            this.cleanupObservables()
+            this.cleanup()
 
             const connectedInfo = await this.stompConnectionManager.activate(connectionInfo)
+            // manually copy so we don't store any sensitive info
+            this.serverInfo = new ServerInfo()
+            this.serverInfo.host = connectionInfo.host
+            this.serverInfo.port = connectionInfo.port
+            this.serverInfo.useSSL = connectionInfo.useSSL
 
             // FIXME: a reply should not need a reply, therefore a replyCri probably should not be a EventConstants.SERVICE_DESTINATION_PREFIX
             this.replyToCri = EventConstants.SERVICE_DESTINATION_PREFIX + connectedInfo.replyToId + ':' + uuidv4() + '@continuum.js.EventBus/replyHandler'
@@ -134,7 +146,7 @@ export class EventBus implements IEventBus {
     }
 
     public async disconnect(force?: boolean): Promise<void> {
-        this.cleanupObservables()
+        this.cleanup()
 
         return this.stompConnectionManager.deactivate(force)
     }
@@ -145,6 +157,15 @@ export class EventBus implements IEventBus {
 
             for (const [key, value] of event.headers.entries()) {
                 headers[key] = value
+            }
+
+            const carrier: Carrier = {}
+            propagation.inject(context.active(), carrier)
+            if(carrier.traceparent){
+                headers[EventConstants.TRACEPARENT_HEADER] = carrier.traceparent
+            }
+            if(carrier.tracestate){
+                headers[EventConstants.TRACESTATE_HEADER] = carrier.tracestate
             }
 
             // send data over stomp
@@ -234,7 +255,7 @@ export class EventBus implements IEventBus {
        return this._observe(cri)
     }
 
-    private cleanupObservables(): void{
+    private cleanup(): void{
         if (this.requestRepliesObservable != null) {
             if (this.requestRepliesSubscription != null) {
                 this.requestRepliesSubscription.unsubscribe()
@@ -247,6 +268,8 @@ export class EventBus implements IEventBus {
             this.errorSubjectSubscription.unsubscribe()
             this.errorSubjectSubscription = null
         }
+
+        this.serverInfo = null
     }
 
     /**

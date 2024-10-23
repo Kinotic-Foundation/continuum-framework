@@ -1,6 +1,6 @@
 {
   "name": "@kinotic/continuum-client",
-  "version": "2.10.3",
+  "version": "2.10.4",
   "author": "Kinotic Foundation <develop@kinotic.org>",
   "license": "MIT",
   "type": "module",
@@ -23,8 +23,12 @@
     "ui-test": "vitest --ui --coverage.enabled=true"
   },
   "devDependencies": {
+    "@opentelemetry/sdk-metrics": "^1.26.0",
+    "@opentelemetry/sdk-node": "^0.53.0",
+    "@opentelemetry/sdk-trace-node": "^1.26.0",
     "@types/node": "^20.11.27",
     "@types/uuid": "^9.0.1",
+    "@types/ws": "^8.5.12",
     "@vitest/coverage-v8": "^1.4.0",
     "@vitest/ui": "^1.3.1",
     "testcontainers": "^9.9.1",
@@ -36,9 +40,13 @@
     "ws": "^8.16.0"
   },
   "dependencies": {
+    "@opentelemetry/api": "^1.9.0",
+    "@opentelemetry/resources": "^1.26.0",
+    "@opentelemetry/semantic-conventions": "^1.27.0",
     "@stomp/rx-stomp": "^2.0.0",
     "@stomp/stompjs": "^7.0.0",
     "elliptic": "^6.5.4",
+    "p-tap": "^4.0.0",
     "rxjs": "^7.8.1",
     "typescript-optional": "3.0.0-alpha.3",
     "uuid": "^9.0.0"

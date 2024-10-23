@@ -14,13 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import {ContinuumContextStack} from '@/api/Continuum'
-import { IServiceProxy, IServiceRegistry, IEventFactory } from './IServiceRegistry'
-import { EventConstants, IEvent, IEventBus } from './IEventBus'
-import { Event } from './EventBus'
-import { Observable } from 'rxjs'
-import { first, map } from 'rxjs/operators'
+import opentelemetry, {SpanKind, SpanStatusCode, Tracer} from '@opentelemetry/api'
+import {
+    ATTR_SERVER_ADDRESS,
+    ATTR_SERVER_PORT,
+    ATTR_RPC_METHOD,
+    ATTR_RPC_SERVICE,
+    ATTR_RPC_SYSTEM
+} from '@opentelemetry/semantic-conventions/incubating'
+import {Observable} from 'rxjs'
+import {first, map} from 'rxjs/operators'
+import info from '../../../package.json' assert {type: 'json'}
+import {Event} from './EventBus'
+import {EventConstants, IEvent, IEventBus} from './IEventBus'
+import {IEventFactory, IServiceProxy, IServiceRegistry} from './IServiceRegistry'
 
 /**
  * An implementation of a {@link IEventFactory} which uses JSON content
@@ -78,7 +86,7 @@ export class ServiceRegistry implements IServiceRegistry {
     private readonly eventBus: IEventBus
 
     constructor(eventBus: IEventBus) {
-         this.eventBus = eventBus
+        this.eventBus = eventBus
     }
 
     public serviceProxy(serviceIdentifier: string): IServiceProxy {
@@ -98,7 +106,7 @@ class ServiceProxy implements IServiceProxy {
 
     public readonly serviceIdentifier: string
     private readonly eventBus: IEventBus
-
+    private tracer: Tracer
 
     constructor(serviceIdentifier: string, eventBus: IEventBus) {
         if ( typeof serviceIdentifier === 'undefined' || serviceIdentifier.length === 0 ) {
@@ -106,14 +114,44 @@ class ServiceProxy implements IServiceProxy {
         }
         this.serviceIdentifier = serviceIdentifier
         this.eventBus = eventBus
+        this.tracer = opentelemetry.trace.getTracer(
+            'continuum.client',
+            info.version
+        )
     }
-
 
     invoke(methodIdentifier: string,
            args?: any[] | null | undefined,
            scope?: string | null | undefined,
            eventFactory?: IEventFactory | null | undefined): Promise<any> {
-        return this.__invokeStream(false, methodIdentifier, args, scope, eventFactory).pipe(first()).toPromise()
+        return this.tracer.startActiveSpan(
+            `${this.serviceIdentifier}/${methodIdentifier}`,
+            {
+                kind: SpanKind.CLIENT
+            },
+            async(span) => {
+                if (scope) {
+                    span.setAttribute('continuum.scope', scope)
+                }
+                span.setAttribute(ATTR_RPC_SYSTEM, 'continuum')
+                span.setAttribute(ATTR_RPC_SERVICE, this.serviceIdentifier)
+                span.setAttribute(ATTR_RPC_METHOD, methodIdentifier)
+
+                return this.__invokeStream(false, methodIdentifier, args, scope, eventFactory)
+                           .pipe(first())
+                           .toPromise()
+                           .then(
+                               async (value) => {
+                                   span.end()
+                                   return value
+                               },
+                               async (ex) => {
+                                   span.recordException(ex)
+                                   span.setStatus({ code: SpanStatusCode.ERROR })
+                                   span.end()
+                                   throw ex
+                               })
+            })
     }
 
     invokeStream(methodIdentifier: string,
@@ -142,25 +180,32 @@ class ServiceProxy implements IServiceProxy {
             eventBusToUse = ContinuumContextStack.getContinuumInstance()!.eventBus
         }
 
+        // store additional attribute if there is an active span
+        const span = opentelemetry.trace.getActiveSpan()
+        if(span){
+            span.setAttribute(ATTR_SERVER_ADDRESS, eventBusToUse.serverInfo?.host || 'unknown')
+            span.setAttribute(ATTR_SERVER_PORT, eventBusToUse.serverInfo?.port || 'unknown')
+        }
+
         let event: IEvent = eventFactoryToUse.create(cri, args)
 
         return eventBusToUse.requestStream(event, sendControlEvents)
-            .pipe(map<IEvent, any>((value: IEvent): any => {
+                            .pipe(map<IEvent, any>((value: IEvent): any => {
 
-                const contentType: string | undefined = value.getHeader(EventConstants.CONTENT_TYPE_HEADER)
+                                const contentType: string | undefined = value.getHeader(EventConstants.CONTENT_TYPE_HEADER)
 
-                if (contentType !== undefined) {
-                    if (contentType === 'application/json') {
-                        return JSON.parse(value.getDataString())
-                    } else if (contentType === 'text/plain') {
-                        return value.getDataString()
-                    } else {
-                        throw new Error('Content Type ' + contentType + ' is unknown')
-                    }
-                } else {
-                    return null
-                }
-        }))
+                                if (contentType !== undefined) {
+                                    if (contentType === 'application/json') {
+                                        return JSON.parse(value.getDataString())
+                                    } else if (contentType === 'text/plain') {
+                                        return value.getDataString()
+                                    } else {
+                                        throw new Error('Content Type ' + contentType + ' is unknown')
+                                    }
+                                } else {
+                                    return null
+                                }
+                            }))
     }
 }
 

@@ -1,10 +1,11 @@
-import {describe, expect, it, beforeAll, afterAll} from 'vitest'
-import {ConnectionInfo, Continuum, ConnectedInfo} from '../src'
-import {WebSocket} from 'ws'
-import {logFailure, validateConnectedInfo, initContinuumGateway} from './TestHelper'
-import {TEST_SERVICE} from './ITestService'
+import {otelTracerProvider} from './Instrumentation'
 import {StartedTestContainer} from 'testcontainers'
+import {afterAll, beforeAll, describe, expect, it} from 'vitest'
+import {WebSocket} from 'ws'
+import {ConnectedInfo, Continuum} from '../src'
 import {NON_EXISTENT_SERVICE} from './INonExistentService'
+import {TEST_SERVICE} from './ITestService'
+import {initContinuumGateway, logFailure, validateConnectedInfo} from './TestHelper'
 
 // This is required when running Continuum from node
 Object.assign(global, { WebSocket})
@@ -22,6 +23,8 @@ describe('Continuum RPC Tests', () => {
 
     afterAll(async () =>{
         await expect(Continuum.disconnect()).resolves.toBeUndefined()
+        await otelTracerProvider.forceFlush()
+        await otelTracerProvider.shutdown()
         await container.stop()
     })
 

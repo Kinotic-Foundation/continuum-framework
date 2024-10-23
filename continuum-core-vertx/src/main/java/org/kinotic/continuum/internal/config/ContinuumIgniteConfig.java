@@ -33,6 +33,7 @@ import org.apache.ignite.spi.discovery.tcp.ipfinder.multicast.TcpDiscoveryMultic
 import org.apache.ignite.spi.discovery.tcp.ipfinder.sharedfs.TcpDiscoverySharedFsIpFinder;
 import org.kinotic.continuum.api.config.ContinuumProperties;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -64,32 +65,14 @@ public class ContinuumIgniteConfig {
     @Autowired(required = false)
     private List<DataRegionConfiguration> dataRegions;
 
-
+    @ConditionalOnMissingBean
     @Bean
     public DiscoverySpi tcpDiscoverySpi() {
-        DiscoverySpi ret;
-        if(continuumProperties.getDiscovery().equals("sharedfs")){
-            TcpDiscoverySharedFsIpFinder finder = new TcpDiscoverySharedFsIpFinder();
-            TcpDiscoverySpi spi = new TcpDiscoverySpi();
-            spi.setIpFinder(finder);
-            ret = spi;
-        }else if(continuumProperties.getDiscovery().equals("multicast")){
-            TcpDiscoveryMulticastIpFinder tcpDiscoveryMulticastIpFinder = new TcpDiscoveryMulticastIpFinder();
-            tcpDiscoveryMulticastIpFinder.setAddresses(Collections.singleton("127.0.0.1"));
-            TcpDiscoverySpi spi = new TcpDiscoverySpi();
-            spi.setIpFinder(tcpDiscoveryMulticastIpFinder);
-            //Loop back multicast discovery is not working on Mac OS
-            //(possibly due to http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=7122846).
-            if (U.isMacOs()) {
-                spi.setLocalAddress(F.first(U.allLocalIps()));
-            }
-            ret = spi;
-        }else{
-            throw new IllegalStateException("Unknown discovery setting "+continuumProperties.getDiscovery());
-        }
-        return ret;
+        TcpDiscoverySharedFsIpFinder finder = new TcpDiscoverySharedFsIpFinder();
+        TcpDiscoverySpi spi = new TcpDiscoverySpi();
+        spi.setIpFinder(finder);
+        return spi;
     }
-
 
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     @Bean

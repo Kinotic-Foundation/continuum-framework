@@ -24,10 +24,16 @@ export class ConnectHeaders {
     [key: string]: string
 }
 
+export class ServerInfo {
+    host!: string
+    port?: number | null
+    useSSL?: boolean | null
+}
+
 /**
  * ConnectionInfo provides the information needed to connect to the continuum server
  */
-export class ConnectionInfo {
+export class ConnectionInfo extends ServerInfo {
     connectHeaders?: ConnectHeaders
     /**
      * The maximum number of connection attempts to make during the {@link IEventBus} initial connection request.
@@ -35,9 +41,6 @@ export class ConnectionInfo {
      * Set to 0, undefined, or null to try forever
      */
     maxConnectionAttempts?: number | null
-    host!: string
-    port?: number | null
-    useSSL?: boolean | null
 }
 
 

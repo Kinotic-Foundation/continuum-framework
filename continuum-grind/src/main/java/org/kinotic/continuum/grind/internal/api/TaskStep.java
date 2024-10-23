@@ -17,7 +17,6 @@
 
 package org.kinotic.continuum.grind.internal.api;
 
-import org.kinotic.continuum.grind.api.*;
 import org.apache.commons.lang3.ClassUtils;
 import org.kinotic.continuum.grind.api.*;
 import org.reactivestreams.Publisher;
@@ -110,9 +109,8 @@ public class TaskStep extends AbstractStep {
 
                     }
                 }else{
-                    if(log.isDebugEnabled()){
-                        log.debug("Task was noop "+taskDisplayString);
-                    }
+                    log.debug("Task was noop {}", taskDisplayString);
+
                     sink.next(new DefaultResult<>(new StepInfo(sequence), ResultType.NOOP, null));
                     notifyProgress(() -> new Progress(100, "Task: " + taskDisplayString + " Finished Executing"), sink, options, log);
                     sink.complete();
@@ -141,11 +139,11 @@ public class TaskStep extends AbstractStep {
     private void completeWithTask(GenericApplicationContext applicationContext,
                                   ResultOptions options,
                                   FluxSink<Result<?>> sink,
-                                  Task<?> result) {
+                                  Task<?> task) {
 
-        notifyDiagnostic(DiagnosticLevel.TRACE, () -> "Task: " + taskDisplayString + " returned a Task: \"" + result.getDescription() + "\"", sink, options, log);
+        notifyDiagnostic(DiagnosticLevel.TRACE, () -> "Task: " + taskDisplayString + " returned a Task: \"" + task.getDescription() + "\"", sink, options, log);
 
-        TaskStep taskStep = new TaskStep(1, result, storeResult, resultName);
+        TaskStep taskStep = new TaskStep(1, task, storeResult, resultName);
 
         sink.next(new DefaultResult<>(new StepInfo(sequence), ResultType.DYNAMIC_STEPS, taskStep));
 
@@ -189,8 +187,7 @@ public class TaskStep extends AbstractStep {
 
                         // If the value returned is a Result type we will store it but the forward through
                         // we just overwrite the parentIdentifier to match this task
-                        if(value instanceof Result){
-                            Result<?> resultInternal = (Result<?>) value;
+                        if(value instanceof Result<?> resultInternal){
                             if(resultInternal.getResultType() == ResultType.VALUE){
                                 addIfDesiredToApplicationContext(applicationContext, options, sink, resultInternal.getValue());
                             }
@@ -225,7 +222,13 @@ public class TaskStep extends AbstractStep {
                 sink.complete();
             }
         }else{
-            notifyDiagnostic(DiagnosticLevel.WARN, () -> "Task: " + taskDisplayString +" Result was requested to be stored, but result is NULL", sink, options, log);
+            if(storeResult) {
+                notifyDiagnostic(DiagnosticLevel.WARN,
+                                 () -> "Task: " + taskDisplayString + " Result was requested to be stored, but result is NULL",
+                                 sink,
+                                 options,
+                                 log);
+            }
 
             sink.next(new DefaultResult<>(new StepInfo(sequence), ResultType.VALUE, null));
 
@@ -257,7 +260,7 @@ public class TaskStep extends AbstractStep {
                 if (isBeanCandidate(result)) {
                     if (result instanceof Collection) {
 
-                        if(this.resultName != null && this.resultName.length() > 0){
+                        if(this.resultName != null && !this.resultName.isEmpty()){
                             notifyDiagnostic(DiagnosticLevel.TRACE,
                                              () -> "Task: " + taskDisplayString + " Storing result as Collection Property \"" + resultName + "\" Value: " + result,
                                              sink, options, log);
@@ -277,7 +280,7 @@ public class TaskStep extends AbstractStep {
                              }
                         }
                     } else {
-                        String beanName = this.resultName != null && this.resultName.length() > 0 ? this.resultName : clazz.getSimpleName();
+                        String beanName = this.resultName != null && !this.resultName.isEmpty() ? this.resultName : clazz.getSimpleName();
 
                         notifyDiagnostic(DiagnosticLevel.TRACE,
                                          () -> "Task: " + taskDisplayString + " Storing result as Singleton: \"" + beanName + "\" Value: " + result,
@@ -288,7 +291,7 @@ public class TaskStep extends AbstractStep {
 
                 } else {
 
-                    if (resultName != null && resultName.length() > 0) {
+                    if (resultName != null && !resultName.isEmpty()) {
                         notifyDiagnostic(DiagnosticLevel.TRACE,
                                          () -> "Task: " + taskDisplayString + " Storing result as Property: \"" + resultName + "\" Value: " + result,
                                          sink, options, log);

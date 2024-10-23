@@ -17,39 +17,24 @@
 
 package org.kinotic.continuum.grind.api;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.Accessors;
+
 /**
  *
  * Created by Navid Mitchell on 11/12/20
  */
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
+@Accessors(chain = true)
 public class Diagnostic {
 
     private DiagnosticLevel diagnosticLevel;
     private String message;
-
-    public Diagnostic() {
-    }
-
-    public Diagnostic(DiagnosticLevel diagnosticLevel, String message) {
-        this.diagnosticLevel = diagnosticLevel;
-        this.message = message;
-    }
-
-    public DiagnosticLevel getDiagnosticType() {
-        return diagnosticLevel;
-    }
-
-    public Diagnostic setDiagnosticType(DiagnosticLevel diagnosticLevel) {
-        this.diagnosticLevel = diagnosticLevel;
-        return this;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public Diagnostic setMessage(String message) {
-        this.message = message;
-        return this;
-    }
 
 }

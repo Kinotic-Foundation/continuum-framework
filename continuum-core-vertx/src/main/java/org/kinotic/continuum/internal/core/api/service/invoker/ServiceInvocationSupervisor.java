@@ -17,11 +17,16 @@
 
 package org.kinotic.continuum.internal.core.api.service.invoker;
 
+import io.opentelemetry.api.OpenTelemetry;
+import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.context.Context;
+import io.opentelemetry.context.Scope;
 import org.kinotic.continuum.core.api.event.*;
 import org.kinotic.continuum.core.api.service.ServiceDescriptor;
 import org.kinotic.continuum.core.api.service.ServiceFunction;
 import org.kinotic.continuum.core.api.service.ServiceFunctionInstanceProvider;
 import org.kinotic.continuum.api.exceptions.RpcMissingMethodException;
+import org.kinotic.continuum.internal.core.api.event.MetadataTextMapGetter;
 import org.kinotic.continuum.internal.utils.EventUtil;
 import io.vertx.core.Vertx;
 import org.apache.commons.lang3.Validate;
@@ -56,6 +61,7 @@ public class ServiceInvocationSupervisor {
 
     private final AtomicBoolean active = new AtomicBoolean(false);
     private final ConcurrentHashMap<String, StreamSubscriber> activeStreamingResults = new ConcurrentHashMap<>();
+    private final MetadataTextMapGetter textMapGetter = new MetadataTextMapGetter();
     private final ArgumentResolver argumentResolver;
     private final EventBusService eventBusService;
     private final ExceptionConverter exceptionConverter;
@@ -64,6 +70,8 @@ public class ServiceInvocationSupervisor {
     private final ReturnValueConverter returnValueConverter;
     private final ServiceDescriptor serviceDescriptor;
     private final Vertx vertx;
+    private final OpenTelemetry openTelemetry;
+
     private Disposable methodInvocationEventListenerDisposable;
 
 
@@ -75,7 +83,8 @@ public class ServiceInvocationSupervisor {
                                        ExceptionConverter exceptionConverter,
                                        EventBusService eventBusService,
                                        ReactiveAdapterRegistry reactiveAdapterRegistry,
-                                       Vertx vertx) {
+                                       Vertx vertx,
+                                       OpenTelemetry openTelemetry) {
 
         Validate.notNull(serviceDescriptor, "ServiceDescriptor must not be null");
         Validate.notNull(instanceProvider, "ServiceFunctionInstanceProvider must not be null");
@@ -85,6 +94,7 @@ public class ServiceInvocationSupervisor {
         Validate.notNull(eventBusService, "eventBusService must not be null");
         Validate.notNull(reactiveAdapterRegistry, "reactiveAdapterRegistry must not be null");
         Validate.notNull(vertx, "vertx must not be null");
+        Validate.notNull(openTelemetry, "OpenTelemetry must not be null");
 
         this.serviceDescriptor = serviceDescriptor;
         this.argumentResolver = argumentResolver;
@@ -93,6 +103,7 @@ public class ServiceInvocationSupervisor {
         this.eventBusService = eventBusService;
         this.reactiveAdapterRegistry = reactiveAdapterRegistry;
         this.vertx = vertx;
+        this.openTelemetry = openTelemetry;
 
         this.methodMap = buildMethodMap(serviceDescriptor, instanceProvider);
     }
@@ -214,9 +225,8 @@ public class ServiceInvocationSupervisor {
 
     private void processEvent(Event<byte[]> incomingEvent){
         boolean isControl = incomingEvent.metadata().contains(EventConstants.CONTROL_HEADER);
-        if(log.isTraceEnabled()){
-            log.trace("Service "+ (isControl ? "Control" : "Invocation")+" requested for "+incomingEvent.cri());
-        }
+
+        log.trace("Service {} requested for {}", isControl ? "Control" : "Invocation", incomingEvent.cri());
 
         if(exceptionConverter.supports(incomingEvent.metadata())) {
             try {
@@ -231,7 +241,7 @@ public class ServiceInvocationSupervisor {
                     if(validateReplyTo(incomingEvent)){
                         processInvocationRequest(incomingEvent);
                     }else{
-                        log.error("ReplyTo header is missing or invalid incoming message will be ignored\n" + EventUtil.toString(
+                        log.error("ReplyTo header is missing or invalid incoming message will be ignored\n{}", EventUtil.toString(
                                 incomingEvent,
                                 true));
                     }
@@ -239,9 +249,7 @@ public class ServiceInvocationSupervisor {
 
 
             } catch (Exception e) {
-                if(log.isDebugEnabled()){
-                    log.debug("Exception occurred processing service request\n" + EventUtil.toString(incomingEvent, true), e);
-                }
+                log.debug("Exception occurred processing service request\n{}", EventUtil.toString(incomingEvent, true), e);
                 handleException(incomingEvent.metadata(), e);
             }
         }else{ // no exception converter found we will not execute message since we can not deal with an exception
@@ -250,6 +258,16 @@ public class ServiceInvocationSupervisor {
     }
 
     private void processInvocationRequest(Event<byte[]> incomingEvent) {
+
+        // TODO: add support for context propagation
+//        Context extractedContext = openTelemetry.getPropagators()
+//                                                .getTextMapPropagator()
+//                                                .extract(Context.current(),
+//                                                         incomingEvent.metadata(),
+//                                                         textMapGetter);
+//
+//        Span extractedSpan = Span.fromContextOrNull(extractedContext);
+
         // Ensure there is an argument resolver that can handle the incoming data
         if (argumentResolver.supports(incomingEvent)) {
 

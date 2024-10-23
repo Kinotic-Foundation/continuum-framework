@@ -92,7 +92,7 @@ export class StompConnectionManager {
                                                     this.maxConnectionAttemptsReached = true
                                                     await this.deactivate()
 
-                                                    // If we have not made an initial connection the promise is not yet resolved
+                                                    // If we have not made an initial connection, the promise is not yet resolved
                                                     if(!this.initialConnectionSuccessful) {
                                                         let message = (this.lastWebsocketError as any)?.message ? (this.lastWebsocketError as any)?.message : 'UNKNOWN'
                                                         reject(`Max number of reconnection attempts reached. Last WS Error ${message}`)

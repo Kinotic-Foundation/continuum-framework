@@ -1,9 +1,7 @@
-import {describe, expect, it, beforeAll, afterAll} from 'vitest'
-import {ConnectedInfo, Continuum, Event, EventConstants, ParticipantConstants} from '../src'
+import './Instrumentation'
+import {describe, expect, it} from 'vitest'
 import {WebSocket} from 'ws'
-import {initContinuumGateway, logFailure, validateConnectedInfo} from './TestHelper'
-import {TEST_SERVICE} from './ITestService'
-import {AlwaysPullPolicy, GenericContainer, StartedTestContainer} from 'testcontainers'
+import {Continuum} from '../src'
 
 // This is required when running Continuum from node
 Object.assign(global, { WebSocket})
@@ -15,7 +13,7 @@ describe('Continuum Unavailable Tests', () => {
         const host: string = 'notavailable'
         const port: number = 58503
         console.log(`Trying to Connecting to Unavailable Continuum Gateway`)
-        await  expect(Continuum.connect({
+        await expect(Continuum.connect({
                                     host:host,
                                     port:port,
                                     maxConnectionAttempts: 3,

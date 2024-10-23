@@ -34,7 +34,7 @@ public interface Result<T> {
      * What type of result this is.
      * The results that are produced by a {@link JobDefinition} depend on what options you pass into the {@link JobService} during assembly
      *
-     * The result type will effect the meaning of the value
+     * The result type will affect the meaning of the value
      * For {@link ResultType#VALUE} the value will be the "final" value produced by a {@link Task}
      * For {@link ResultType#NOOP} the value will be null
      * For {@link ResultType#DIAGNOSTIC} the value will be a simple message describing something that happened

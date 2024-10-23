@@ -171,7 +171,9 @@ public class EndpointConnectionHandler {
                                     return Mono.empty();
                                 } catch (Exception ex) {
                                     if(log.isDebugEnabled()){
-                                        log.debug("Exception occurred converting exception\n" + EventUtil.toString(incomingEvent, true), throwable);
+                                        log.debug("Exception occurred converting exception\n{}",
+                                                  EventUtil.toString(incomingEvent, true),
+                                                  throwable);
                                     }
                                     return Mono.error(ex);
                                 }

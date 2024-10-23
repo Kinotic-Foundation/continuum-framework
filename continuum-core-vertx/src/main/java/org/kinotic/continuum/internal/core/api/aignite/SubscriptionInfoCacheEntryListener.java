@@ -18,6 +18,7 @@
 package org.kinotic.continuum.internal.core.api.aignite;
 
 import io.vertx.spi.cluster.ignite.impl.IgniteNodeInfo;
+import io.vertx.spi.cluster.ignite.impl.IgniteRegistrationInfo;
 import org.kinotic.continuum.core.api.event.ListenerStatus;
 import io.vertx.core.Context;
 import org.slf4j.Logger;
@@ -31,9 +32,9 @@ import java.util.Set;
 /**
  * Created by 🤓 on 5/8/21.
  */
-public class SubscriptionInfoCacheEntryListener implements CacheEntryCreatedListener<String , Set<IgniteNodeInfo>>,
-                                                           CacheEntryRemovedListener<String ,Set<IgniteNodeInfo>>,
-                                                           CacheEntryExpiredListener<String ,Set<IgniteNodeInfo>>,
+public class SubscriptionInfoCacheEntryListener implements CacheEntryCreatedListener<IgniteRegistrationInfo ,Boolean>,
+                                                           CacheEntryRemovedListener<IgniteRegistrationInfo ,Boolean>,
+                                                           CacheEntryExpiredListener<IgniteRegistrationInfo ,Boolean>,
                                                            Serializable {
 
     private static final Logger log = LoggerFactory.getLogger(SubscriptionInfoCacheEntryListener.class);
@@ -48,19 +49,19 @@ public class SubscriptionInfoCacheEntryListener implements CacheEntryCreatedList
     }
 
     @Override
-    public void onCreated(Iterable<CacheEntryEvent<? extends String, ? extends Set<IgniteNodeInfo>>> cacheEntryEvents) throws CacheEntryListenerException {
+    public void onCreated(Iterable<CacheEntryEvent<? extends IgniteRegistrationInfo, ? extends Boolean>> cacheEntryEvents) throws CacheEntryListenerException {
         log.trace("Subscription Status Listener called Created");
         vertxContext.runOnContext(event -> sink.next(ListenerStatus.ACTIVE));
     }
 
     @Override
-    public void onExpired(Iterable<CacheEntryEvent<? extends String, ? extends Set<IgniteNodeInfo>>> cacheEntryEvents) throws CacheEntryListenerException {
+    public void onExpired(Iterable<CacheEntryEvent<? extends IgniteRegistrationInfo, ? extends Boolean>> cacheEntryEvents) throws CacheEntryListenerException {
         log.trace("Subscription Status Listener called Expired");
         vertxContext.runOnContext(event -> sink.next(ListenerStatus.INACTIVE));
     }
 
     @Override
-    public void onRemoved(Iterable<CacheEntryEvent<? extends String, ? extends Set<IgniteNodeInfo>>> cacheEntryEvents) throws CacheEntryListenerException {
+    public void onRemoved(Iterable<CacheEntryEvent<? extends IgniteRegistrationInfo, ? extends Boolean>> cacheEntryEvents) throws CacheEntryListenerException {
         log.trace("Subscription Status Listener called Removed");
         vertxContext.runOnContext(event -> sink.next(ListenerStatus.INACTIVE));
     }

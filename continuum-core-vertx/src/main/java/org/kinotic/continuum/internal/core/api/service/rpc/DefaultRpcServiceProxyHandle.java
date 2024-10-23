@@ -137,7 +137,7 @@ public class DefaultRpcServiceProxyHandle<T> implements RpcServiceProxyHandle<T>
                                 release();
                             }
                         }else{
-                            log.error("Received Message for correlationId: "+correlationId + " but no response handler is set");
+                            log.error("Received Message for correlationId: {} but no response handler is set", correlationId);
                         }
 
                     }else{

@@ -380,7 +380,7 @@ public class ServiceInvocationSupervisor {
 
     /**
      * This subscriber handles monitoring the remote ends subscription for reply events.
-     * If it detects that the remote ends subscription for reply events is removed it will terminate the {@link StreamSubscriber}
+     * If it detects that the remote ends subscription for reply events is removed, it will terminate the {@link StreamSubscriber}
      */
     private static class ReplyListenerStatusSubscriber extends BaseSubscriber<ListenerStatus> {
         private final StreamSubscriber streamSubscription;
@@ -406,7 +406,7 @@ public class ServiceInvocationSupervisor {
         @Override
         protected void hookOnNext(ListenerStatus status) {
             if(log.isTraceEnabled()){
-                log.trace("Received ListenerStatus "+status);
+                log.trace("Received ListenerStatus {}", status);
             }
             // TODO: handle resume restart type logic
             if(status == ListenerStatus.INACTIVE){
@@ -467,10 +467,10 @@ public class ServiceInvocationSupervisor {
             String correlationId = incomingMetadata.get(EventConstants.CORRELATION_ID_HEADER);
             // we must do this in a background thread since if the flux is created like Flux.just this will be executed in the same thread as the invocation
             // and hence inside the activeStreamingResults.computeIfAbsent block
-            vertx.executeBlocking(p -> {
+            vertx.executeBlocking(() -> {
                 activeStreamingResults.remove(correlationId);
-                p.complete();
-            }, null);
+                return null;
+            });
         }
 
         @Override

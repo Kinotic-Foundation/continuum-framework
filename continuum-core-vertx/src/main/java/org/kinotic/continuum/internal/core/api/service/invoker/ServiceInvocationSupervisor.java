@@ -322,7 +322,9 @@ public class ServiceInvocationSupervisor {
                 mono.doOnSuccess((Consumer<Object>) o -> convertAndSend(incomingMetadata, handlerMethod, o))
                     .subscribe(v -> {}, t -> {
                         if(log.isDebugEnabled()){
-                            log.debug("Exception occurred processing service request\n" + EventUtil.toString(incomingEvent, true), t);
+                            log.debug("Exception occurred processing service request\n{}",
+                                      EventUtil.toString(incomingEvent, true),
+                                      t);
                         }
                         handleException(incomingMetadata, t);
                     }); // We use an empty consumer this is handled with doOnSuccess, this is done so, we get a single "signal" instead of onNext, onComplete type logic..

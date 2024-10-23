@@ -77,7 +77,10 @@ public class DefaultEventBusService implements EventBusService {
 
     @PostConstruct
     public void init(){
-        scheduler = Schedulers.fromExecutor(command -> vertx.executeBlocking(v -> command.run(), null));
+        scheduler = Schedulers.fromExecutor(command -> vertx.executeBlocking(() -> {
+            command.run();
+            return null;
+        }));
 
         if(ignite != null) {
             subscriptionsCache = ignite.cache("__vertx.subs");
@@ -133,9 +136,12 @@ public class DefaultEventBusService implements EventBusService {
 
             sink.onDispose(() -> {
                 if(log.isTraceEnabled()) {
-                    log.trace("Disposing of monitorListenerStatus for cri: " + cri);
+                    log.trace("Disposing of monitorListenerStatus for cri: {}", cri);
                 }
-                vertxContext.executeBlocking(v -> cache.deregisterCacheEntryListener(cacheEntryListenerConfiguration), null);
+                vertxContext.executeBlocking(() -> {
+                    cache.deregisterCacheEntryListener(cacheEntryListenerConfiguration);
+                    return null;
+                });
             });
 
             cache.registerCacheEntryListener(cacheEntryListenerConfiguration);
@@ -148,10 +154,10 @@ public class DefaultEventBusService implements EventBusService {
                     }
                 }
 
-                if(setIgniteFuture.get() != null && setIgniteFuture.get().size() > 0){
-                    vertxContext.executeBlocking(v -> sink.next(ListenerStatus.ACTIVE), null);
+                if(setIgniteFuture.get() != null && !setIgniteFuture.get().isEmpty()){
+                    vertxContext.executeBlocking(() -> sink.next(ListenerStatus.ACTIVE));
                 }else{
-                    vertxContext.executeBlocking(v -> sink.next(ListenerStatus.INACTIVE), null);
+                    vertxContext.executeBlocking(() -> sink.next(ListenerStatus.INACTIVE));
                 }
             });
 
@@ -207,13 +213,13 @@ public class DefaultEventBusService implements EventBusService {
 
             // now activate handler to start consuming messages
             consumer.handler(message -> {
-                // ack that we received the message if desired by sender..
+                // ack that we received the message if desired by sender.
                 if (message.replyAddress() != null){
-                    message.reply(null);
+                    message.replyAndRequest(null);
                 }
 
                 if(!fluxSink.isCancelled()) {
-                    vertx.executeBlocking(v -> fluxSink.next(new MessageEventAdapter<>(message)), null);
+                    vertx.executeBlocking(() -> fluxSink.next(new MessageEventAdapter<>(message)));
                 }
             });
         });

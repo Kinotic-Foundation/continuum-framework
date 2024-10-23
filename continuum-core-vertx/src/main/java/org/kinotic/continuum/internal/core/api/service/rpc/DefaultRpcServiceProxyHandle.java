@@ -195,7 +195,6 @@ public class DefaultRpcServiceProxyHandle<T> implements RpcServiceProxyHandle<T>
                 RpcReturnValueHandler handler = rpcReturnValueHandlerFactory.createReturnValueHandler(method, args);
                 responseMap.put(correlationId, handler);
 
-
                 // Create Event to be sent to remote end to cause service invocation
                 Metadata metadata = Metadata.create();
                 // For right now we just supply a fairly generic participant

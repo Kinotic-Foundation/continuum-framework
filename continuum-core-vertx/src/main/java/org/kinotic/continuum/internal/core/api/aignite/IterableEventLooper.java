@@ -18,6 +18,7 @@
 package org.kinotic.continuum.internal.core.api.aignite;
 
 import io.vertx.core.*;
+import io.vertx.core.impl.ContextInternal;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +32,7 @@ public class IterableEventLooper<T> implements SuspendableObserver<T> , Closeabl
     private final Vertx vertx;
     private Iterable<T> iterable;
     private final boolean closeIterableOnComplete;
-    private final Context creatingContext;
+    private final ContextInternal creatingContext;
 
     private Handler<T> resultHandler;
     private Handler<Void> completionHandler;
@@ -80,11 +81,7 @@ public class IterableEventLooper<T> implements SuspendableObserver<T> , Closeabl
             this.iterable = iterable;
             this.closeIterableOnComplete = closeIterableOnComplete;
 
-            this.creatingContext = vertx.getOrCreateContext();
-
-            if (creatingContext.isMultiThreadedWorkerContext()) {
-                throw new IllegalStateException("Cannot use IteratorEventLooper in a multi-threaded worker verticle");
-            }
+            this.creatingContext = (ContextInternal)vertx.getOrCreateContext();
             creatingContext.addCloseHook(this);
 
         }catch (Exception e){
@@ -96,7 +93,7 @@ public class IterableEventLooper<T> implements SuspendableObserver<T> , Closeabl
 
     private synchronized void closeIfAutoCloseable(){
         if(iterable instanceof AutoCloseable){
-            creatingContext.executeBlocking((Handler<Promise<Void>>) event -> {
+            creatingContext.executeBlocking(() -> {
                 try {
                     if(iterable != null) {
                         ((AutoCloseable) iterable).close();
@@ -105,7 +102,8 @@ public class IterableEventLooper<T> implements SuspendableObserver<T> , Closeabl
                 } catch (Exception e2) {
                     log.error("AutoCloseable Iterable threw error during close",e2);
                 }
-            },null);
+                return null;
+            });
         }
     }
 
@@ -198,7 +196,7 @@ public class IterableEventLooper<T> implements SuspendableObserver<T> , Closeabl
     }
 
     @Override
-    public void close(Handler<AsyncResult<Void>> compHandler) {
+    public void close(Promise<Void> completion) {
         if(cursorIterator != null){
             cursorIterator.close();
         }
@@ -206,9 +204,9 @@ public class IterableEventLooper<T> implements SuspendableObserver<T> , Closeabl
         // handles any context closing to ensure iterable is closed as well
         closeIfAutoCloseable();
 
-        if (compHandler != null) {
+        if (completion != null) {
             Context context = vertx.getOrCreateContext();
-            context.runOnContext(v -> compHandler.handle(Future.succeededFuture()));
+            context.runOnContext(v -> completion.handle(Future.succeededFuture()));
         }
 
         if (creatingContext != null) {

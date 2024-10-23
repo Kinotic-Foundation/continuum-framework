@@ -17,26 +17,22 @@
 
 package org.kinotic.continuum.internal.core.api.event;
 
+import io.vertx.core.*;
+import io.vertx.core.eventbus.DeliveryOptions;
+import io.vertx.core.eventbus.MessageConsumer;
+import io.vertx.core.spi.cluster.ClusterManager;
+import io.vertx.core.spi.cluster.RegistrationInfo;
+import io.vertx.spi.cluster.ignite.impl.IgniteRegistrationInfo;
+import org.apache.commons.lang3.Validate;
+import org.apache.ignite.Ignite;
+import org.apache.ignite.IgniteCache;
 import org.kinotic.continuum.core.api.event.Event;
 import org.kinotic.continuum.core.api.event.EventBusService;
 import org.kinotic.continuum.core.api.event.EventConstants;
 import org.kinotic.continuum.core.api.event.ListenerStatus;
-import org.kinotic.continuum.internal.utils.IgniteUtil;
 import org.kinotic.continuum.internal.core.api.aignite.SubscriptionInfoCacheEntryEventFilter;
 import org.kinotic.continuum.internal.core.api.aignite.SubscriptionInfoCacheEntryListener;
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Context;
-import io.vertx.core.Handler;
-import io.vertx.core.Vertx;
-import io.vertx.core.eventbus.DeliveryOptions;
-import io.vertx.core.eventbus.Message;
-import io.vertx.core.eventbus.MessageConsumer;
-import io.vertx.core.eventbus.impl.clustered.ClusterNodeInfo;
-import org.apache.commons.lang3.Validate;
-import org.apache.ignite.Ignite;
-import org.apache.ignite.IgniteCache;
-import org.apache.ignite.lang.IgniteFuture;
-import org.apache.ignite.lang.IgniteInClosure;
+import org.kinotic.continuum.internal.utils.IgniteUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,9 +49,9 @@ import javax.cache.configuration.FactoryBuilder;
 import javax.cache.configuration.MutableCacheEntryListenerConfiguration;
 import javax.cache.event.CacheEntryEventFilter;
 import javax.cache.event.CacheEntryListener;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Default implementation of {@link EventBusService} using the vertx {@link io.vertx.core.eventbus.EventBus} as a backend
@@ -69,15 +65,20 @@ public class DefaultEventBusService implements EventBusService {
     private static final Logger log = LoggerFactory.getLogger(DefaultEventBusService.class);
     @Autowired(required = false) // this done so unit tests can complete faster. Kinda silly but hey that is unit tests.. I guess I could mock..
     private Ignite ignite;
+    @Autowired(required = false)
+    private ClusterManager clusterManager;
     private Scheduler scheduler;
     // This is the cache used by the IgniteVertxCluster manager to track subscriptions
-    private IgniteCache<String, Set<ClusterNodeInfo>> subscriptionsCache;
+    private IgniteCache<String, Set<IgniteRegistrationInfo>> subscriptionsCache;
     @Autowired
     private Vertx vertx;
 
     @PostConstruct
     public void init(){
-        scheduler = Schedulers.fromExecutor(command -> vertx.executeBlocking(v -> command.run(), null));
+        scheduler = Schedulers.fromExecutor(command -> vertx.executeBlocking(() -> {
+            command.run();
+            return null;
+        }));
 
         if(ignite != null) {
             subscriptionsCache = ignite.cache("__vertx.subs");
@@ -120,41 +121,48 @@ public class DefaultEventBusService implements EventBusService {
 
             Context vertxContext = vertx.getOrCreateContext();
 
-            IgniteCache<String, Set<ClusterNodeInfo>> cache = ignite.cache("__vertx.subs");
+            IgniteCache<IgniteRegistrationInfo, Boolean> cache = ignite.cache("__vertx.subs");
 
-            Factory<? extends CacheEntryListener<String, Set<ClusterNodeInfo>>> listenerFactory =
+            Factory<? extends CacheEntryListener<IgniteRegistrationInfo, Boolean>> listenerFactory =
                     FactoryBuilder.factoryOf(new SubscriptionInfoCacheEntryListener(sink, vertxContext));
 
-            Factory<? extends CacheEntryEventFilter<String, Set<ClusterNodeInfo>>> filterFactory =
+            Factory<? extends CacheEntryEventFilter<IgniteRegistrationInfo, Boolean>> filterFactory =
                     FactoryBuilder.factoryOf(new SubscriptionInfoCacheEntryEventFilter(cri));
 
-            MutableCacheEntryListenerConfiguration<String, Set<ClusterNodeInfo>> cacheEntryListenerConfiguration =
+            MutableCacheEntryListenerConfiguration<IgniteRegistrationInfo, Boolean> cacheEntryListenerConfiguration =
                     new MutableCacheEntryListenerConfiguration<>(listenerFactory, filterFactory, false, false);
 
             sink.onDispose(() -> {
-                if(log.isTraceEnabled()) {
-                    log.trace("Disposing of monitorListenerStatus for cri: " + cri);
-                }
-                vertxContext.executeBlocking(v -> cache.deregisterCacheEntryListener(cacheEntryListenerConfiguration), null);
+                log.trace("Disposing of monitorListenerStatus for cri: {}", cri);
+                vertxContext.executeBlocking(() -> {
+                    cache.deregisterCacheEntryListener(cacheEntryListenerConfiguration);
+                    return null;
+                });
             });
 
             cache.registerCacheEntryListener(cacheEntryListenerConfiguration);
 
-            AtomicInteger excessCount = new AtomicInteger(0);
-            cache.getAsync(cri).listen((IgniteInClosure<IgniteFuture<Set<ClusterNodeInfo>>>) setIgniteFuture -> {
-                if(sink.isCancelled()){
-                    if(excessCount.incrementAndGet() > 4) { // we only send after a couple since there is a possible delay between cancellation and stopping
-                        log.error("Sink is canceled but cache listener still sending data for cri: " + cri);
-                    }
-                }
+            // Make sure we didn't miss a subscription ending while we were setting up the listener
+            Promise<List<RegistrationInfo>> promise = Promise.promise();
+            clusterManager.getRegistrations(cri, promise);
 
-                if(setIgniteFuture.get() != null && setIgniteFuture.get().size() > 0){
-                    vertxContext.executeBlocking(v -> sink.next(ListenerStatus.ACTIVE), null);
-                }else{
-                    vertxContext.executeBlocking(v -> sink.next(ListenerStatus.INACTIVE), null);
+            promise.future().onComplete(ar -> {
+                if(ar.succeeded()){
+                    List<RegistrationInfo> list = ar.result();
+                    if(list != null && !list.isEmpty()){
+                        vertxContext.executeBlocking(() -> sink.next(ListenerStatus.ACTIVE));
+                    }else{
+                        vertxContext.executeBlocking(() -> sink.next(ListenerStatus.INACTIVE));
+                    }
+                } else {
+                    log.trace("Failed getting subscriptions for monitorListenerStatus for cri: {}", cri);
+                    vertxContext.executeBlocking(() -> {
+                        sink.error(ar.cause());
+                        return null;
+                    });
+
                 }
             });
-
         });
         return ret.subscribeOn(scheduler);
     }
@@ -170,20 +178,20 @@ public class DefaultEventBusService implements EventBusService {
     @Override
     public Mono<Void> sendWithAck(Event<byte[]> event) {
         Validate.notNull(event, "Event must not be null");
-
         return Mono.create(sink -> {
             DeliveryOptions deliveryOptions = createDeliveryOptions(event);
             // We expect that a response will be sent upon receipt. This will happen automatically if the listener is created with this class.
-            vertx.eventBus().request(event.cri().baseResource(),
-                                     event.data(),
-                                     deliveryOptions,
-                                     (Handler<AsyncResult<Message<Void>>>) reply -> {
-                                       if(reply.succeeded()){
-                                           sink.success();
-                                       }else{
-                                           sink.error(reply.cause());
-                                       }
-                                     });
+            vertx.eventBus()
+                 .request(event.cri().baseResource(),
+                          event.data(),
+                          deliveryOptions)
+                 .onComplete(reply -> {
+                     if(reply.succeeded()){
+                         sink.success();
+                     }else{
+                         sink.error(reply.cause());
+                     }
+                 });
         }).subscribeOn(scheduler).then();
     }
 
@@ -207,13 +215,13 @@ public class DefaultEventBusService implements EventBusService {
 
             // now activate handler to start consuming messages
             consumer.handler(message -> {
-                // ack that we received the message if desired by sender..
+                // ack that we received the message if desired by sender.
                 if (message.replyAddress() != null){
                     message.reply(null);
                 }
 
                 if(!fluxSink.isCancelled()) {
-                    vertx.executeBlocking(v -> fluxSink.next(new MessageEventAdapter<>(message)), null);
+                    vertx.executeBlocking(() -> fluxSink.next(new MessageEventAdapter<>(message)));
                 }
             });
         });

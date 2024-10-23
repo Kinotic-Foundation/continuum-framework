@@ -114,7 +114,7 @@ public class FluxReturnValueHandler implements RpcReturnValueHandler {
 
                 rpcRequest.send();
 
-                fluxSink.onCancel(rpcRequest::cancelRequest);
+                fluxSink.onCancel(() -> rpcRequest.cancelRequest());
 
             }else{
                 fluxSink.error(new IllegalStateException(cancelMessage));

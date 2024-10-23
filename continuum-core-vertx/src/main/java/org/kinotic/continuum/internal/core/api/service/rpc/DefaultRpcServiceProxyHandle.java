@@ -137,7 +137,7 @@ public class DefaultRpcServiceProxyHandle<T> implements RpcServiceProxyHandle<T>
                                 release();
                             }
                         }else{
-                            log.error("Received Message for correlationId: "+correlationId + " but no response handler is set");
+                            log.error("Received Message for correlationId: {} but no response handler is set", correlationId);
                         }
 
                     }else{
@@ -194,7 +194,6 @@ public class DefaultRpcServiceProxyHandle<T> implements RpcServiceProxyHandle<T>
                 // Now create response handler and store, so we can propagate response in replyMessageConsumer
                 RpcReturnValueHandler handler = rpcReturnValueHandlerFactory.createReturnValueHandler(method, args);
                 responseMap.put(correlationId, handler);
-
 
                 // Create Event to be sent to remote end to cause service invocation
                 Metadata metadata = Metadata.create();

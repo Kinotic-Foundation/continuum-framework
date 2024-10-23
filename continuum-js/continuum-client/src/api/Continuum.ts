@@ -151,6 +151,7 @@ export class ContinuumSingleton {
      * @param toExecute the function to execute
      * @param eventFactory an optional {@link IEventFactory} to use for the duration of the execution
      * @return the result of the function that was executed
+     * NOTE: this method is experimental and does not work well across multiple threads / async operations
      */
     public async execute(toExecute: () => Promise<any>, eventFactory?: IEventFactory): Promise<any> {
         const stack = ContinuumContextStack as ContinuumContextStackClass

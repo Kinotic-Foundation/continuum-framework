@@ -1,7 +1,5 @@
 rootProject.name = 'continuum-framework'
 
-includeBuild('../vertx-stomp-lite')
-
 include('continuum-cloud',
         'continuum-core',
         'continuum-core-vertx',

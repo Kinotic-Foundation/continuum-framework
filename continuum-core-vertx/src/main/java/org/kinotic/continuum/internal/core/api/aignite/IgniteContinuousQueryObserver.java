@@ -17,6 +17,7 @@
 
 package org.kinotic.continuum.internal.core.api.aignite;
 
+import io.vertx.core.impl.ContextInternal;
 import org.kinotic.continuum.core.api.event.StreamData;
 import org.kinotic.continuum.internal.utils.IgniteUtil;
 import io.vertx.core.*;
@@ -30,6 +31,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.cache.Cache;
 import javax.cache.event.CacheEntryEvent;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -44,7 +46,7 @@ public class IgniteContinuousQueryObserver<K, V> implements Observer<StreamData<
     private final AtomicBoolean closed = new AtomicBoolean(false);
     private Handler<StreamData<K, V>> observerDataHandler =null;
     private Handler<Throwable> observerExceptionHandler = null;
-    private final Context observerContext;
+    private final ContextInternal observerContext;
     private final Vertx vertx;
     private final IgniteCache<? extends K,? extends V> igniteCache;
     private Query<Cache.Entry<K, V>> query;
@@ -52,15 +54,12 @@ public class IgniteContinuousQueryObserver<K, V> implements Observer<StreamData<
 
     public IgniteContinuousQueryObserver(Vertx vertx,
                                          IgniteCache<? extends K, ? extends V> igniteCache) {
-        Validate.notNull(vertx);
-        Validate.notNull(igniteCache);
+        Objects.requireNonNull(vertx);
+        Objects.requireNonNull(igniteCache);
 
         this.vertx = vertx;
-        this.observerContext = vertx.getOrCreateContext();
+        this.observerContext = (ContextInternal) vertx.getOrCreateContext();
 
-        if (observerContext.isMultiThreadedWorkerContext()) {
-            throw new IllegalStateException("Cannot use IgniteContinuousQueryObserver in a multi-threaded worker verticle");
-        }
         observerContext.addCloseHook(this);
         this.igniteCache = igniteCache;
     }
@@ -69,7 +68,7 @@ public class IgniteContinuousQueryObserver<K, V> implements Observer<StreamData<
                                          IgniteCache<? extends K, ? extends V> igniteCache,
                                          Query<Cache.Entry<K, V>> query) {
         this(vertx, igniteCache);
-        Validate.notNull(query);
+        Objects.requireNonNull(query);
         this.query = query;
     }
 
@@ -132,8 +131,7 @@ public class IgniteContinuousQueryObserver<K, V> implements Observer<StreamData<
 
         });
 
-
-        observerContext.executeBlocking((Handler<Promise<Void>>) ev -> {
+        observerContext.executeBlocking(() -> {
             try{
 
                 // Loop through initial results from the query sending them to the client
@@ -147,7 +145,8 @@ public class IgniteContinuousQueryObserver<K, V> implements Observer<StreamData<
             }catch (Exception exc){
                 invokeObserverExceptionHandler(exc);
             }
-        },null);
+            return null;
+        });
     }
 
 
@@ -174,7 +173,7 @@ public class IgniteContinuousQueryObserver<K, V> implements Observer<StreamData<
     }
 
     @Override
-    public void close(final Handler<AsyncResult<Void>> completionHandler) {
+    public void close(Promise<Void> completion) {
         if(log.isTraceEnabled()){
             log.trace("Closing Continuous query");
         }
@@ -187,9 +186,9 @@ public class IgniteContinuousQueryObserver<K, V> implements Observer<StreamData<
             observerContext.removeCloseHook(this);
         }
 
-        if (completionHandler != null) {
+        if (completion != null) {
             Context context = vertx.getOrCreateContext();
-            context.runOnContext(v -> completionHandler.handle(Future.succeededFuture()));
+            context.runOnContext(v -> completion.handle(Future.succeededFuture()));
         }
     }
 }

@@ -18,6 +18,7 @@
 package org.kinotic.continuum.internal.core.api.service.rpc.types;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.vertx.core.Promise;
 import org.kinotic.continuum.core.api.event.Event;
 import org.kinotic.continuum.core.api.event.EventConstants;
 import org.kinotic.continuum.internal.core.api.service.rpc.RpcRequest;
@@ -42,7 +43,7 @@ public class VertxFutureRpcReturnValueHandler implements RpcReturnValueHandler {
     private final MethodParameter methodParameter;
     private final RpcResponseConverter rpcResponseConverter;
     private final ObjectMapper objectMapper;
-    private final Future<Object> returnValue;
+    private final Promise<Object> promise;
 
     public VertxFutureRpcReturnValueHandler(MethodParameter methodParameter,
                                             RpcResponseConverter rpcResponseConverter,
@@ -55,7 +56,7 @@ public class VertxFutureRpcReturnValueHandler implements RpcReturnValueHandler {
         this.methodParameter = methodParameter;
         this.rpcResponseConverter = rpcResponseConverter;
         this.objectMapper = objectMapper;
-        this.returnValue = Future.future();
+        this.promise = Promise.promise();
     }
 
     @Override
@@ -63,13 +64,13 @@ public class VertxFutureRpcReturnValueHandler implements RpcReturnValueHandler {
         try{
             // Error data is returned differently
             if(incomingEvent.metadata().contains(EventConstants.ERROR_HEADER)) {
-                returnValue.fail(EventUtil.createThrowableForEventWithError(incomingEvent, objectMapper));
+                promise.fail(EventUtil.createThrowableForEventWithError(incomingEvent, objectMapper));
             }else{
-                returnValue.complete(rpcResponseConverter.convert(incomingEvent, methodParameter));
+                promise.complete(rpcResponseConverter.convert(incomingEvent, methodParameter));
             }
         }catch (Exception e){
             log.error("Error converting the incoming message to expected java type", e);
-            returnValue.fail(e);
+            promise.fail(e);
         }
         return true;
     }
@@ -82,17 +83,17 @@ public class VertxFutureRpcReturnValueHandler implements RpcReturnValueHandler {
     @Override
     public Object getReturnValue(RpcRequest rpcRequest) {
         rpcRequest.send();
-        return returnValue;
+        return promise.future();
     }
 
     @Override
     public void processError(Throwable throwable) {
-        returnValue.fail(throwable);
+        promise.fail(throwable);
     }
 
     @Override
     public void cancel(String message) {
-        returnValue.fail(message);
+        promise.fail(message);
     }
 
 }

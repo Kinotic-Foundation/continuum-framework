@@ -18,6 +18,7 @@
 package org.kinotic.continuum.internal.core.api.aignite;
 
 import io.vertx.core.*;
+import io.vertx.core.impl.ContextInternal;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +33,7 @@ public class IteratorEventLooper<T> implements Handler<Void>, SuspendableObserve
     private static final Logger log = LoggerFactory.getLogger(IteratorEventLooper.class);
 
     private final Vertx vertx;
-    private final Context creatingContext;
+    private final ContextInternal creatingContext;
     private final AtomicBoolean suspended = new AtomicBoolean(false);
     private final AtomicBoolean closed = new AtomicBoolean(false);
     private Iterator<T> iterator;
@@ -57,11 +58,8 @@ public class IteratorEventLooper<T> implements Handler<Void>, SuspendableObserve
 
         this.vertx = vertx;
         this.iterator = iterator;
-        this.creatingContext = vertx.getOrCreateContext();
+        this.creatingContext = (ContextInternal) vertx.getOrCreateContext();
 
-        if (creatingContext.isMultiThreadedWorkerContext()) {
-            throw new IllegalStateException("Cannot use IteratorEventLooper in a multi-threaded worker verticle");
-        }
         creatingContext.addCloseHook(this);
 
     }
@@ -175,13 +173,13 @@ public class IteratorEventLooper<T> implements Handler<Void>, SuspendableObserve
     }
 
     @Override
-    public void close(Handler<AsyncResult<Void>> compHandler) {
+    public void close(Promise<Void> completion) {
         closed.set(true);
         iterator = null;
 
-        if (compHandler != null) {
+        if (completion != null) {
             Context context = vertx.getOrCreateContext();
-            context.runOnContext(v -> compHandler.handle(Future.succeededFuture()));
+            context.runOnContext(v -> completion.handle(Future.succeededFuture()));
         }
 
         if (creatingContext != null) {

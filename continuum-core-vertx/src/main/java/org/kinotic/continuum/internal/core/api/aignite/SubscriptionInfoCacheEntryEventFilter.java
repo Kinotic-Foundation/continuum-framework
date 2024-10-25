@@ -17,7 +17,8 @@
 
 package org.kinotic.continuum.internal.core.api.aignite;
 
-import io.vertx.core.eventbus.impl.clustered.ClusterNodeInfo;
+import io.vertx.spi.cluster.ignite.impl.IgniteNodeInfo;
+import io.vertx.spi.cluster.ignite.impl.IgniteRegistrationInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,10 +29,10 @@ import java.io.Serializable;
 import java.util.Set;
 
 /**
- * {@link CacheEntryEventFilter} for {@link ClusterNodeInfo}
+ * {@link CacheEntryEventFilter} for {@link IgniteNodeInfo}
  * Created by 🤓 on 5/8/21.
  */
-public class SubscriptionInfoCacheEntryEventFilter implements CacheEntryEventFilter<String, Set<ClusterNodeInfo>>, Serializable {
+public class SubscriptionInfoCacheEntryEventFilter implements CacheEntryEventFilter<IgniteRegistrationInfo, Boolean>, Serializable {
 
     private static final Logger log = LoggerFactory.getLogger(SubscriptionInfoCacheEntryEventFilter.class);
 
@@ -42,12 +43,14 @@ public class SubscriptionInfoCacheEntryEventFilter implements CacheEntryEventFil
     }
 
     @Override
-    public boolean evaluate(CacheEntryEvent<? extends String, ? extends Set<ClusterNodeInfo>> event) throws CacheEntryListenerException {
-        boolean match = event.getKey().equals(cri);
+    public boolean evaluate(CacheEntryEvent<? extends IgniteRegistrationInfo, ? extends Boolean> event) throws CacheEntryListenerException {
+        boolean match = event.getKey().address().equals(cri);
         if(log.isTraceEnabled()) {
-            log.trace("Subscription Status: " + event.getEventType().name()
-                      + " Received for " + event.getKey()
-                      + " waiting for " + cri + (match ? " they match." : " they don't match."));
+            log.trace("Subscription Status: {} Received for {} waiting for {}{}",
+                      event.getEventType().name(),
+                      event.getKey(),
+                      cri,
+                      match ? " they match." : " they don't match.");
         }
         return match;
     }

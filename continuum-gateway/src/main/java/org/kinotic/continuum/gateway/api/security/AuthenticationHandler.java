@@ -1,12 +1,12 @@
 package org.kinotic.continuum.gateway.api.security;
 
+import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.ext.web.RoutingContext;
-import me.escoffier.vertx.completablefuture.VertxCompletableFuture;
 import org.kinotic.continuum.core.api.event.EventConstants;
 import org.kinotic.continuum.api.security.SecurityService;
 
@@ -40,17 +40,18 @@ public class AuthenticationHandler implements Handler<RoutingContext> {
         for(Map.Entry<String, String> entry : ctx.request().headers()){
             authInfo.put(entry.getKey().toLowerCase(), entry.getValue());
         }
-        VertxCompletableFuture.from(vertx, securityService.authenticate(authInfo))
-                .whenComplete((participant, throwable) -> {
-                    if(throwable != null){
-                        ctx.request().resume();
-                        ctx.fail(401, throwable);
-                    }else{
-                        ctx.put(EventConstants.SENDER_HEADER, participant);
-                        ctx.request().resume();
-                        ctx.next();
-                    }
-                });
+
+        Future.fromCompletionStage(securityService.authenticate(authInfo), vertx.getOrCreateContext())
+                      .onComplete(event -> {
+                          if(event.succeeded()){
+                              ctx.put(EventConstants.SENDER_HEADER, event.result());
+                              ctx.request().resume();
+                              ctx.next();
+                          }else{
+                              ctx.request().resume();
+                              ctx.fail(401, ctx.failure());
+                          }
+                      });
     }
 
     private boolean handlePreflight(RoutingContext ctx) {

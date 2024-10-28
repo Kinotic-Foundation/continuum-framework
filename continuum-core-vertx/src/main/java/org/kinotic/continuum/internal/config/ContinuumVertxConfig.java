@@ -22,6 +22,7 @@ import io.vertx.core.spi.cluster.ClusterManager;
 import io.vertx.spi.cluster.ignite.IgniteClusterManager;
 import io.vertxbeans.VertxBeans;
 import org.apache.ignite.Ignite;
+import org.apache.ignite.internal.util.typedef.internal.U;
 import org.kinotic.continuum.api.config.ContinuumProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,13 +52,13 @@ public class ContinuumVertxConfig {
         EventBusOptions ret = new EventBusOptions();
         ret.setPort(properties.getEventBusClusterPort());
 
-//        for(String ip : U.allLocalIps()){
-//            if(!ip.startsWith("169.254")){ // avoid binding to AWS internal net
-//                log.info("Setting vertx Cluster host to {}", ip);
-//                ret.setHost(ip);
-//                break;
-//            }
-//        }
+        for(String ip : U.allLocalIps()){
+            if(!ip.startsWith("169.254")){ // avoid binding to AWS internal net
+                log.info("Setting vertx Cluster host to {}", ip);
+                ret.setHost(ip);
+                break;
+            }
+        }
         return ret;
     }
 

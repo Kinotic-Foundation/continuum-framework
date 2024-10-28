@@ -17,14 +17,12 @@
 
 package org.kinotic.continuum.internal.config;
 
-import org.kinotic.continuum.api.config.ContinuumProperties;
-import io.vertx.core.Future;
 import io.vertx.core.eventbus.EventBusOptions;
 import io.vertx.core.spi.cluster.ClusterManager;
 import io.vertx.spi.cluster.ignite.IgniteClusterManager;
 import io.vertxbeans.VertxBeans;
 import org.apache.ignite.Ignite;
-import org.apache.ignite.internal.util.typedef.internal.U;
+import org.kinotic.continuum.api.config.ContinuumProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -33,12 +31,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.ReactiveAdapterRegistry;
-import org.springframework.core.ReactiveTypeDescriptor;
-import reactor.core.publisher.Mono;
-
-import javax.annotation.PostConstruct;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 
 /**
@@ -59,13 +51,13 @@ public class ContinuumVertxConfig {
         EventBusOptions ret = new EventBusOptions();
         ret.setPort(properties.getEventBusClusterPort());
 
-        for(String ip : U.allLocalIps()){
-            if(!ip.startsWith("169.254")){ // avoid binding to AWS internal net
-                log.info("Setting vertx Cluster host to {}", ip);
-                ret.setHost(ip);
-                break;
-            }
-        }
+//        for(String ip : U.allLocalIps()){
+//            if(!ip.startsWith("169.254")){ // avoid binding to AWS internal net
+//                log.info("Setting vertx Cluster host to {}", ip);
+//                ret.setHost(ip);
+//                break;
+//            }
+//        }
         return ret;
     }
 

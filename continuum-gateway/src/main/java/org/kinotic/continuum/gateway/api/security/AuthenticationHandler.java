@@ -49,7 +49,7 @@ public class AuthenticationHandler implements Handler<RoutingContext> {
                               ctx.next();
                           }else{
                               ctx.request().resume();
-                              ctx.fail(401, ctx.failure());
+                              ctx.fail(401, event.cause());
                           }
                       });
     }

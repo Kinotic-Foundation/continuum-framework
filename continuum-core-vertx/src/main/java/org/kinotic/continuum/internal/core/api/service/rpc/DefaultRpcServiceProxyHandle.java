@@ -58,7 +58,6 @@ public class DefaultRpcServiceProxyHandle<T> implements RpcServiceProxyHandle<T>
 
     private final ServiceIdentifier serviceIdentifier;
     private final String nodeName;
-    private final String encodedNodeName;
     private final Class<T> serviceClass;
     private final CRI handlerCRI;
     private final RpcArgumentConverter rpcArgumentConverter;
@@ -90,7 +89,7 @@ public class DefaultRpcServiceProxyHandle<T> implements RpcServiceProxyHandle<T>
 
         this.serviceIdentifier = serviceIdentifier;
         this.nodeName = nodeName;
-        this.encodedNodeName = ContinuumUtil.safeEncodeURI(nodeName);
+        String encodedNodeName = ContinuumUtil.safeEncodeURI(nodeName);
         this.serviceClass = serviceClass;
         this.rpcArgumentConverter = rpcArgumentConverter;
         this.rpcReturnValueHandlerFactory = rpcReturnValueHandlerFactory;
@@ -171,7 +170,7 @@ public class DefaultRpcServiceProxyHandle<T> implements RpcServiceProxyHandle<T>
         if(!released.get()){
 
             if(log.isTraceEnabled()){
-                log.trace("Proxy for " + serviceClass.getSimpleName() + " Method Invoked " + method.toString());
+                log.trace("Proxy for {} Method Invoked {}", serviceClass.getSimpleName(), method.toString());
             }
 
             if(!shouldInvokeLocally(method)) {
@@ -228,8 +227,7 @@ public class DefaultRpcServiceProxyHandle<T> implements RpcServiceProxyHandle<T>
                                                responseMap.remove(correlationId);
 
                                                // TODO: refactor into util, this is also done in the EndpointConnectionHandler
-                                               if (throwable instanceof ReplyException) {
-                                                   ReplyException replyException = (ReplyException) throwable;
+                                               if (throwable instanceof ReplyException replyException) {
                                                    if (replyException.failureType() == ReplyFailure.NO_HANDLERS) {
                                                        throwable = new RpcMissingServiceException(throwable);
                                                    }

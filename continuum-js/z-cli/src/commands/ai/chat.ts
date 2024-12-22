@@ -1,6 +1,6 @@
 import { Command } from '@oclif/core'
 import { OpenAI } from 'openai'
-import readline from 'readline'
+import { input } from '@inquirer/prompts'
 import chalk from 'chalk'
 import ora from 'ora'
 import { loadConfig } from '../../internal/state/Config.js'
@@ -19,31 +19,23 @@ export default class Chat extends Command {
             }
 
             const openai = new OpenAI({ apiKey: config.openAIKey })
-
             const thread = await openai.beta.threads.create()
             const threadId = thread.id
 
-            const rl = readline.createInterface({
-                                                    input: process.stdin,
-                                                    output: process.stdout
-                                                })
+            this.log(chalk.blue('Interactive chat session started. Type ') + chalk.yellow('\\q') + chalk.blue(' to exit.'))
 
-            this.log(chalk.blue('Interactive chat session started. Type ') + chalk.yellow('\q') + chalk.blue(' to exit.'))
+            let chatActive = true
+            while (chatActive) {
+                const userInput = await input({ message: chalk.green('You:') })
 
-            const promptUser = async () => {
-                rl.question(chalk.green('You: '), async (input) => {
-                    if (input.trim() === '\q') {
-                        rl.close()
-                        this.log(chalk.blue('Chat session ended.'))
-                        return
-                    }
-
+                if (userInput.trim() !== '\\q') {
                     const spinner = ora('Assistant is typing...').start()
+                    let textContent = chalk.red('Assistant: (No response)')
 
                     try {
-                        await openai.beta.threads.messages.create(threadId, {
+                        const message = await openai.beta.threads.messages.create(threadId, {
                             role: 'user',
-                            content: input
+                            content: userInput
                         })
 
                         const run = await openai.beta.threads.runs.create(threadId, {
@@ -53,9 +45,9 @@ export default class Chat extends Command {
                         let runStatus = await openai.beta.threads.runs.retrieve(threadId, run.id)
                         while (runStatus.status !== 'completed') {
                             if (runStatus.status === 'failed') {
-                                spinner.fail(chalk.red('Assistant run failed.'))
-                                rl.close()
-                                return
+                                spinner.fail(chalk.red('Assistant run failed. Please try again.'))
+                                chatActive = false
+                                break
                             }
                             await new Promise(resolve => setTimeout(resolve, 1000))
                             runStatus = await openai.beta.threads.runs.retrieve(threadId, run.id)
@@ -66,24 +58,26 @@ export default class Chat extends Command {
                         const messages = await openai.beta.threads.messages.list(threadId)
                         const lastMessage = messages.data.find(m => m.role === 'assistant')
 
-                        if (lastMessage && Array.isArray(lastMessage.content)) {
-                            const textContent = lastMessage.content
-                                                           .map(part => ('text' in part && typeof part.text === 'object' && 'value' in part.text ? part.text.value : ''))
-                                                           .join('\n')
-                            this.log(chalk.cyan('Assistant: ') + chalk.white(textContent))
-                        } else {
-                            this.log(chalk.red('Assistant: (No response)'))
-                        }
+                        textContent = lastMessage && Array.isArray(lastMessage.content)
+                                      ? lastMessage.content
+                                                   .map(part => ('text' in part && typeof part.text === 'object' && 'value' in part.text ? part.text.value : ''))
+                                                   .join('\n')
+                                      : textContent
 
-                        await promptUser()
                     } catch (error: any) {
-                        spinner.fail(chalk.red(`Error communicating with assistant: ${error.message}`))
+                        spinner.fail(chalk.red(`Error: ${error.message}`))
+                        chatActive = false
                     }
-                })
+
+                    this.log(chalk.cyan('Assistant: ') + chalk.white(textContent))
+                } else {
+                    chatActive = false
+                }
             }
-            await promptUser()
+
+            this.log(chalk.blue('Chat session ended.'))
         } catch (error: any) {
-            this.log(chalk.red(`Error starting chat session: ${error.message}`))
+            this.log(chalk.red(`Error in chat: ${error.message}`))
         }
     }
 }

@@ -4,6 +4,7 @@ import fs from 'fs/promises'
 import { createReadStream } from 'fs'
 import { glob } from 'glob'
 import cliProgress from 'cli-progress'
+import chalk from 'chalk'
 import { loadConfig } from '../../internal/state/Config.js'
 
 export default class Upload extends Command {
@@ -37,74 +38,95 @@ export default class Upload extends Command {
             const assistantId = config.defaultAssistantId
 
             if (!assistantId) {
-                this.error('No default assistant configured. Please set a default assistant first.')
+                this.log(chalk.red('No default assistant configured. Please set a default assistant first.'))
+                return
             }
 
-            // Initialize the OpenAI API client using config key
+            // Initialize the OpenAI API client
             const openai = new OpenAI({ apiKey: config.openAIKey })
 
             // Resolve files based on the glob pattern
             const files = await glob(pattern, { nodir: true, absolute: true })
 
             if (files.length === 0) {
-                this.error('No files matched the given pattern.')
-            }
-
-            if (dryRun) {
-                this.log('Dry run: The following files would be uploaded:')
-                files.forEach(file => this.log(file))
+                this.log(chalk.red('No files matched the given pattern.'))
                 return
             }
 
-            // Setup progress bar
-            const progressBar = new cliProgress.SingleBar({
-                                                              format: 'Uploading {bar} {percentage}% | {value}/{total} files',
-                                                          }, cliProgress.Presets.shades_classic)
+            if (dryRun) {
+                this.log(chalk.yellow('Dry run: The following files would be uploaded:'))
+                files.forEach(file => this.log(file))
+                return
+            }
+            const uploadedFileIds = await this.uploadFiles(files, openai)
 
-            progressBar.start(files.length, 0)
+            if (uploadedFileIds.length === 0) {
+                this.log(chalk.red('No files were uploaded successfully.'))
+                return
+            }
 
-            const uploadedFileIds: string[] = []
+            // Retrieve existing vector store ID if available
+            const assistant = await openai.beta.assistants.retrieve(assistantId)
+            const existingVectorStoreIds = assistant.tool_resources?.file_search?.vector_store_ids || []
 
-            for (let i = 0; i < files.length; i++) {
-                const filePath = files[i]
+            if (existingVectorStoreIds.length > 0) {
+                // Update the existing vector store with new file IDs using fileBatches
+                const vectorStoreId = existingVectorStoreIds[0]
+                await openai.beta.vectorStores.fileBatches.create(vectorStoreId, {
+                    file_ids: uploadedFileIds
+                })
+            } else {
+                // Create a new vector store if none exists
+                const vectorStore = await openai.beta.vectorStores.create({
+                                                                              file_ids: uploadedFileIds
+                                                                          })
 
-                try {
-                    await fs.access(filePath)
-                } catch {
-                    this.warn(`File does not exist: ${filePath}`)
-                    continue
-                }
+                // Update assistant with the new vector store ID
+                await openai.beta.assistants.update(assistantId, {
+                    tool_resources: {
+                        file_search: {
+                            vector_store_ids: [vectorStore.id]
+                        }
+                    }
+                })
+            }
 
+            this.log(chalk.green('All files uploaded and assistant updated successfully.'))
+        } catch (error: any) {
+            this.log(chalk.red(`Error uploading files or updating assistant: ${error.message}`))
+        }
+    }
+
+    private async uploadFiles(files: string[], openai: OpenAI) {
+        // Setup progress bar
+        const progressBar = new cliProgress.SingleBar({
+                                                          format: 'Uploading {bar} {percentage}% | {value}/{total} files',
+                                                      }, cliProgress.Presets.shades_classic)
+
+        progressBar.start(files.length, 0)
+
+        const uploadedFileIds: string[] = []
+
+        for (let i = 0; i < files.length; i++) {
+            const filePath = files[i]
+
+            try {
+                await fs.access(filePath)
                 const fileStream = createReadStream(filePath)
 
                 const file = await openai.files.create({
-                                                           file: fileStream,
+                                                           file   : fileStream,
                                                            purpose: 'assistants'
                                                        })
 
                 uploadedFileIds.push(file.id)
                 progressBar.update(i + 1)
+            } catch (error: any) {
+                this.log(chalk.red(`\nFailed to upload ${filePath}: ${error.message}`))
             }
-
-            progressBar.stop()
-
-            // Create a vector store and add uploaded files
-            const vectorStore = await openai.beta.vectorStores.create({
-                                                                          file_ids: uploadedFileIds
-                                                                      })
-
-            // Update assistant with vector store ID
-            await openai.beta.assistants.update(assistantId, {
-                tool_resources: {
-                    file_search: {
-                        vector_store_ids: [vectorStore.id]
-                    }
-                }
-            })
-
-            this.log('All files uploaded and assistant updated successfully')
-        } catch (error: any) {
-            this.error('Error uploading files or updating assistant:', { message: error.message })
         }
+
+        progressBar.stop()
+        return uploadedFileIds
     }
 }

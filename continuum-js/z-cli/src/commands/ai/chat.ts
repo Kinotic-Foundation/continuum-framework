@@ -69,7 +69,7 @@ export default class Chat extends Command {
                         chatActive = false
                     }
 
-                    this.log(chalk.cyan('Assistant: ') + chalk.white(textContent))
+                    this.log(chalk.cyan('Assistant: \n') + chalk.white(textContent))
                 } else {
                     chatActive = false
                 }

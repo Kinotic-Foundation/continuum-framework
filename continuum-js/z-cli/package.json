@@ -18,7 +18,8 @@
     "cli-progress": "^3.12.0",
     "glob": "^11.0.0",
     "openai": "^4.77.0",
-    "ora": "^8.1.1"
+    "ora": "^8.1.1",
+    "whatwg-url": "^14.1.0"
   },
   "devDependencies": {
     "@oclif/prettier-config": "^0.2.1",

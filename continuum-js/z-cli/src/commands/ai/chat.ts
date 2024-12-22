@@ -77,7 +77,7 @@ export default class Chat extends Command {
 
             this.log(chalk.blue('Chat session ended.'))
         } catch (error: any) {
-            this.log(chalk.red(`Error in chat: ${error.message}`))
+            this.log(chalk.red(`Error starting chat: ${error.message}`))
         }
     }
 }

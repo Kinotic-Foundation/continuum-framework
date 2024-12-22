@@ -56,4 +56,3 @@ The C3 Interface Definition Language (IDL) is a schema language within the Conti
 ## Conclusion
 
 The C3Type IDL is a robust framework for defining data types in a consistent and interoperable fashion. Through its structures and features, developers can form detailed type definitions that foster system integration and efficient data management within the Continuum platform.
-

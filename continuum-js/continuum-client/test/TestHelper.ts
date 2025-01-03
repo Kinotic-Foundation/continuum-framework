@@ -34,7 +34,7 @@ export async function initContinuumGateway(): Promise<{
                                                         connectionInfo: ConnectionInfo
                                                       }> {
     console.log('Starting Continuum Gateway')
-    const testContainer= await new GenericContainer('kinotic/continuum-gateway-server:2.3.1-SNAPSHOT')
+    const testContainer= await new GenericContainer('kinotic/continuum-gateway-server:latest')
         .withExposedPorts(58503)
         .withEnvironment({SPRING_PROFILES_ACTIVE: "clienttest"})
         .withBindMounts([{source:'/tmp/ignite', target:'/workspace/ignite/work', mode:'rw'}])

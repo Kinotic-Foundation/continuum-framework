@@ -57,7 +57,7 @@ public class ServiceRegistrationBeanPostProcessor implements DestructionAwareBea
 
         processBean(bean, (serviceIdentifier, clazz) -> {
 
-            log.info("Registering Service "+ serviceIdentifier);
+            log.info("Registering Service {}", serviceIdentifier);
 
             serviceRegistry.register(serviceIdentifier, clazz, bean)
                            .subscribe(null,
@@ -70,7 +70,7 @@ public class ServiceRegistrationBeanPostProcessor implements DestructionAwareBea
     public void postProcessBeforeDestruction(Object bean, String beanName) throws BeansException {
         processBean(bean, (serviceIdentifier, clazz) -> {
 
-            log.info("Un-Registering Service "+ serviceIdentifier);
+            log.info("Un-Registering Service {}", serviceIdentifier);
 
             serviceRegistry.unregister(serviceIdentifier)
                            .subscribe(null,
@@ -126,7 +126,7 @@ public class ServiceRegistrationBeanPostProcessor implements DestructionAwareBea
             } catch (FatalBeanException e) {
                 throw e;
             } catch (Exception e) {
-                log.warn("Error processing Meta for bean:" + instance, e);
+                log.warn("Error processing Meta for bean:{}", instance, e);
             }
         }
     }

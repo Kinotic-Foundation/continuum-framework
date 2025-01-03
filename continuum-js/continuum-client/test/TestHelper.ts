@@ -1,5 +1,5 @@
 import {ConnectedInfo, ConnectionInfo} from '../src'
-import {AlwaysPullPolicy, GenericContainer, StartedTestContainer} from 'testcontainers'
+import {GenericContainer, PullPolicy, StartedTestContainer} from 'testcontainers'
 import {expect} from 'vitest'
 
 /**
@@ -38,7 +38,7 @@ export async function initContinuumGateway(): Promise<{
         .withExposedPorts(58503)
         .withEnvironment({SPRING_PROFILES_ACTIVE: "clienttest"})
         .withBindMounts([{source:'/tmp/ignite', target:'/workspace/ignite/work', mode:'rw'}])
-        .withPullPolicy(new AlwaysPullPolicy())
+        .withPullPolicy(PullPolicy.alwaysPull())
         .start()
     const connectionInfo = new ConnectionInfo()
     connectionInfo.host = testContainer.getHost()

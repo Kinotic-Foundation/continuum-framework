@@ -155,8 +155,7 @@ public class EndpointConnectionHandler {
                             .sendWithAck(incomingEvent)
                             .onErrorMap(throwable -> { // map errors that occurred because no Service invoker was listening
                                 boolean predicateRet = false;
-                                if (throwable instanceof ReplyException) {
-                                    ReplyException replyException = (ReplyException) throwable;
+                                if (throwable instanceof ReplyException replyException) {
                                     if (replyException.failureType() == ReplyFailure.NO_HANDLERS) {
                                         predicateRet = true;
                                     }

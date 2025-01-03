@@ -17,11 +17,10 @@
 
 package org.kinotic.continuum.internal;
 
+import org.apache.commons.lang3.ClassUtils;
 import org.kinotic.continuum.api.annotations.ContinuumPackages;
 import org.kinotic.continuum.api.annotations.Proxy;
-import org.kinotic.continuum.api.annotations.Version;
 import org.kinotic.continuum.internal.utils.MetaUtil;
-import org.apache.commons.lang3.ClassUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -84,13 +83,13 @@ public class ProxyRegistrationBeanDefinitionRegistryPostProcessor implements Bea
 
             // We check if there is a bean implementing the Proxy interface.
             // If there is no proxy will be created
-            // This allows an interface to be Annotated with both Proxy and Publish, when this is done multiple services can share the Interface definitions
+            // This allows an interface to be Annotated with both Proxy and Publish, when this is done multiple microservices can share the Interface definitions
             if(listableBeanFactory.getBeanNamesForType(serviceClass).length == 0) {
 
                 BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(RpcServiceProxyBeanFactory.class);
                 builder.addConstructorArgValue(serviceClass);
 
-                log.debug("Registering bean factory for RPC Proxy: " + serviceClassName);
+                log.debug("Registering bean factory for RPC Proxy: {}", serviceClassName);
                 registry.registerBeanDefinition(ClassUtils.getShortClassName(serviceClassName) + "Factory", builder.getBeanDefinition());
             }
         }

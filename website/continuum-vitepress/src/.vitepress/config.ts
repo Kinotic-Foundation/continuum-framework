@@ -61,7 +61,8 @@ function sidebarReference() {
     {
       text: 'Reference',
       items: [
-        { text: 'Continuum Config', link: '/reference/continuum-config' }
+        { text: 'Continuum Config', link: '/reference/continuum-config' },
+        { text: 'C3 IDL', link: '/reference/c3-idl' }
       ]
     },
     {

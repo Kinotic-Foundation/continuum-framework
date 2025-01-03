@@ -17,17 +17,17 @@
 
 package org.kinotic.continuum.internal.utils;
 
-import org.kinotic.continuum.api.annotations.Scope;
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.reflect.FieldUtils;
+import org.kinotic.continuum.api.annotations.Scope;
 import org.kinotic.continuum.api.annotations.Version;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.BridgeMethodResolver;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.type.classreading.MetadataReader;
-import org.springframework.core.type.filter.AbstractTypeHierarchyTraversingFilter;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
+import org.springframework.core.type.filter.AssignableTypeFilter;
 import org.springframework.util.Assert;
 
 import java.lang.annotation.Annotation;
@@ -70,27 +70,22 @@ public class MetaUtil {
     }
 
     /**
-     * Scans the given packages for classes implementing the given superclass
+     * Scans the given packages for classes that are assignable to the given type
      * @param applicationContext the current Spring {@link ApplicationContext}
      * @param packages to scan
-     * @param superClass that classes found must extend
-     * @return a Set of {@link MetadataReader}'s for the classes that have the desired annotation
+     * @param targetType that classes found must be assignable to
+     * @return a Set of {@link MetadataReader}'s for the classes that are found
      */
-    public static Set<MetadataReader> findClassesWithSuperClass(ApplicationContext applicationContext,
-                                                                List<String> packages,
-                                                                String superClass){
+    public static Set<MetadataReader> findClassesAssignableToType(ApplicationContext applicationContext,
+                                                                  List<String> packages,
+                                                                  Class<?> targetType){
 
-        Validate.notBlank(superClass, "superClass must not be blank");
+        Validate.notNull(targetType, "targetType must not be null");
 
         ClassPathScanningMetadataReaderProvider scanner
                 = new ClassPathScanningMetadataReaderProvider(applicationContext.getEnvironment());
         scanner.setResourceLoader(applicationContext);
-        scanner.addIncludeFilter(new AbstractTypeHierarchyTraversingFilter(true, false) {
-            @Override
-            protected Boolean matchSuperClass(String superClassName) {
-                return superClassName.equals(superClass);
-            }
-        });
+        scanner.addIncludeFilter(new AssignableTypeFilter(targetType));
 
         Set<MetadataReader> readers = new HashSet<>();
 

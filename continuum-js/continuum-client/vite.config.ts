@@ -10,7 +10,7 @@ export default defineConfig({
             entry: resolve(__dirname, 'src/index.ts'),
             name: 'continuum',
             fileName: 'continuum',
-            formats: ["es", "umd"],
+            formats: ["es"],
         },
         sourcemap: true,
     },
@@ -19,7 +19,10 @@ export default defineConfig({
             '@' : resolve(__dirname, 'src')
         },
     },
-    plugins: [externalizeDeps(), dts()],
+    plugins: [
+        externalizeDeps(),
+        dts()
+    ],
     test: {
         coverage: {
             provider: 'v8',

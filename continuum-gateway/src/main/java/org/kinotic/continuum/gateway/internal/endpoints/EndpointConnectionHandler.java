@@ -125,7 +125,7 @@ public class EndpointConnectionHandler {
                     .removeSession(session.sessionId())
                     .handle((BiFunction<Boolean, Throwable, Void>) (aBoolean, throwable) -> {
                         if (throwable != null) {
-                            log.error("Could not remove sessionId: " + session.sessionId(), throwable);
+                            log.error("Could not remove sessionId: {}", session.sessionId(), throwable);
                         }
                         return null;
                     });
@@ -146,6 +146,7 @@ public class EndpointConnectionHandler {
 
                     // FIXME: when the invocation is local this happens for no reason. If the event stays on the local bus we shouldn't do this..
                     incomingEvent.metadata().put(EventConstants.SENDER_HEADER, services.objectMapper.writeValueAsString(session.participant()));
+
 
                     // make sure reply-to if present is scoped to sender
                     // FIXME: a reply should not need a reply, therefore a replyCri probably should not be a EventConstants.SERVICE_DESTINATION_PREFIX
@@ -232,7 +233,8 @@ public class EndpointConnectionHandler {
                                             if (!replyTo.contains("*")) {
                                                 session.addTemporarySendAllowed(replyTo);
                                             } else {
-                                                log.warn("reply-to header contains * and will NOT be ALLOWED for message " + event);
+                                                log.warn("reply-to header contains * and will NOT be ALLOWED for message {}",
+                                                         event);
                                             }
                                         }
                                     }) // services we want to make sure reply addresses are implicitly allowed
@@ -268,7 +270,7 @@ public class EndpointConnectionHandler {
         if (subscriptions.containsKey(subscriptionIdentifier)) {
             subscriptions.remove(subscriptionIdentifier).cancel();
         } else {
-            log.debug("No subscription exists for subscriptionIdentifier: " + subscriptionIdentifier);
+            log.debug("No subscription exists for subscriptionIdentifier: {}", subscriptionIdentifier);
         }
     }
 

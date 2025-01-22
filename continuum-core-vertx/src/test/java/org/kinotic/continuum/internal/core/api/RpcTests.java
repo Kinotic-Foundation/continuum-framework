@@ -17,6 +17,8 @@
 
 package org.kinotic.continuum.internal.core.api;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.util.TokenBuffer;
 import io.vertx.core.Future;
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.Assertions;
@@ -36,9 +38,11 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -58,6 +62,9 @@ public class RpcTests {
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") // these are not detected because continuum wires them..
     @Autowired
     private RpcTestServiceProxy rpcTestServiceProxy;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     // TODO: test to few arguments, and too many arguments, also a variation with the participant. Participant variant error message may be misleading?
     // See org.kinotic.continuum.internal.core.api.service.json.AbstractJackson2Support Line 114, Line 180. Should we keep the number of participant args in mind.
@@ -263,53 +270,6 @@ public class RpcTests {
     }
 
     @Test
-    public void testReceiveCollection(){
-        Mono<List<String>> mono = rpcTestServiceProxy.getListOfStrings();
-        StepVerifier.create(mono)
-                    .expectNext(RpcTestService.LIST_OF_STRINGS)
-                    .expectComplete()
-                    .verify();
-    }
-
-    @Test
-    public void testRpcCompletableFutureString(){
-        CompletableFuture<String> mono = rpcTestServiceProxy.getString();
-
-        StepVerifier.create(Mono.fromFuture(mono)).expectNext(RpcTestService.STRING_VALUE).expectComplete().verify();
-    }
-
-    @Test
-    public void testSendAndReceiveCollection(){
-        Mono<List<String>> mono = rpcTestServiceProxy.modifyListOfStrings(RpcTestService.LIST_OF_STRINGS);
-        StepVerifier.create(mono)
-                    .expectNext(RpcTestService.LIST_OF_STRINGS.stream().map(s -> "Hello "+ s).collect(Collectors.toList()))
-                    .expectComplete()
-                    .verify();
-    }
-
-    @Test
-    public void testSendCollection(){
-        Mono<Integer> mono = rpcTestServiceProxy.putListOfStrings(RpcTestService.LIST_OF_STRINGS);
-        StepVerifier.create(mono)
-                    .expectNext(RpcTestService.LIST_OF_STRINGS.size())
-                    .expectComplete()
-                    .verify();
-    }
-
-    @Test
-    public void testSimpleObject(){
-        Mono<Tuple2<SimpleObject, String>> mono = rpcTestServiceProxy.getSimpleObject()
-                                                                     .zipWhen(simpleObject -> rpcTestServiceProxy.getSimpleObjectToString(simpleObject));
-
-        StepVerifier.create(mono)
-                    .expectNextMatches(tuple -> {
-                        return tuple.getT1().toString().equals(tuple.getT2());
-                    })
-                    .expectComplete()
-                    .verify();
-    }
-
-    @Test
     public void testPutListOfSimpleObjects(){
         List<SimpleObject> simpleObjects = new ArrayList<>();
         for(int i = 0; i < 10; i++){
@@ -360,6 +320,68 @@ public class RpcTests {
         Mono<Integer> mono = rpcTestServiceProxy.putNestedGenerics(toSend);
         StepVerifier.create(mono)
                     .expectNext(100)
+                    .expectComplete()
+                    .verify();
+    }
+
+    @Test
+    public void testReceiveCollection(){
+        Mono<List<String>> mono = rpcTestServiceProxy.getListOfStrings();
+        StepVerifier.create(mono)
+                    .expectNext(RpcTestService.LIST_OF_STRINGS)
+                    .expectComplete()
+                    .verify();
+    }
+
+    @Test
+    public void testRpcCompletableFutureString(){
+        CompletableFuture<String> mono = rpcTestServiceProxy.getString();
+
+        StepVerifier.create(Mono.fromFuture(mono)).expectNext(RpcTestService.STRING_VALUE).expectComplete().verify();
+    }
+
+    @Test
+    public void testSendAndReceiveCollection(){
+        Mono<List<String>> mono = rpcTestServiceProxy.modifyListOfStrings(RpcTestService.LIST_OF_STRINGS);
+        StepVerifier.create(mono)
+                    .expectNext(RpcTestService.LIST_OF_STRINGS.stream().map(s -> "Hello "+ s).collect(Collectors.toList()))
+                    .expectComplete()
+                    .verify();
+    }
+
+    @Test
+    public void testSendCollection(){
+        Mono<Integer> mono = rpcTestServiceProxy.putListOfStrings(RpcTestService.LIST_OF_STRINGS);
+        StepVerifier.create(mono)
+                    .expectNext(RpcTestService.LIST_OF_STRINGS.size())
+                    .expectComplete()
+                    .verify();
+    }
+
+    @Test
+    public void testSendTokenBuffer() throws IOException {
+        try (TokenBuffer tokenBuffer = new TokenBuffer(objectMapper, false)) {
+            tokenBuffer.writeStartObject();
+            tokenBuffer.writeStringField("test", "Hello Sucka");
+            tokenBuffer.writeEndObject();
+
+            Mono<String> mono = rpcTestServiceProxy.echoTokenBuffer(tokenBuffer);
+            StepVerifier.create(mono)
+                        .expectNext("{\"test\":\"Hello Sucka\"}")
+                        .expectComplete()
+                        .verify();
+        }
+    }
+
+    @Test
+    public void testSimpleObject(){
+        Mono<Tuple2<SimpleObject, String>> mono = rpcTestServiceProxy.getSimpleObject()
+                                                                     .zipWhen(simpleObject -> rpcTestServiceProxy.getSimpleObjectToString(simpleObject));
+
+        StepVerifier.create(mono)
+                    .expectNextMatches(tuple -> {
+                        return tuple.getT1().toString().equals(tuple.getT2());
+                    })
                     .expectComplete()
                     .verify();
     }

@@ -17,6 +17,7 @@
 
 package org.kinotic.continuum.internal.core.api.support;
 
+import com.fasterxml.jackson.databind.util.TokenBuffer;
 import io.vertx.core.Future;
 import org.kinotic.continuum.api.annotations.Proxy;
 import reactor.core.publisher.Flux;
@@ -93,4 +94,6 @@ public interface RpcTestServiceProxy {
     Mono<Integer> putMapOfSimpleObjects(Map<String, SimpleObject> simpleObjects);
 
     Mono<Integer> putNestedGenerics(List<Map<String, Set<SimpleObject>>> objects);
+
+    Mono<String> echoTokenBuffer(TokenBuffer tokenBuffer);
 }

@@ -17,6 +17,9 @@
 
 package org.kinotic.continuum.internal.core.api.support;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.util.TokenBuffer;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import org.kinotic.continuum.api.security.Participant;
@@ -37,6 +40,8 @@ import java.util.stream.Collectors;
 @Component
 public class DefaultRpcTestService implements RpcTestService{
 
+    @Autowired
+    private ObjectMapper objectMapper;
     @Autowired
     private Vertx vertx;
 
@@ -233,6 +238,16 @@ public class DefaultRpcTestService implements RpcTestService{
             }
         }
         return ret;
+    }
+
+    @Override
+    public String echoTokenBuffer(TokenBuffer tokenBuffer) {
+        try {
+            String jsonString = objectMapper.writeValueAsString(tokenBuffer);
+            return jsonString;
+        } catch (JsonProcessingException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     private static class UnknownThrowable extends RuntimeException{

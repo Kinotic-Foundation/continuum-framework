@@ -12,11 +12,8 @@ Object.assign(global, { WebSocket})
 
 describe('Continuum RPC Tests', () => {
 
-    let container: StartedTestContainer
-
     beforeAll(async () => {
-        const {testContainer, connectionInfo} = await initContinuumGateway()
-        container = testContainer
+        const {connectionInfo} = await initContinuumGateway()
         let connectedInfo: ConnectedInfo = await logFailure(Continuum.connect(connectionInfo), 'Failed to connect to Continuum Gateway')
         validateConnectedInfo(connectedInfo)
     }, 1000 * 60 * 10) // 10 minutes
@@ -25,7 +22,6 @@ describe('Continuum RPC Tests', () => {
         await expect(Continuum.disconnect()).resolves.toBeUndefined()
         await otelTracerProvider.forceFlush()
         await otelTracerProvider.shutdown()
-        await container.stop()
     })
 
 

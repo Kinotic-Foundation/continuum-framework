@@ -13,15 +13,13 @@ describe('Continuum Context Tests', () => {
     let container: StartedTestContainer
 
     beforeAll(async () => {
-        const {testContainer, connectionInfo} = await initContinuumGateway()
-        container = testContainer
+        const {connectionInfo} = await initContinuumGateway()
         let connectedInfo: ConnectedInfo = await logFailure(Continuum.connect(connectionInfo), 'Failed to connect to Continuum Gateway')
         validateConnectedInfo(connectedInfo)
     }, 1000 * 60 * 10) // 10 minutes
 
     afterAll(async () =>{
         await expect(Continuum.disconnect()).resolves.toBeUndefined()
-        await container.stop()
     })
 
 
@@ -30,7 +28,7 @@ describe('Continuum Context Tests', () => {
         expect(uuid1).toBeDefined()
         await expect(TEST_SERVICE.getTestUUID()).resolves.toEqual(uuid1) // static sanity check
 
-        const {testContainer: testContainer2, connectionInfo: connectionInfo2} = await initContinuumGateway()
+        const {connectionInfo: connectionInfo2} = await initContinuumGateway()
         const continuum2 = new ContinuumSingleton()
         let connectedInfo2: ConnectedInfo = await logFailure(continuum2.connect(connectionInfo2), 'Failed to connect to Continuum Gateway')
         validateConnectedInfo(connectedInfo2)
@@ -40,8 +38,6 @@ describe('Continuum Context Tests', () => {
         })
 
         await expect(continuum2.disconnect()).resolves.toBeUndefined()
-        await testContainer2.stop()
-
     }, 1000 * 60 * 10) // 10 minutes
 
 })

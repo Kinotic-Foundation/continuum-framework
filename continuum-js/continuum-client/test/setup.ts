@@ -13,7 +13,9 @@ export async function setup(project: TestProject) {
         .withWaitStrategy(Wait.forHttp('/', 58503))
         .start()
 
+    // @ts-ignore
     project.provide('CONTINUUM_HOST', container.getHost())
+    // @ts-ignore
     project.provide('CONTINUUM_PORT', container.getMappedPort(58503))
 
     console.log('Continuum Gateway started.')

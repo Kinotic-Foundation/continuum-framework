@@ -25,7 +25,7 @@ jobs:
           gpg-passphrase: GPG_KEY_PASS
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v3
+        uses: gradle/actions/setup-gradle@v4
 
       - name: Build with Gradle
         run: ./gradlew build
@@ -48,3 +48,32 @@ jobs:
           cd continuum-js/continuum-client
           ./gradlew pnpmInstall
           ./gradlew pnpmTest
+
+      - name: Merge Test Results
+        run: |
+          mkdir -p allure-results
+          cp -r */build/allure-results/* allure-results/
+          cp -r continuum-js/*/allure-results/* allure-results/
+
+      - name: Get Allure history
+        uses: actions/checkout@v4
+        continue-on-error: true
+        with:
+          ref: gh-pages
+          path: gh-pages
+
+      - name: Generate Allure report
+        uses: simple-elf/allure-report-action@master
+        id: allure-report
+        with:
+          allure_results: allure-results
+          gh_pages: gh-pages
+          allure_report: allure-report
+          allure_history: allure-history
+
+      - name: Deploy report to Github Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: allure-history
+          publish_branch: gh-pages

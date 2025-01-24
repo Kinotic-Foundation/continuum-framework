@@ -32,7 +32,9 @@ export async function initContinuumGateway(): Promise<{
                                                         connectionInfo: ConnectionInfo
                                                       }> {
     const connectionInfo = new ConnectionInfo()
+    // @ts-ignore
     connectionInfo.host = inject('CONTINUUM_HOST')
+    // @ts-ignore
     connectionInfo.port = inject('CONTINUUM_PORT')
     connectionInfo.maxConnectionAttempts = 3
     connectionInfo.connectHeaders = {login: 'guest', passcode: 'guest'}

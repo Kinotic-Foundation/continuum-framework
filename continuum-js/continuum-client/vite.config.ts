@@ -3,6 +3,7 @@ import { defineConfig } from 'vitest/config'
 import dts from 'vite-plugin-dts'
 import { externalizeDeps } from 'vite-plugin-externalize-deps'
 
+
 // https://vitejs.dev/guide/build.html#library-mode
 export default defineConfig({
     build: {
@@ -29,5 +30,15 @@ export default defineConfig({
             reporter: ['text', 'json', 'html'],
         },
         globalSetup: './test/setup.ts',
+        setupFiles: ["allure-vitest/setup"],
+        reporters: [
+            "verbose",
+            [
+                "allure-vitest/reporter",
+                {
+                    resultsDir: "allure-results",
+                },
+            ],
+        ],
     },
 })

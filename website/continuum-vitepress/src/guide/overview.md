@@ -26,12 +26,12 @@ Overall, the Continuum Framework empowers developers with the tools and knowledg
 
 ## Contributing
 
-We welcome contributions to Structures from the community. To contribute, please follow these guidelines:
+We welcome contributions to Continuum Framework from the community. To contribute, please follow these guidelines:
 
-1. Fork the Structures repository on GitHub.
+1. Fork the Continuum Framework repository on GitHub.
 2. Make your changes to the codebase.
 3. Submit a pull request with your changes.
 
 ## License
 
-Structures is released under the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0).
+The Continuum Framework is released under the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0).

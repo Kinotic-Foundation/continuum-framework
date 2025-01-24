@@ -1,4 +1,3 @@
-import './Instrumentation'
 import {describe, expect, it} from 'vitest'
 import {WebSocket} from 'ws'
 import {Continuum} from '../src'

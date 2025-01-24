@@ -1,4 +1,3 @@
-import './Instrumentation'
 import {StartedTestContainer} from 'testcontainers'
 import {afterAll, beforeAll, describe, expect, it} from 'vitest'
 import {WebSocket} from 'ws'

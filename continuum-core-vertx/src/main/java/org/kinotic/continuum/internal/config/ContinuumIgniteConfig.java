@@ -133,7 +133,7 @@ public class ContinuumIgniteConfig {
 
         cfg.setFailureHandler(failureHandler);
 
-        cfg.setWorkDirectory("/tmp/ignite/work");
+        cfg.setWorkDirectory(continuumProperties.getIgniteWorkDirectory());
 
        // cfg.setPeerClassLoadingEnabled(true);
 

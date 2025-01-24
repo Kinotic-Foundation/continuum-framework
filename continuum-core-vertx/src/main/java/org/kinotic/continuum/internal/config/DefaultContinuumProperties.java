@@ -44,6 +44,7 @@ public class DefaultContinuumProperties implements ContinuumProperties {
     private boolean debug = false;
     private boolean disableClustering = false;
     private int eventBusClusterPort = 0;
+    private String igniteWorkDirectory = "/tmp/ignite";
     private long sessionTimeout = DEFAULT_SESSION_TIMEOUT;
     /**
      * Sets the mode used for discovering other nodes within the cluster must be one of the following.

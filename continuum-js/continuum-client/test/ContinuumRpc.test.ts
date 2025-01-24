@@ -1,5 +1,3 @@
-import {otelTracerProvider} from './Instrumentation'
-import {StartedTestContainer} from 'testcontainers'
 import {afterAll, beforeAll, describe, expect, it} from 'vitest'
 import {WebSocket} from 'ws'
 import {ConnectedInfo, Continuum} from '../src'
@@ -20,8 +18,6 @@ describe('Continuum RPC Tests', () => {
 
     afterAll(async () =>{
         await expect(Continuum.disconnect()).resolves.toBeUndefined()
-        await otelTracerProvider.forceFlush()
-        await otelTracerProvider.shutdown()
     })
 
 

@@ -1,5 +1,3 @@
-import './Instrumentation'
-import {StartedTestContainer} from 'testcontainers'
 import {afterAll, beforeAll, describe, expect, it} from 'vitest'
 import {WebSocket} from 'ws'
 import {ConnectedInfo, Continuum, ContinuumSingleton} from '../src'
@@ -10,7 +8,6 @@ import {initContinuumGateway, logFailure, validateConnectedInfo} from './TestHel
 Object.assign(global, { WebSocket})
 
 describe('Continuum Context Tests', () => {
-    let container: StartedTestContainer
 
     beforeAll(async () => {
         const {connectionInfo} = await initContinuumGateway()

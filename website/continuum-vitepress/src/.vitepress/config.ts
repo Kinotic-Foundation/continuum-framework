@@ -4,7 +4,7 @@ import { defineConfig } from 'vitepress'
 export default defineConfig({
   title: "Continuum",
   description: "Insanely versatile IoT and Microservice framework",
-  base: '/continuum-framework/',
+  base: '/continuum-framework/website/',
   themeConfig: {
     logo: '/icon.png',
     // https://vitepress.vuejs.org/reference/default-theme-config

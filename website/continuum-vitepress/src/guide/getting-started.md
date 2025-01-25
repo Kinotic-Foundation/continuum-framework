@@ -18,8 +18,5 @@ The Continuum CLI requires Git, the popular version control system. If you donâ€
         Git installation
         First-time Git setup
 
-
-
-
 ## Manual Installation
 

@@ -44,4 +44,5 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: website/continuum-vitepress/src/.vitepress/dist
           publish_branch: gh-pages
-          keep_files: false
+          destination_dir: website
+          keep_files: true

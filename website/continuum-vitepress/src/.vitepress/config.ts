@@ -33,6 +33,10 @@ function nav() {
       text: 'Reference',
       link: '/reference/continuum-config',
       activeMatch: '/reference/'
+    },
+    {
+      text: 'Test Status',
+      link: 'https://kinotic-foundation.github.io/continuum-framework/allure' // Fully qualified URL
     }
   ]
 }

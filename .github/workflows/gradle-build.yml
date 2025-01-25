@@ -79,3 +79,13 @@ jobs:
           publish_dir: allure-history
           publish_branch: gh-pages
           keep_files: true
+
+      - name: Add status to Commit
+        uses: guibranco/github-status-action-v2@latest
+        with:
+          authToken: ${{ secrets.GITHUB_TOKEN }}
+          context: 'Test report'
+          description: 'Passed'
+          state: 'success'
+          sha: ${{github.event.pull_request.head.sha || github.sha}}
+          target_url: https://kinotic-foundation.github.io/continuum-framework/allure/${{ github.run_number }}

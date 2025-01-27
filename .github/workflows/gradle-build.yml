@@ -10,8 +10,8 @@ on:
 
 jobs:
   gradle_build_and_publish:
+    name: Build and Publish
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -28,9 +28,12 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
 
       - name: Build with Gradle
+        id: gradle_build
+        continue-on-error: true
         run: ./gradlew build
 
       - name: Publish to Maven Central
+        if: ${{ steps.gradle_build.outcome == 'success' }}
         # We must -Psigning.gnupg.executable=gpg since setup-java provides gpg2 as gpg
         run: ./gradlew publish -Psigning.gnupg.executable=gpg -Psigning.gnupg.keyName="${{ secrets.GPG_KEY_ID }}" -Psigning.gnupg.passphrase="${{ secrets.GPG_KEY_PASS }}"
         env:
@@ -38,12 +41,15 @@ jobs:
           MAVEN_PASSWORD: ${{ secrets.MAVEN_TOKEN_PASSWORD }}
 
       - name: Publish to Docker Hub
+        if: ${{ steps.gradle_build.outcome == 'success' }}
         run: ./gradlew bootBuildImage --publishImage
         env:
           DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
           DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
 
       - name: Run E2E Tests
+        id: run_e2e_tests
+        continue-on-error: true
         run: |
           cd continuum-js/continuum-client
           ./gradlew pnpmInstall
@@ -84,8 +90,14 @@ jobs:
         uses: guibranco/github-status-action-v2@v1.1.13
         with:
           authToken: ${{ secrets.GITHUB_TOKEN }}
-          context: 'Test report'
+          context: 'Test Report'
           description: 'Passed'
           state: 'success'
           sha: ${{github.event.pull_request.head.sha || github.sha}}
           target_url: https://kinotic-foundation.github.io/continuum-framework/allure/${{ github.run_number }}
+
+      - name: Check any Builds failed
+        if: ${{ steps.gradle_build.outcome == 'failure' || steps.run_e2e_tests.outcome == 'failure' }}
+        run: |
+          echo "Build or unit tests failed."
+          exit 1

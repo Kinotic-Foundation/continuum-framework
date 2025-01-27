@@ -151,7 +151,6 @@ public abstract class AbstractJackson2Support {
     }
 
     private Object decodeInternal(TokenBuffer tokenBuffer, MethodParameter methodParameter){
-
         // Unwrap async classes, this is also used for method return values so this handles that..
         if(reactiveAdapterRegistry.getAdapter(methodParameter.getParameterType()) != null){
             methodParameter = methodParameter.nested();
@@ -162,21 +161,28 @@ public abstract class AbstractJackson2Support {
         // The parser will return null for void so we don't parse void
         if(!Void.class.isAssignableFrom(methodParameter.getParameterType())){
 
-            JavaType javaType = getJavaType(methodParameter);
-            ObjectReader reader = getObjectMapper().readerFor(javaType);
+            // Support passing the TokenBuffer directly
+            if (TokenBuffer.class.isAssignableFrom(methodParameter.getParameterType())) {
 
-            try {
+                ret = tokenBuffer;
 
-                ret = reader.readValue(tokenBuffer.asParser(getObjectMapper()));
+            } else {
 
-            } catch (InvalidDefinitionException ex) {
-                throw new CodecException("Type definition error: " + ex.getType(), ex);
-            } catch (JsonProcessingException ex) {
-                throw new DecodingException("JSON decoding error: " + ex.getOriginalMessage(), ex);
-            } catch (IOException ex) {
-                throw new DecodingException("I/O error while parsing input stream", ex);
+                JavaType javaType = getJavaType(methodParameter);
+                ObjectReader reader = getObjectMapper().readerFor(javaType);
+
+                try {
+
+                    ret = reader.readValue(tokenBuffer.asParser(getObjectMapper()));
+
+                } catch (InvalidDefinitionException ex) {
+                    throw new CodecException("Type definition error: " + ex.getType(), ex);
+                } catch (JsonProcessingException ex) {
+                    throw new DecodingException("JSON decoding error: " + ex.getOriginalMessage(), ex);
+                } catch (IOException ex) {
+                    throw new DecodingException("I/O error while parsing input stream", ex);
+                }
             }
-
         }else{
             ret = Void.TYPE;
         }

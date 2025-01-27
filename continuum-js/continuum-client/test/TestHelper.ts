@@ -1,6 +1,5 @@
 import {ConnectedInfo, ConnectionInfo} from '../src'
-import {GenericContainer, PullPolicy, StartedTestContainer} from 'testcontainers'
-import {expect} from 'vitest'
+import {expect, inject} from 'vitest'
 
 /**
  * Logs the failure of a promise and then rethrows the error
@@ -30,24 +29,17 @@ export function validateConnectedInfo(connectedInfo: ConnectedInfo, roles?: stri
 }
 
 export async function initContinuumGateway(): Promise<{
-                                                        testContainer: StartedTestContainer,
                                                         connectionInfo: ConnectionInfo
                                                       }> {
-    console.log('Starting Continuum Gateway')
-    const testContainer= await new GenericContainer('kinotic/continuum-gateway-server:latest')
-        .withExposedPorts(58503)
-        .withEnvironment({SPRING_PROFILES_ACTIVE: "clienttest"})
-        .withBindMounts([{source:'/tmp/ignite', target:'/workspace/ignite/work', mode:'rw'}])
-        .withPullPolicy(PullPolicy.alwaysPull())
-        .start()
     const connectionInfo = new ConnectionInfo()
-    connectionInfo.host = testContainer.getHost()
-    connectionInfo.port = testContainer.getMappedPort(58503)
+    // @ts-ignore
+    connectionInfo.host = inject('CONTINUUM_HOST')
+    // @ts-ignore
+    connectionInfo.port = inject('CONTINUUM_PORT')
     connectionInfo.maxConnectionAttempts = 3
     connectionInfo.connectHeaders = {login: 'guest', passcode: 'guest'}
     console.log(`Continuum Gateway running at ${connectionInfo.host}:${connectionInfo.port}`)
     return {
-        testContainer,
         connectionInfo
     }
 }

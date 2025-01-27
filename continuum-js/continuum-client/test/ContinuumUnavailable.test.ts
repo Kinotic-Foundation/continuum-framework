@@ -1,4 +1,3 @@
-import './Instrumentation'
 import {describe, expect, it} from 'vitest'
 import {WebSocket} from 'ws'
 import {Continuum} from '../src'
@@ -14,11 +13,16 @@ describe('Continuum Unavailable Tests', () => {
         const port: number = 58503
         console.log(`Trying to Connecting to Unavailable Continuum Gateway`)
         await expect(Continuum.connect({
-                                    host:host,
-                                    port:port,
-                                    maxConnectionAttempts: 3,
-                                    connectHeaders:{login: 'guest', passcode: 'guest'}
-                                })).rejects.toEqual('Max number of reconnection attempts reached. Last WS Error getaddrinfo ENOTFOUND notavailable')
+                                           host:host,
+                                           port:port,
+                                           maxConnectionAttempts: 3,
+                                           connectHeaders:{login: 'guest', passcode: 'guest'}
+                                       }))
+            .rejects.toThrowError(
+                expect.stringMatching(
+                    /^Max number of reconnection attempts reached\. Last WS Error getaddrinfo (ENOTFOUND|EAI_AGAIN) notavailable$/
+                )
+            )
 
         await expect(Continuum.disconnect()).resolves.toBeUndefined()
     }, 1000 * 60 * 10) // 10 minutes

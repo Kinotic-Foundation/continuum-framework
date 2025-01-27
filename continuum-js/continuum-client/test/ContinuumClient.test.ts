@@ -1,8 +1,7 @@
-import './Instrumentation'
 import {StartedTestContainer} from 'testcontainers'
 import {afterAll, beforeAll, describe, expect, it} from 'vitest'
 import {WebSocket} from 'ws'
-import {ConnectedInfo, ContinuumSingleton, Event, EventConstants, ParticipantConstants} from '../src'
+import {ConnectedInfo, Continuum, ContinuumSingleton, Event, EventConstants, ParticipantConstants} from '../src'
 import {initContinuumGateway, logFailure, validateConnectedInfo} from './TestHelper'
 
 // This is required when running Continuum from node
@@ -21,7 +20,7 @@ describe('Continuum Client Tests', () => {
     }, 1000 * 60 * 10) // 10 minutes
 
     afterAll(async () => {
-        await container.stop()
+        await expect(Continuum.disconnect()).resolves.toBeUndefined()
     })
 
     async function connectToContinuum(continuum: ContinuumSingleton) {

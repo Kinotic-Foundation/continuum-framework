@@ -68,3 +68,4 @@ continuum-gateway-server/ignite/
 continuum-cloud/ignite/
 
 .idea/
+/allure-report/

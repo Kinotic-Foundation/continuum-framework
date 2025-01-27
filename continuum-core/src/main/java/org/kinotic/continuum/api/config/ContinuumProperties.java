@@ -24,6 +24,11 @@ package org.kinotic.continuum.api.config;
 public interface ContinuumProperties {
 
     /**
+     * @return the work directory for ignite
+     */
+    String getIgniteWorkDirectory();
+
+    /**
      * If true additional information will be provided to clients,
      * including server information, and information about errors occurring when invoking services
      * This is off by default since this could reveal server implementation details

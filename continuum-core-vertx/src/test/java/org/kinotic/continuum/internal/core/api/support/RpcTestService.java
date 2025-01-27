@@ -17,6 +17,7 @@
 
 package org.kinotic.continuum.internal.core.api.support;
 
+import com.fasterxml.jackson.databind.util.TokenBuffer;
 import org.kinotic.continuum.api.annotations.Publish;
 import org.kinotic.continuum.api.security.Participant;
 import org.kinotic.continuum.internal.core.api.RpcTests;
@@ -105,5 +106,7 @@ public interface RpcTestService {
     Integer putMapOfSimpleObjects(Map<String, SimpleObject> simpleObjects);
 
     Integer putNestedGenerics(List<Map<String, Set<SimpleObject>>> objects);
+
+    String echoTokenBuffer(TokenBuffer tokenBuffer);
 
 }

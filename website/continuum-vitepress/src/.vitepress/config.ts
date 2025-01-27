@@ -4,7 +4,7 @@ import { defineConfig } from 'vitepress'
 export default defineConfig({
   title: "Continuum",
   description: "Insanely versatile IoT and Microservice framework",
-  base: '/continuum-framework/',
+  base: '/continuum-framework/website/',
   themeConfig: {
     logo: '/icon.png',
     // https://vitepress.vuejs.org/reference/default-theme-config
@@ -33,6 +33,10 @@ function nav() {
       text: 'Reference',
       link: '/reference/continuum-config',
       activeMatch: '/reference/'
+    },
+    {
+      text: 'Test Status',
+      link: 'https://kinotic-foundation.github.io/continuum-framework/allure' // Fully qualified URL
     }
   ]
 }

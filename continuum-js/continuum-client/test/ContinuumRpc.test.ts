@@ -1,5 +1,3 @@
-import {otelTracerProvider} from './Instrumentation'
-import {StartedTestContainer} from 'testcontainers'
 import {afterAll, beforeAll, describe, expect, it} from 'vitest'
 import {WebSocket} from 'ws'
 import {ConnectedInfo, Continuum} from '../src'
@@ -12,20 +10,14 @@ Object.assign(global, { WebSocket})
 
 describe('Continuum RPC Tests', () => {
 
-    let container: StartedTestContainer
-
     beforeAll(async () => {
-        const {testContainer, connectionInfo} = await initContinuumGateway()
-        container = testContainer
+        const {connectionInfo} = await initContinuumGateway()
         let connectedInfo: ConnectedInfo = await logFailure(Continuum.connect(connectionInfo), 'Failed to connect to Continuum Gateway')
         validateConnectedInfo(connectedInfo)
     }, 1000 * 60 * 10) // 10 minutes
 
     afterAll(async () =>{
         await expect(Continuum.disconnect()).resolves.toBeUndefined()
-        await otelTracerProvider.forceFlush()
-        await otelTracerProvider.shutdown()
-        await container.stop()
     })
 
 

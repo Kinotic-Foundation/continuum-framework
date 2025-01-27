@@ -16,6 +16,7 @@
  */
 
 package org.kinotic.continuum.internal.api;
+import io.netty.handler.codec.ByteToMessageDecoder;
 import io.vertx.core.*;
 import io.vertx.core.spi.cluster.ClusterManager;
 import org.apache.commons.lang3.ClassUtils;
@@ -67,7 +68,7 @@ public class DefaultContinuum implements Continuum {
 
     private static final int ADJECTIVE_COUNT = 1915;
     private static final int ANIMAL_COUNT = 587;
-    private static final Logger log = LoggerFactory.getLogger(Continuum.class);
+    private static final Logger log = LoggerFactory.getLogger(DefaultContinuum.class);
     private static final SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yy HH:mm:ss z");
     private final ContinuumProperties continuumProperties;
     private final ServerInfo serverInfo;

@@ -7,7 +7,5 @@ include('continuum-cloud',
         'continuum-gateway-server',
         'continuum-grind',
         'continuum-idl',
-        'continuum-util',
-        'continuum-js:continuum-client',
-        'continuum-js:continuum-idl-js',
+        'continuum-util'
 )

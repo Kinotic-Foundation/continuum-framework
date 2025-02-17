@@ -86,6 +86,5 @@
     "test": "mocha --forbid-only \"test/**/*.test.ts\"",
     "version": "oclif readme && git add README.md"
   },
-  "types": "dist/index.d.ts",
-  "packageManager": "pnpm@9.15.1"
+  "types": "dist/index.d.ts"
 }

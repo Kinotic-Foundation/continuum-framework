@@ -63,7 +63,7 @@ dependencyManagement {
         dependency "io.vertx:vertx-reactive-streams:${vertxVersion}"
         dependency "io.vertx:vertx-web-graphql:${vertxVersion}"
         dependency "io.vertx:vertx-health-check:${vertxVersion}"
-        dependency "com.github.rworsnop:vertx-beans:${vertxBeansVersion}"
+        dependency "io.vertx:vertx-opentelemetry:${vertxVersion}"
 
         dependency "javax.annotation:javax.annotation-api:${javaxAnnotationApi}"
         dependency "javax.cache:cache-api:${jCacheApiVersion}"

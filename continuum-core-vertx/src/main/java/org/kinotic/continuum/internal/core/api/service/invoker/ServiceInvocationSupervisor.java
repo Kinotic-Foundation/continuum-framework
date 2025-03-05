@@ -18,18 +18,15 @@
 package org.kinotic.continuum.internal.core.api.service.invoker;
 
 import io.opentelemetry.api.OpenTelemetry;
-import io.opentelemetry.api.trace.Span;
-import io.opentelemetry.context.Context;
-import io.opentelemetry.context.Scope;
+import io.vertx.core.Vertx;
+import org.apache.commons.lang3.Validate;
+import org.kinotic.continuum.api.exceptions.RpcMissingMethodException;
 import org.kinotic.continuum.core.api.event.*;
 import org.kinotic.continuum.core.api.service.ServiceDescriptor;
 import org.kinotic.continuum.core.api.service.ServiceFunction;
 import org.kinotic.continuum.core.api.service.ServiceFunctionInstanceProvider;
-import org.kinotic.continuum.api.exceptions.RpcMissingMethodException;
 import org.kinotic.continuum.internal.core.api.event.MetadataTextMapGetter;
 import org.kinotic.continuum.internal.utils.EventUtil;
-import io.vertx.core.Vertx;
-import org.apache.commons.lang3.Validate;
 import org.reactivestreams.Subscription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -265,7 +262,7 @@ public class ServiceInvocationSupervisor {
 //                                                .extract(Context.current(),
 //                                                         incomingEvent.metadata(),
 //                                                         textMapGetter);
-//
+
 //        Span extractedSpan = Span.fromContextOrNull(extractedContext);
 
         // Ensure there is an argument resolver that can handle the incoming data

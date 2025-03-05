@@ -30,6 +30,7 @@ import org.kinotic.continuum.core.api.event.Event;
 import org.kinotic.continuum.core.api.event.EventBusService;
 import org.kinotic.continuum.core.api.event.EventConstants;
 import org.kinotic.continuum.core.api.event.ListenerStatus;
+import org.kinotic.continuum.internal.config.IgniteCacheConstants;
 import org.kinotic.continuum.internal.core.api.aignite.SubscriptionInfoCacheEntryEventFilter;
 import org.kinotic.continuum.internal.core.api.aignite.SubscriptionInfoCacheEntryListener;
 import org.kinotic.continuum.internal.utils.IgniteUtil;
@@ -121,7 +122,12 @@ public class DefaultEventBusService implements EventBusService {
 
             Context vertxContext = vertx.getOrCreateContext();
 
-            IgniteCache<IgniteRegistrationInfo, Boolean> cache = ignite.cache("__vertx.subs");
+            IgniteCache<IgniteRegistrationInfo, Boolean> cache = ignite.cache(IgniteCacheConstants.VERTX_SUBSCRIPTION_CACHE);
+
+            if(cache == null) {
+                sink.error(new IllegalStateException("The vertx subscription cache is not available"));
+                return;
+            }
 
             Factory<? extends CacheEntryListener<IgniteRegistrationInfo, Boolean>> listenerFactory =
                     FactoryBuilder.factoryOf(new SubscriptionInfoCacheEntryListener(sink, vertxContext));

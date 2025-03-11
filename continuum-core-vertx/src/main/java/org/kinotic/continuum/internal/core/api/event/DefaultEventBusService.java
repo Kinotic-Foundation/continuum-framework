@@ -22,6 +22,7 @@ import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.core.spi.cluster.ClusterManager;
 import io.vertx.core.spi.cluster.RegistrationInfo;
+import io.vertx.core.tracing.TracingPolicy;
 import io.vertx.spi.cluster.ignite.impl.IgniteRegistrationInfo;
 import org.apache.commons.lang3.Validate;
 import org.apache.ignite.Ignite;
@@ -237,6 +238,7 @@ public class DefaultEventBusService implements EventBusService {
 
     private DeliveryOptions createDeliveryOptions(Event<?> event){
         DeliveryOptions deliveryOptions = new DeliveryOptions();
+        deliveryOptions.setTracingPolicy(TracingPolicy.IGNORE);
         // fast path for MultiMapMetadataAdapter's
         if(event.metadata() instanceof MultiMapMetadataAdapter){
             deliveryOptions.setHeaders(((MultiMapMetadataAdapter)event.metadata()).getMultiMap());

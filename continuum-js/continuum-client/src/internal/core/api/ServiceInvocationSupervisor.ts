@@ -47,7 +47,7 @@ export class ServiceInvocationSupervisor {
         this.eventBusService = eventBusService
 
         // Use provided options or defaults
-        this.log = options.logger || createDebugLogger("continuum:sis")
+        this.log = options.logger || createDebugLogger("continuum:ServiceInvocationSupervisor")
         this.argumentResolver = options.argumentResolver || new JsonArgumentResolver()
         this.returnValueConverter = options.returnValueConverter || new BasicReturnValueConverter()
 

@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+import {ServiceIdentifier} from '@/core/api/ServiceIdentifier.js'
 import { Observable } from 'rxjs'
 import { IEvent } from './IEventBus'
 
@@ -74,6 +75,24 @@ export interface IServiceRegistry {
      * @param serviceIdentifier the identifier of the service to be accessed
      * @return the {@link IServiceProxy} that can be used to access the service
      */
-     serviceProxy(serviceIdentifier: string): IServiceProxy
+    serviceProxy(serviceIdentifier: string): IServiceProxy
+
+
+    /**
+     * Registers a new service with the service registry.
+     * This will allow the service to be accessed remotely.
+     *
+     * @param serviceIdentifier identifies the service to be registered
+     * @param service to use invoke when the service is called
+     */
+    register(serviceIdentifier: ServiceIdentifier, service: any): void
+
+    /**
+     * Unregisters a service with the service registry.
+     * This will remove the service from the registry, and it will no longer be accessible remotely.
+     *
+     * @param serviceIdentifier identifies the service to be unregistered
+     */
+    unRegister(serviceIdentifier: ServiceIdentifier): void
 
 }

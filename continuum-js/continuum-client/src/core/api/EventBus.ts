@@ -102,15 +102,15 @@ export class EventBus implements IEventBus {
     constructor() {
         this.fatalErrors = this.errorSubject
                                .pipe(map<IFrame, Error>((frame: IFrame): Error => {
-            this.disconnect()
-                .catch((error: string) => {
-                    if(console){
-                        console.error('Error disconnecting from Stomp: ' + error)
-                    }
-                })
-            // TODO: map to continuum error
-            return new ContinuumError(frame.headers['message'])
-        }))
+                                   this.disconnect()
+                                       .catch((error: string) => {
+                                           if(console){
+                                               console.error('Error disconnecting from Stomp: ' + error)
+                                           }
+                                       })
+                                   // TODO: map to continuum error
+                                   return new ContinuumError(frame.headers['message'])
+                               }))
     }
 
     public isConnectionActive(): boolean{
@@ -170,10 +170,10 @@ export class EventBus implements IEventBus {
 
             // send data over stomp
             this.stompConnectionManager.rxStomp.publish({
-                destination: event.cri,
-                headers,
-                binaryBody: event.data.orUndefined()
-            })
+                                                            destination: event.cri,
+                                                            headers,
+                                                            binaryBody: event.data.orUndefined()
+                                                        })
         }else{
             throw this.createSendUnavailableError()
         }
@@ -195,39 +195,39 @@ export class EventBus implements IEventBus {
                 let serverSignaledCompletion = false
                 const correlationId = uuidv4()
                 const defaultMessagesSubscription: Unsubscribable = this.requestRepliesObservable
-                    .pipe(filter((value: IEvent): boolean => {
-                        return value.headers.get(EventConstants.CORRELATION_ID_HEADER) === correlationId
-                    })).subscribe({
-                        next(value: IEvent): void {
+                                                                        .pipe(filter((value: IEvent): boolean => {
+                                                                            return value.headers.get(EventConstants.CORRELATION_ID_HEADER) === correlationId
+                                                                        })).subscribe({
+                                                                                          next(value: IEvent): void {
 
-                            if (value.hasHeader(EventConstants.CONTROL_HEADER)) {
+                                                                                              if (value.hasHeader(EventConstants.CONTROL_HEADER)) {
 
-                                if (value.headers.get(EventConstants.CONTROL_HEADER) === 'complete') {
-                                    serverSignaledCompletion = true
-                                    subscriber.complete()
-                                } else {
-                                    throw new Error('Control Header ' + value.headers.get(EventConstants.CONTROL_HEADER) + ' is not supported')
-                                }
+                                                                                                  if (value.headers.get(EventConstants.CONTROL_HEADER) === 'complete') {
+                                                                                                      serverSignaledCompletion = true
+                                                                                                      subscriber.complete()
+                                                                                                  } else {
+                                                                                                      throw new Error('Control Header ' + value.headers.get(EventConstants.CONTROL_HEADER) + ' is not supported')
+                                                                                                  }
 
-                            } else if (value.hasHeader(EventConstants.ERROR_HEADER)) {
+                                                                                              } else if (value.hasHeader(EventConstants.ERROR_HEADER)) {
 
-                                // TODO: add custom error type that contains error detail as well if provided by server, this would be the event body
-                                serverSignaledCompletion = true
-                                subscriber.error(new Error(value.getHeader(EventConstants.ERROR_HEADER)))
+                                                                                                  // TODO: add custom error type that contains error detail as well if provided by server, this would be the event body
+                                                                                                  serverSignaledCompletion = true
+                                                                                                  subscriber.error(new Error(value.getHeader(EventConstants.ERROR_HEADER)))
 
-                            } else {
+                                                                                              } else {
 
-                                subscriber.next(value)
+                                                                                                  subscriber.next(value)
 
-                            }
-                        },
-                        error(err: any): void {
-                            subscriber.error(err)
-                        },
-                        complete(): void {
-                            subscriber.complete()
-                        }
-                    })
+                                                                                              }
+                                                                                          },
+                                                                                          error(err: any): void {
+                                                                                              subscriber.error(err)
+                                                                                          },
+                                                                                          complete(): void {
+                                                                                              subscriber.complete()
+                                                                                          }
+                                                                                      })
 
                 subscriber.add(defaultMessagesSubscription)
 
@@ -252,7 +252,7 @@ export class EventBus implements IEventBus {
     }
 
     public observe(cri: string): Observable<IEvent> {
-       return this._observe(cri)
+        return this._observe(cri)
     }
 
     private cleanup(): void{
@@ -298,12 +298,16 @@ export class EventBus implements IEventBus {
 
                            // We translate all IMessage objects to IEvent objects
                            const headers: Map<string, string> = new Map<string, string>()
-
+                           let destination: string = ''
                            for (const prop of Object.keys(message.headers)) {
-                               headers.set(prop, message.headers[prop])
+                               if (prop === 'destination') {
+                                   destination = message.headers[prop]
+                               }else{
+                                   headers.set(prop, message.headers[prop])
+                               }
                            }
 
-                           return new Event(cri, headers, message.binaryBody)
+                           return new Event(destination, headers, message.binaryBody)
                        }))
         }else{
             return throwError(() => this.createSendUnavailableError())

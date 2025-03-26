@@ -21,6 +21,7 @@
 
 export * from './api/ConnectionInfo'
 export * from './api/Continuum'
+export * from './api/ContinuumDecorators'
 export * from './api/Identifiable'
 export * from './api/ILogManager'
 export * from './api/LogManager'
@@ -34,6 +35,8 @@ export * from './api/security/IParticipant'
 export * from './api/security/Participant'
 export * from './api/security/ParticipantConstants'
 
+export * from './core/api/CRI'
+export * from './core/api/DefaultCRI'
 export * from './core/api/EventBus'
 export * from './core/api/IEventBus'
 export * from './core/api/IServiceRegistry'

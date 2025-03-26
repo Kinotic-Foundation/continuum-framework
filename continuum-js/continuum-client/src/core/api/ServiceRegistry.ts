@@ -2,7 +2,7 @@
  *
  * Copyright 2008-2021 Kinotic and the original author or authors.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 import {ContinuumContextStack} from '@/api/Continuum'
+import {ServiceIdentifier} from '@/core/api/ServiceIdentifier.js'
+import {ServiceInvocationSupervisor} from '@/internal/core/api/ServiceInvocationSupervisor.js'
 import opentelemetry, {SpanKind, SpanStatusCode, Tracer} from '@opentelemetry/api'
 import {
     ATTR_SERVER_ADDRESS,
@@ -84,6 +86,7 @@ export class TextEventFactory implements IEventFactory {
 export class ServiceRegistry implements IServiceRegistry {
 
     private readonly eventBus: IEventBus
+    private readonly supervisors: Map<string, ServiceInvocationSupervisor> = new Map()
 
     constructor(eventBus: IEventBus) {
         this.eventBus = eventBus
@@ -91,6 +94,24 @@ export class ServiceRegistry implements IServiceRegistry {
 
     public serviceProxy(serviceIdentifier: string): IServiceProxy {
         return new ServiceProxy(serviceIdentifier, this.eventBus)
+    }
+
+    register(serviceIdentifier: ServiceIdentifier, service: any): void {
+        const criString = serviceIdentifier.cri().raw()
+        if (!this.supervisors.has(criString)) {
+            const supervisor = new ServiceInvocationSupervisor(serviceIdentifier, service, this.eventBus)
+            this.supervisors.set(criString, supervisor)
+            supervisor.start()
+        }
+    }
+
+    unRegister(serviceIdentifier: ServiceIdentifier): void {
+        const criString = serviceIdentifier.cri().raw()
+        const supervisor = this.supervisors.get(criString)
+        if (supervisor) {
+            supervisor.stop()
+            this.supervisors.delete(criString)
+        }
     }
 }
 

@@ -77,6 +77,22 @@ export interface IServiceRegistry {
      */
     serviceProxy(serviceIdentifier: string): IServiceProxy
 
-    register(serviceIdentifier: ServiceIdentifier, service: any): Promise<void>
+
+    /**
+     * Registers a new service with the service registry.
+     * This will allow the service to be accessed remotely.
+     *
+     * @param serviceIdentifier identifies the service to be registered
+     * @param service to use invoke when the service is called
+     */
+    register(serviceIdentifier: ServiceIdentifier, service: any): void
+
+    /**
+     * Unregisters a service with the service registry.
+     * This will remove the service from the registry, and it will no longer be accessible remotely.
+     *
+     * @param serviceIdentifier identifies the service to be unregistered
+     */
+    unRegister(serviceIdentifier: ServiceIdentifier): void
 
 }

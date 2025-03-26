@@ -224,7 +224,9 @@ export enum EventConstants {
     CONTROL_VALUE_RESUME = 'resume',
 
     SERVICE_DESTINATION_PREFIX = 'srv://',
+    SERVICE_DESTINATION_SCHEME = "srv",
     STREAM_DESTINATION_PREFIX =  'stream://',
+    STREAM_DESTINATION_SCHEME = "stream",
 
     CONTENT_JSON = 'application/json',
     CONTENT_TEXT = 'text/plain',

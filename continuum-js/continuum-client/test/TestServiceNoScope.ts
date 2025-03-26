@@ -1,4 +1,10 @@
-import {Publish} from '../src/index.js'
+/*
+ * Copyright 2008-2021 Kinotic and the original author or authors.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * See https://www.apache.org/licenses/LICENSE-2.0
+ */
+
+import { Publish } from "../src"
 
 @Publish("com.example")
 export class TestServiceNoScope {
@@ -24,5 +30,13 @@ export class TestServiceNoScope {
 
     async failAsync(): Promise<never> {
         return Promise.reject(new Error("Async failure"))
+    }
+
+    processComplexObject(obj: { name: string, age: number, details: { active: boolean, score: number } }): string {
+        return `${obj.name} is ${obj.age} years old, active: ${obj.details.active}, score: ${obj.details.score}`
+    }
+
+    processListOfComplexObjects(list: { id: number, tags: string[] }[]): number {
+        return list.reduce((sum, item) => sum + item.id + item.tags.length, 0)
     }
 }

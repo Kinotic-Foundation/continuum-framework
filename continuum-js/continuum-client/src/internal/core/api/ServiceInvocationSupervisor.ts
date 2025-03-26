@@ -11,7 +11,7 @@ import {ArgumentResolver, JsonArgumentResolver} from '@/internal/core/api/Argume
 import {EventUtil} from '@/internal/core/api/EventUtil.js'
 import {BasicReturnValueConverter, ReturnValueConverter} from '@/internal/core/api/ReturnValueConverter.js'
 import {Subscription} from "rxjs"
-import {createDebugLogger, Logger} from "./Logger"
+import {createDebugLogger, Logger} from "./Logger.js"
 
 /**
  * Handles invoking services registered with Continuum in TypeScript.
@@ -147,6 +147,11 @@ export class ServiceInvocationSupervisor {
         }
 
         const args = this.argumentResolver.resolveArguments(event)
+        const expectedArgsCount = handlerMethod.length
+        if (args.length !== expectedArgsCount) {
+            throw new Error(`Argument count mismatch for method ${path}: expected ${expectedArgsCount}, got ${args.length}`)
+        }
+
         let result: any
         try {
             result = handlerMethod(...args)

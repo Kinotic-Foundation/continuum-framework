@@ -1,6 +1,6 @@
 /*
  * Copyright 2008-2021 Kinotic and the original author or authors.
- * Licensed under the Apache License, Version 2.0 (the "License")
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * See https://www.apache.org/licenses/LICENSE-2.0
  */
 
@@ -47,7 +47,7 @@ describe("Publish Mechanism", () => {
     }
 
     const sendAndReceiveEvent = async (cri: string, args?: any[] | null): Promise<any> => {
-        const replyTo = `${EventConstants.SERVICE_DESTINATION_PREFIX}${replyToId}:${uuidv4()}@continuum.js.test.EventBus/replyHandler`
+        const replyTo = `${EventConstants.SERVICE_DESTINATION_PREFIX}${replyToId}:${uuidv4()}@continuum.js.EventBus/replyHandler`
         const event = createTestEvent(cri, replyTo, args)
         const response: Observable<IEvent> = Continuum.eventBus.observe(replyTo)
         const resultPromise = firstValueFrom(response)
@@ -152,6 +152,52 @@ describe("Publish Mechanism", () => {
         describe("Async errors with scope", () => {
             it("should propagate asynchronous error with scope", async () => {
                 await expect(sendAndReceiveEvent("srv://tenant@com.example.TestServiceWithScope/failAsync")).rejects.toThrow("Scoped async failure")
+            })
+        })
+
+        describe("Argument count mismatch", () => {
+            it("should fail when too many arguments are provided to greet", async () => {
+                await expect(sendAndReceiveEvent("srv://com.example.TestServiceNoScope/greet", ["Alice", "Extra"])).rejects.toThrow(
+                    "Argument count mismatch for method /greet: expected 1, got 2"
+                )
+            })
+
+            it("should fail when too few arguments are provided to combine", async () => {
+                await expect(sendAndReceiveEvent("srv://com.example.TestServiceNoScope/combine", ["test"])).rejects.toThrow(
+                    "Argument count mismatch for method /combine: expected 2, got 1"
+                )
+            })
+        })
+
+        describe("Complex object handling", () => {
+            it("should process complex object without scope", async () => {
+                const complexObj = { name: "Alice", age: 30, details: { active: true, score: 85 } }
+                const result = await sendAndReceiveEvent("srv://com.example.TestServiceNoScope/processComplexObject", [complexObj])
+                expect(result).toBe("Alice is 30 years old, active: true, score: 85")
+            })
+
+            it("should process complex object with scope", async () => {
+                const complexObj = { name: "Bob", age: 25, details: { active: false, score: 90 } }
+                const result = await sendAndReceiveEvent("srv://tenant@com.example.TestServiceWithScope/processComplexObject", [complexObj])
+                expect(result).toBe("Bob is 25 years old, active: false, score: 90 in tenant")
+            })
+
+            it("should process list of complex objects without scope", async () => {
+                const list = [
+                    { id: 1, tags: ["a", "b"] },
+                    { id: 2, tags: ["c"] }
+                ]
+                const result = await sendAndReceiveEvent("srv://com.example.TestServiceNoScope/processListOfComplexObjects", [list])
+                expect(result).toBe(6) // 1 + 2 (ids) + 2 + 1 (tag counts) = 6
+            })
+
+            it("should process list of complex objects with scope", async () => {
+                const list = [
+                    { id: 1, tags: ["a", "b"] },
+                    { id: 2, tags: ["c"] }
+                ]
+                const result = await sendAndReceiveEvent("srv://tenant@com.example.TestServiceWithScope/processListOfComplexObjects", [list])
+                expect(result).toBe(12) // 1 + 2 (ids) + 2 + 1 (tag counts) + 6 (tenant.length) = 12
             })
         })
     })

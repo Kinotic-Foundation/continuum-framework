@@ -21,7 +21,7 @@
     "build": "tsc && vite build && cp dist/src/index.d.ts dist/src/index.d.mts",
     "test": "vitest run",
     "coverage": "vitest run --coverage",
-    "ui-test": "vitest --ui --coverage.enabled=true"
+    "ui-test": "vitest --ui --coverage.enabled=true --mode development"
   },
   "devDependencies": {
     "@opentelemetry/exporter-trace-otlp-grpc": "^0.57.2",
@@ -40,6 +40,7 @@
     "properties-file": "^3.5.11",
     "reflect-metadata": "^0.2.2",
     "testcontainers": "^10.16.0",
+    "tslib": "^2.8.1",
     "typescript": "^5.7.3",
     "vite": "^5.4.11",
     "vite-plugin-dts": "^4.4.0",

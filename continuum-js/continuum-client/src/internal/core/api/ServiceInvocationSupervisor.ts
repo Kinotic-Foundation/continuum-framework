@@ -16,7 +16,7 @@ import {createDebugLogger, Logger} from "./Logger"
 /**
  * Handles invoking services registered with Continuum in TypeScript.
  *
- * @author Navid Mitchell 🤝 Grok
+ * @author Navid Mitchell 🤝Grok
  * @since 3/25/2025
  */
 export class ServiceInvocationSupervisor {

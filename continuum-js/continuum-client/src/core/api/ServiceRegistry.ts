@@ -113,8 +113,6 @@ export class ServiceRegistry implements IServiceRegistry {
             this.supervisors.delete(criString)
         }
     }
-
-
 }
 
 /**

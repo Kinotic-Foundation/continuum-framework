@@ -11,7 +11,7 @@ import {Event} from '@/core/api/EventBus.js'
 /**
  * Utility functions for working with events in the Continuum framework.
  *
- * @author Navid Mitchell 🤝 Grok
+ * @author Navid Mitchell 🤝Grok
  * @since 3/25/2025
  */
 export class EventUtil {

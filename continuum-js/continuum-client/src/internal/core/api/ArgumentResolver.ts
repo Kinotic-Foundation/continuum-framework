@@ -10,7 +10,7 @@ import {EventConstants, IEvent} from '@/core/api/IEventBus.js'
 /**
  * Argument resolution utilities for service invocation.
  *
- * @author Navid Mitchell 🤝 Grok
+ * @author Navid Mitchell 🤝Grok
  * @since 3/25/2025
  */
 export interface ArgumentResolver {

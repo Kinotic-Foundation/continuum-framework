@@ -11,7 +11,7 @@ import {ServiceIdentifier} from '@/core/api/ServiceIdentifier.js'
 /**
  * Decorator for registering services with the Continuum ServiceRegistry.
  *
- * @author Navid Mitchell 🤝 Grok
+ * @author Navid Mitchell 🤝Grok
  * @since 3/25/2025
  */
 const SCOPE_METADATA_KEY = Symbol("scope")

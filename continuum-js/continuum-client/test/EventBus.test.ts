@@ -21,7 +21,7 @@ describe('Continuum RPC Tests', () => {
 
     it('should fail invalid service request', async () => {
         const toSend: IEvent = new Event('srv://org.kinotic.continuum.gatewayserver.clienttest.ITestService/testMethodWithString')
-        toSend.setHeader(EventConstants.REPLY_TO_HEADER, null)
+        toSend.setHeader(EventConstants.REPLY_TO_HEADER, '')
         toSend.setHeader(EventConstants.CONTENT_TYPE_HEADER, EventConstants.CONTENT_JSON)
         const correlationId = uuidv4()
         toSend.setHeader(EventConstants.CORRELATION_ID_HEADER, correlationId)

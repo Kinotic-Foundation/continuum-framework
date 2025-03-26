@@ -10,7 +10,7 @@ import {EventUtil} from '@/internal/core/api/EventUtil.js'
 /**
  * Return value conversion utilities for service responses.
  *
- * @author Navid Mitchell 🤝 Grok
+ * @author Navid Mitchell 🤝Grok
  * @since 3/25/2025
  */
 export interface ReturnValueConverter {

@@ -7,7 +7,7 @@
 /**
  * Logging utilities for the Continuum library.
  *
- * @author Navid Mitchell 🤝 Grok
+ * @author Navid Mitchell 🤝Grok
  * @since 3/25/2025
  */
 export interface Logger {

@@ -18,7 +18,6 @@ dependencies {
     api 'io.vertx:vertx-core'
     implementation 'io.vertx:vertx-auth-common'
 
-
     // Apache Ignite
     implementation 'io.vertx:vertx-ignite'
     implementation 'org.apache.ignite:ignite-core'

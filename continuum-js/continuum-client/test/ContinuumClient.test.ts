@@ -1,4 +1,3 @@
-import {StartedTestContainer} from 'testcontainers'
 import {afterAll, beforeAll, describe, expect, it} from 'vitest'
 import {WebSocket} from 'ws'
 import {ConnectedInfo, Continuum, ContinuumSingleton, Event, EventConstants, ParticipantConstants} from '../src'
@@ -12,11 +11,10 @@ describe('Continuum Client Tests', () => {
     let host: string = '127.0.0.1'
     let port: number = 58503
 
-    let container: StartedTestContainer
     beforeAll(async () => {
         const connectionInfo = (await initContinuumGateway()).connectionInfo
         host = connectionInfo.host
-        port = connectionInfo.port
+        port = connectionInfo.port as number
     }, 1000 * 60 * 10) // 10 minutes
 
     afterAll(async () => {

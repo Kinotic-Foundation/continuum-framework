@@ -32,11 +32,9 @@ import org.kinotic.continuum.api.config.ContinuumProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.ReactiveAdapterRegistry;
 
 import static java.util.concurrent.TimeUnit.MINUTES;
 
@@ -72,14 +70,6 @@ public class ContinuumVertxConfig {
     @Bean
     public FileSystem fileSystem(Vertx vertx) {
         return vertx.fileSystem();
-    }
-
-    // This is configured in org.kinotic.continuum.internal.api.DefaultContinuum
-    // It is done there in case this bean is supplied by spring directly
-    @ConditionalOnMissingBean
-    @Bean
-    public ReactiveAdapterRegistry reactiveAdapterRegistry(){
-        return new ReactiveAdapterRegistry();
     }
 
     @Bean

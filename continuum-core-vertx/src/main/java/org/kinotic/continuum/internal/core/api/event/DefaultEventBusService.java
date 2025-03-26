@@ -85,6 +85,7 @@ public class DefaultEventBusService implements EventBusService {
         if(ignite != null) {
             subscriptionsCache = ignite.cache("__vertx.subs");
         }
+
     }
 
     @Override

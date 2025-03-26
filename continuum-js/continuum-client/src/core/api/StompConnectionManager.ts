@@ -76,31 +76,31 @@ export class StompConnectionManager {
 
             //*** Begin Block that handles backoff ***
             this.rxStomp.configure({
-                                        brokerURL: url,
-                                        connectHeaders: connectHeadersInternal,
-                                        heartbeatIncoming: 120000,
-                                        heartbeatOutgoing: 30000,
-                                        reconnectDelay: 2000, // initial reconnect delay fairly short to fail fast
-                                        beforeConnect: async (): Promise<void> => {
-                                            // If max connections are set then make sure we have not exceeded that threshold
-                                            if(connectionInfo?.maxConnectionAttempts){
-                                                this.connectionAttempts++
+                                       brokerURL: url,
+                                       connectHeaders: connectHeadersInternal,
+                                       heartbeatIncoming: 120000,
+                                       heartbeatOutgoing: 30000,
+                                       reconnectDelay: 2000, // initial reconnect delay fairly short to fail fast
+                                       beforeConnect: async (): Promise<void> => {
+                                           // If max connections are set then make sure we have not exceeded that threshold
+                                           if(connectionInfo?.maxConnectionAttempts){
+                                               this.connectionAttempts++
 
-                                                if(this.connectionAttempts > connectionInfo.maxConnectionAttempts){
+                                               if(this.connectionAttempts > connectionInfo.maxConnectionAttempts){
 
-                                                    // Reached threshold give up
-                                                    this.maxConnectionAttemptsReached = true
-                                                    await this.deactivate()
+                                                   // Reached threshold give up
+                                                   this.maxConnectionAttemptsReached = true
+                                                   await this.deactivate()
 
-                                                    // If we have not made an initial connection, the promise is not yet resolved
-                                                    if(!this.initialConnectionSuccessful) {
-                                                        let message = (this.lastWebsocketError as any)?.message ? (this.lastWebsocketError as any)?.message : 'UNKNOWN'
-                                                        reject(`Max number of reconnection attempts reached. Last WS Error ${message}`)
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    })
+                                                   // If we have not made an initial connection, the promise is not yet resolved
+                                                   if(!this.initialConnectionSuccessful) {
+                                                       let message = (this.lastWebsocketError as any)?.message ? (this.lastWebsocketError as any)?.message : 'UNKNOWN'
+                                                       reject(`Max number of reconnection attempts reached. Last WS Error ${message}`)
+                                                   }
+                                               }
+                                           }
+                                       }
+                                   })
 
             // Handles Websocket Errors
             this.rxStomp.webSocketErrors$.subscribe(value => {

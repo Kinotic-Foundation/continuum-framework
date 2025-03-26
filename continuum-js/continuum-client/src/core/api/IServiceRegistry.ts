@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+import {ServiceIdentifier} from '@/core/api/ServiceIdentifier.js'
 import { Observable } from 'rxjs'
 import { IEvent } from './IEventBus'
 
@@ -74,6 +75,8 @@ export interface IServiceRegistry {
      * @param serviceIdentifier the identifier of the service to be accessed
      * @return the {@link IServiceProxy} that can be used to access the service
      */
-     serviceProxy(serviceIdentifier: string): IServiceProxy
+    serviceProxy(serviceIdentifier: string): IServiceProxy
+
+    register(serviceIdentifier: ServiceIdentifier, service: any): Promise<void>
 
 }

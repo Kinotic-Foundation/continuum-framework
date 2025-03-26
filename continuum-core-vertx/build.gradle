@@ -17,7 +17,6 @@ dependencies {
     // vertx
     api 'io.vertx:vertx-core'
     implementation 'io.vertx:vertx-auth-common'
-    implementation 'io.vertx:vertx-opentelemetry'
 
 
     // Apache Ignite

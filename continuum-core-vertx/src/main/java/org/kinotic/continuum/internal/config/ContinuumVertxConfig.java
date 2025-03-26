@@ -17,7 +17,6 @@
 
 package org.kinotic.continuum.internal.config;
 
-import io.opentelemetry.api.OpenTelemetry;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxBuilder;
 import io.vertx.core.VertxOptions;
@@ -27,7 +26,6 @@ import io.vertx.core.file.FileSystem;
 import io.vertx.core.shareddata.SharedData;
 import io.vertx.core.spi.cluster.ClusterManager;
 import io.vertx.spi.cluster.ignite.IgniteClusterManager;
-import io.vertx.tracing.opentelemetry.OpenTelemetryTracingFactory;
 import org.apache.ignite.Ignite;
 import org.apache.ignite.internal.util.typedef.internal.U;
 import org.kinotic.continuum.api.config.ContinuumProperties;
@@ -91,8 +89,7 @@ public class ContinuumVertxConfig {
 
     @Bean
     public Vertx vertx(ContinuumProperties properties,
-                       @Autowired(required = false) ClusterManager clusterManager,
-                       OpenTelemetry openTelemetry) throws Throwable {
+                       @Autowired(required = false) ClusterManager clusterManager) throws Throwable {
 
         VertxBuilder builder = Vertx.builder();
 
@@ -111,17 +108,14 @@ public class ContinuumVertxConfig {
             VertxOptions options = new VertxOptions()
                     .setEventBusOptions(eventBusOptions);
 
-            builder.with(options)
-                   .withClusterManager(clusterManager)
-                   .withTracer(new OpenTelemetryTracingFactory(openTelemetry));
-
-            return builder.buildClustered()
+            return builder.with(options)
+                          .withClusterManager(clusterManager)
+                          .buildClustered()
                           .toCompletionStage()
                           .toCompletableFuture()
                           .get(2, MINUTES);
         }else{
-            return builder.withTracer(new OpenTelemetryTracingFactory(openTelemetry))
-                          .build();
+            return builder.build();
         }
     }
 

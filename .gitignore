@@ -69,3 +69,5 @@ continuum-cloud/ignite/
 
 .idea/
 /allure-report/
+
+continuum-js/continuum-client/allure-results/

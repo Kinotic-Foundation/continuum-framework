@@ -1,6 +1,6 @@
 /*
  * Copyright 2008-2021 Kinotic and the original author or authors.
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * See https://www.apache.org/licenses/LICENSE-2.0
  */
 
@@ -11,11 +11,11 @@
  * @since 3/25/2025
  */
 export interface Logger {
-    trace(message: string, ...args: any[]): void;
-    debug(message: string, ...args: any[]): void;
-    info(message: string, ...args: any[]): void;
-    warn(message: string, ...args: any[]): void;
-    error(message: string, ...args: any[]): void;
+    trace(message: string, ...args: any[]): void
+    debug(message: string, ...args: any[]): void
+    info(message: string, ...args: any[]): void
+    warn(message: string, ...args: any[]): void
+    error(message: string, ...args: any[]): void
 }
 
 export class NoOpLogger implements Logger {
@@ -27,11 +27,11 @@ export class NoOpLogger implements Logger {
 }
 
 export function createDebugLogger(namespace: string): Logger {
-    let debug: any;
+    let debug: any
     try {
-        debug = require("debug")(namespace);
+        debug = require("debug")(namespace)
     } catch (e) {
-        debug = (...args: any[]) => console.debug(`[${namespace}]`, ...args);
+        debug = (...args: any[]) => console.debug(`[${namespace}]`, ...args)
     }
 
     return {
@@ -40,5 +40,5 @@ export function createDebugLogger(namespace: string): Logger {
         info: (...args) => debug("INFO", ...args),
         warn: (...args) => debug("WARN", ...args),
         error: (...args) => debug("ERROR", ...args),
-    };
+    }
 }

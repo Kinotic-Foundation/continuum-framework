@@ -18,6 +18,9 @@
 package org.kinotic.continuum.gateway.internal.endpoints;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import io.opentelemetry.api.trace.*;
+import io.opentelemetry.context.Context;
+import io.opentelemetry.context.Scope;
 import io.vertx.core.Promise;
 import io.vertx.core.eventbus.ReplyException;
 import io.vertx.core.eventbus.ReplyFailure;
@@ -32,6 +35,7 @@ import org.kinotic.continuum.core.api.event.Event;
 import org.kinotic.continuum.core.api.event.EventConstants;
 import org.kinotic.continuum.core.api.security.Session;
 import org.kinotic.continuum.gateway.internal.api.security.CliSecurityService;
+import org.kinotic.continuum.internal.core.api.event.MetadataTextMapGetter;
 import org.kinotic.continuum.internal.utils.EventUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,10 +61,12 @@ public class EndpointConnectionHandler {
     private final Map<String, BaseSubscriber<Event<byte[]>>> subscriptions = new HashMap<>();
     private Session session;
     private long sessionTimer = -1;
+    private final MetadataTextMapGetter textMapGetter = new MetadataTextMapGetter();
+    private final Tracer tracer;
 
     public EndpointConnectionHandler(Services services) {
         this.services = services;
-
+        tracer = services.openTelemetry.getTracer("org.kinotic.continuum.gateway");
         if(services.continuumGatewayProperties.isEnableCLIConnections()){
             this.securityService = new CliSecurityService(services.securityService);
         }else{
@@ -138,10 +144,37 @@ public class EndpointConnectionHandler {
 
     public Mono<Void> send(Event<byte[]> incomingEvent) {
         Mono<Void> ret;
-        if (session.sendAllowed(incomingEvent.cri())) {
+        CRI cri = incomingEvent.cri();
+        if (session.sendAllowed(cri)) {
 
-            if (incomingEvent.cri().scheme().equals(EventConstants.SERVICE_DESTINATION_SCHEME)) {
+            if (cri.scheme().equals(EventConstants.SERVICE_DESTINATION_SCHEME)) {
 
+                // If caller provided a parent span lets make it current
+                Context extractedContext = services.openTelemetry
+                        .getPropagators()
+                        .getTextMapPropagator()
+                        .extract(Context.current(),
+                                 incomingEvent.metadata(),
+                                 textMapGetter);
+
+                // remove traceparent header since we have extracted
+                incomingEvent.metadata().remove(EventConstants.TRACEPARENT_HEADER);
+
+                String name = "continuum-receive://" + cri.resourceName() + cri.path();
+                SpanBuilder gatewaySpanBuilder = tracer
+                        .spanBuilder(name)
+                        .setSpanKind(SpanKind.SERVER)
+                        .setParent(extractedContext)
+                        .setAttribute("rpc.service", cri.resourceName())
+                        .setAttribute("rpc.method", cri.path())
+                        .setAttribute("tenant", session.participant().getTenantId())
+                        .setAttribute("sender", session.participant().getId());
+
+                if(cri.scope() != null){
+                    gatewaySpanBuilder.setAttribute("continuum.scope", cri.scope());
+                }
+                Span gatewaySpan = gatewaySpanBuilder.startSpan();
+                Scope scope = gatewaySpan.makeCurrent();
                 try {
 
                     // FIXME: when the invocation is local this happens for no reason. If the event stays on the local bus we shouldn't do this..
@@ -181,6 +214,14 @@ public class EndpointConnectionHandler {
 
                 } catch (Exception e) {
                     ret = Mono.error(e);
+                    gatewaySpan.recordException(e);
+                    gatewaySpan.setStatus(StatusCode.ERROR);
+                }finally {
+                    gatewaySpan.end();
+                }
+
+                if(scope != null){
+                    scope.close();
                 }
 
             } else if (incomingEvent.cri().scheme().equals(EventConstants.STREAM_DESTINATION_SCHEME)) {

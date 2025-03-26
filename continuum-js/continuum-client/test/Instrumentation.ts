@@ -1,22 +1,34 @@
-// WARNING: Only import this into tests
-
-/**
- * This is a non-standard setup, because for some reason the console output doesn't work with Otel NodeSDK and vitest.
- * I have stepped through the Otel code, and it seems the console used by Otel NodeSDK is different from the test output.
- */
-
-import {ConsoleSpanExporter, SimpleSpanProcessor} from '@opentelemetry/sdk-trace-node'
+/*instrumentation.ts*/
+import {OTLPTraceExporter} from '@opentelemetry/exporter-trace-otlp-grpc'
+import { NodeSDK } from '@opentelemetry/sdk-node';
+import {ConsoleSpanExporter, SpanExporter} from '@opentelemetry/sdk-trace-node'
+import { Resource } from '@opentelemetry/resources';
 import {
-    ATTR_SERVICE_NAME
-} from '@opentelemetry/semantic-conventions'
-import { Resource } from '@opentelemetry/resources'
+    ATTR_SERVICE_NAME,
+    ATTR_SERVICE_VERSION,
+} from '@opentelemetry/semantic-conventions';
+import info from '../package.json'
+import {OtelConfig, OtelExporterType} from './OtelConfig'
 
-import { NodeTracerProvider } from '@opentelemetry/sdk-trace-node'
-export const otelTracerProvider = new NodeTracerProvider({
-                                            resource: new Resource({
-                                                                       [ATTR_SERVICE_NAME]: 'ContinuumTests'
-                                                                   }),
-                                        })
+const otelConfig = OtelConfig.fromEnv()
+console.log('Otel Config:')
+otelConfig.print()
 
-otelTracerProvider.addSpanProcessor(new SimpleSpanProcessor(new ConsoleSpanExporter()))
-otelTracerProvider.register()
+// TODO: support Noop exporter
+let spanExporter: SpanExporter | undefined = undefined
+if(otelConfig.exporterType === OtelExporterType.OTLP){
+    spanExporter = new OTLPTraceExporter({
+                                            url: otelConfig.otelEndpoint
+                                         })
+}else if(otelConfig.exporterType === OtelExporterType.CONSOLE){
+    spanExporter = new ConsoleSpanExporter()
+}
+
+export const nodeSdk = new NodeSDK({
+                            resource: new Resource({
+                                                       [ATTR_SERVICE_NAME]: `continuum-client`,
+                                                       [ATTR_SERVICE_VERSION]: info.version,
+                                                   }),
+                            traceExporter: spanExporter,
+                        })
+nodeSdk.start()

@@ -257,13 +257,16 @@ public class ServiceInvocationSupervisor {
     private void processInvocationRequest(Event<byte[]> incomingEvent) {
 
         // TODO: add support for context propagation
+     //   Span span = Span.current();
+
 //        Context extractedContext = openTelemetry.getPropagators()
 //                                                .getTextMapPropagator()
 //                                                .extract(Context.current(),
 //                                                         incomingEvent.metadata(),
 //                                                         textMapGetter);
-
+//
 //        Span extractedSpan = Span.fromContextOrNull(extractedContext);
+
 
         // Ensure there is an argument resolver that can handle the incoming data
         if (argumentResolver.supports(incomingEvent)) {

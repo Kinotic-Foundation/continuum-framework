@@ -18,6 +18,7 @@
 package org.kinotic.continuum.gateway.internal.endpoints;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.opentelemetry.api.OpenTelemetry;
 import io.vertx.core.Vertx;
 import org.kinotic.continuum.api.Continuum;
 import org.kinotic.continuum.api.config.ContinuumProperties;
@@ -52,6 +53,8 @@ public class Services {
     public ExceptionConverter exceptionConverter;
     @Autowired
     public ObjectMapper objectMapper;
+    @Autowired
+    public OpenTelemetry openTelemetry;
     @Autowired
     public SecurityService securityService;
     @Autowired

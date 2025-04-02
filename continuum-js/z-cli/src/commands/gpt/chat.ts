@@ -3,14 +3,14 @@ import { OpenAI } from 'openai'
 import { input } from '@inquirer/prompts'
 import chalk from 'chalk'
 import ora from 'ora'
-import { loadConfig } from '../../internal/state/Config.js'
+import { loadGptConfig } from '../../internal/state/GptConfig.js'
 
 export default class Chat extends Command {
     static description = 'Start an interactive chat session with the default assistant'
 
     async run(): Promise<void> {
         try {
-            const config = await loadConfig(this.config.configDir)
+            const config = await loadGptConfig(this.config.configDir)
             const assistantId = config.defaultAssistantId
 
             if (!assistantId) {

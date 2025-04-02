@@ -2,7 +2,7 @@ import { Command } from '@oclif/core'
 import chalk from 'chalk'
 import { OpenAI } from 'openai'
 import { select, Separator } from '@inquirer/prompts'
-import {loadConfig, saveConfig} from '../../internal/state/Config.js'
+import {loadGptConfig, saveGptConfig} from '../../internal/state/GptConfig.js'
 
 export default class Assistants extends Command {
     static description = 'Select the default ChatGPT assistants to use'
@@ -14,7 +14,7 @@ export default class Assistants extends Command {
     async run(): Promise<void> {
         try {
             // Initialize the OpenAI API client
-            const config = await loadConfig(this.config.configDir)
+            const config = await loadGptConfig(this.config.configDir)
             const openai = new OpenAI({ apiKey: config.openAIKey })
 
             // Fetch the list of assistants
@@ -47,7 +47,7 @@ export default class Assistants extends Command {
             }
 
             config.defaultAssistantId = selectedAssistantId
-            await saveConfig(this.config.configDir, config)
+            await saveGptConfig(this.config.configDir, config)
 
             this.log(`Selected Assistant ID: ${chalk.green(selectedAssistantId)}`)
 

@@ -2,7 +2,7 @@ import { Command } from '@oclif/core'
 import { OpenAI } from 'openai'
 import chalk from 'chalk'
 import cliProgress from 'cli-progress'
-import { loadConfig } from '../../internal/state/Config.js'
+import { loadGptConfig } from '../../internal/state/GptConfig.js'
 
 /**
  * ResetFiles command to delete all files listed in the OpenAI file management API.
@@ -13,7 +13,7 @@ export default class ResetFiles extends Command {
     async run(): Promise<void> {
         try {
             // Load configuration
-            const config = await loadConfig(this.config.configDir)
+            const config = await loadGptConfig(this.config.configDir)
 
             // Initialize OpenAI client
             const openai = new OpenAI({ apiKey: config.openAIKey })

@@ -5,7 +5,7 @@ import { createReadStream } from 'fs'
 import { glob } from 'glob'
 import cliProgress from 'cli-progress'
 import chalk from 'chalk'
-import { loadConfig } from '../../internal/state/Config.js'
+import { loadGptConfig } from '../../internal/state/GptConfig.js'
 
 export default class Upload extends Command {
     static description = 'Upload files to a ChatGPT assistant for the file_search tool'
@@ -34,7 +34,7 @@ export default class Upload extends Command {
             const dryRun = flags.dryRun
 
             // Load configuration
-            const config = await loadConfig(this.config.configDir)
+            const config = await loadGptConfig(this.config.configDir)
             const assistantId = config.defaultAssistantId
 
             if (!assistantId) {

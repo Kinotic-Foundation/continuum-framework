@@ -2,14 +2,14 @@ import { Command } from '@oclif/core'
 import { OpenAI } from 'openai'
 import chalk from 'chalk'
 import cliProgress from 'cli-progress'
-import { loadConfig } from '../../internal/state/Config.js'
+import { loadGptConfig } from '../../internal/state/GptConfig.js'
 
 export default class ResetStore extends Command {
     static description = 'Reset the vector store for the current assistant by deleting all files and removing the store.'
 
     async run(): Promise<void> {
         try {
-            const config = await loadConfig(this.config.configDir)
+            const config = await loadGptConfig(this.config.configDir)
             const assistantId = config.defaultAssistantId
 
             if (!assistantId) {

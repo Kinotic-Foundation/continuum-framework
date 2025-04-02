@@ -18,12 +18,16 @@
     "cli-progress": "^3.12.0",
     "glob": "^11.0.0",
     "openai": "^4.77.0",
-    "ora": "^8.1.1"
+    "ora": "^8.1.1",
+    "puppeteer": "^24.5.0",
+    "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2"
   },
   "devDependencies": {
     "@oclif/prettier-config": "^0.2.1",
     "@oclif/test": "^4",
     "@types/chai": "^5",
+    "@types/glob": "^8.1.0",
     "@types/mocha": "^10",
     "@types/node": "^22",
     "chai": "^5",
@@ -41,7 +45,10 @@
     "overrides": {
       "ajv": "^8.17.1",
       "whatwg-url": "^14.0.0"
-    }
+    },
+    "onlyBuiltDependencies": [
+      "puppeteer"
+    ]
   },
   "engines": {
     "node": ">=22.0.0"
@@ -72,8 +79,11 @@
     ],
     "topicSeparator": " ",
     "topics": {
-      "ai": {
-        "description": "AI commands, to help you move fast!"
+      "gpt": {
+        "description": "ChatGPT commands, to help you move fast!"
+      },
+      "grok": {
+        "description": "Grok commands, to help you move faster!"
       }
     }
   },

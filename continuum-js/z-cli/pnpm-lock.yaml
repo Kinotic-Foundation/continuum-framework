@@ -30,9 +30,12 @@ importers:
       '@oclif/plugin-plugins':
         specifier: ^5
         version: 5.4.23
-      '@types/cli-progress':
-        specifier: ^3.11.6
-        version: 3.11.6
+      '@streamparser/json':
+        specifier: ^0.0.22
+        version: 0.0.22
+      '@streamparser/json-node':
+        specifier: ^0.0.22
+        version: 0.0.22
       chalk:
         specifier: ^5.4.1
         version: 5.4.1
@@ -57,6 +60,9 @@ importers:
       puppeteer-extra-plugin-stealth:
         specifier: ^2.11.2
         version: 2.11.2(puppeteer-extra@3.3.6(puppeteer-core@24.5.0)(puppeteer@24.5.0(typescript@5.7.2)))
+      shx:
+        specifier: ^0.3.4
+        version: 0.3.4
     devDependencies:
       '@oclif/prettier-config':
         specifier: ^0.2.1
@@ -97,9 +103,6 @@ importers:
       oclif:
         specifier: ^4
         version: 4.17.2(@types/node@22.10.2)
-      shx:
-        specifier: ^0.3.4
-        version: 0.3.4
       tsx:
         specifier: ^4.19.2
         version: 4.19.2
@@ -847,6 +850,12 @@ packages:
     resolution: {integrity: sha512-PpjSboaDUE6yl+1qlg3Si57++e84oXdWGbuFUSAciXsVfEZJJJupR2Nb0QuXHiunt2vGR+1PTizOMvnUPaG2Qg==}
     engines: {node: '>=16.0.0'}
 
+  '@streamparser/json-node@0.0.22':
+    resolution: {integrity: sha512-sJT2ptNRwqB1lIsQrQlCoWk5rF4tif9wDh+7yluAGijJamAhrHGYpFB/Zg3hJeceoZypi74ftXk8DHzwYpbZSg==}
+
+  '@streamparser/json@0.0.22':
+    resolution: {integrity: sha512-b6gTSBjJ8G8SuO3Gbbj+zXbVx8NSs1EbpbMKpzGLWMdkR+98McH9bEjSz3+0mPJf68c5nxa3CrJHp5EQNXM6zQ==}
+
   '@szmarczak/http-timer@5.0.1':
     resolution: {integrity: sha512-+PmQX0PiAYPMeVYe237LJAYvOMYW1j2rH5YROyS3b4CTVJum34HfRvKvAzozHAQG0TnHNdUfY9nCeUyRAs//cw==}
     engines: {node: '>=14.16'}
@@ -856,9 +865,6 @@ packages:
 
   '@types/chai@5.0.1':
     resolution: {integrity: sha512-5T8ajsg3M/FOncpLYW7sdOcD6yf4+722sze/tc4KQV0P8Z2rAr3SAuHCIkYmYpt8VbcQlnz8SxlOlPQYefe4cA==}
-
-  '@types/cli-progress@3.11.6':
-    resolution: {integrity: sha512-cE3+jb9WRlu+uOSAugewNpITJDt1VF8dHOopPO4IABFc3SXYL5WE/+PTz/FCdZRRfIujiWW3n3aMbv1eIGVRWA==}
 
   '@types/debug@4.1.12':
     resolution: {integrity: sha512-vIChWdVG3LG1SMxEvI/AK+FWJthlrqlTu7fbrlywTkkaONwk/UAGaULXRlf8vkzFBLVm0zkMdCquhL5aOjhXPQ==}
@@ -4675,6 +4681,12 @@ snapshots:
       '@smithy/types': 3.7.2
       tslib: 2.8.1
 
+  '@streamparser/json-node@0.0.22':
+    dependencies:
+      '@streamparser/json': 0.0.22
+
+  '@streamparser/json@0.0.22': {}
+
   '@szmarczak/http-timer@5.0.1':
     dependencies:
       defer-to-connect: 2.0.1
@@ -4684,10 +4696,6 @@ snapshots:
   '@types/chai@5.0.1':
     dependencies:
       '@types/deep-eql': 4.0.2
-
-  '@types/cli-progress@3.11.6':
-    dependencies:
-      '@types/node': 22.10.2
 
   '@types/debug@4.1.12':
     dependencies:

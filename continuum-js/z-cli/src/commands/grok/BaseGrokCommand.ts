@@ -63,7 +63,6 @@ export abstract class BaseGrokCommand extends Command {
             responseHandler(page)
         }
 
-        this.log(chalk.yellow(`Loading ${url}...`))
         await page.goto(url, { waitUntil: 'networkidle2' })
 
         const isCaptchaPresent = await page.evaluate(() =>

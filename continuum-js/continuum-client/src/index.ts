@@ -35,6 +35,7 @@ export * from './api/security/IParticipant'
 export * from './api/security/Participant'
 export * from './api/security/ParticipantConstants'
 
+export * from './core/api/ContextInterceptor'
 export * from './core/api/CRI'
 export * from './core/api/DefaultCRI'
 export * from './core/api/EventBus'

@@ -6,15 +6,12 @@
 
 import { ContinuumContextStack } from '@/api/Continuum'
 import { ServiceIdentifier } from './ServiceIdentifier.js'
-import {ServiceInvocationSupervisor} from '@/internal/core/api/ServiceInvocationSupervisor.js'
+import { ServiceInvocationSupervisor } from '@/internal/core/api/ServiceInvocationSupervisor.js'
 import opentelemetry, { SpanKind, SpanStatusCode, Tracer } from '@opentelemetry/api'
 import {
     ATTR_SERVER_ADDRESS,
     ATTR_SERVER_PORT,
-    ATTR_RPC_METHOD,
-    ATTR_RPC_SERVICE,
-    ATTR_RPC_SYSTEM
-} from '@opentelemetry/semantic-conventions/incubating'
+} from '@opentelemetry/semantic-conventions'
 import { Observable } from 'rxjs'
 import { first, map } from 'rxjs/operators'
 import info from '../../../package.json' assert { type: 'json' }
@@ -68,7 +65,7 @@ export class TextEventFactory implements IEventFactory {
 export class ServiceRegistry implements IServiceRegistry {
     private readonly eventBus: IEventBus
     private readonly supervisors: Map<string, ServiceInvocationSupervisor> = new Map()
-    private contextInterceptor?: ContextInterceptor<any>
+    private contextInterceptor: ContextInterceptor<any> | null = null
 
     constructor(eventBus: IEventBus) {
         this.eventBus = eventBus
@@ -81,9 +78,12 @@ export class ServiceRegistry implements IServiceRegistry {
     public register(serviceIdentifier: ServiceIdentifier, service: any): void {
         const criString = serviceIdentifier.cri().raw()
         if (!this.supervisors.has(criString)) {
-            const supervisor = new ServiceInvocationSupervisor(serviceIdentifier, service, this.eventBus, {
-                interceptor: this.contextInterceptor
-            })
+            const supervisor = new ServiceInvocationSupervisor(
+                serviceIdentifier,
+                service,
+                this.eventBus,
+                () => this.contextInterceptor
+            )
             this.supervisors.set(criString, supervisor)
             supervisor.start()
         }
@@ -98,7 +98,7 @@ export class ServiceRegistry implements IServiceRegistry {
         }
     }
 
-    public registerContextInterceptor<T extends ServiceContext>(interceptor: ContextInterceptor<T>): void {
+    public registerContextInterceptor<T extends ServiceContext>(interceptor: ContextInterceptor<T> | null): void {
         this.contextInterceptor = interceptor
     }
 }
@@ -141,9 +141,9 @@ class ServiceProxy implements IServiceProxy {
                 if (scope) {
                     span.setAttribute('continuum.scope', scope)
                 }
-                span.setAttribute(ATTR_RPC_SYSTEM, 'continuum')
-                span.setAttribute(ATTR_RPC_SERVICE, this.serviceIdentifier)
-                span.setAttribute(ATTR_RPC_METHOD, methodIdentifier)
+                span.setAttribute('rpc.system', 'continuum')
+                span.setAttribute('rpc.service', this.serviceIdentifier)
+                span.setAttribute('rpc.method', methodIdentifier)
 
                 return this.__invokeStream(false, methodIdentifier, args, scope, eventFactory)
                            .pipe(first())

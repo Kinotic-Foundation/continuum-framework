@@ -1,10 +1,10 @@
 /*
  * Copyright 2008-2021 Kinotic and the original author or authors.
- * Licensed under the Apache License, Version 2.0 (the "License")
+ * Licensed under the Apache License, Version 2.0 (the 'License')
  * See https://www.apache.org/licenses/LICENSE-2.0
  */
 
-import "reflect-metadata"
+import 'reflect-metadata'
 import { Continuum } from '@/api/Continuum.js'
 import { ServiceIdentifier } from '@/core/api/ServiceIdentifier.js'
 
@@ -14,8 +14,9 @@ import { ServiceIdentifier } from '@/core/api/ServiceIdentifier.js'
  * @author Navid Mitchell 🤝Grok
  * @since 3/25/2025
  */
-const SCOPE_METADATA_KEY = Symbol("scope")
-const CONTEXT_METADATA_KEY = Symbol("context")
+const SCOPE_METADATA_KEY = Symbol('scope')
+const VERSION_METADATA_KEY = Symbol('version')
+export const CONTEXT_METADATA_KEY = Symbol('context')
 
 //@ts-ignore
 export function Scope(target: any, propertyKey: string, descriptor?: PropertyDescriptor) {
@@ -27,7 +28,7 @@ export function Version(version: string) {
         throw new Error(`Invalid semantic version: ${version}. Must follow X.Y.Z[-optional] format.`)
     }
     return function (target: Function) {
-        Reflect.defineMetadata("version", version, target)
+        Reflect.defineMetadata(VERSION_METADATA_KEY, version, target)
     }
 }
 
@@ -44,7 +45,7 @@ export function Publish(namespace: string, name?: string) {
         const original = target
         const serviceIdentifier = new ServiceIdentifier(namespace, name || target.name)
 
-        const version = Reflect.getMetadata("version", target)
+        const version = Reflect.getMetadata(VERSION_METADATA_KEY, target)
         if (version) {
             serviceIdentifier.version = version
         }
@@ -55,7 +56,7 @@ export function Publish(namespace: string, name?: string) {
             const scopeProperty = Reflect.getMetadata(SCOPE_METADATA_KEY, target.prototype)
             if (scopeProperty) {
                 const scopeValue = instance[scopeProperty]
-                serviceIdentifier.scope = typeof scopeValue === "function" ? scopeValue.call(instance) : scopeValue
+                serviceIdentifier.scope = typeof scopeValue === 'function' ? scopeValue.call(instance) : scopeValue
             }
 
             // Register with the singleton Continuum's ServiceRegistry

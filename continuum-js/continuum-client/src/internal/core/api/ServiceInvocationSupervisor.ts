@@ -13,6 +13,7 @@ import { BasicReturnValueConverter, ReturnValueConverter } from './ReturnValueCo
 import { Subscription } from "rxjs"
 import { createDebugLogger, Logger } from "./Logger.js"
 import { ContextInterceptor, ServiceContext } from '@/core/api/ContextInterceptor.js'
+import { CONTEXT_METADATA_KEY } from '@/api/ContinuumDecorators.js'
 
 /**
  * Handles invoking services registered with Continuum in TypeScript.
@@ -24,10 +25,10 @@ export class ServiceInvocationSupervisor {
     private readonly log: Logger
     private active: boolean = false
     private readonly eventBusService: IEventBus
+    private readonly interceptorProvider: () => ContextInterceptor<any> | null
     private readonly argumentResolver: ArgumentResolver
     private readonly returnValueConverter: ReturnValueConverter
     private readonly serviceIdentifier: ServiceIdentifier
-    private readonly interceptor: ContextInterceptor<any> | null
     private readonly serviceInstance: any
     private methodSubscription: Subscription | null = null
     private readonly methodMap: Record<string, (...args: any[]) => any>
@@ -36,25 +37,26 @@ export class ServiceInvocationSupervisor {
         serviceIdentifier: ServiceIdentifier,
         serviceInstance: any,
         eventBusService: IEventBus,
+        interceptorProvider: () => ContextInterceptor<any> | null,
         options: {
             logger?: Logger
             argumentResolver?: ArgumentResolver
             returnValueConverter?: ReturnValueConverter
-            interceptor?: ContextInterceptor<any>
         } = {}
     ) {
         if (!serviceIdentifier) throw new Error("ServiceIdentifier must not be null")
         if (!serviceInstance) throw new Error("Service instance must not be null")
         if (!eventBusService) throw new Error("EventBusService must not be null")
+        if (!interceptorProvider) throw new Error("interceptorProvider must not be null")
 
         this.serviceIdentifier = serviceIdentifier
         this.serviceInstance = serviceInstance
         this.eventBusService = eventBusService
+        this.interceptorProvider = interceptorProvider
 
         this.log = options.logger || createDebugLogger("continuum:ServiceInvocationSupervisor")
         this.argumentResolver = options.argumentResolver || new JsonArgumentResolver()
         this.returnValueConverter = options.returnValueConverter || new BasicReturnValueConverter()
-        this.interceptor = options.interceptor || null
 
         this.methodMap = this.buildMethodMap(serviceInstance)
     }
@@ -155,13 +157,14 @@ export class ServiceInvocationSupervisor {
 
         const methodName = path;
         const args = this.argumentResolver.resolveArguments(event)
-        const contextIndices: number[] = Reflect.getMetadata(Symbol('context'), this.serviceInstance, methodName) || [];
+        const contextIndices: number[] = Reflect.getMetadata(CONTEXT_METADATA_KEY, this.serviceInstance, methodName) || [];
 
         // Create context using interceptor
         let context: ServiceContext = {};
-        if (this.interceptor) {
+        const interceptor = this.interceptorProvider();
+        if (interceptor) {
             try {
-                context = await this.interceptor.intercept(event, context);
+                context = await interceptor.intercept(event, context);
             } catch (e) {
                 this.log.error(`Interceptor failed to create context for event: ${JSON.stringify(event)}`, e)
                 this.handleException(event, new Error("Internal server error"))

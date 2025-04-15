@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+import {ContextInterceptor, ServiceContext} from '@/core/api/ContextInterceptor.js'
 import {ServiceIdentifier} from '@/core/api/ServiceIdentifier.js'
 import { Observable } from 'rxjs'
 import { IEvent } from './IEventBus'
@@ -94,5 +95,13 @@ export interface IServiceRegistry {
      * @param serviceIdentifier identifies the service to be unregistered
      */
     unRegister(serviceIdentifier: ServiceIdentifier): void
+
+    /**
+     * Registers a {@link ContextInterceptor} that will be used to modify the {@link ServiceContext} before the service method is invoked.
+     * This allows for custom context data to be added or modified before the service method is called.
+     *
+     * @param interceptor the {@link ContextInterceptor} to register
+     */
+    registerContextInterceptor<T extends ServiceContext>(interceptor: ContextInterceptor<T> | null): void
 
 }

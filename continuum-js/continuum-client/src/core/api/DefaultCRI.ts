@@ -132,7 +132,7 @@ export class DefaultCRI implements CRI {
         path: string | null
         version: string | null
     } {
-        const regex = /^([^:]+):\/\/(?:([^@]+)@)?([^/#]+)(\/[^#]*)?(?:#(.+))?$/
+        const regex = /^([^:]+):\/\/(?:([^@]+)@)?([^\/#]+)(\/[^#]*)?(?:#(.+))?$/;
         const match = raw.match(regex)
         if (!match) {
             throw new Error(`Invalid CRI format: ${raw}`)
@@ -143,7 +143,7 @@ export class DefaultCRI implements CRI {
             scheme,
             scope: scope || null,
             resourceName,
-            path: path || null,
+            path: path ? path.substring(1) : null,
             version: version || null,
         }
     }
@@ -162,7 +162,7 @@ export class DefaultCRI implements CRI {
         }
         result += resourceName
         if (path) {
-            result += path
+            result += `/${path}`
         }
         if (version) {
             result += `#${version}`

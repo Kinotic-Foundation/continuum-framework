@@ -4,14 +4,15 @@
  * See https://www.apache.org/licenses/LICENSE-2.0
  */
 
-import {createCRI} from '@/core/api/CRI.js'
-import {EventConstants, IEvent, IEventBus} from '@/core/api/IEventBus.js'
-import {ServiceIdentifier} from '@/core/api/ServiceIdentifier.js'
-import {ArgumentResolver, JsonArgumentResolver} from '@/internal/core/api/ArgumentResolver.js'
-import {EventUtil} from '@/internal/core/api/EventUtil.js'
-import {BasicReturnValueConverter, ReturnValueConverter} from '@/internal/core/api/ReturnValueConverter.js'
-import {Subscription} from "rxjs"
-import {createDebugLogger, Logger} from "./Logger.js"
+import { createCRI } from '@/core/api/CRI.js'
+import { EventConstants, IEvent, IEventBus } from '@/core/api/IEventBus.js'
+import { ServiceIdentifier } from '@/core/api/ServiceIdentifier.js'
+import { ArgumentResolver, JsonArgumentResolver } from './ArgumentResolver.js'
+import { EventUtil } from './EventUtil.js'
+import { BasicReturnValueConverter, ReturnValueConverter } from './ReturnValueConverter.js'
+import { Subscription } from "rxjs"
+import { createDebugLogger, Logger } from "./Logger.js"
+import { ContextInterceptor, ServiceContext } from '@/core/api/ContextInterceptor.js'
 
 /**
  * Handles invoking services registered with Continuum in TypeScript.
@@ -26,6 +27,8 @@ export class ServiceInvocationSupervisor {
     private readonly argumentResolver: ArgumentResolver
     private readonly returnValueConverter: ReturnValueConverter
     private readonly serviceIdentifier: ServiceIdentifier
+    private readonly interceptor: ContextInterceptor<any> | null
+    private readonly serviceInstance: any
     private methodSubscription: Subscription | null = null
     private readonly methodMap: Record<string, (...args: any[]) => any>
 
@@ -37,6 +40,7 @@ export class ServiceInvocationSupervisor {
             logger?: Logger
             argumentResolver?: ArgumentResolver
             returnValueConverter?: ReturnValueConverter
+            interceptor?: ContextInterceptor<any>
         } = {}
     ) {
         if (!serviceIdentifier) throw new Error("ServiceIdentifier must not be null")
@@ -44,12 +48,13 @@ export class ServiceInvocationSupervisor {
         if (!eventBusService) throw new Error("EventBusService must not be null")
 
         this.serviceIdentifier = serviceIdentifier
+        this.serviceInstance = serviceInstance
         this.eventBusService = eventBusService
 
-        // Use provided options or defaults
         this.log = options.logger || createDebugLogger("continuum:ServiceInvocationSupervisor")
         this.argumentResolver = options.argumentResolver || new JsonArgumentResolver()
         this.returnValueConverter = options.returnValueConverter || new BasicReturnValueConverter()
+        this.interceptor = options.interceptor || null
 
         this.methodMap = this.buildMethodMap(serviceInstance)
     }
@@ -68,7 +73,9 @@ export class ServiceInvocationSupervisor {
         this.methodSubscription = this.eventBusService
                                       .observe(criBase)
                                       .subscribe({
-                                                     next: (event: IEvent) => this.processEvent(event),
+                                                     next: async (event: IEvent) => {
+                                                         await this.processEvent(event);
+                                                     },
                                                      error: (error: Error) => {
                                                          this.log.error("Event listener error", error)
                                                          this.active = false
@@ -101,13 +108,13 @@ export class ServiceInvocationSupervisor {
         for (const key of Object.getOwnPropertyNames(Object.getPrototypeOf(serviceInstance))) {
             const method = serviceInstance[key]
             if (typeof method === "function" && key !== "constructor") {
-                methodMap[`/${key}`] = method.bind(serviceInstance)
+                methodMap[key] = method.bind(serviceInstance)
             }
         }
         return methodMap
     }
 
-    private processEvent(event: IEvent): void {
+    private async processEvent(event: IEvent): Promise<void> {
         const isControl = event.hasHeader(EventConstants.CONTROL_HEADER)
         this.log.trace(`Service ${isControl ? "Control" : "Invocation"} requested for ${event.cri}`)
 
@@ -116,7 +123,7 @@ export class ServiceInvocationSupervisor {
                 this.processControlPlaneRequest(event)
             } else {
                 if (this.validateReplyTo(event)) {
-                    this.processInvocationRequest(event)
+                    await this.processInvocationRequest(event)
                 } else {
                     this.log.error(`ReplyTo header missing or invalid. Ignoring event: ${JSON.stringify(event)}`)
                 }
@@ -135,7 +142,7 @@ export class ServiceInvocationSupervisor {
         this.log.trace(`Processing control event for correlationId: ${correlationId}`)
     }
 
-    private processInvocationRequest(event: IEvent): void {
+    private async processInvocationRequest(event: IEvent): Promise<void> {
         const path = createCRI(event.cri).path()
         if (!path) {
             throw new Error("The methodId must not be blank")
@@ -146,7 +153,27 @@ export class ServiceInvocationSupervisor {
             throw new Error(`No method resolved for methodId ${path}`)
         }
 
+        const methodName = path;
         const args = this.argumentResolver.resolveArguments(event)
+        const contextIndices: number[] = Reflect.getMetadata(Symbol('context'), this.serviceInstance, methodName) || [];
+
+        // Create context using interceptor
+        let context: ServiceContext = {};
+        if (this.interceptor) {
+            try {
+                context = await this.interceptor.intercept(event, context);
+            } catch (e) {
+                this.log.error(`Interceptor failed to create context for event: ${JSON.stringify(event)}`, e)
+                this.handleException(event, new Error("Internal server error"))
+                return
+            }
+        }
+
+        // Inject context into arguments where @Context is used
+        for (const index of contextIndices) {
+            args[index] = context;
+        }
+
         const expectedArgsCount = handlerMethod.length
         if (args.length !== expectedArgsCount) {
             throw new Error(`Argument count mismatch for method ${path}: expected ${expectedArgsCount}, got ${args.length}`)

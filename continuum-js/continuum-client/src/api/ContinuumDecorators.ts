@@ -5,8 +5,8 @@
  */
 
 import "reflect-metadata"
-import {Continuum} from '@/api/Continuum.js'
-import {ServiceIdentifier} from '@/core/api/ServiceIdentifier.js'
+import { Continuum } from '@/api/Continuum.js'
+import { ServiceIdentifier } from '@/core/api/ServiceIdentifier.js'
 
 /**
  * Decorator for registering services with the Continuum ServiceRegistry.
@@ -15,6 +15,7 @@ import {ServiceIdentifier} from '@/core/api/ServiceIdentifier.js'
  * @since 3/25/2025
  */
 const SCOPE_METADATA_KEY = Symbol("scope")
+const CONTEXT_METADATA_KEY = Symbol("context")
 
 //@ts-ignore
 export function Scope(target: any, propertyKey: string, descriptor?: PropertyDescriptor) {
@@ -27,6 +28,14 @@ export function Version(version: string) {
     }
     return function (target: Function) {
         Reflect.defineMetadata("version", version, target)
+    }
+}
+
+export function Context() {
+    return function (target: any, propertyKey: string, parameterIndex: number) {
+        const existingContexts = Reflect.getMetadata(CONTEXT_METADATA_KEY, target, propertyKey) || [];
+        existingContexts.push(parameterIndex);
+        Reflect.defineMetadata(CONTEXT_METADATA_KEY, existingContexts, target, propertyKey);
     }
 }
 
@@ -59,4 +68,3 @@ export function Publish(namespace: string, name?: string) {
         return newConstructor as any
     }
 }
-

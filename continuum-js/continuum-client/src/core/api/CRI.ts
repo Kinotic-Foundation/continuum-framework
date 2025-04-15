@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import {DefaultCRI} from '@/core/api/DefaultCRI.js'
+import {DefaultCRI} from './DefaultCRI.js'
 
 /**
  * `CRI` is a Continuum Resource Identifier used by Continuum to route requests appropriately.
@@ -82,7 +82,7 @@ export interface CRI {
     hasVersion(): boolean
 
     /**
-     * The path for this `CRI`.
+     * The path for this `CRI`, without a leading `/`.
      *
      * For the following CRI, `path` would be the portion specified by `path`:
      *
@@ -113,7 +113,6 @@ export interface CRI {
      */
     raw(): string
 }
-
 
 /**
  * Creates a new `CRI` from a raw string.
@@ -160,4 +159,3 @@ export function createCRI(...args: any[]): CRI {
     if (args.length === 5) return new DefaultCRI(args[0], args[1], args[2], args[3], args[4]);
     throw new Error("Invalid arguments for createCRI");
 }
-

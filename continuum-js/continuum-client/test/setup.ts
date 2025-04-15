@@ -1,3 +1,4 @@
+// @ts-ignore
 import path from 'node:path'
 import {GenericContainer, PullPolicy, StartedTestContainer, Wait} from 'testcontainers'
 import {TestProject} from 'vitest/node.js'

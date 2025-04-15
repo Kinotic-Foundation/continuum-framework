@@ -158,13 +158,13 @@ describe("Publish Mechanism", () => {
         describe("Argument count mismatch", () => {
             it("should fail when too many arguments are provided to greet", async () => {
                 await expect(sendAndReceiveEvent("srv://com.example.TestServiceNoScope/greet", ["Alice", "Extra"])).rejects.toThrow(
-                    "Argument count mismatch for method /greet: expected 1, got 2"
+                    "Argument count mismatch for method greet: expected 1, got 2"
                 )
             })
 
             it("should fail when too few arguments are provided to combine", async () => {
                 await expect(sendAndReceiveEvent("srv://com.example.TestServiceNoScope/combine", ["test"])).rejects.toThrow(
-                    "Argument count mismatch for method /combine: expected 2, got 1"
+                    "Argument count mismatch for method combine: expected 2, got 1"
                 )
             })
         })

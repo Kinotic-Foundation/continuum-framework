@@ -16,9 +16,21 @@
  */
 
 package org.kinotic.continuum.internal.api;
-import io.netty.handler.codec.ByteToMessageDecoder;
-import io.vertx.core.*;
-import io.vertx.core.spi.cluster.ClusterManager;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
+
+import javax.annotation.PreDestroy;
+
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.text.WordUtils;
 import org.apache.ignite.internal.util.typedef.internal.U;
@@ -42,21 +54,12 @@ import org.springframework.core.ReactiveTypeDescriptor;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.type.classreading.MetadataReader;
 import org.springframework.stereotype.Component;
-import reactor.core.publisher.Mono;
 
-import javax.annotation.PreDestroy;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-import java.util.stream.Stream;
+import io.vertx.core.Future;
+import io.vertx.core.Promise;
+import io.vertx.core.Vertx;
+import io.vertx.core.spi.cluster.ClusterManager;
+import reactor.core.publisher.Mono;
 
 
 /**
@@ -85,17 +88,19 @@ public class DefaultContinuum implements Continuum {
                             ReactiveAdapterRegistry reactiveAdapterRegistry) throws IOException {
         String nodeName;
 
-        try (Stream<String> fileStream = new BufferedReader(new InputStreamReader(resourceLoader.getResource("classpath:adjectives.txt").getInputStream())).lines()) {
-            nodeName = fileStream.skip(ContinuumUtil.getRandomNumberInRange(ADJECTIVE_COUNT))
+        try (InputStreamReader reader = new InputStreamReader(resourceLoader.getResource("classpath:adjectives.txt").getInputStream());
+                Stream<String> fileStream = new BufferedReader(reader).lines()) {
+                nodeName = fileStream.skip(ContinuumUtil.getRandomNumberInRange(ADJECTIVE_COUNT))
                                  .findFirst()
                                  .orElse("");
         }
 
-        try (Stream<String> fileStream = new BufferedReader(new InputStreamReader(resourceLoader.getResource("classpath:animals.txt").getInputStream())).lines()) {
-            String temp = fileStream.skip(ContinuumUtil.getRandomNumberInRange(ANIMAL_COUNT))
+        try (InputStreamReader reader = new InputStreamReader(resourceLoader.getResource("classpath:animals.txt").getInputStream());
+             Stream<String> fileStream = new BufferedReader(reader).lines()) {
+             String temp = fileStream.skip(ContinuumUtil.getRandomNumberInRange(ANIMAL_COUNT))
                                     .findFirst()
                                     .orElse("");
-            nodeName = nodeName + " " + WordUtils.capitalize(temp);
+             nodeName = nodeName + " " + WordUtils.capitalize(temp);
         }
         this.vertx = vertx;
         this.continuumProperties = continuumProperties;

@@ -17,19 +17,30 @@
 
 package org.kinotic.continuum.internal.config;
 
+import static org.apache.ignite.failure.FailureType.CRITICAL_ERROR;
+import static org.apache.ignite.failure.FailureType.SEGMENTATION;
+import static org.apache.ignite.failure.FailureType.SYSTEM_CRITICAL_OPERATION_TIMEOUT;
+import static org.apache.ignite.failure.FailureType.SYSTEM_WORKER_BLOCKED;
+import static org.apache.ignite.failure.FailureType.SYSTEM_WORKER_TERMINATION;
+
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.List;
+
 import org.apache.ignite.IgniteSystemProperties;
 import org.apache.ignite.calcite.CalciteQueryEngineConfiguration;
-import org.apache.ignite.configuration.*;
+import org.apache.ignite.configuration.CacheConfiguration;
+import org.apache.ignite.configuration.DataRegionConfiguration;
+import org.apache.ignite.configuration.DataStorageConfiguration;
+import org.apache.ignite.configuration.IgniteConfiguration;
+import org.apache.ignite.configuration.SqlConfiguration;
 import org.apache.ignite.events.EventType;
 import org.apache.ignite.failure.FailureHandler;
 import org.apache.ignite.failure.NoOpFailureHandler;
 import org.apache.ignite.failure.StopNodeOrHaltFailureHandler;
-import org.apache.ignite.internal.util.typedef.F;
-import org.apache.ignite.internal.util.typedef.internal.U;
 import org.apache.ignite.logger.slf4j.Slf4jLogger;
 import org.apache.ignite.spi.discovery.DiscoverySpi;
 import org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi;
-import org.apache.ignite.spi.discovery.tcp.ipfinder.multicast.TcpDiscoveryMulticastIpFinder;
 import org.apache.ignite.spi.discovery.tcp.ipfinder.sharedfs.TcpDiscoverySharedFsIpFinder;
 import org.kinotic.continuum.api.config.ContinuumProperties;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,12 +49,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.List;
-
-import static org.apache.ignite.failure.FailureType.*;
 
 /**
  * Class provides environment agnostic configuration for ignite

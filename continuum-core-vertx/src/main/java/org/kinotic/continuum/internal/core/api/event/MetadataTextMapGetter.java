@@ -10,9 +10,9 @@ import java.util.Map;
 /**
  * Created by Navíd Mitchell 🤪 on 10/9/24.
  */
-public class MetadataTextMapGetter implements TextMapGetter<Metadata> {
+public class MetadataTextMapGetter implements TextMapGetter<Metadata<?>> {
     @Override
-    public Iterable<String> keys(Metadata carrier) {
+    public Iterable<String> keys(Metadata<?> carrier) {
         ArrayList<String> keys = new ArrayList<>(carrier.size());
         for(Map.Entry<String, String> entry : carrier){
             keys.add(entry.getKey());

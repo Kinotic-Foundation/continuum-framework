@@ -38,6 +38,8 @@ import reactor.core.publisher.BaseSubscriber;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.SignalType;
+import reactor.core.scheduler.Scheduler;
+import reactor.core.scheduler.Schedulers;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -68,6 +70,8 @@ public class ServiceInvocationSupervisor {
     private final ServiceDescriptor serviceDescriptor;
     private final Vertx vertx;
     private final OpenTelemetry openTelemetry;
+    private final Scheduler scheduler;
+
 
     private Disposable methodInvocationEventListenerDisposable;
 
@@ -101,6 +105,11 @@ public class ServiceInvocationSupervisor {
         this.reactiveAdapterRegistry = reactiveAdapterRegistry;
         this.vertx = vertx;
         this.openTelemetry = openTelemetry;
+
+        scheduler = Schedulers.fromExecutor(command -> vertx.executeBlocking(() -> {
+            command.run();
+            return null;
+        }));
 
         this.methodMap = buildMethodMap(serviceDescriptor, instanceProvider);
     }
@@ -342,7 +351,7 @@ public class ServiceInvocationSupervisor {
                     Flux<ListenerStatus> replyListenerStatus = eventBusService.monitorListenerStatus(replyCRI.baseResource());
 
                     StreamSubscriber streamSubscriber = new StreamSubscriber(incomingMetadata, handlerMethod, replyListenerStatus);
-                    flux.subscribe(streamSubscriber);
+                    flux.subscribeOn(scheduler).subscribe(streamSubscriber);
                     return streamSubscriber;
                 });
             }

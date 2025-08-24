@@ -34,13 +34,25 @@ export class ServerInfo {
  * ConnectionInfo provides the information needed to connect to the continuum server
  */
 export class ConnectionInfo extends ServerInfo {
-    connectHeaders?: ConnectHeaders
+    /**
+     * The headers to send during the connection to the continuum server.
+     * If a function is provided, it will be called to get the headers each time the connection is established.
+     * This is useful for providing dynamic headers, such as a JWT token that expires.
+     */
+    connectHeaders?: ConnectHeaders | (() => Promise<ConnectHeaders>)
+
     /**
      * The maximum number of connection attempts to make during the {@link IEventBus} initial connection request.
      * If the limit is reached the {@link IEventBus} will return an error to the caller of {@link IEventBus#connect}
      * Set to 0, undefined, or null to try forever
      */
     maxConnectionAttempts?: number | null
+
+    /**
+     * If true, the session will not be kept alive after the connection is established and then disrupted.
+     * If false, the session will be kept alive after the connection is established and then disrupted, for a period of time.
+     */
+    disableStickySession?: boolean | null 
 }
 
 

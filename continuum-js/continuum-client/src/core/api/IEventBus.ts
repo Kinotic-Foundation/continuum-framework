@@ -192,6 +192,12 @@ export enum EventConstants {
     CONNECTED_INFO_HEADER = 'connected-info',
 
     /**
+     * Header provided by the client on connection request to represent that the server
+     * should not keep the session alive after any network disconnection.
+     */
+    DISABLE_STICKY_SESSION_HEADER = "disable-sticky-session",
+
+    /**
      * Correlates a response with a given request
      * Headers that start with __ will always be persisted between messages
      */

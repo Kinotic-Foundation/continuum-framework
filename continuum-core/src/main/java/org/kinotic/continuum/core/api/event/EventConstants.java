@@ -41,6 +41,12 @@ public class EventConstants {
     public static final String SESSION_HEADER = "session";
 
     /**
+     * Header provided by the client on connection request to represent that the server
+     * should not keep the session alive after any network disconnection.
+     */
+    public static final String DISABLE_STICKY_SESSION_HEADER = "disable-sticky-session";
+
+    /**
      * Header provided by the server on connection to provide the {@link ConnectedInfo}
      */
     public static final String CONNECTED_INFO_HEADER = "connected-info";

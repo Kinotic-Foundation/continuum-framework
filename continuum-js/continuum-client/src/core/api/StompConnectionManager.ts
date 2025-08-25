@@ -72,19 +72,31 @@ export class StompConnectionManager {
 
             this.rxStomp = new RxStomp()
 
-            let connectHeadersInternal: StompHeaders = (connectionInfo.connectHeaders ? connectionInfo.connectHeaders : {})
+            let connectHeadersInternal: StompHeaders = (typeof connectionInfo.connectHeaders !== 'function' && connectionInfo.connectHeaders != null ? connectionInfo.connectHeaders : {})
+                                            
+            if(connectionInfo.disableStickySession){    
+                connectHeadersInternal[EventConstants.DISABLE_STICKY_SESSION_HEADER] = 'true'
+            }
 
             //*** Begin Block that handles backoff ***
             this.rxStomp.configure({
-                                       brokerURL: url,
-                                       connectHeaders: connectHeadersInternal,
-                                       heartbeatIncoming: 120000,
-                                       heartbeatOutgoing: 30000,
-                                       reconnectDelay: 2000, // initial reconnect delay fairly short to fail fast
-                                       beforeConnect: async (): Promise<void> => {
-                                           // If max connections are set then make sure we have not exceeded that threshold
-                                           if(connectionInfo?.maxConnectionAttempts){
-                                               this.connectionAttempts++
+                                        brokerURL: url,
+                                        connectHeaders: connectHeadersInternal,
+                                        heartbeatIncoming: 120000,
+                                        heartbeatOutgoing: 30000,
+                                        reconnectDelay: 2000, // initial reconnect delay fairly short to fail fast
+                                        beforeConnect: async (): Promise<void> => {
+
+                                            if(typeof connectionInfo.connectHeaders === 'function'){
+                                                const headers = await connectionInfo.connectHeaders()
+                                                for(const key in headers) {
+                                                    connectHeadersInternal[key] = headers[key]
+                                                }
+                                            }
+                                            
+                                            // If max connections are set then make sure we have not exceeded that threshold
+                                            if(connectionInfo?.maxConnectionAttempts){
+                                                this.connectionAttempts++
 
                                                if(this.connectionAttempts > connectionInfo.maxConnectionAttempts){
 
@@ -154,20 +166,24 @@ export class StompConnectionManager {
 
                     const connectedInfo: ConnectedInfo = JSON.parse(connectedInfoJson)
 
-                    if (connectedInfo.sessionId != null && connectedInfo.replyToId != null) {
+                    if(!connectionInfo.disableStickySession){
+                 
+                        if (connectedInfo.sessionId != null && connectedInfo.replyToId != null) {
 
-                        // Remove all information originally sent from the connect headers
-                        if (connectionInfo.connectHeaders != null) {
-                            for (let key in connectionInfo.connectHeaders) {
-                                delete connectHeadersInternal[key]
+                            // Remove all information originally sent from the connect headers
+                            if (connectionInfo.connectHeaders != null) {
+                                for (let key in connectHeadersInternal) {
+                                    delete connectHeadersInternal[key]
+                                }
                             }
+    
+                            connectHeadersInternal[EventConstants.SESSION_HEADER] = connectedInfo.sessionId
+    
+                            resolve(connectedInfo)
+                        } else {
+                            reject('Server did not return proper data for successful login')
                         }
 
-                        connectHeadersInternal[EventConstants.SESSION_HEADER] = connectedInfo.sessionId
-
-                        resolve(connectedInfo)
-                    } else {
-                        reject('Server did not return proper data for successful login')
                     }
                 } else {
                     reject('Server did not return proper data for successful login')

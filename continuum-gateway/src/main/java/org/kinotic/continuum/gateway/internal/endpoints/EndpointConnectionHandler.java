@@ -56,6 +56,7 @@ public class EndpointConnectionHandler {
     private final Services services;
     private final Map<String, BaseSubscriber<Event<byte[]>>> subscriptions = new HashMap<>();
     private Session session;
+    private boolean disableStickySession = false;
     private long sessionTimer = -1;
 
     public EndpointConnectionHandler(Services services) {
@@ -70,15 +71,24 @@ public class EndpointConnectionHandler {
 
     /**
      * Requests authentication for the given credentials
+     * NOTE: By default we keep the session alive after network disconnection, until the connection times out.
      * @param connectHeaders all the headers provided with the CONNECT frame. This will include the login and passcode headers.
      * @return a {@link Promise} completed normally to authenticate or failed to represent a failed authentication
      *         The promise must contain a Map that will provide any additional headers to be returned to the client with the CONNECTED frame
      */
     public CompletableFuture<Map<String, String>> authenticate(Map<String, String> connectHeaders) {
-        // Check if session is being used to authenticate
-        if (connectHeaders.containsKey(EventConstants.SESSION_HEADER)) {
 
-            String sessionId = connectHeaders.get(EventConstants.SESSION_HEADER);
+        String sessionId = connectHeaders.get(EventConstants.SESSION_HEADER);
+
+        if(connectHeaders.containsKey(EventConstants.DISABLE_STICKY_SESSION_HEADER)){
+            this.disableStickySession = Boolean.parseBoolean(connectHeaders.get(EventConstants.DISABLE_STICKY_SESSION_HEADER));
+            if(this.disableStickySession && sessionId != null){
+                return CompletableFuture.failedFuture(new AuthenticationException("Session header provided but also requested to disable sticky session, this is not allowed"));
+            }
+        }
+
+        // Check if session is being used to authenticate
+        if (sessionId != null) {
             return services.sessionManager
                     .findSession(sessionId)
                     .handle((session, throwable) -> {
@@ -197,12 +207,17 @@ public class EndpointConnectionHandler {
     }
 
     public void shutdown() {
-        if (sessionTimer != -1) {
-            services.vertx.cancelTimer(sessionTimer);
-            sessionTimer = -1;
+        // if session says not to keep alive we shutdown completely, i.e. disable sticky session
+        if(this.disableStickySession){
+            removeSession();
+        }else{
+            if (sessionTimer != -1) {
+                services.vertx.cancelTimer(sessionTimer);
+                sessionTimer = -1;
+            }
+            subscriptions.forEach((s, messageConsumer) -> messageConsumer.cancel());
+            subscriptions.clear();
         }
-        subscriptions.forEach((s, messageConsumer) -> messageConsumer.cancel());
-        subscriptions.clear();
     }
 
     public void subscribe(CRI cri, String subscriptionIdentifier, BaseSubscriber<Event<byte[]>> subscriber) {

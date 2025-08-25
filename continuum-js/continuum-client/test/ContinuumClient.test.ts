@@ -12,7 +12,6 @@ describe('Continuum Client Tests', () => {
     let host: string = '127.0.0.1'
     let port: number = 58503
 
-    let container: StartedTestContainer
     beforeAll(async () => {
         const connectionInfo = (await initContinuumGateway()).connectionInfo
         host = connectionInfo.host

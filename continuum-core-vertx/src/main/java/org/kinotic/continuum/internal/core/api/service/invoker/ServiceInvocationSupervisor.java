@@ -17,11 +17,21 @@
 
 package org.kinotic.continuum.internal.core.api.service.invoker;
 
-import io.opentelemetry.api.OpenTelemetry;
-import io.vertx.core.Vertx;
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
+
 import org.apache.commons.lang3.Validate;
 import org.kinotic.continuum.api.exceptions.RpcMissingMethodException;
-import org.kinotic.continuum.core.api.event.*;
+import org.kinotic.continuum.core.api.event.CRI;
+import org.kinotic.continuum.core.api.event.Event;
+import org.kinotic.continuum.core.api.event.EventBusService;
+import org.kinotic.continuum.core.api.event.EventConstants;
+import org.kinotic.continuum.core.api.event.ListenerStatus;
+import org.kinotic.continuum.core.api.event.Metadata;
 import org.kinotic.continuum.core.api.service.ServiceDescriptor;
 import org.kinotic.continuum.core.api.service.ServiceFunction;
 import org.kinotic.continuum.core.api.service.ServiceFunctionInstanceProvider;
@@ -33,20 +43,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.core.ReactiveAdapter;
 import org.springframework.core.ReactiveAdapterRegistry;
+
+import io.opentelemetry.api.OpenTelemetry;
+import io.vertx.core.Vertx;
 import reactor.core.Disposable;
 import reactor.core.publisher.BaseSubscriber;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.SignalType;
-import reactor.core.scheduler.Scheduler;
-import reactor.core.scheduler.Schedulers;
-
-import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Consumer;
 
 /**
  * Class handles invoking services that are published to the Continuum.
@@ -70,7 +74,6 @@ public class ServiceInvocationSupervisor {
     private final ServiceDescriptor serviceDescriptor;
     private final Vertx vertx;
     private final OpenTelemetry openTelemetry;
-    private final Scheduler scheduler;
 
 
     private Disposable methodInvocationEventListenerDisposable;
@@ -105,11 +108,6 @@ public class ServiceInvocationSupervisor {
         this.reactiveAdapterRegistry = reactiveAdapterRegistry;
         this.vertx = vertx;
         this.openTelemetry = openTelemetry;
-
-        scheduler = Schedulers.fromExecutor(command -> vertx.executeBlocking(() -> {
-            command.run();
-            return null;
-        }));
 
         this.methodMap = buildMethodMap(serviceDescriptor, instanceProvider);
     }
@@ -351,7 +349,7 @@ public class ServiceInvocationSupervisor {
                     Flux<ListenerStatus> replyListenerStatus = eventBusService.monitorListenerStatus(replyCRI.baseResource());
 
                     StreamSubscriber streamSubscriber = new StreamSubscriber(incomingMetadata, handlerMethod, replyListenerStatus);
-                    flux.subscribeOn(scheduler).subscribe(streamSubscriber);
+                    flux.subscribe(streamSubscriber);
                     return streamSubscriber;
                 });
             }

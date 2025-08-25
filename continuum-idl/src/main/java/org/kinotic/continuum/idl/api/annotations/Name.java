@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.kinotic.continuum.api.annotations;
+package org.kinotic.continuum.idl.api.annotations;
 
 import java.lang.annotation.*;
 

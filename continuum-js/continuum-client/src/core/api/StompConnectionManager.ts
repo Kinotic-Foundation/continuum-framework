@@ -73,8 +73,8 @@ export class StompConnectionManager {
             this.rxStomp = new RxStomp()
 
             let connectHeadersInternal: StompHeaders = (typeof connectionInfo.connectHeaders !== 'function' && connectionInfo.connectHeaders != null ? connectionInfo.connectHeaders : {})
-                                            
-            if(connectionInfo.disableStickySession){    
+
+            if(connectionInfo.disableStickySession){
                 connectHeadersInternal[EventConstants.DISABLE_STICKY_SESSION_HEADER] = 'true'
             }
 
@@ -93,7 +93,7 @@ export class StompConnectionManager {
                                                     connectHeadersInternal[key] = headers[key]
                                                 }
                                             }
-                                            
+
                                             // If max connections are set then make sure we have not exceeded that threshold
                                             if(connectionInfo?.maxConnectionAttempts){
                                                 this.connectionAttempts++
@@ -158,6 +158,7 @@ export class StompConnectionManager {
                 reject(message)
             })
 
+            // This is triggered when the server sends a CONNECTED frame.
             const connectedSubscription: Subscription = this.rxStomp.serverHeaders$.subscribe((value: StompHeaders) => {
                 connectedSubscription.unsubscribe()
 
@@ -167,7 +168,7 @@ export class StompConnectionManager {
                     const connectedInfo: ConnectedInfo = JSON.parse(connectedInfoJson)
 
                     if(!connectionInfo.disableStickySession){
-                 
+
                         if (connectedInfo.sessionId != null && connectedInfo.replyToId != null) {
 
                             // Remove all information originally sent from the connect headers
@@ -176,14 +177,19 @@ export class StompConnectionManager {
                                     delete connectHeadersInternal[key]
                                 }
                             }
-    
+
                             connectHeadersInternal[EventConstants.SESSION_HEADER] = connectedInfo.sessionId
-    
+
                             resolve(connectedInfo)
                         } else {
                             reject('Server did not return proper data for successful login')
                         }
 
+                    }else if(typeof connectionInfo.connectHeaders === 'function'){
+                        // If the connect headers are supplied by a function we remove all the header values since they will be recreated on next connect
+                        for (let key in connectHeadersInternal) {
+                            delete connectHeadersInternal[key]
+                        }
                     }
                 } else {
                     reject('Server did not return proper data for successful login')

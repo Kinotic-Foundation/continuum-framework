@@ -1,6 +1,6 @@
 {
   "name": "@kinotic/continuum-client",
-  "version": "2.14.0",
+  "version": "2.14.1",
   "author": "Kinotic Foundation <develop@kinotic.org>",
   "license": "MIT",
   "type": "module",

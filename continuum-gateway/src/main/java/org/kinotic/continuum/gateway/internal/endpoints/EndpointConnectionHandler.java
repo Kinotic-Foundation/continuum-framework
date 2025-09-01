@@ -40,6 +40,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiFunction;
 
@@ -101,6 +102,10 @@ public class EndpointConnectionHandler {
                     });
         } else {
 
+            String replyToId = connectHeaders.containsKey(EventConstants.REPLY_TO_ID_HEADER)
+                    ? connectHeaders.get(EventConstants.REPLY_TO_ID_HEADER)
+                    : UUID.randomUUID().toString();
+
             return securityService.authenticate(connectHeaders)
                                   .handle((participant, throwable) -> {
                                       if(throwable != null){
@@ -113,7 +118,7 @@ public class EndpointConnectionHandler {
                                           return participant;
                                       }
                                   })
-                                  .thenCompose(participant -> services.sessionManager.create(participant))
+                                  .thenCompose(participant -> services.sessionManager.create(participant, replyToId))
                                   .thenApply(session -> {
                                       sessionActive(session);
                                       Map<String, String> ret = new HashMap<>(2,1.5F);

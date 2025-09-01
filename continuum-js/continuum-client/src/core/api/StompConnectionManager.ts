@@ -197,7 +197,7 @@ export class StompConnectionManager {
                             
                             this.processResolve(connectedInfo, resolve)
                         } else {
-                            reject('Server did not return proper data for successful login')
+                            this.processReject(reject)
                         }
                         
                     }else if(typeof connectionInfo.connectHeaders === 'function'){
@@ -211,9 +211,12 @@ export class StompConnectionManager {
                     }else if(typeof connectionInfo.connectHeaders === 'object'){
                         // static basic auth headers we need to keep around for subsequent connections
                         this.processResolve(connectedInfo, resolve)
+                    }else{
+                        // illegal state or allowable? 
+                        this.processReject(reject)
                     }
                 } else {
-                    reject('Server did not return proper data for successful login')
+                    this.processReject(reject)
                 }
             })
 
@@ -227,10 +230,23 @@ export class StompConnectionManager {
     }
 
     private processResolve(connectedInfo: ConnectedInfo, resolve: any): void {
-        if(this.initialConnectionSuccessful && typeof this.handleReconnection === 'function'){
-            this.handleReconnection(connectedInfo)
-        }else{
+        if(!this.initialConnectionSuccessful){
             resolve(connectedInfo)
+        }else{
+            if(typeof this.handleReconnection === 'function'){
+                this.handleReconnection(connectedInfo)
+            }else{
+                console.error('StompConnectionManager: handleReconnection is not a function, successful reconnection callback failed.')
+            }
+        }
+    }
+
+    private processReject(reject: any): void {
+        if(!this.initialConnectionSuccessful){
+            reject('StompConnectionManager: Server did not return proper data for successful login')
+        }else{
+            // FIXME: what do we do here? 
+            console.error('StompConnectionManager: Server did not return proper data for successful login, but we were already connected. This is not expected.')
         }
     }
 

@@ -92,12 +92,13 @@ export class EventBus implements IEventBus {
 
     public fatalErrors: Observable<Error>
     public serverInfo: ServerInfo | null = null
-    private stompConnectionManager: StompConnectionManager = new StompConnectionManager()
+    private stompConnectionManager: StompConnectionManager = new StompConnectionManager(this.handleReconnection.bind(this))
     private replyToCri: string  | null = null
     private requestRepliesObservable: ConnectableObservable<IEvent> | null = null
     private requestRepliesSubscription: Subscription | null = null
     private errorSubject: Subject<IFrame> = new Subject<IFrame>()
     private errorSubjectSubscription: Subscription | null | undefined = null
+
 
     constructor() {
         this.fatalErrors = this.errorSubject
@@ -194,40 +195,41 @@ export class EventBus implements IEventBus {
 
                 let serverSignaledCompletion = false
                 const correlationId = uuidv4()
-                const defaultMessagesSubscription: Unsubscribable = this.requestRepliesObservable
-                                                                        .pipe(filter((value: IEvent): boolean => {
-                                                                            return value.headers.get(EventConstants.CORRELATION_ID_HEADER) === correlationId
-                                                                        })).subscribe({
-                                                                                          next(value: IEvent): void {
+                const defaultMessagesSubscription: Unsubscribable
+                          = this.requestRepliesObservable
+                                .pipe(filter((value: IEvent): boolean => {
+                                    return value.headers.get(EventConstants.CORRELATION_ID_HEADER) === correlationId
+                                })).subscribe({
+                                                  next(value: IEvent): void {
 
-                                                                                              if (value.hasHeader(EventConstants.CONTROL_HEADER)) {
+                                                      if (value.hasHeader(EventConstants.CONTROL_HEADER)) {
 
-                                                                                                  if (value.headers.get(EventConstants.CONTROL_HEADER) === 'complete') {
-                                                                                                      serverSignaledCompletion = true
-                                                                                                      subscriber.complete()
-                                                                                                  } else {
-                                                                                                      throw new Error('Control Header ' + value.headers.get(EventConstants.CONTROL_HEADER) + ' is not supported')
-                                                                                                  }
+                                                          if (value.headers.get(EventConstants.CONTROL_HEADER) === 'complete') {
+                                                              serverSignaledCompletion = true
+                                                              subscriber.complete()
+                                                          } else {
+                                                              throw new Error('Control Header ' + value.headers.get(EventConstants.CONTROL_HEADER) + ' is not supported')
+                                                          }
 
-                                                                                              } else if (value.hasHeader(EventConstants.ERROR_HEADER)) {
+                                                      } else if (value.hasHeader(EventConstants.ERROR_HEADER)) {
 
-                                                                                                  // TODO: add custom error type that contains error detail as well if provided by server, this would be the event body
-                                                                                                  serverSignaledCompletion = true
-                                                                                                  subscriber.error(new Error(value.getHeader(EventConstants.ERROR_HEADER)))
+                                                          // TODO: add custom error type that contains error detail as well if provided by server, this would be the event body
+                                                          serverSignaledCompletion = true
+                                                          subscriber.error(new Error(value.getHeader(EventConstants.ERROR_HEADER)))
 
-                                                                                              } else {
+                                                      } else {
 
-                                                                                                  subscriber.next(value)
+                                                          subscriber.next(value)
 
-                                                                                              }
-                                                                                          },
-                                                                                          error(err: any): void {
-                                                                                              subscriber.error(err)
-                                                                                          },
-                                                                                          complete(): void {
-                                                                                              subscriber.complete()
-                                                                                          }
-                                                                                      })
+                                                      }
+                                                  },
+                                                  error(err: any): void {
+                                                      subscriber.error(err)
+                                                  },
+                                                  complete(): void {
+                                                      subscriber.complete()
+                                                  }
+                                              })
 
                 subscriber.add(defaultMessagesSubscription)
 
@@ -253,6 +255,23 @@ export class EventBus implements IEventBus {
 
     public observe(cri: string): Observable<IEvent> {
         return this._observe(cri)
+    }
+
+    private handleReconnection(connectedInfo: ConnectedInfo) {
+        const server = new ServerInfo()
+        server.host = this.serverInfo?.host ?? ''
+        server.port = this.serverInfo?.port
+        server.useSSL = this.serverInfo?.useSSL
+
+        this.cleanup()
+
+        this.serverInfo = server
+
+        // FIXME: a reply should not need a reply, therefore a replyCri probably should not be a EventConstants.SERVICE_DESTINATION_PREFIX
+        this.replyToCri = EventConstants.SERVICE_DESTINATION_PREFIX + connectedInfo.replyToId + ':' + uuidv4() + '@continuum.js.EventBus/replyHandler'
+
+        // re-subscribe to errors
+        this.errorSubjectSubscription = this.stompConnectionManager.rxStomp?.stompErrors$.subscribe(this.errorSubject)
     }
 
     private cleanup(): void{

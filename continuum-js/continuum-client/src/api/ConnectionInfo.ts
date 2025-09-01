@@ -53,6 +53,12 @@ export class ConnectionInfo extends ServerInfo {
      * If false, the session will be kept alive after the connection is established and then disrupted, for a period of time.
      */
     disableStickySession?: boolean | null 
+
+    /**
+     * A function that can allow debugging of the rxstomp frames are received
+     * It must be a function that takes a string parameter and returns void
+     */
+    debug?: (msg: string) => void
 }
 
 

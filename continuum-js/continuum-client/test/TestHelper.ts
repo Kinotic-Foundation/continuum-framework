@@ -28,7 +28,7 @@ export function validateConnectedInfo(connectedInfo: ConnectedInfo, roles?: stri
     }
 }
 
-export async function initContinuumGateway(): Promise<{
+export async function initContinuumGateway(disableStickySession: boolean = false): Promise<{
                                                         connectionInfo: ConnectionInfo
                                                       }> {
     const connectionInfo = new ConnectionInfo()
@@ -38,6 +38,10 @@ export async function initContinuumGateway(): Promise<{
     connectionInfo.port = inject('CONTINUUM_PORT')
     connectionInfo.maxConnectionAttempts = 3
     connectionInfo.connectHeaders = {login: 'guest', passcode: 'guest'}
+    connectionInfo.debug = (msg: string): void => {
+        console.log(new Date(), msg)
+    }
+    connectionInfo.disableStickySession = disableStickySession
     console.log(`Continuum Gateway running at ${connectionInfo.host}:${connectionInfo.port}`)
     return {
         connectionInfo

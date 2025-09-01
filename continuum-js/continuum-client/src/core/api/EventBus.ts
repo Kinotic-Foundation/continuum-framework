@@ -92,12 +92,13 @@ export class EventBus implements IEventBus {
 
     public fatalErrors: Observable<Error>
     public serverInfo: ServerInfo | null = null
-    private stompConnectionManager: StompConnectionManager = new StompConnectionManager()
+    private stompConnectionManager: StompConnectionManager = new StompConnectionManager(this.handleReconnection.bind(this))
     private replyToCri: string  | null = null
     private requestRepliesObservable: ConnectableObservable<IEvent> | null = null
     private requestRepliesSubscription: Subscription | null = null
     private errorSubject: Subject<IFrame> = new Subject<IFrame>()
     private errorSubjectSubscription: Subscription | null | undefined = null
+
 
     constructor() {
         this.fatalErrors = this.errorSubject
@@ -253,6 +254,23 @@ export class EventBus implements IEventBus {
 
     public observe(cri: string): Observable<IEvent> {
         return this._observe(cri)
+    }
+
+    private handleReconnection(connectedInfo: ConnectedInfo) {
+        const server = new ServerInfo()
+        server.host = this.serverInfo?.host ?? ''
+        server.port = this.serverInfo?.port
+        server.useSSL = this.serverInfo?.useSSL
+
+        this.cleanup()
+        
+        this.serverInfo = server
+
+        // FIXME: a reply should not need a reply, therefore a replyCri probably should not be a EventConstants.SERVICE_DESTINATION_PREFIX
+        this.replyToCri = EventConstants.SERVICE_DESTINATION_PREFIX + connectedInfo.replyToId + ':' + uuidv4() + '@continuum.js.EventBus/replyHandler'
+
+        // re-subscribe to errors
+        this.errorSubjectSubscription = this.stompConnectionManager.rxStomp?.stompErrors$.subscribe(this.errorSubject)
     }
 
     private cleanup(): void{

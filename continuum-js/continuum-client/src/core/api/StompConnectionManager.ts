@@ -108,7 +108,7 @@ export class StompConnectionManager {
 
                            // Reached threshold give up
                            this.maxConnectionAttemptsReached = true
-                           await this.deactivate()
+                           await this.deactivate(true)
 
                            // If we have not made an initial connection, the promise is not yet resolved
                            if(!this.initialConnectionSuccessful) {

@@ -103,7 +103,7 @@ export class EventBus implements IEventBus {
     constructor() {
         this.fatalErrors = this.errorSubject
                                .pipe(map<IFrame, Error>((frame: IFrame): Error => {
-                                   this.disconnect()
+                                   this.disconnect(true)
                                        .catch((error: string) => {
                                            if(console){
                                                console.error('Error disconnecting from Stomp: ' + error)

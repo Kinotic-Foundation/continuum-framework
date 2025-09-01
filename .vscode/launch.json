@@ -6,7 +6,7 @@
     "configurations": [
         {
             // "command": "pnpm test -- DisableStickySession.test.ts",
-            "command": "pnpm test",
+            "command": "pnpm test -- ContinuumUnavailable.test.ts",
             "name": "Start Continuum Client Tests",
             "request": "launch",
             "type": "node-terminal",

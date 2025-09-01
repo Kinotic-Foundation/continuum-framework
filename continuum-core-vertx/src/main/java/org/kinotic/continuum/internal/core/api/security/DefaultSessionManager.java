@@ -78,10 +78,9 @@ public class DefaultSessionManager implements SessionManager {
     }
 
     @Override
-    public CompletableFuture<Session> create(Participant participant) {
+    public CompletableFuture<Session> create(Participant participant, String replyToId) {
 
         String sessionId = generateId();
-        String replyToId = UUID.randomUUID().toString();
 
         ParticipantPathPatterns participantPathPatterns = new ParticipantPathPatterns(participant, replyToId);
 

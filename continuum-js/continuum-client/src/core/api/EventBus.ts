@@ -195,40 +195,41 @@ export class EventBus implements IEventBus {
 
                 let serverSignaledCompletion = false
                 const correlationId = uuidv4()
-                const defaultMessagesSubscription: Unsubscribable = this.requestRepliesObservable
-                                                                        .pipe(filter((value: IEvent): boolean => {
-                                                                            return value.headers.get(EventConstants.CORRELATION_ID_HEADER) === correlationId
-                                                                        })).subscribe({
-                                                                                          next(value: IEvent): void {
+                const defaultMessagesSubscription: Unsubscribable
+                          = this.requestRepliesObservable
+                                .pipe(filter((value: IEvent): boolean => {
+                                    return value.headers.get(EventConstants.CORRELATION_ID_HEADER) === correlationId
+                                })).subscribe({
+                                                  next(value: IEvent): void {
 
-                                                                                              if (value.hasHeader(EventConstants.CONTROL_HEADER)) {
+                                                      if (value.hasHeader(EventConstants.CONTROL_HEADER)) {
 
-                                                                                                  if (value.headers.get(EventConstants.CONTROL_HEADER) === 'complete') {
-                                                                                                      serverSignaledCompletion = true
-                                                                                                      subscriber.complete()
-                                                                                                  } else {
-                                                                                                      throw new Error('Control Header ' + value.headers.get(EventConstants.CONTROL_HEADER) + ' is not supported')
-                                                                                                  }
+                                                          if (value.headers.get(EventConstants.CONTROL_HEADER) === 'complete') {
+                                                              serverSignaledCompletion = true
+                                                              subscriber.complete()
+                                                          } else {
+                                                              throw new Error('Control Header ' + value.headers.get(EventConstants.CONTROL_HEADER) + ' is not supported')
+                                                          }
 
-                                                                                              } else if (value.hasHeader(EventConstants.ERROR_HEADER)) {
+                                                      } else if (value.hasHeader(EventConstants.ERROR_HEADER)) {
 
-                                                                                                  // TODO: add custom error type that contains error detail as well if provided by server, this would be the event body
-                                                                                                  serverSignaledCompletion = true
-                                                                                                  subscriber.error(new Error(value.getHeader(EventConstants.ERROR_HEADER)))
+                                                          // TODO: add custom error type that contains error detail as well if provided by server, this would be the event body
+                                                          serverSignaledCompletion = true
+                                                          subscriber.error(new Error(value.getHeader(EventConstants.ERROR_HEADER)))
 
-                                                                                              } else {
+                                                      } else {
 
-                                                                                                  subscriber.next(value)
+                                                          subscriber.next(value)
 
-                                                                                              }
-                                                                                          },
-                                                                                          error(err: any): void {
-                                                                                              subscriber.error(err)
-                                                                                          },
-                                                                                          complete(): void {
-                                                                                              subscriber.complete()
-                                                                                          }
-                                                                                      })
+                                                      }
+                                                  },
+                                                  error(err: any): void {
+                                                      subscriber.error(err)
+                                                  },
+                                                  complete(): void {
+                                                      subscriber.complete()
+                                                  }
+                                              })
 
                 subscriber.add(defaultMessagesSubscription)
 

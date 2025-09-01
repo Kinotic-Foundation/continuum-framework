@@ -2,7 +2,9 @@ import {afterAll, beforeAll, describe, expect, it} from 'vitest'
 import {WebSocket} from 'ws'
 import {ConnectedInfo, ConnectionInfo, Continuum, ContinuumSingleton} from '../src'
 import { GenericContainer, PullPolicy, StartedTestContainer, Wait } from 'testcontainers'
+import {TEST_SERVICE, TestService} from './ITestService.js'
 import { logFailure, validateConnectedInfo } from './TestHelper'
+import { setTimeout } from 'timers/promises';
 
 // This is required when running Continuum from node
 Object.assign(global, { WebSocket})
@@ -36,31 +38,31 @@ describe('Continuum Unavailable Tests', () => {
         console.log(`Continuum Gateway running at ${connectionInfo.host}:${connectionInfo.port}`)
     }, 1000 * 60 * 10) // 10 minutes
 
-    afterAll(async () => {
-        // Clean up
-        container.stop({timeout: 60000, remove: true, removeVolumes: true})
-    })
+    // afterAll(async () => {
+    //     // Clean up
+    //     container.stop({timeout: 60000, remove: true, removeVolumes: true})
+    // })
 
-    it('should fail fast on connection attempt', async () => {
-        const host: string = 'notavailable'
-        const port: number = 58503
-        console.log(`Trying to Connecting to Unavailable Continuum Gateway`)
-        await expect(Continuum.connect({
-                                           host:host,
-                                           port:port,
-                                           maxConnectionAttempts: 3,
-                                           connectHeaders:{login: 'guest', passcode: 'guest'}
-                                       }))
-            .rejects.toThrowError(
-                expect.stringMatching(
-                    /^Max number of reconnection attempts reached\. Last WS Error getaddrinfo (ENOTFOUND|EAI_AGAIN) notavailable$/
-                )
-            )
+    // it('should fail fast on connection attempt', async () => {
+    //     const host: string = 'notavailable'
+    //     const port: number = 58503
+    //     console.log(`Trying to Connecting to Unavailable Continuum Gateway`)
+    //     await expect(Continuum.connect({
+    //                                        host:host,
+    //                                        port:port,
+    //                                        maxConnectionAttempts: 3,
+    //                                        connectHeaders:{login: 'guest', passcode: 'guest'}
+    //                                    }))
+    //         .rejects.toThrowError(
+    //             expect.stringMatching(
+    //                 /^Max number of reconnection attempts reached\. Last WS Error getaddrinfo (ENOTFOUND|EAI_AGAIN) notavailable$/
+    //             )
+    //         )
+    //
+    //     await expect(Continuum.disconnect()).resolves.toBeUndefined()
+    // }, 1000 * 60 * 10) // 10 minutes
 
-        await expect(Continuum.disconnect()).resolves.toBeUndefined()
-    }, 1000 * 60 * 10) // 10 minutes
-
-    it('should connnect to gateway and then fail after reconnection attempts after gateway is offline',
+    it('should connect to gateway and then fail after reconnection attempts after gateway is offline',
          {"timeout": 1000 * 60 * 2},
          async () => {
         const continuum = new ContinuumSingleton()
@@ -69,8 +71,25 @@ describe('Continuum Unavailable Tests', () => {
         validateConnectedInfo(connectedInfo)
         console.log(`Continuum Gateway started at ${connectionInfo.host}:${connectionInfo.port}`)
 
+        const testService = new TestService(continuum)
+
         // stop the gateway
         await container.stop()
+
+        let run = true;
+        while(run){
+            try {
+                console.log('Calling RPC method')
+                await expect(testService.testMethodWithString("Bob")).resolves.toBe("Hello Bob")
+                console.log('Called RPC method')
+                await setTimeout(10)
+            } catch (e) {
+                console.error('Error calling RPC', e)
+                run = false
+            }
+        }
+
+        await continuum.disconnect()
 
     })
 

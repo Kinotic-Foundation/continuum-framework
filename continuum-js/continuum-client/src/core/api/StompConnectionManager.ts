@@ -217,7 +217,12 @@ export class StompConnectionManager {
                 }
             })
 
-            this.rxStomp.activate()
+            // ensure we only run this the first time we connect we used 
+            // to call cancel on the connected subscription altogether. 
+            if(!this.initialConnectionSuccessful){
+                this.rxStomp.activate()
+            }
+
         })
     }
 

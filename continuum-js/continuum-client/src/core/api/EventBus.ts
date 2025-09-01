@@ -103,7 +103,7 @@ export class EventBus implements IEventBus {
     constructor() {
         this.fatalErrors = this.errorSubject
                                .pipe(map<IFrame, Error>((frame: IFrame): Error => {
-                                   this.disconnect(true)
+                                   this.disconnect()
                                        .catch((error: string) => {
                                            if(console){
                                                console.error('Error disconnecting from Stomp: ' + error)
@@ -263,7 +263,7 @@ export class EventBus implements IEventBus {
         server.useSSL = this.serverInfo?.useSSL
 
         this.cleanup()
-        
+
         this.serverInfo = server
 
         // FIXME: a reply should not need a reply, therefore a replyCri probably should not be a EventConstants.SERVICE_DESTINATION_PREFIX

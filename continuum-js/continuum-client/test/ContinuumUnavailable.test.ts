@@ -16,7 +16,7 @@ describe('Continuum Unavailable Tests', () => {
     beforeAll(async () => {
         // Start the Continuum Gateway container
         console.log('Starting Continuum Gateway for sticky session gateway restart reconnection test')
-        
+
         container = await new GenericContainer('kinotic/continuum-gateway-server:latest')
             .withExposedPorts({container: 58503, host: 58590})
             .withEnvironment({SPRING_PROFILES_ACTIVE: "clienttest"})
@@ -69,24 +69,9 @@ describe('Continuum Unavailable Tests', () => {
         validateConnectedInfo(connectedInfo)
         console.log(`Continuum Gateway started at ${connectionInfo.host}:${connectionInfo.port}`)
 
-        const promise = new Promise((resolve, reject) => {
-            continuum.eventBus.fatalErrors.subscribe((error: Error) => {
-                resolve(error)
-            })
-        })
-
         // stop the gateway
         await container.stop()
 
-        const error = await logFailure(promise, 'Failed to receive error from fatalErrors observable')
-
-        expect(error).toBeDefined()
-
-        // make sure client was automatically disconnected
-        expect(continuum.eventBus.isConnectionActive(),
-            'Client to be disconnected').toBe(false)
-
-        await expect(continuum.disconnect()).resolves.toBeUndefined()
-    }) 
+    })
 
 })

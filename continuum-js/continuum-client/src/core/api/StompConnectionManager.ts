@@ -108,7 +108,7 @@ export class StompConnectionManager {
 
                            // Reached threshold give up
                            this.maxConnectionAttemptsReached = true
-                           await this.deactivate(true)
+                           await this.deactivate()
 
                            // If we have not made an initial connection, the promise is not yet resolved
                            if(!this.initialConnectionSuccessful) {
@@ -119,7 +119,7 @@ export class StompConnectionManager {
                    }
                }
             }
-            
+
             // things act funny if this is set to undefined
             if(connectionInfo.debug && typeof connectionInfo.debug === 'function'){
                 stompConfig.debug = connectionInfo.debug
@@ -194,14 +194,14 @@ export class StompConnectionManager {
                             }
 
                             connectHeadersInternal[EventConstants.SESSION_HEADER] = connectedInfo.sessionId
-                            
+
                             this.processResolve(connectedInfo, resolve)
                         } else {
                             this.processReject(reject)
                         }
-                        
+
                     }else if(typeof connectionInfo.connectHeaders === 'function'){
-                        // If the connect headers are supplied by a function we remove 
+                        // If the connect headers are supplied by a function we remove
                         // all the header values since they will be recreated on next connect
                         for (let key in connectHeadersInternal) {
                             delete connectHeadersInternal[key]
@@ -212,7 +212,7 @@ export class StompConnectionManager {
                         // static basic auth headers we need to keep around for subsequent connections
                         this.processResolve(connectedInfo, resolve)
                     }else{
-                        // illegal state or allowable? 
+                        // illegal state or allowable?
                         this.processReject(reject)
                     }
                 } else {
@@ -220,8 +220,8 @@ export class StompConnectionManager {
                 }
             })
 
-            // ensure we only run this the first time we connect we used 
-            // to call cancel on the connected subscription altogether. 
+            // ensure we only run this the first time we connect we used
+            // to call cancel on the connected subscription altogether.
             if(!this.initialConnectionSuccessful){
                 this.rxStomp.activate()
             }
@@ -245,7 +245,7 @@ export class StompConnectionManager {
         if(!this.initialConnectionSuccessful){
             reject('StompConnectionManager: Server did not return proper data for successful login')
         }else{
-            // FIXME: what do we do here? 
+            // FIXME: what do we do here?
             console.error('StompConnectionManager: Server did not return proper data for successful login, but we were already connected. This is not expected.')
         }
     }

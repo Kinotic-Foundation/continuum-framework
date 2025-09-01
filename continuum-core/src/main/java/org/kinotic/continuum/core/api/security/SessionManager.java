@@ -32,9 +32,10 @@ public interface SessionManager {
     /**
      * Create a new {@link Session} for the given {@link DefaultParticipant}
      * @param participant the {@link DefaultParticipant} to create the {@link Session} for
+     * @param replyToId that was provided by the client
      * @return a {@link CompletableFuture} containing the new {@link Session} or an error if the {@link Session} cannot be created
      */
-    CompletableFuture<Session> create(Participant participant);
+    CompletableFuture<Session> create(Participant participant, String replyToId);
 
     /**
      * Removes the {@link Session} from the internal known sessions.

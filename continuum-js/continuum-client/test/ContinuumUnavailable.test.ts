@@ -44,7 +44,7 @@ describe('Continuum Unavailable Tests', () => {
                .withEnvironment({SPRING_PROFILES_ACTIVE: "clienttest"})
                .withPullPolicy(PullPolicy.alwaysPull())
                .withWaitStrategy(Wait.forHttp('/', 58503))
-               .withName('disable-sticky-session-reconnect-test')
+               .withName('maxretries-container')
                .start()
 
            // Create connection info with disableStickySession enabled

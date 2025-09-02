@@ -184,7 +184,7 @@ export enum EventConstants {
     /**
      * This is the replyToId that will be supplied by the client, which will be used when sending replies to the client.
      */
-    REPLY_TO_ID_HEADER = 'reply-to',
+    REPLY_TO_ID_HEADER = 'reply-to-id',
 
     /**
      * Header provided by the sever on connection to represent the user's session id

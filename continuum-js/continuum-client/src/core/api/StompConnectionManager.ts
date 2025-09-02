@@ -1,7 +1,7 @@
 import {ConnectionInfo} from '@/api/ConnectionInfo'
 import {ConnectedInfo} from '@/api/security/ConnectedInfo'
 import {EventConstants} from '@/core/api/IEventBus'
-import {IFrame, RxStomp, StompHeaders} from '@stomp/rx-stomp'
+import {IFrame, RxStomp, RxStompConfig, StompHeaders} from '@stomp/rx-stomp'
 import {Subscription} from 'rxjs'
 
 /**
@@ -77,42 +77,49 @@ export class StompConnectionManager {
             if(connectionInfo.disableStickySession){
                 connectHeadersInternal[EventConstants.DISABLE_STICKY_SESSION_HEADER] = 'true'
             }
+            
+            const stompConfig: RxStompConfig = {
+                brokerURL: url,
+                connectHeaders: connectHeadersInternal,
+                heartbeatIncoming: 120000,
+                heartbeatOutgoing: 30000,
+                reconnectDelay: 2000, // initial reconnect delay fairly short to fail fast
+                beforeConnect: async (): Promise<void> => {
+
+                    if(typeof connectionInfo.connectHeaders === 'function'){
+                        const headers = await connectionInfo.connectHeaders()
+                        for(const key in headers) {
+                            connectHeadersInternal[key] = headers[key]
+                        }
+                    }
+
+                    // If max connections are set then make sure we have not exceeded that threshold
+                    if(connectionInfo?.maxConnectionAttempts){
+                        this.connectionAttempts++
+
+                       if(this.connectionAttempts > connectionInfo.maxConnectionAttempts){
+
+                           // Reached threshold give up
+                           this.maxConnectionAttemptsReached = true
+                           await this.deactivate()
+
+                           // If we have not made an initial connection, the promise is not yet resolved
+                           if(!this.initialConnectionSuccessful) {
+                               let message = (this.lastWebsocketError as any)?.message ? (this.lastWebsocketError as any)?.message : 'UNKNOWN'
+                               reject(`Max number of reconnection attempts reached. Last WS Error ${message}`)
+                           }
+                       }
+                   }
+               }
+            }
+
+            // things act funny if this is set to undefined
+            if(connectionInfo.debug && typeof connectionInfo.debug === 'function'){
+                stompConfig.debug = connectionInfo.debug
+            }
 
             //*** Begin Block that handles backoff ***
-            this.rxStomp.configure({
-                                        brokerURL: url,
-                                        connectHeaders: connectHeadersInternal,
-                                        heartbeatIncoming: 120000,
-                                        heartbeatOutgoing: 30000,
-                                        reconnectDelay: 2000, // initial reconnect delay fairly short to fail fast
-                                        beforeConnect: async (): Promise<void> => {
-
-                                            if(typeof connectionInfo.connectHeaders === 'function'){
-                                                const headers = await connectionInfo.connectHeaders()
-                                                for(const key in headers) {
-                                                    connectHeadersInternal[key] = headers[key]
-                                                }
-                                            }
-
-                                            // If max connections are set then make sure we have not exceeded that threshold
-                                            if(connectionInfo?.maxConnectionAttempts){
-                                                this.connectionAttempts++
-
-                                               if(this.connectionAttempts > connectionInfo.maxConnectionAttempts){
-
-                                                   // Reached threshold give up
-                                                   this.maxConnectionAttemptsReached = true
-                                                   await this.deactivate()
-
-                                                   // If we have not made an initial connection, the promise is not yet resolved
-                                                   if(!this.initialConnectionSuccessful) {
-                                                       let message = (this.lastWebsocketError as any)?.message ? (this.lastWebsocketError as any)?.message : 'UNKNOWN'
-                                                       reject(`Max number of reconnection attempts reached. Last WS Error ${message}`)
-                                                   }
-                                               }
-                                           }
-                                       }
-                                   })
+            this.rxStomp.configure(stompConfig)
 
             // Handles Websocket Errors
             this.rxStomp.webSocketErrors$.subscribe(value => {

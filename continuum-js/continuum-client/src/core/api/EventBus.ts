@@ -135,7 +135,7 @@ export class EventBus implements IEventBus {
             this.serverInfo.useSSL = connectionInfo.useSSL
 
             // FIXME: a reply should not need a reply, therefore a replyCri probably should not be a EventConstants.SERVICE_DESTINATION_PREFIX
-            this.replyToCri = EventConstants.SERVICE_DESTINATION_PREFIX + connectedInfo.replyToId + ':' + uuidv4() + '@continuum.js.EventBus/replyHandler'
+            this.replyToCri = this.stompConnectionManager.replyToCri
 
             this.errorSubjectSubscription = this.stompConnectionManager.rxStomp?.stompErrors$.subscribe(this.errorSubject)
 
@@ -261,6 +261,7 @@ export class EventBus implements IEventBus {
                 this.requestRepliesSubscription.unsubscribe()
                 this.requestRepliesSubscription = null
             }
+
             this.requestRepliesObservable = null
         }
 

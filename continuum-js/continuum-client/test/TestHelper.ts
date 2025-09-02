@@ -36,9 +36,6 @@ export async function initContinuumGateway(disableStickySession: boolean = false
     connectionInfo.port = inject('CONTINUUM_PORT')
     connectionInfo.maxConnectionAttempts = 3
     connectionInfo.connectHeaders = { login: 'guest', passcode: 'guest' }
-    connectionInfo.debug = (msg: string): void => {
-        console.log(new Date(), msg)
-    }
     connectionInfo.disableStickySession = disableStickySession
     console.log(`Continuum Gateway running at ${connectionInfo.host}:${connectionInfo.port}`)
     return {

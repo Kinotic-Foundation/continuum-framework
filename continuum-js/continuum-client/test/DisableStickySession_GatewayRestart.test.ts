@@ -14,7 +14,7 @@ describe('Disable Sticky Session Gateway Restart Reconnection Tests', () => {
     beforeAll(async () => {
         // Start the Continuum Gateway container
         console.log('Starting Continuum Gateway for sticky session gateway restart reconnection test')
-        
+
         container = await new GenericContainer('kinotic/continuum-gateway-server:latest')
             .withExposedPorts({container: 58503, host: 58599})
             .withEnvironment({SPRING_PROFILES_ACTIVE: "clienttest"})
@@ -29,7 +29,6 @@ describe('Disable Sticky Session Gateway Restart Reconnection Tests', () => {
         connectionInfo.maxConnectionAttempts = 0
         connectionInfo.disableStickySession = true
         connectionInfo.connectHeaders = async () => {return {login: 'guest', passcode: 'guest'}}
-        connectionInfo.debug = (msg: string): void => { console.log(new Date(), msg) }
 
         console.log(`Continuum Gateway running at ${connectionInfo.host}:${connectionInfo.port}`)
     }, 1000 * 60 * 10) // 10 minutes
@@ -47,7 +46,7 @@ describe('Disable Sticky Session Gateway Restart Reconnection Tests', () => {
                                                             'Failed to connect to Continuum Gateway')
         validateConnectedInfo(connectedInfo)
         console.log(`Continuum Gateway started at ${connectionInfo.host}:${connectionInfo.port}`)
-        
+
         const testServiceProxy = continuum.serviceProxy("org.kinotic.continuum.gatewayserver.clienttest.ITestService")
 
         const firstResult = await testServiceProxy.invoke("testMethodWithString", ["FirstCall"])
@@ -80,7 +79,7 @@ describe('Disable Sticky Session Gateway Restart Reconnection Tests', () => {
 
         const secondResult = await testServiceProxy.invoke("testMethodWithString", ["SecondCall"])
         expect(secondResult).toBe("Hello SecondCall")
-            
+
         await continuum.disconnect()
     })
 

@@ -31,6 +31,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -54,7 +55,7 @@ public class TestSessionManager {
 
         Participant participant = new DefaultParticipant(IDENTITY, List.of("ADMIN"));
 
-        CompletableFuture<Session> sessionCompletableFuture = sessionManager.create(participant);
+        CompletableFuture<Session> sessionCompletableFuture = sessionManager.create(participant, UUID.randomUUID().toString());
 
         StepVerifier.create(Mono.fromFuture(sessionCompletableFuture))
                     .expectNextMatches(session -> session.participant()

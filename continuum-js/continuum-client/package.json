@@ -52,6 +52,7 @@
     "@opentelemetry/semantic-conventions": "^1.32.0",
     "@stomp/rx-stomp": "^2.0.1",
     "@stomp/stompjs": "^7.1.1",
+    "@types/debug": "^4.1.12",
     "debug": "^4.4.0",
     "elliptic": "^6.6.1",
     "p-tap": "^4.0.0",
@@ -66,6 +67,7 @@
     "onlyBuiltDependencies": [
       "cpu-features",
       "esbuild",
+      "protobufjs",
       "ssh2"
     ]
   }

@@ -192,7 +192,7 @@ export class StompConnectionManager {
                         for (let key in connectHeadersInternal) {
                             delete connectHeadersInternal[key]
                         }
-                        if(this.initialConnectionSuccessful) {
+                        if(!this.initialConnectionSuccessful) {
                             resolve(connectedInfo)
                         }
                     }else if(typeof connectionInfo.connectHeaders === 'object'){

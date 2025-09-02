@@ -46,7 +46,7 @@ describe('Disable Sticky Session Gateway Restart Reconnection Tests', () => {
         let connectedInfo: ConnectedInfo = await logFailure(continuum.connect(connectionInfo),
                                                             'Failed to connect to Continuum Gateway')
         validateConnectedInfo(connectedInfo)
-        console.log(`Continuum Gateway started at ${connectionInfo.host}:${connectionInfo.port}`)
+        console.log(`Continuum connected at ${connectionInfo.host}:${connectionInfo.port}`)
 
         const testService = new TestService(continuum)
 

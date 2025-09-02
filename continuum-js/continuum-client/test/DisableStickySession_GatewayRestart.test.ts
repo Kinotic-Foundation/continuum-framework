@@ -3,6 +3,7 @@ import {WebSocket} from 'ws'
 import {ConnectedInfo, ConnectionInfo, ContinuumSingleton} from '../src'
 import {GenericContainer, PullPolicy, StartedTestContainer, Wait} from 'testcontainers'
 import { logFailure, validateConnectedInfo } from './TestHelper'
+import { TestService } from './ITestService'
 
 // This is required when running Continuum from node
 Object.assign(global, { WebSocket})
@@ -47,13 +48,13 @@ describe('Disable Sticky Session Gateway Restart Reconnection Tests', () => {
         validateConnectedInfo(connectedInfo)
         console.log(`Continuum Gateway started at ${connectionInfo.host}:${connectionInfo.port}`)
 
-        const testServiceProxy = continuum.serviceProxy("org.kinotic.continuum.gatewayserver.clienttest.ITestService")
+        const testService = new TestService(continuum)
 
-        const firstResult = await testServiceProxy.invoke("testMethodWithString", ["FirstCall"])
+        const firstResult = await testService.testMethodWithString("FirstCall")
         expect(firstResult).toBe("Hello FirstCall")
 
         // Stop the gateway
-        console.log('Restarting Continuum Gateway...')
+        console.log('Stopping Continuum Gateway...')
         await container.stop({timeout: 60000, remove: true, removeVolumes: true})
         // Wait a moment for cleanup
         await new Promise(resolve => setTimeout(resolve, 10000))
@@ -77,7 +78,7 @@ describe('Disable Sticky Session Gateway Restart Reconnection Tests', () => {
 
         console.log('Continuum Gateway restarted')
 
-        const secondResult = await testServiceProxy.invoke("testMethodWithString", ["SecondCall"])
+        const secondResult = await testService.testMethodWithString("SecondCall")
         expect(secondResult).toBe("Hello SecondCall")
 
         await continuum.disconnect()

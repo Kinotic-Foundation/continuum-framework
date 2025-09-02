@@ -1,10 +1,9 @@
-import {afterAll, beforeAll, describe, expect, it} from 'vitest'
+import {describe, expect, it} from 'vitest'
 import {WebSocket} from 'ws'
 import {ConnectedInfo, ConnectionInfo, Continuum, ContinuumSingleton} from '../src'
 import { GenericContainer, PullPolicy, StartedTestContainer, Wait } from 'testcontainers'
 import {TestService} from './ITestService.js'
 import { logFailure, validateConnectedInfo } from './TestHelper'
-import { setTimeout } from 'timers/promises';
 
 // This is required when running Continuum from node
 Object.assign(global, { WebSocket})

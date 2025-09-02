@@ -35,7 +35,7 @@ describe('Disable Sticky Session Gateway Restart Reconnection Tests', () => {
 
     afterAll(async () => {
         // Clean up
-        container.stop({timeout: 60000, remove: true, removeVolumes: true})
+        await container.stop({timeout: 60000, remove: true, removeVolumes: true})
     })
 
     it('should handle gateway restart with disableStickySession and reconnect', {"timeout": 1000 * 60 * 5}, async () => {

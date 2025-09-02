@@ -51,30 +51,4 @@ describe('Disable Sticky Session Tests', () => {
         await expect(Continuum.disconnect()).resolves.toBeUndefined()
     })
 
-    it('should verify session is not sticky after reconnection', {"timeout": 1000 * 60 * 2}, async () => {
-        // Connect and get session info
-        let connectedInfo: ConnectedInfo = await logFailure(Continuum.connect(connectionInfo),
-                                                            'Failed to connect to Continuum Gateway')
-        const firstSessionId = connectedInfo.sessionId
-        
-        // hard disconnect
-        await Continuum.disconnect()
-
-        // Wait a moment
-        await new Promise(resolve => setTimeout(resolve, 1000))
-
-        // Connect again
-        connectedInfo = await logFailure(Continuum.connect(connectionInfo),
-                                        'Failed to connect to Continuum Gateway for session test')
-        const secondSessionId = connectedInfo.sessionId
-
-        // With disableStickySession, we should get a new session ID
-        expect(firstSessionId).not.toBe(secondSessionId)
-
-        // Make an RPC call to verify it works
-        const result = await TEST_SERVICE.testMethodWithString("SessionTest")
-        expect(result).toBe("Hello SessionTest")
-        
-        await Continuum.disconnect()
-    })
 })

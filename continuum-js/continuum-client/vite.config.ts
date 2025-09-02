@@ -29,6 +29,9 @@ export default defineConfig({
             provider: 'v8',
             reporter: ['text', 'json', 'html'],
         },
+        env: {
+            DEBUG: 'continuum:*'
+        },
         globalSetup: './test/setup.ts',
         setupFiles: ["allure-vitest/setup"],
         reporters: [

@@ -87,14 +87,11 @@ public class ContinuumVertxConfig {
 
             EventBusOptions eventBusOptions = new EventBusOptions();
             eventBusOptions.setPort(properties.getEventBusClusterPort());
+            eventBusOptions.setHost(properties.getEventBusClusterHost());
 
-            for(String ip : U.allLocalIps()){
-                if(!ip.startsWith("169.254")){ // avoid binding to AWS internal net
-                    log.info("Setting vertx Cluster host to {}", ip);
-                    eventBusOptions.setHost(ip);
-                    break;
-                }
-            }
+            eventBusOptions.setClusterPublicPort(properties.getEventBusClusterPublicPort());
+            eventBusOptions.setClusterPublicPort(properties.getEventBusClusterPublicPort());
+
             VertxOptions options = new VertxOptions()
                     .setEventBusOptions(eventBusOptions);
 

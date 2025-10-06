@@ -89,8 +89,10 @@ public class ContinuumVertxConfig {
             eventBusOptions.setPort(properties.getEventBusClusterPort());
             eventBusOptions.setHost(properties.getEventBusClusterHost());
 
-            eventBusOptions.setClusterPublicPort(properties.getEventBusClusterPublicPort());
-            eventBusOptions.setClusterPublicPort(properties.getEventBusClusterPublicPort());
+            if(properties.getEventBusClusterPublicPort() != -1) {
+                eventBusOptions.setClusterPublicPort(properties.getEventBusClusterPublicPort());
+            }
+            eventBusOptions.setClusterPublicHost(properties.getEventBusClusterPublicHost());
 
             VertxOptions options = new VertxOptions()
                     .setEventBusOptions(eventBusOptions);

@@ -46,6 +46,29 @@ public interface ContinuumProperties {
      */
     int getEventBusClusterPort();
 
+    /**
+     * @return The cluster public port or -1 which means use the same as the cluster port.
+     */
+    int getEventBusClusterPublicPort();
+
+    /**
+     * Sets the host. Defaults to null.
+     * When the clustered eventbus starts, it tries to bind to the provided host.
+     * If host is null, then it tries to bind to the same host as the underlying cluster manager.
+     * As a last resort, an address will be picked among the available network interfaces.
+     * @return The cluster host or null which means use the same as the cluster manager, if possible.
+     */
+    String getEventBusClusterHost();
+
+    /**
+     * The public facing hostname to be used for clustering.
+     * Sometimes, e.g. when running on certain clouds, the local address the server listens on for clustering is not the same address that other nodes connect to it at, as the OS / cloud infrastructure does some kind of proxying.
+     * If this is the case you can specify a public hostname which is different from the hostname the server listens at.
+     * The default value is null which means use the same as the cluster hostname.
+     * @return the cluster public host or null which means use the same as the cluster host.
+     */
+    String getEventBusClusterPublicHost();
+
     long getSessionTimeout();
 
     long getMaxOffHeapMemory();

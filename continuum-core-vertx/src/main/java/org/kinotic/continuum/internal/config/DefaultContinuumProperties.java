@@ -44,6 +44,9 @@ public class DefaultContinuumProperties implements ContinuumProperties {
     private boolean debug = false;
     private boolean disableClustering = false;
     private int eventBusClusterPort = 0;
+    private int eventBusClusterPublicPort = -1;
+    private String eventBusClusterHost = null;
+    private String eventBusClusterPublicHost = null;
     private String igniteWorkDirectory = "/tmp/ignite";
     private long sessionTimeout = DEFAULT_SESSION_TIMEOUT;
     /**

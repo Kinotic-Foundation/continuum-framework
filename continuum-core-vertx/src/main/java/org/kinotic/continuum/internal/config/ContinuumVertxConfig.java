@@ -45,8 +45,6 @@ import static java.util.concurrent.TimeUnit.MINUTES;
 @Configuration
 public class ContinuumVertxConfig {
 
-    private static final Logger log = LoggerFactory.getLogger(ContinuumVertxConfig.class);
-
     @Bean
     @ConditionalOnProperty(
             value="continuum.disableClustering",

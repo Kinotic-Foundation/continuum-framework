@@ -51,12 +51,18 @@ public class ContinuumVertxConfig {
     public EventBusOptions eventBusOptions(ContinuumProperties properties){
         EventBusOptions ret = new EventBusOptions();
         ret.setPort(properties.getEventBusClusterPort());
+        ret.setHost(properties.getEventBusClusterHost());
 
-        for(String ip : U.allLocalIps()){
-            if(!ip.startsWith("169.254")){ // avoid binding to AWS internal net
-                log.info("Setting vertx Cluster host to {}", ip);
-                ret.setHost(ip);
-                break;
+        ret.setClusterPublicPort(properties.getEventBusClusterPublicPort());
+        ret.setClusterPublicPort(properties.getEventBusClusterPublicPort());
+
+        if(properties.getEventBusClusterHost() == null) { // TODO: look into removing this logic all together
+            for (String ip : U.allLocalIps()) {
+                if (!ip.startsWith("169.254")) { // avoid binding to AWS internal net
+                    log.info("Setting vertx Cluster host to {}", ip);
+                    ret.setHost(ip);
+                    break;
+                }
             }
         }
         return ret;

@@ -53,8 +53,10 @@ public class ContinuumVertxConfig {
         ret.setPort(properties.getEventBusClusterPort());
         ret.setHost(properties.getEventBusClusterHost());
 
-        ret.setClusterPublicPort(properties.getEventBusClusterPublicPort());
-        ret.setClusterPublicPort(properties.getEventBusClusterPublicPort());
+        if(properties.getEventBusClusterPublicPort() != -1) {
+            ret.setClusterPublicPort(properties.getEventBusClusterPublicPort());
+        }
+        ret.setClusterPublicHost(properties.getEventBusClusterPublicHost());
 
         if(properties.getEventBusClusterHost() == null) { // TODO: look into removing this logic all together
             for (String ip : U.allLocalIps()) {

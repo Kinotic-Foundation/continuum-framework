@@ -6,4 +6,4 @@ spring:
 logging:
   level:
     org:
-      mindignited: INFO
+      kinotic: INFO

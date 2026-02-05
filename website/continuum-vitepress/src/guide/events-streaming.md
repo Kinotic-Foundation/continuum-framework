@@ -84,10 +84,10 @@ To publish events, you create an event with a CRI destination and send it.
 ### Publishing Events
 
 ```java
-import org.mindignited.continuum.core.api.event.EventService;
-import org.mindignited.continuum.core.api.event.CRI;
-import org.mindignited.continuum.core.api.event.Event;
-import org.mindignited.continuum.core.api.event.DefaultEvent;
+import org.kinotic.continuum.core.api.event.EventService;
+import org.kinotic.continuum.core.api.event.CRI;
+import org.kinotic.continuum.core.api.event.Event;
+import org.kinotic.continuum.core.api.event.DefaultEvent;
 
 @Service
 public class SensorService {

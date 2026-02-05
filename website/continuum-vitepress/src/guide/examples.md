@@ -85,21 +85,21 @@ public class MyApplication {
 ```java
 package com.example.api;
 
-import org.mindignited.continuum.api.annotations.Publish;
+import org.kinotic.continuum.api.annotations.Publish;
 
 import java.util.List;
 
 @Publish
 public interface TodoService {
-   List<Todo> getAllTodos();
+    List<Todo> getAllTodos();
 
-   Todo getTodo(Long id);
+    Todo getTodo(Long id);
 
-   Todo createTodo(Todo todo);
+    Todo createTodo(Todo todo);
 
-   Todo updateTodo(Todo todo);
+    Todo updateTodo(Todo todo);
 
-   void deleteTodo(Long id);
+    void deleteTodo(Long id);
 }
 ```
 

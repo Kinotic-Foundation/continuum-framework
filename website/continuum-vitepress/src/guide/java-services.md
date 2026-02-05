@@ -13,7 +13,7 @@ The `@Publish` annotation tells Continuum that this interface should be made ava
 ### Basic Usage
 
 ```java
-import org.mindignited.continuum.api.annotations.Publish;
+import org.kinotic.continuum.api.annotations.Publish;
 
 @Publish
 public interface StoreService {
@@ -114,7 +114,7 @@ public interface StoreService {
 For services that need security context (authentication, authorization, tenant information), you can include a `Participant` parameter:
 
 ```java
-import org.mindignited.continuum.api.security.Participant;
+import org.kinotic.continuum.api.security.Participant;
 
 @Publish
 public interface SecureService {
@@ -220,8 +220,8 @@ package com.coolcompany.ecommerce_main.api;
 import com.coolcompany.ecommerce_main.api.domain.Category;
 import com.coolcompany.ecommerce_main.api.domain.CheckoutInfo;
 import com.coolcompany.ecommerce_main.api.domain.Product;
-import org.mindignited.continuum.api.annotations.Publish;
-import org.mindignited.continuum.api.annotations.Version;
+import org.kinotic.continuum.api.annotations.Publish;
+import org.kinotic.continuum.api.annotations.Version;
 import reactor.core.publisher.Mono;
 
 import java.util.List;

@@ -1,6 +1,6 @@
-![CI](https://github.com/MindIgnited/continuum-framework/actions/workflows/gradle-build.yml/badge.svg?branch=develop)
+![CI](https://github.com/MindsIgnited/continuum-framework/actions/workflows/gradle-build.yml/badge.svg?branch=develop)
 
-[![javadoc](https://javadoc.io/badge2/org.mindignited/continuum-core/javadoc.svg)](https://javadoc.io/doc/org.mindignited/continuum-core)
+[![javadoc](https://javadoc.io/badge2/org.kinotic/continuum-core/javadoc.svg)](https://javadoc.io/doc/org.mindignited/continuum-core)
 
 # The Continuum Framework
 

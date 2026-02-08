@@ -15,7 +15,7 @@ hero:
       link: /guide/quick-start
     - theme: alt
       text: View on GitHub
-      link: https://github.com/MindIgnited/continuum-framework
+      link: https://github.com/MindsIgnited/continuum-framework
 
 features:
   - icon:

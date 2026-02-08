@@ -8,7 +8,7 @@ This section provides complete examples and tutorials for building applications 
 
 ## CoolCommerce Example
 
-The [CoolCommerce](https://github.com/MindIgnited/continuum-examples/tree/main/CoolCommerce) project is a complete e-commerce application demonstrating Continuum's multi-service architecture.
+The [CoolCommerce](https://github.com/MindsIgnited/continuum-examples/tree/main/CoolCommerce) project is a complete e-commerce application demonstrating Continuum's multi-service architecture.
 
 ### Architecture
 
@@ -29,7 +29,7 @@ CoolCommerce consists of:
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/MindIgnited/continuum-examples.git
+   git clone https://github.com/MindsIgnited/continuum-examples.git
    cd continuum-examples/CoolCommerce
    ```
 
@@ -48,7 +48,7 @@ CoolCommerce consists of:
    - Frontend: [http://localhost:9090](http://localhost:9090)
    - Gateway: [localhost:58503](localhost:58503)
 
-See the [CoolCommerce README](https://github.com/MindIgnited/continuum-examples/blob/main/CoolCommerce/README.md) for detailed setup instructions.
+See the [CoolCommerce README](https://github.com/MindsIgnited/continuum-examples/blob/main/CoolCommerce/README.md) for detailed setup instructions.
 
 ## Building a Simple Service
 
@@ -61,9 +61,9 @@ Create a new Spring Boot application and add Continuum dependencies:
 ```gradle
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter'
-    implementation "org.mindignited:continuum-core:${continuumVersion}"
-    implementation "org.mindignited:continuum-core-vertx:${continuumVersion}"
-    implementation "org.mindignited:continuum-gateway:${continuumVersion}"
+    implementation "org.kinotic:continuum-core:${continuumVersion}"
+    implementation "org.kinotic:continuum-core-vertx:${continuumVersion}"
+    implementation "org.kinotic:continuum-gateway:${continuumVersion}"
 }
 ```
 
@@ -154,7 +154,7 @@ public class DefaultTodoService implements TodoService {
 ### Step 5: Create TypeScript Client
 
 ```typescript
-import { IServiceProxy, Continuum } from '@mindignited/continuum-client'
+import { IServiceProxy, Continuum } from '@kinotic/continuum-client'
 
 export interface ITodoService {
     getAllTodos(): Promise<Todo[]>
@@ -200,7 +200,7 @@ export const TODO_SERVICE: ITodoService = new TodoService()
 ### Step 6: Connect and Use
 
 ```typescript
-import { Continuum } from '@mindignited/continuum-client'
+import { Continuum } from '@kinotic/continuum-client'
 import { TODO_SERVICE } from './services/todoService'
 
 // Connect
@@ -222,14 +222,14 @@ This tutorial shows how to integrate Continuum into a Vue.js frontend applicatio
 ### Step 1: Install Dependencies
 
 ```bash
-npm install @mindignited/continuum-client
+npm install @kinotic/continuum-client
 ```
 
 ### Step 2: Create Connection State
 
 ```typescript
 // stores/connection.ts
-import { ConnectedInfo, ConnectionInfo, Continuum } from '@mindignited/continuum-client'
+import { ConnectedInfo, ConnectionInfo, Continuum } from '@kinotic/continuum-client'
 import { reactive } from 'vue'
 
 export class ConnectionState {
@@ -254,7 +254,7 @@ export const connectionState = reactive(new ConnectionState())
 
 ```typescript
 // services/storeService.ts
-import { IServiceProxy, Continuum } from '@mindignited/continuum-client'
+import { IServiceProxy, Continuum } from '@kinotic/continuum-client'
 
 export class StoreService {
     protected serviceProxy: IServiceProxy
@@ -422,7 +422,7 @@ These examples demonstrate:
 - **Frontend Integration**: Vue.js integration patterns
 - **Multi-Service Architecture**: Complex distributed system patterns
 
-For more examples, check out the [CoolCommerce project](https://github.com/MindIgnited/continuum-examples/tree/main/CoolCommerce) for a complete production-ready example.
+For more examples, check out the [CoolCommerce project](https://github.com/MindsIgnited/continuum-examples/tree/main/CoolCommerce) for a complete production-ready example.
 
 ## What's Next?
 

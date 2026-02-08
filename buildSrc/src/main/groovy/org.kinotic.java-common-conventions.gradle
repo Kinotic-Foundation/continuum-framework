@@ -35,7 +35,7 @@ dependencyManagement {
     dependencies {
         dependency "commons-io:commons-io:${commonsIoVersion}"
 
-        dependency "org.mindignited:vertx-stomp-lite:${vertxStompLiteVersion}"
+        dependency "org.kinotic:vertx-stomp-lite:${vertxStompLiteVersion}"
 
         dependency "io.vertx:vertx-core:${vertxVersion}"
         dependency "io.vertx:vertx-web:${vertxVersion}"

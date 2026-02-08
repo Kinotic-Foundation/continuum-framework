@@ -1,7 +1,6 @@
 {
-  "name": "@mindignited/continuum-idl",
+  "name": "@kinotic/continuum-idl",
   "version": "2.0.5",
-  "author": "Mind Ignited <develop@mindignited.com>",
   "license": "Apache-2.0",
   "type": "module",
   "main": "./dist/continuum-idl.cjs",

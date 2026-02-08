@@ -21,7 +21,7 @@ export default defineConfig({
     },
 
     socialLinks: [
-      { icon: 'github', link: ' https://github.com/mindignited/continuum-framework' }
+      { icon: 'github', link: ' https://github.com/mindsignited/continuum-framework' }
     ],
     footer: {
       message: 'Released under the Apache License.',
@@ -40,7 +40,7 @@ function nav() {
     },
     {
       text: 'Test Status',
-      link: 'https://mindignited.github.io/continuum-framework/allure' // Fully qualified URL
+      link: 'https://mindsignited.github.io/continuum-framework/allure' // Fully qualified URL
     }
   ]
 }
@@ -85,7 +85,7 @@ function sidebarReference() {
     {
       text: 'API',
       items: [
-        { text: 'Javadoc', link: 'https://www.javadoc.io/doc/org.mindignited/continuum-core' }
+        { text: 'Javadoc', link: 'https://www.javadoc.io/doc/org.mindsignited/continuum-core' }
       ]
     }
   ]

@@ -24,9 +24,9 @@ dependencies {
 bootBuildImage {
 	network = "host"
 	publish = !version.endsWith('SNAPSHOT')
-	imageName = "mindignited/${project.name}:${project.version}"
+	imageName = "kinoticai/${project.name}:${project.version}"
 	tags = [
-			"mindignited/${project.name}:latest"
+			"kinoticai/${project.name}:latest"
 	]
 	environment = [
 			"BPE_DELIM_JAVA_TOOL_OPTIONS" : " ",

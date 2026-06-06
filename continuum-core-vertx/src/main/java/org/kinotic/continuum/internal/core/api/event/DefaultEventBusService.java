@@ -56,6 +56,8 @@ import javax.cache.event.CacheEntryListener;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Default implementation of {@link EventBusService} using the vertx {@link io.vertx.core.eventbus.EventBus} as a backend
@@ -76,6 +78,15 @@ public class DefaultEventBusService implements EventBusService {
     private IgniteCache<String, Set<IgniteRegistrationInfo>> subscriptionsCache;
     @Autowired
     private Vertx vertx;
+    /**
+     * Reference counted set of event bus addresses this node hosts a local handler for.
+     * An entry is added by {@link #_listen} when a consumer's handler is attached on this node and removed
+     * when that consumer is unregistered, so membership means "a local consumer exists at this address".
+     * This is local by construction: {@link #_listen} only ever registers consumers on this node, other nodes'
+     * registrations live solely in the cluster's subscription registry. The send path uses this to prefer
+     * local delivery for service RPCs and avoid an unnecessary cluster hop.
+     */
+    private final Map<String, Integer> localListenerCounts = new ConcurrentHashMap<>();
 
     @PostConstruct
     public void init(){
@@ -111,7 +122,7 @@ public class DefaultEventBusService implements EventBusService {
 
         return Mono.create(sink -> {
             final MessageConsumer<byte[]> consumer = vertx.eventBus().consumer(cri);
-            final ConnectableFlux<Event<byte[]>> flux = _listen(null, consumer).publish();
+            final ConnectableFlux<Event<byte[]>> flux = _listen(cri, consumer).publish();
             consumer.completion().onComplete(ar ->{
                 if(ar.succeeded()){
                     sink.success(flux);
@@ -185,8 +196,9 @@ public class DefaultEventBusService implements EventBusService {
 
     @Override
     public void send(Event<byte[]> event) {
-        DeliveryOptions deliveryOptions = createDeliveryOptions(event);
-        vertx.eventBus().send(event.cri().baseResource(),
+        String baseResource = event.cri().baseResource();
+        DeliveryOptions deliveryOptions = createDeliveryOptions(event, baseResource);
+        vertx.eventBus().send(baseResource,
                               event.data(),
                               deliveryOptions);
     }
@@ -195,10 +207,11 @@ public class DefaultEventBusService implements EventBusService {
     public Mono<Void> sendWithAck(Event<byte[]> event) {
         Validate.notNull(event, "Event must not be null");
         return Mono.create(sink -> {
-            DeliveryOptions deliveryOptions = createDeliveryOptions(event);
+            String baseResource = event.cri().baseResource();
+            DeliveryOptions deliveryOptions = createDeliveryOptions(event, baseResource);
             // We expect that a response will be sent upon receipt. This will happen automatically if the listener is created with this class.
             vertx.eventBus()
-                 .request(event.cri().baseResource(),
+                 .request(baseResource,
                           event.data(),
                           deliveryOptions)
                  .onComplete(reply -> {
@@ -220,8 +233,20 @@ public class DefaultEventBusService implements EventBusService {
         }
 
         Flux<Event<byte[]>> ret = Flux.create(fluxSink -> {
+            // Record that this node now hosts a local handler for cri. Done here, where the consumer's handler is
+            // attached, and undone in onDispose, where the consumer is unregistered, so the count is coupled to the
+            // consumer's actual registration lifecycle on this node.
+            localListenerCounts.merge(cri, 1, Integer::sum);
+            final AtomicBoolean unregistered = new AtomicBoolean(false);
+
             // Setup all required handlers that are needed prior to consuming messages
-            fluxSink.onDispose(consumer::unregister);
+            fluxSink.onDispose(() -> {
+                // Decrement exactly once on the first unregister, removing the entry when no local handlers remain.
+                if(unregistered.compareAndSet(false, true)){
+                    localListenerCounts.computeIfPresent(cri, (k, n) -> n == 1 ? null : n - 1);
+                }
+                consumer.unregister();
+            });
 
             // TODO: deal with back pressure properly.. ?
             //fluxSink.onRequest()
@@ -245,7 +270,7 @@ public class DefaultEventBusService implements EventBusService {
         return ret; // ensure message delivery happens on vertx event loop, not sure but this by itself did not move the next above to the work loop
     }
 
-    private DeliveryOptions createDeliveryOptions(Event<?> event){
+    private DeliveryOptions createDeliveryOptions(Event<?> event, String baseResource){
         DeliveryOptions deliveryOptions = new DeliveryOptions();
         deliveryOptions.setTracingPolicy(TracingPolicy.IGNORE);
         // fast path for MultiMapMetadataAdapter's
@@ -257,7 +282,29 @@ public class DefaultEventBusService implements EventBusService {
             }
         }
         deliveryOptions.addHeader(EventConstants.CRI_HEADER, event.cri().raw());
+
+        // Prefer local delivery when this node already hosts a handler for the target service address.
+        // In the clustered event bus the point-to-point selector round-robins sends across every node
+        // registered for the address, so without this ~half of a node's own service calls get shipped to a
+        // remote node. localOnly=true bypasses the cluster selector and delivers to the local handler.
+        // Only set when this node actually hosts a handler, otherwise localOnly would fail with NO_HANDLERS.
+        if(shouldPreferLocalDelivery(event, baseResource)){
+            deliveryOptions.setLocalOnly(true);
+        }
+
         return deliveryOptions;
+    }
+
+    /**
+     * Determines if a send to the given {@code baseResource} should be delivered to a local handler only.
+     * True only for point-to-point {@link EventConstants#SERVICE_DESTINATION_SCHEME service} sends whose
+     * address is currently hosted by a local handler on this node. This is a lock free
+     * {@link Map#containsKey} plus a scheme check, no cluster or registry query.
+     * Package private for testing.
+     */
+    boolean shouldPreferLocalDelivery(Event<?> event, String baseResource){
+        return EventConstants.SERVICE_DESTINATION_SCHEME.equals(event.cri().scheme())
+                && localListenerCounts.containsKey(baseResource);
     }
 
 }

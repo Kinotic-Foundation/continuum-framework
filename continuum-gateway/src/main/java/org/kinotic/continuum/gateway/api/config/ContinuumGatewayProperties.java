@@ -40,6 +40,13 @@ public class ContinuumGatewayProperties {
 
     private StompServerOptions stomp;
 
+    /**
+     * The port the stomp server listens on.
+     * As of vertx-stomp-lite 6 the port is no longer part of {@link StompServerOptions}, it is set on the
+     * {@link io.vertx.core.http.HttpServerOptions} the stomp verticle is created with.
+     */
+    private int stompPort = DEFAULT_STOMP_PORT;
+
     private final ContinuumRestServerProperties rest = new ContinuumRestServerProperties();
 
     /**
@@ -50,7 +57,6 @@ public class ContinuumGatewayProperties {
 
     public ContinuumGatewayProperties(ContinuumProperties continuumProperties) {
         stomp = new StompServerOptions()
-                .setPort(DEFAULT_STOMP_PORT)
                 .setWebsocketPath(DEFAULT_STOMP_WEBSOCKET_PATH)
                 .setDebugEnabled(continuumProperties.isDebug());
     }

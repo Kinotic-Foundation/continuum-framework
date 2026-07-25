@@ -60,6 +60,8 @@ public class ContinuumVertcleFactory {
         // we override the body length with the continuum properties
         stompServerOptions.setMaxBodyLength(continuumProperties.getMaxEventPayloadSize());
         HttpServerOptions serverOptions = new HttpServerOptions();
+        // as of vertx-stomp-lite 6 the stomp port is configured on the http server options
+        serverOptions.setPort(gatewayProperties.getStompPort());
         serverOptions.setWebSocketSubProtocols(List.of("v12.stomp"));
         serverOptions.setMaxWebSocketFrameSize(continuumProperties.getMaxEventPayloadSize());
 

@@ -25,7 +25,8 @@ bootBuildImage {
 	network = "host"
 	publish = true
 	imageName = "mindsignited/${project.name}:${project.version}"
-	tags = (!version.endsWith('SNAPSHOT') ?
+	// Only release versions (no -SNAPSHOT / -prN.sha suffix) may claim the latest tag
+	tags = (!version.contains('-') ?
 			[
 					"mindsignited/${project.name}:latest"
 			]

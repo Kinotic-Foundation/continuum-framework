@@ -8,15 +8,22 @@ on:
     paths-ignore:
       - 'website/**'
       - 'continuum-js/**'
+  pull_request:
+    branches:
+      - develop
+    paths-ignore:
+      - 'website/**'
+      - 'continuum-js/**'
+
+concurrency:
+  group: gradle-build-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   gradle_build_and_publish:
     name: Build and Publish
     runs-on: ubuntu-latest
     steps:
-      - name: Cancel Previous Runs
-        uses: styfle/cancel-workflow-action@0.12.1
-
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -31,13 +38,30 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
+      # PR builds get a unique version (<base>-pr<PR#>.<sha>) so the resulting
+      # Docker image can be pulled locally to test the PR before merging.
+      - name: Determine build version
+        id: ver
+        run: |
+          BASE=$(grep '^continuumVersion=' gradle.properties | cut -d= -f2)
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            SHORT_SHA=$(echo "${{ github.event.pull_request.head.sha }}" | cut -c1-7)
+            VERSION="${BASE%-SNAPSHOT}-pr${{ github.event.pull_request.number }}.${SHORT_SHA}"
+            echo "gradle_args=-PcontinuumVersion=${VERSION}" >> "$GITHUB_OUTPUT"
+          else
+            VERSION="${BASE}"
+            echo "gradle_args=" >> "$GITHUB_OUTPUT"
+          fi
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "Building version ${VERSION}"
+
       - name: Build with Gradle
         id: gradle_build
         continue-on-error: true
-        run: ./gradlew build
+        run: ./gradlew build ${{ steps.ver.outputs.gradle_args }}
 
       - name: Publish to Maven Central with JReleaser
-        if: ${{ steps.gradle_build.outcome == 'success' }}
+        if: ${{ github.event_name == 'push' && steps.gradle_build.outcome == 'success' }}
         run: ./gradlew publish && ./gradlew jreleaserDeploy --info
         env:
           JRELEASER_MAVENCENTRAL_USERNAME: ${{ secrets.MAVEN_TOKEN_USERNAME }}
@@ -47,9 +71,11 @@ jobs:
           JRELEASER_GPG_SECRET_KEY: ${{ secrets.GPG_KEY_NEW }}
           JRELEASER_GPG_PASSPHRASE: ${{ secrets.GPG_KEY_PASS_NEW }}
 
+      # Fork and dependabot PRs do not receive the Docker Hub secrets, so only
+      # publish images for pushes and same-repo PRs.
       - name: Publish to Docker Hub
-        if: ${{ steps.gradle_build.outcome == 'success' }}
-        run: ./gradlew bootBuildImage --publishImage
+        if: ${{ steps.gradle_build.outcome == 'success' && (github.event_name == 'push' || (github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]')) }}
+        run: ./gradlew bootBuildImage --publishImage ${{ steps.ver.outputs.gradle_args }}
         env:
           DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
           DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}

@@ -7,12 +7,16 @@ on:
       - master
     paths-ignore:
       - 'website/**'
+      - 'continuum-js/**'
 
 jobs:
   gradle_build_and_publish:
     name: Build and Publish
     runs-on: ubuntu-latest
     steps:
+      - name: Cancel Previous Runs
+        uses: styfle/cancel-workflow-action@0.12.1
+
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -34,7 +38,7 @@ jobs:
 
       - name: Publish to Maven Central with JReleaser
         if: ${{ steps.gradle_build.outcome == 'success' }}
-        run: ./gradlew publish && ./gradlew jreleaserDeploy
+        run: ./gradlew publish && ./gradlew jreleaserDeploy --info
         env:
           JRELEASER_MAVENCENTRAL_USERNAME: ${{ secrets.MAVEN_TOKEN_USERNAME }}
           JRELEASER_MAVENCENTRAL_TOKEN: ${{ secrets.MAVEN_TOKEN_PASSWORD }}
@@ -61,8 +65,7 @@ jobs:
       - name: Merge Test Results
         run: |
           mkdir -p allure-results
-          cp -r */build/allure-results/* allure-results/
-#          cp -r continuum-js/*/allure-results/* allure-results/
+          cp -r */build/allure-results/* allure-results/ || true
 
       - name: Get Allure history
         uses: actions/checkout@v4

@@ -38,18 +38,24 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      # PR builds get a unique version (<base>-pr<PR#>.<sha>) so the resulting
-      # Docker image can be pulled locally to test the PR before merging.
+      # gradle.properties holds the plain version. Effective version by event:
+      #   PR           -> <base>-pr<PR#>.<sha>  (pullable image to test the PR)
+      #   develop push -> <base>-SNAPSHOT       (development build)
+      #   master push  -> <base>                (release, published as-is)
       - name: Determine build version
         id: ver
         run: |
           BASE=$(grep '^continuumVersion=' gradle.properties | cut -d= -f2)
+          BASE=${BASE%-SNAPSHOT}
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
             SHORT_SHA=$(echo "${{ github.event.pull_request.head.sha }}" | cut -c1-7)
-            VERSION="${BASE%-SNAPSHOT}-pr${{ github.event.pull_request.number }}.${SHORT_SHA}"
+            VERSION="${BASE}-pr${{ github.event.pull_request.number }}.${SHORT_SHA}"
             echo "gradle_args=-PcontinuumVersion=${VERSION}" >> "$GITHUB_OUTPUT"
-          else
+          elif [[ "${{ github.ref_name }}" == "master" ]]; then
             VERSION="${BASE}"
+            echo "gradle_args=-Prelease" >> "$GITHUB_OUTPUT"
+          else
+            VERSION="${BASE}-SNAPSHOT"
             echo "gradle_args=" >> "$GITHUB_OUTPUT"
           fi
           echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
@@ -62,7 +68,7 @@ jobs:
 
       - name: Publish to Maven Central with JReleaser
         if: ${{ github.event_name == 'push' && steps.gradle_build.outcome == 'success' }}
-        run: ./gradlew publish && ./gradlew jreleaserDeploy --info
+        run: ./gradlew publish ${{ steps.ver.outputs.gradle_args }} && ./gradlew jreleaserDeploy --info ${{ steps.ver.outputs.gradle_args }}
         env:
           JRELEASER_MAVENCENTRAL_USERNAME: ${{ secrets.MAVEN_TOKEN_USERNAME }}
           JRELEASER_MAVENCENTRAL_TOKEN: ${{ secrets.MAVEN_TOKEN_PASSWORD }}
